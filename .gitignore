@@ -48,3 +48,16 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Python vitual env
+
+*venv*/
+
+# Mypy cache
+
+.mypy_cache/
+
+# IDE files
+
+.idea/
+.project
+.pydevproject

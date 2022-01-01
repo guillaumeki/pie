@@ -1,0 +1,53 @@
+"""
+Created on 26 déc. 2021
+
+@author: guillaume
+"""
+import typing
+from abc import ABC, abstractmethod
+
+from api.atom.term.constant import Constant
+from api.atom.term.term import Term
+from api.atom.term.variable import Variable
+
+
+class Query(ABC):
+    def __init__(self,
+                 answer_variables: typing.Iterable[Variable] = None,
+                 label: typing.Optional[str] = None):
+        if not answer_variables:
+            answer_variables = ()
+        self._answer_variables = answer_variables
+        self._label = label
+
+    @property
+    @abstractmethod
+    def terms(self) -> set[Term]:
+        pass
+
+    @property
+    @abstractmethod
+    def constants(self) -> set[Constant]:
+        pass
+
+    @property
+    @abstractmethod
+    def variables(self) -> set[Variable]:
+        pass
+
+    @property
+    def answer_variables(self) -> tuple[Variable]:
+        return self._answer_variables
+
+    @property
+    def label(self) -> typing.Optional[str]:
+        return self._label
+
+    @abstractmethod
+    def query_with_other_answer_variables(self, answers_variables: tuple[Variable]) -> 'Query':
+        pass
+
+    @property
+    @abstractmethod
+    def str_without_answer_variables(self) -> str:
+        pass
