@@ -6,7 +6,7 @@ from api.atom.term.constant import Constant
 from api.atom.frozen_atom_set import FrozenAtomSet
 from api.ontology.constraint.negative_constraint import NegativeConstraint
 from api.atom.predicate import Predicate
-from api.ontology.rule_base.rule import Rule
+from api.ontology.rule.rule import Rule
 from api.atom.term.variable import Variable
 
 
@@ -56,7 +56,7 @@ class Dlgp2Transformer(Transformer):
 
     @staticmethod
     def document(*x):
-        return {k: v for e in x[0] for k, v in e.items()}
+        return {k: v for e in x[0] for k, v in e.graph()}
 
     @staticmethod
     def __identity(x):

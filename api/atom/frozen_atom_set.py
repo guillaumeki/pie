@@ -13,7 +13,7 @@ class FrozenAtomSet(AtomSet):
     def __init__(self, iterable: Iterable[Atom] = None):
         if not iterable:
             iterable = ()
-        super().__init__(frozenset(iterable))
+        AtomSet.__init__(frozenset(iterable))
 
     def __repr__(self) -> str:
         return "FrozenAtomSet: "+str(self)

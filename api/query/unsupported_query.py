@@ -1,0 +1,2 @@
+class UnsupportedQuery(Exception):
+    pass

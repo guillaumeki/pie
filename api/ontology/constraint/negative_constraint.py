@@ -22,4 +22,4 @@ class NegativeConstraint:
     def __str__(self):
         return "{}{} -> \u22A5".format(
             "" if not self.label else "["+str(self.label)+"] ",
-            str(self.body.str_without_answer_variables()))
+            str(self.body.str_without_answer_variables))

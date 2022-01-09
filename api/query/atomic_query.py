@@ -17,7 +17,7 @@ class AtomicQuery(Query):
                  atom: Atom,
                  answer_variables: typing.Iterable[Variable] = None,
                  label: typing.Optional[str] = None):
-        super().__init__(answer_variables, label)
+        Query.__init__(answer_variables, label)
         self._atom = atom
 
     @property

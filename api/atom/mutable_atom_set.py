@@ -14,7 +14,7 @@ class MutableAtomSet(AtomSet, MutableSet):
     def __init__(self, iterable: Iterable[Atom] = None):
         if not iterable:
             iterable = ()
-        super().__init__(set(iterable))
+        AtomSet.__init__(set(iterable))
 
     def add(self, atom: Atom) -> None:
         self._set.add(atom)

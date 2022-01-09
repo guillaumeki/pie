@@ -6,7 +6,7 @@ from api.atom.atom_set import AtomSet
 from api.query.conjunctive_query import ConjunctiveQuery
 from api.atom.mutable_atom_set import MutableAtomSet
 from api.ontology.constraint.negative_constraint import NegativeConstraint
-from api.ontology.rule_base.rule import Rule
+from api.ontology.rule.rule import Rule
 from parser.dlgp.dlgp2_transformer import Dlgp2Transformer
 
 

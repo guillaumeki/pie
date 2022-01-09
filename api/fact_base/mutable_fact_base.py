@@ -1,12 +1,17 @@
-from typing import Type, Tuple, List
+from abc import abstractmethod
+from typing import Iterable
 
-from api.atom.term.term import Term
-from api.fact_base.fact_base import FactBase
-from api.query.atomic_query import AtomicQuery
-from api.query.query import Query
+from api.atom.atom import Atom
+from api.fact_base.fact_base import FactBase, fact_base_operation
 
 
 class MutableFactBase(FactBase):
-    @classmethod
-    def get_supported_query_types(cls) -> Tuple[Type[Query]]:
-        return AtomicQuery,
+    @abstractmethod
+    @fact_base_operation
+    def add(self, atom: Atom):
+        pass
+
+    @fact_base_operation
+    def update(self, atoms: Iterable[Atom]):
+        for atom in atoms:
+            self.add(atom)

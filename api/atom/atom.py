@@ -36,6 +36,21 @@ class Atom:
                 filter(lambda t: isinstance(t, Constant),
                        self.terms)}
 
+    def is_more_specific_than(self, other: "Atom", freeze: frozenset[Variable] = ()) -> bool:
+        if self.predicate != other.predicate:
+            return False
+
+        for i in range(self.predicate.arity):
+            match other.terms[i]:
+                case Constant():
+                    if other.terms[i] != self.terms[i]:
+                        return False
+                case Variable():
+                    if other.terms[i] in freeze and other.terms[i] != self.terms[i]:
+                        return False
+
+        return True
+
     def __repr__(self) -> str:
         return str(self.predicate)\
             + "(" + ", ".join(map(str, self.terms)) + ")"

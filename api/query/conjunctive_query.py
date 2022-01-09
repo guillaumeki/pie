@@ -18,7 +18,7 @@ class ConjunctiveQuery(Query):
                  atoms: typing.Iterable[Atom] = None,
                  answer_variables: typing.Iterable[Variable] = None,
                  label: typing.Optional[str] = None):
-        super().__init__(answer_variables, label)
+        Query.__init__(answer_variables, label)
         if not atoms:
             self._atoms = FrozenAtomSet()
         elif isinstance(atoms, FrozenAtomSet):
