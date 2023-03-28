@@ -5,6 +5,7 @@ Created on 26 déc. 2021
 """
 import typing
 from abc import ABC, abstractmethod
+from functools import cache, cached_property
 
 from api.atom.term.constant import Constant
 from api.atom.term.term import Term
@@ -17,7 +18,7 @@ class Query(ABC):
                  label: typing.Optional[str] = None):
         if not answer_variables:
             answer_variables = ()
-        self._answer_variables = answer_variables
+        self._answer_variables = tuple(answer_variables)
         self._label = label
 
     @property
@@ -34,6 +35,10 @@ class Query(ABC):
     @abstractmethod
     def variables(self) -> set[Variable]:
         pass
+
+    @cached_property
+    def existential_variables(self) -> set[Variable]:
+        return self.variables - set(self.answer_variables)
 
     @property
     def answer_variables(self) -> tuple[Variable]:

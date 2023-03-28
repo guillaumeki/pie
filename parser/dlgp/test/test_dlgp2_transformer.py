@@ -20,7 +20,9 @@ class TestDlgp2Transformer(TestCase):
         Y=Z :- t(X,Y),t(X,Z).
         s(a) :- .
         s(Z) :- a=b, X=Y, X=a, p(X,Y).
-        @query
+        <G>(X); <R>(X) :- <V>(X).
+        <s1>(Y); <s2>(X) :- p(X,Y).
+        @queries
         [q1] ? (X) :- p(X), relatedTo(X,Z), t(a,Z).
         [Query2] ? (X,Y) :- relatedTo(X,X), Y=a.
         ? :- p(X).

@@ -13,7 +13,7 @@ class Constant(Term):
         return Term.__new__(cls)
 
     def __init__(self, identifier):
-        Term.__init__(identifier)
+        Term.__init__(self, identifier)
 
     def __repr__(self):
         return "Cst:" + str(self)

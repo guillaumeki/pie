@@ -8,12 +8,24 @@ from functools import cache
 
 
 class Variable(Term):
-    @cache
+    fresh_counter = 0
+    variables = {}
+
     def __new__(cls, identifier):
-        return Term.__new__(cls)
+        if identifier not in cls.variables:
+            cls.variables[identifier] = Term.__new__(cls)
+        return cls.variables[identifier]
 
     def __init__(self, identifier):
-        Term.__init__(identifier)
+        Term.__init__(self, identifier)
 
     def __repr__(self):
         return "Var:"+str(self)
+
+    @classmethod
+    def fresh_variable(cls) -> "Variable":
+        identifier = "V" + str(cls.fresh_counter)
+        while identifier in cls.variables:
+            cls.fresh_counter += 1
+            identifier = "V" + str(cls.fresh_counter)
+        return Variable(identifier)

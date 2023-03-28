@@ -30,7 +30,7 @@ class Dlgp2Transformer(Transformer):
 
     @staticmethod
     def rule(c):
-        return Rule(body=ConjunctiveQuery(c[2]), head=ConjunctiveQuery(c[1]), label=c[0])
+        return Rule(body=ConjunctiveQuery(c[-1]), head=[ConjunctiveQuery(c[i]) for i in range(1,len(c)-1)], label=c[0])
 
     @staticmethod
     def query(q):
@@ -56,7 +56,7 @@ class Dlgp2Transformer(Transformer):
 
     @staticmethod
     def document(*x):
-        return {k: v for e in x[0] for k, v in e.graph()}
+        return {k: v for e in x[0] for k, v in e.items()}
 
     @staticmethod
     def __identity(x):

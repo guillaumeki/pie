@@ -68,11 +68,11 @@ section:  "@facts" (fact)*
     | "@queries" (query)*
 statement:  fact | rule | constraint | query
 fact:  [ "["label"]" ] not_empty_conjunction "."
-rule:  [ "["label"]" ] not_empty_conjunction ":-" conjunction "."
+rule:  [ "["label"]" ] not_empty_conjunction (";" not_empty_conjunction)* ":-" conjunction "."
 constraint:  [ "["label"]" ] "!" ":-" not_empty_conjunction "."
 query:  [ "[" label "]" ] "?" ["("term_list")"] ":-" conjunction "."
 conjunction:  [not_empty_conjunction]
-not_empty_conjunction:  atom ("," atom)*
+not_empty_conjunction:  atom ("," atom)* | "(" atom ("," atom)* ")"
 atom:  std_atom | equality
 equality:  term "=" term
 std_atom:  predicate"("not_empty_term_list")"

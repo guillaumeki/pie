@@ -51,6 +51,9 @@ class Atom:
 
         return True
 
+    def __getitem__(self, item: int):
+        return self._terms[item]
+
     def __repr__(self) -> str:
         return str(self.predicate)\
             + "(" + ", ".join(map(str, self.terms)) + ")"
