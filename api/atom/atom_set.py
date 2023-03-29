@@ -11,7 +11,7 @@ from api.atom.atom import Atom
 from api.atom.term.constant import Constant
 from api.atom.term.term import Term
 from api.atom.term.variable import Variable
-from api.query.substitution import Substitution
+from api.substitution.substitution import Substitution
 
 
 class AtomSet(AbcSet[Atom]):
@@ -49,4 +49,7 @@ class AtomSet(AbcSet[Atom]):
             yield a
 
     def __str__(self):
-        return "{"+(", ".join(map(str, self._set)))+"}"
+        return " \u2227 ".join(map(str, self._set))
+
+    def __repr__(self):
+        return "<AtomSet: "+(" \u2227 ".join(map(str, self._set)))+">"

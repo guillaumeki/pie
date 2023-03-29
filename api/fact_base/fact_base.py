@@ -1,11 +1,11 @@
-from abc import ABC, abstractmethod, ABCMeta
+from abc import abstractmethod, ABCMeta
 from functools import cache
-from typing import Tuple, List, Callable, FrozenSet, Type, Iterator
+from typing import Tuple, Callable, FrozenSet, Iterable
 
 from api.atom.term.term import Term
 from api.query.query import Query
 from api.query.query_support import QuerySupport
-from api.query.substitution import Substitution
+from api.substitution.substitution import Substitution
 
 
 class UnsupportedFactBaseOperation(Exception):
@@ -64,7 +64,7 @@ class FactBase(QuerySupport, metaclass=MetaFactBase):
     _SUPPORTED_FACT_BASE_OPERATIONS = set()
 
     @abstractmethod
-    def execute_query(self, query: Query, sub: Substitution) -> Iterator[Tuple[Term]]:
+    def execute_query(self, query: Query, sub: Substitution, filter_out_nulls: bool = True) -> Iterable[Tuple[Term]]:
         pass
 
     @classmethod
