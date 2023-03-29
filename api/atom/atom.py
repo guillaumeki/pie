@@ -48,6 +48,7 @@ class Atom:
                 case Variable():
                     if other.terms[i] in freeze and other.terms[i] != self.terms[i]:
                         return False
+                    #TODO: To complete
 
         return True
 
