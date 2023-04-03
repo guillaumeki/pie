@@ -1,0 +1,2 @@
+g(X,a); r(X,Y) :- v(X,Y).
+?(X,Y) :- g(X,Y); r(X,Y), t(X,Y). 
