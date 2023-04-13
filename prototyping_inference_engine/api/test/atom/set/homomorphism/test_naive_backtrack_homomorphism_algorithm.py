@@ -1,10 +1,10 @@
 from unittest import TestCase
 
-from prototyping_inference_engine.api.atom.set.homomorphism.naive_backtrack_homomorphism_algorithm import NaiveBacktrackHomomorphismAlgorithm
+from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.naive_backtrack_homomorphism_algorithm import NaiveBacktrackHomomorphismAlgorithm
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from src.prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestNaiveBacktrackHomomorphismAlgorithm(TestCase):
@@ -72,6 +72,26 @@ class TestNaiveBacktrackHomomorphismAlgorithm(TestCase):
             "to": "p(a, a), p(Y, Z), p(X, Y), p(a, X), p(X, Z).",
             "pre_sub": None,
             "homomorphisms": (Substitution({}),)
+        },
+        {
+            "from": "p(U24, U14), p(U23, U13), p(U13, U24), r(U23), q(U14).",
+            "to": "p(V, W), q(T), p(U, V), p(W, T), r(U).",
+            "pre_sub": Substitution({}),
+            "homomorphisms": (Substitution({Variable("U14"): Variable("T"),
+                                            Variable("U24"): Variable("W"),
+                                            Variable("U13"): Variable("V"),
+                                            Variable("U23"): Variable("U")
+                                            }),)
+        },
+        {
+            "from": "p(V, W), q(T), p(U, V), p(W, T), r(U).",
+            "to": "p(U24, U14), p(U23, U13), p(U13, U24), r(U23), q(U14).",
+            "pre_sub": Substitution({}),
+            "homomorphisms": (Substitution({Variable("T"): Variable("U14"),
+                                            Variable("W"): Variable("U24"),
+                                            Variable("V"): Variable("U13"),
+                                            Variable("U"): Variable("U23")
+                                            }),)
         },
     )
 

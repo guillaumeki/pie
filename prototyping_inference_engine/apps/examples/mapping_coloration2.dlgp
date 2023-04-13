@@ -1,0 +1,3 @@
+hasColor(X, green); hasColor(X, red) :- v(X).
+edgeTarget(X,Y) :- edgeSource(X,Y).
+?() :- hasColor(U, T), edgeTarget(U,V), hasColor(V, T).

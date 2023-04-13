@@ -4,7 +4,7 @@ from typing import TypeVar
 from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
 from prototyping_inference_engine.api.atom.set.core.core_algorithm import CoreAlgorithm
 from prototyping_inference_engine.api.atom.set.homomorphism.homomorphism_algorithm import HomomorphismAlgorithm
-from prototyping_inference_engine.api.atom.set.homomorphism.naive_backtrack_homomorphism_algorithm import NaiveBacktrackHomomorphismAlgorithm
+from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.naive_backtrack_homomorphism_algorithm import NaiveBacktrackHomomorphismAlgorithm
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 

@@ -2,7 +2,7 @@ from functools import cache
 
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.atom.set.homomorphism.homomorphism_algorithm import HomomorphismAlgorithm
-from prototyping_inference_engine.api.atom.set.homomorphism.naive_backtrack_homomorphism_algorithm import NaiveBacktrackHomomorphismAlgorithm
+from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.naive_backtrack_homomorphism_algorithm import NaiveBacktrackHomomorphismAlgorithm
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.containment.query_containment import QueryContainment
 

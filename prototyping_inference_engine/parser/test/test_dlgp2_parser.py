@@ -3,7 +3,7 @@ from unittest import TestCase
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
-from src.prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestDlgp2Parser(TestCase):

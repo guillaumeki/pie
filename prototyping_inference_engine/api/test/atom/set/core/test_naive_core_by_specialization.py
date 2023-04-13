@@ -2,8 +2,8 @@ from unittest import TestCase
 
 from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
 from prototyping_inference_engine.api.atom.set.core.naive_core_by_specialization import NaiveCoreBySpecialization
-from prototyping_inference_engine.api.atom.set.homomorphism.naive_backtrack_homomorphism_algorithm import NaiveBacktrackHomomorphismAlgorithm
-from src.prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.naive_backtrack_homomorphism_algorithm import NaiveBacktrackHomomorphismAlgorithm
+from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestNaiveCoreBySpecialization(TestCase):
@@ -33,5 +33,5 @@ class TestNaiveCoreBySpecialization(TestCase):
             # print(core)
             # print(atom_set)
 
-            self.assertTrue(self._is_a_core(core))
-            self.assertTrue(self._is_equivalent(core, atom_set))
+            self.assertTrue(self._is_a_core(core), f'result: {core}, atom set: {atom_set}')
+            self.assertTrue(self._is_equivalent(core, atom_set), f'result: {core}, atom set: {atom_set}')

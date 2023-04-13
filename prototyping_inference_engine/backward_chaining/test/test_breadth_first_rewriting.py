@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from prototyping_inference_engine.api.query.containment.union_conjunctive_queries_containment import UnionConjunctiveQueriesContainment
 from prototyping_inference_engine.backward_chaining.breadth_first_rewriting import BreadthFirstRewriting
-from src.prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestBreadthFirstRewriting(TestCase):

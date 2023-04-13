@@ -1,7 +1,7 @@
 from unittest import TestCase
 from lark import Lark, Tree, Token
 
-from src.prototyping_inference_engine.parser.dlgp.dlgp2_transformer import Dlgp2Transformer
+from prototyping_inference_engine.parser.dlgp.dlgp2_transformer import Dlgp2Transformer
 
 
 class TestDlgp2Transformer(TestCase):
@@ -36,7 +36,7 @@ class TestDlgp2Transformer(TestCase):
         self.parsing_results = []
         for e in self.examples:
             self.parsing_results.append(self.parser.parse(e))
-            print(self.parsing_results[-1])
+            # print(self.parsing_results[-1])
 
     def test_base_properties(self):
         for r in self.parsing_results:

@@ -1,0 +1,4 @@
+include README.md
+include *.lark
+include *.dlgp
+include *.py

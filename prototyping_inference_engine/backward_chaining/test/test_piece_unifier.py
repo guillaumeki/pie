@@ -4,7 +4,7 @@ from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtom
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import PieceUnifier
-from src.prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestPieceUnifier(TestCase):

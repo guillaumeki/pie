@@ -1,4 +1,5 @@
 from collections.abc import Set
+from functools import cache
 from typing import Union, TypeVar
 from collections.abc import Iterable
 
@@ -34,20 +35,19 @@ class Substitution(dict[Variable, Term]):
         return Substitution({v: self(v) for v in variables if v != self(v)})
 
     def apply(self, other: S1) -> S1:
-        match other:
-            case Variable():
-                if other in self.domain:
-                    return self[other]
-                else:
-                    return other
-            case Atom():
-                return Atom(other.predicate, *(self(t) for t in other.terms))  # type: ignore
-            case Substitutable():
-                return other.apply_substitution(self)
-            case Set() | Iterable():
-                return other.__class__({self(a) for a in other})  # type: ignore
-            case _:
+        if isinstance(other, Variable):
+            if other in self.domain:
+                return self[other]
+            else:
                 return other
+        elif isinstance(other, Atom):
+            return Atom(other.predicate, *(self(t) for t in other.terms))  # type: ignore
+        elif isinstance(other, Substitutable):
+            return other.apply_substitution(self)
+        elif isinstance(other, Set) or isinstance(other, Iterable):
+            return other.__class__({self(a) for a in other})  # type: ignore
+        else:
+            return other
 
     def compose(self, sub: "Substitution") -> "Substitution":
         new_sub = {}
@@ -67,11 +67,10 @@ class Substitution(dict[Variable, Term]):
         return Substitution(self | sub)
 
     def __call__(self, other: S2) -> S2:
-        match other:
-            case Substitution():
-                return self.compose(other)
-            case _:
-                return self.apply(other)
+        if isinstance(other, Substitution):
+            return self.compose(other)
+        else:
+            return self.apply(other)
 
     @staticmethod
     def safe_renaming(variables: Iterable[Variable]) -> "Substitution":
@@ -85,14 +84,13 @@ class Substitution(dict[Variable, Term]):
         sub = Substitution(sub)
 
         for i in range(from_atom.predicate.arity):
-            match from_atom.terms[i]:
-                case Constant():
-                    if from_atom.terms[i] != to_atom.terms[i]:
-                        return None
-                case Variable():
-                    if from_atom.terms[i] in sub.domain and sub(from_atom.terms[i]) != to_atom.terms[i]:
-                        return None
-                    sub[from_atom.terms[i]] = to_atom.terms[i]
+            if isinstance(from_atom.terms[i], Constant):
+                if from_atom.terms[i] != to_atom.terms[i]:
+                    return None
+            elif isinstance(from_atom.terms[i], Variable):
+                if from_atom.terms[i] in sub.domain and sub(from_atom.terms[i]) != to_atom.terms[i]:
+                    return None
+                sub[from_atom.terms[i]] = to_atom.terms[i]
 
         return sub
 

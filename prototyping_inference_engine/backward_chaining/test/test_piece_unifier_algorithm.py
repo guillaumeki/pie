@@ -5,7 +5,7 @@ from prototyping_inference_engine.api.atom.term.term_partition import TermPartit
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import PieceUnifier
 from prototyping_inference_engine.backward_chaining.unifier.piece_unifier_algorithm import PieceUnifierAlgorithm
-from src.prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestPieceUnifierAlgorithm(TestCase):

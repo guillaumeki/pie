@@ -36,11 +36,10 @@ class Dlgp2Parser:
 
         for e in parsing_result:
             if not filter_fun or filter_fun(e):
-                match e:
-                    case AtomSet():
-                        objects.update(e)
-                    case _:
-                        objects.add(e)
+                if isinstance(e, AtomSet):
+                    objects.update(e)
+                else:
+                    objects.add(e)
 
         return objects
 

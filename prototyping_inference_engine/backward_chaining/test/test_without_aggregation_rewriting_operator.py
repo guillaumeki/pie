@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from prototyping_inference_engine.backward_chaining.rewriting_operator.without_aggregation_rewriting_operator import \
     WithoutAggregationRewritingOperator
-from src.prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestWithoutAggregationRewritingOperator(TestCase):
@@ -42,5 +42,5 @@ class TestWithoutAggregationRewritingOperator(TestCase):
             rules = set(Dlgp2Parser.instance().parse_rules(d["rules"]))
             query = next(iter(Dlgp2Parser.instance().parse_union_conjunctive_queries(d["query"])))
             rewriting = rewrite(query, query, rules)
-            print(*rewriting, sep="\n", end="\n"*2)
+            # print(*rewriting, sep="\n", end="\n"*2)
             self.assertEqual(d["len_ucq"], len(rewriting))

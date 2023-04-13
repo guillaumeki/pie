@@ -1,5 +1,6 @@
 from functools import cache
 from math import inf
+from typing import Callable
 
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
@@ -51,7 +52,8 @@ class BreadthFirstRewriting(UcqRewritingAlgorithm):
     def rewrite(self, ucq: UnionConjunctiveQueries,
                 rule_set: set[Rule[ConjunctiveQuery, ConjunctiveQuery]],
                 step_limit: int = inf,
-                verbose: bool = False) -> UnionConjunctiveQueries:
+                verbose: bool = False,
+                printer: "Callable[[UnionConjunctiveQueries, int], None]" = None) -> UnionConjunctiveQueries:
         ucq = self._safe_renaming(ucq, rule_set)
         ucq_new = self._ucq_redundancies_cleaner.compute_cover(ucq)
         ucq_result = ucq_new
@@ -64,7 +66,10 @@ class BreadthFirstRewriting(UcqRewritingAlgorithm):
             ucq_result = self._ucq_redundancies_cleaner.remove_more_specific_than(ucq_result, ucq_new)
             ucq_result |= ucq_new
             if verbose:
-                print(f"The UCQ produced at step {step} contains the following CQs:")
-                print(*ucq_result.conjunctive_queries, sep="\n")
-                print("------------")
+                if printer is None:
+                    print(f"The UCQ produced at step {step} contains the following CQs:")
+                    print(*ucq_result.conjunctive_queries, sep="\n")
+                    print("------------")
+                else:
+                    printer(ucq_result, step)
         return ucq_result

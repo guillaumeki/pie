@@ -4,21 +4,24 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prototyping_inference_engine"
-version = "0.0.6"
+version = "0.0.12"
 authors = [
   { name="Guillaume Pérution-Kihli", email="guillaume.kihli@yahoo.fr" },
 ]
 description = "A library to protorype inference engines"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+  'lark'
+]
 
 [project.scripts]
-disjunctive-rewriter = "prototyping_inference_engine:apps.disjunctive_rewriter.main"
+disjunctive-rewriter = "prototyping_inference_engine.apps.disjunctive_rewriter:main"
 
 [project.urls]
 "Homepage" = "https://bitbucket.org/guillaume-perution-kihli/pie/src/master/"

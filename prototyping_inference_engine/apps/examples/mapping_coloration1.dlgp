@@ -1,0 +1,3 @@
+g(X); r(X) :- v(X).
+te(X,Y) :- se(X,Y).
+?() :- (g(U), te(U,V), g(V)); (r(U), te(U,V), r(V)).

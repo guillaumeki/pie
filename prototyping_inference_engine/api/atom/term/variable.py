@@ -31,8 +31,9 @@ class Variable(Term):
 
     @classmethod
     def safe_renaming(cls, v: "Variable") -> "Variable":
-        identifier = str(v.identifier) + str(cls.fresh_counter)
-        while identifier in cls.variables:
-            cls.fresh_counter += 1
-            identifier = str(v.identifier) + str(cls.fresh_counter)
-        return Variable(identifier)
+        # identifier = str(v.identifier) + str(cls.fresh_counter)
+        # while identifier in cls.variables:
+        #     cls.fresh_counter += 1
+        #     identifier = str(v.identifier) + str(cls.fresh_counter)
+        # return Variable(identifier)
+        return cls.fresh_variable()
