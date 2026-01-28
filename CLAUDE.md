@@ -105,3 +105,7 @@ p(a,b).
 - All substitutable objects implement `apply_substitution(self, sub) -> Self`
 - `Variable.safe_renaming_substitution(vars)` creates fresh variable renaming
 - `atom_operations.specialize(from_atom, to_atom, sub)` for atom specialization
+
+## Code Style
+
+- **Comments must always be in English** - All code comments, docstrings, and inline documentation must be written in English, regardless of the language used in conversation.
