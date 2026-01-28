@@ -1,16 +1,12 @@
-from abc import abstractmethod
+from typing import Protocol, runtime_checkable
 
-from prototyping_inference_engine.api.atom.set.index.IndexedAtomSet import IndexedAtomSet
-from prototyping_inference_engine.api.atom.set.index.index import Index
 from prototyping_inference_engine.api.atom.set.index.index_by_term import IndexByTerm
 
 
-class IndexedByTermAtomSet(IndexedAtomSet):
-    @property
-    @abstractmethod
-    def index_by_term(self) -> IndexByTerm:
-        pass
+@runtime_checkable
+class IndexedByTermAtomSet(Protocol):
+    """Protocol for atom sets that provide an index by term."""
 
     @property
-    def index(self) -> Index:
-        return self.index_by_term
+    def index_by_term(self) -> IndexByTerm:
+        ...

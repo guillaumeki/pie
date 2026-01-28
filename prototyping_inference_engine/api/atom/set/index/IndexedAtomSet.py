@@ -1,11 +1,12 @@
-from abc import abstractmethod
+from typing import Protocol, runtime_checkable
 
-from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
 from prototyping_inference_engine.api.atom.set.index.index import Index
 
 
-class IndexedAtomSet(AtomSet):
+@runtime_checkable
+class IndexedAtomSet(Protocol):
+    """Protocol for atom sets that provide an index."""
+
     @property
-    @abstractmethod
     def index(self) -> Index:
-        pass
+        ...

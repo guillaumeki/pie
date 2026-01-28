@@ -1,21 +1,13 @@
 from collections.abc import Iterable
-from functools import cached_property, cache
+from functools import cached_property
 from collections.abc import Hashable
 from typing import Iterator, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
 from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.scheduler.by_variable_backtrack_scheduler import \
-    ByVariableBacktrackScheduler
-from prototyping_inference_engine.api.atom.set.index.IndexedByTermAndPredicateAtomSet import \
-    IndexedByTermAndPredicateAtomSet
 from prototyping_inference_engine.api.atom.set.index.index import Index
-from prototyping_inference_engine.api.atom.set.index.index_by_predicate import IndexByPredicate
-from prototyping_inference_engine.api.atom.set.index.index_by_term import IndexByTerm
 from prototyping_inference_engine.api.atom.set.index.index_by_term_and_predicate import IndexByTermAndPredicate
-from prototyping_inference_engine.api.atom.set.index.indexed_by_predicate_atom_set import IndexedByPredicateAtomSet
-from prototyping_inference_engine.api.atom.set.index.indexed_by_term_atom_set import IndexedByTermAtomSet
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
@@ -24,7 +16,7 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
-class FrozenAtomSet(IndexedByTermAndPredicateAtomSet, Hashable):
+class FrozenAtomSet(AtomSet, Hashable):
     def __init__(self, iterable: Iterable[Atom] = None):
         if not iterable:
             iterable = ()
@@ -56,12 +48,20 @@ class FrozenAtomSet(IndexedByTermAndPredicateAtomSet, Hashable):
     def index_by_term_and_predicate(self) -> IndexByTermAndPredicate:
         return IndexByTermAndPredicate(self)
 
-    @cached_property
-    def backtrack_scheduler(self):
-        return ByVariableBacktrackScheduler(self)
+    @property
+    def index_by_term(self) -> IndexByTermAndPredicate:
+        return self.index_by_term_and_predicate
+
+    @property
+    def index_by_predicate(self) -> IndexByTermAndPredicate:
+        return self.index_by_term_and_predicate
+
+    @property
+    def index(self) -> Index:
+        return self.index_by_term_and_predicate
 
     def match(self, atom: Atom, sub: "Substitution" = None) -> Iterator[Atom]:
-        return self.index_by_predicate.match(atom, sub)
+        return self.index_by_term_and_predicate.match(atom, sub)
 
     def apply_substitution(self, substitution: "Substitution") -> "FrozenAtomSet":
         return FrozenAtomSet(a.apply_substitution(substitution) for a in self)
