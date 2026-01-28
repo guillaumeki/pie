@@ -3,18 +3,19 @@ Created on 26 déc. 2021
 
 @author: guillaume
 """
-from abc import abstractmethod
 from collections.abc import Set as AbcSet
-from typing import Set, Iterator, TYPE_CHECKING
+from typing import Set, Iterator, Type, TypeVar, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
-from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
-from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitutable import Substitutable
 
+T = TypeVar("T", bound=Term)
+
 if TYPE_CHECKING:
+    from prototyping_inference_engine.api.atom.term.constant import Constant
+    from prototyping_inference_engine.api.atom.term.variable import Variable
     from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
@@ -35,17 +36,19 @@ class AtomSet(AbcSet[Atom], Substitutable["AtomSet"]):
     def terms(self) -> Set[Term]:
         return {t for a in self for t in a.terms}
 
-    @property
-    def variables(self) -> Set[Variable]:
-        return {v for v in
-                filter(lambda t: isinstance(t, Variable),
-                       self.terms)}
+    def terms_of_type(self, term_type: Type[T]) -> Set[T]:
+        """Return all terms that are instances of the given type."""
+        return {t for t in self.terms if isinstance(t, term_type)}
 
     @property
-    def constants(self) -> Set[Constant]:
-        return {v for v in
-                filter(lambda t: isinstance(t, Constant),
-                       self.terms)}
+    def variables(self) -> Set["Variable"]:
+        from prototyping_inference_engine.api.atom.term.variable import Variable
+        return self.terms_of_type(Variable)
+
+    @property
+    def constants(self) -> Set["Constant"]:
+        from prototyping_inference_engine.api.atom.term.constant import Constant
+        return self.terms_of_type(Constant)
 
     @property
     def predicates(self) -> Set[Predicate]:

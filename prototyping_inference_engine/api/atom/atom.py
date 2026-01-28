@@ -3,15 +3,17 @@ Created on 23 déc. 2021
 
 @author: guillaume
 """
-from typing import Set, TYPE_CHECKING
+from typing import Set, Type, TypeVar, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.predicate import Predicate, SpecialPredicate
-from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
-from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitutable import Substitutable
 
+T = TypeVar("T", bound=Term)
+
 if TYPE_CHECKING:
+    from prototyping_inference_engine.api.atom.term.constant import Constant
+    from prototyping_inference_engine.api.atom.term.variable import Variable
     from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
@@ -28,17 +30,19 @@ class Atom(Substitutable["Atom"]):
     def terms(self) -> tuple[Term, ...]:
         return self._terms
 
-    @property
-    def variables(self) -> Set[Variable]:
-        return {v for v in
-                filter(lambda t: isinstance(t, Variable),
-                       self.terms)}
+    def terms_of_type(self, term_type: Type[T]) -> Set[T]:
+        """Return all terms that are instances of the given type."""
+        return {t for t in self.terms if isinstance(t, term_type)}
 
     @property
-    def constants(self) -> Set[Constant]:
-        return {v for v in
-                filter(lambda t: isinstance(t, Constant),
-                       self.terms)}
+    def variables(self) -> Set["Variable"]:
+        from prototyping_inference_engine.api.atom.term.variable import Variable
+        return self.terms_of_type(Variable)
+
+    @property
+    def constants(self) -> Set["Constant"]:
+        from prototyping_inference_engine.api.atom.term.constant import Constant
+        return self.terms_of_type(Constant)
 
     def apply_substitution(self, substitution: "Substitution") -> "Atom":
         return Atom(self.predicate, *(t.apply_substitution(substitution) for t in self.terms))
