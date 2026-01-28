@@ -1,30 +1,45 @@
 from functools import cache
+from typing import Optional, Protocol, runtime_checkable
 
 from prototyping_inference_engine.api.query.containment.conjunctive_query_containment import ConjunctiveQueryContainment
+from prototyping_inference_engine.api.query.containment.conjunctive_query_containment_provider import (
+    ConjunctiveQueryContainmentProvider, DefaultCQContainmentProvider
+)
 from prototyping_inference_engine.api.query.redundancies.redundancies_cleaner_conjunctive_query import RedundanciesCleanerConjunctiveQuery
 from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
 
 
+@runtime_checkable
+class CQRedundanciesCleanerProvider(Protocol):
+    """Protocol for providing a RedundanciesCleanerConjunctiveQuery."""
+
+    def get_cleaner(self) -> RedundanciesCleanerConjunctiveQuery:
+        ...
+
+
+class DefaultCQRedundanciesCleanerProvider:
+    """Provides default RedundanciesCleanerConjunctiveQuery."""
+
+    def get_cleaner(self) -> RedundanciesCleanerConjunctiveQuery:
+        return RedundanciesCleanerConjunctiveQuery.instance()
+
+
 class RedundanciesCleanerUnionConjunctiveQueries:
     def __init__(self,
-                 cq_query_containment: ConjunctiveQueryContainment = None,
-                 cq_redundancies_cleaner: RedundanciesCleanerConjunctiveQuery = None):
-        if cq_redundancies_cleaner:
-            self._cq_redundancies_cleaner = cq_redundancies_cleaner
-        else:
-            self._cq_redundancies_cleaner = RedundanciesCleanerConjunctiveQuery.instance()
+                 cq_containment_provider: Optional[ConjunctiveQueryContainmentProvider] = None,
+                 cq_cleaner_provider: Optional[CQRedundanciesCleanerProvider] = None):
+        if cq_cleaner_provider is None:
+            cq_cleaner_provider = DefaultCQRedundanciesCleanerProvider()
+        self._cq_redundancies_cleaner: RedundanciesCleanerConjunctiveQuery = cq_cleaner_provider.get_cleaner()
 
-        if cq_query_containment:
-            self._cq_query_containment = cq_query_containment
-        else:
-            self._cq_query_containment = ConjunctiveQueryContainment.instance()
+        if cq_containment_provider is None:
+            cq_containment_provider = DefaultCQContainmentProvider()
+        self._cq_query_containment: ConjunctiveQueryContainment = cq_containment_provider.get_containment()
 
     @staticmethod
     @cache
-    def instance(cq_query_containment: ConjunctiveQueryContainment = None,
-                 cq_redundancies_cleaner: RedundanciesCleanerConjunctiveQuery = None) \
-            -> "RedundanciesCleanerUnionConjunctiveQueries":
-        return RedundanciesCleanerUnionConjunctiveQueries(cq_query_containment, cq_redundancies_cleaner)
+    def instance() -> "RedundanciesCleanerUnionConjunctiveQueries":
+        return RedundanciesCleanerUnionConjunctiveQueries()
 
     def compute_cover(self, ucq: UnionConjunctiveQueries, del_redundancies_in_cqs: bool = True) \
             -> UnionConjunctiveQueries:

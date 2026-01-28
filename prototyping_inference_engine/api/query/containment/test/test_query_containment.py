@@ -2,7 +2,9 @@ from unittest import TestCase
 
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.api.query.containment.conjunctive_query_containment import ConjunctiveQueryContainment
+from prototyping_inference_engine.api.query.containment.conjunctive_query_containment import (
+    ConjunctiveQueryContainment, HomomorphismBasedCQContainment
+)
 from prototyping_inference_engine.api.query.containment.union_conjunctive_queries_containment import UnionConjunctiveQueriesContainment
 from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
 from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
@@ -10,13 +12,17 @@ from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 class TestConjunctiveQueryContainment(TestCase):
     def setUp(self):
-        self.containment = ConjunctiveQueryContainment.instance()
+        self.containment = HomomorphismBasedCQContainment.instance()
 
     def test_singleton_instance(self):
         """Test that instance() returns singleton."""
-        c1 = ConjunctiveQueryContainment.instance()
-        c2 = ConjunctiveQueryContainment.instance()
+        c1 = HomomorphismBasedCQContainment.instance()
+        c2 = HomomorphismBasedCQContainment.instance()
         self.assertIs(c1, c2)
+
+    def test_is_conjunctive_query_containment(self):
+        """Test that HomomorphismBasedCQContainment implements the protocol."""
+        self.assertIsInstance(self.containment, ConjunctiveQueryContainment)
 
     def test_identical_queries_contained(self):
         """Test that identical queries are contained in each other."""

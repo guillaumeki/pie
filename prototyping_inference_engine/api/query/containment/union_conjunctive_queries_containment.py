@@ -1,21 +1,24 @@
 from functools import cache
+from typing import Optional
 
 from prototyping_inference_engine.api.query.containment.conjunctive_query_containment import ConjunctiveQueryContainment
+from prototyping_inference_engine.api.query.containment.conjunctive_query_containment_provider import (
+    ConjunctiveQueryContainmentProvider, DefaultCQContainmentProvider
+)
 from prototyping_inference_engine.api.query.containment.query_containment import QueryContainment
 from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
 
 
 class UnionConjunctiveQueriesContainment(QueryContainment[UnionConjunctiveQueries]):
-    def __init__(self, cq_containment: ConjunctiveQueryContainment = None):
-        if cq_containment:
-            self._cq_containment: ConjunctiveQueryContainment = cq_containment
-        else:
-            self._cq_containment: ConjunctiveQueryContainment = ConjunctiveQueryContainment.instance()
+    def __init__(self, cq_containment_provider: Optional[ConjunctiveQueryContainmentProvider] = None):
+        if cq_containment_provider is None:
+            cq_containment_provider = DefaultCQContainmentProvider()
+        self._cq_containment: ConjunctiveQueryContainment = cq_containment_provider.get_containment()
 
     @staticmethod
     @cache
-    def instance(cq_containment: ConjunctiveQueryContainment = None) -> "UnionConjunctiveQueriesContainment":
-        return UnionConjunctiveQueriesContainment(cq_containment)
+    def instance() -> "UnionConjunctiveQueriesContainment":
+        return UnionConjunctiveQueriesContainment()
 
     def is_contained_in(self, ucq1: UnionConjunctiveQueries, ucq2: UnionConjunctiveQueries) -> bool:
         if len(ucq1.answer_variables) != len(ucq2.answer_variables):

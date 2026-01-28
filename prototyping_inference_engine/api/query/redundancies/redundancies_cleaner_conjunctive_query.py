@@ -1,28 +1,33 @@
 from functools import cache
+from typing import Optional
 
 from prototyping_inference_engine.api.atom.set.core.core_algorithm import CoreAlgorithm
-from prototyping_inference_engine.api.atom.set.core.naive_core_by_specialization import NaiveCoreBySpecialization
+from prototyping_inference_engine.api.atom.set.core.core_algorithm_provider import (
+    CoreAlgorithmProvider, DefaultCoreAlgorithmProvider
+)
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.containment.conjunctive_query_containment import ConjunctiveQueryContainment
+from prototyping_inference_engine.api.query.containment.conjunctive_query_containment_provider import (
+    ConjunctiveQueryContainmentProvider, DefaultCQContainmentProvider
+)
 
 
 class RedundanciesCleanerConjunctiveQuery:
-    def __init__(self, core_algorithm: CoreAlgorithm = None, cq_query_containment: ConjunctiveQueryContainment = None):
-        if core_algorithm:
-            self._core_algorithm: CoreAlgorithm = core_algorithm
-        else:
-            self._core_algorithm: CoreAlgorithm = NaiveCoreBySpecialization.instance()
+    def __init__(self,
+                 core_algorithm_provider: Optional[CoreAlgorithmProvider] = None,
+                 cq_containment_provider: Optional[ConjunctiveQueryContainmentProvider] = None):
+        if core_algorithm_provider is None:
+            core_algorithm_provider = DefaultCoreAlgorithmProvider()
+        self._core_algorithm: CoreAlgorithm = core_algorithm_provider.get_algorithm()
 
-        if cq_query_containment:
-            self._cq_query_containment = cq_query_containment
-        else:
-            self._cq_query_containment = ConjunctiveQueryContainment.instance()
+        if cq_containment_provider is None:
+            cq_containment_provider = DefaultCQContainmentProvider()
+        self._cq_query_containment: ConjunctiveQueryContainment = cq_containment_provider.get_containment()
 
     @staticmethod
     @cache
-    def instance(core_algorithm: CoreAlgorithm = None,
-                 cq_query_containment: ConjunctiveQueryContainment = None) -> "RedundanciesCleanerConjunctiveQuery":
-        return RedundanciesCleanerConjunctiveQuery(core_algorithm, cq_query_containment)
+    def instance() -> "RedundanciesCleanerConjunctiveQuery":
+        return RedundanciesCleanerConjunctiveQuery()
 
     def compute_core(self, cq: ConjunctiveQuery) -> ConjunctiveQuery:
         core_atom_set = self._core_algorithm.compute_core(cq.atoms, cq.answer_variables)
