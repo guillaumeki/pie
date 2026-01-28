@@ -23,6 +23,14 @@ class Variable(Term):
     def __init__(self, identifier):
         Term.__init__(self, identifier)
 
+    @property
+    def is_rigid(self) -> bool:
+        return False
+
+    @property
+    def comparison_priority(self) -> int:
+        return 1  # Variables have lower priority than constants
+
     def __repr__(self):
         return "Var:"+str(self)
 

@@ -20,6 +20,14 @@ class Constant(Term):
     def __init__(self, identifier):
         Term.__init__(self, identifier)
 
+    @property
+    def is_rigid(self) -> bool:
+        return True
+
+    @property
+    def comparison_priority(self) -> int:
+        return 0  # Constants have highest priority as representatives
+
     def apply_substitution(self, substitution: "Substitution") -> "Constant":
         return self  # Constants are unchanged by substitution
 

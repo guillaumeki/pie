@@ -20,6 +20,18 @@ class Term(Substitutable["Term"], ABC):
     def identifier(self) -> object:
         return self._identifier
 
+    @property
+    @abstractmethod
+    def is_rigid(self) -> bool:
+        """A rigid term cannot be unified with a different rigid term."""
+        pass
+
+    @property
+    @abstractmethod
+    def comparison_priority(self) -> int:
+        """Priority for representative selection (lower = higher priority)."""
+        pass
+
     @abstractmethod
     def apply_substitution(self, substitution: "Substitution") -> "Term":
         pass

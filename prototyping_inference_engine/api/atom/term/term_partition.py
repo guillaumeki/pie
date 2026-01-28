@@ -1,9 +1,7 @@
 from functools import cached_property
 from typing import Optional
 
-from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
-from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.query import Query
@@ -19,24 +17,18 @@ class TermPartition(Partition[Term]):
 
     @staticmethod
     def default_comparator(t1: Term, t2: Term) -> int:
-        if isinstance(t1, Constant) and isinstance(t2, Constant):
-            return 0
-        elif isinstance(t1, Constant):
-            return -1
-        elif isinstance(t2, Constant):
-            return 1
-        return 0
+        return t1.comparison_priority - t2.comparison_priority
 
     def is_valid(self, rule: Rule[ConjunctiveQuery, ConjunctiveQuery], context: ConjunctiveQuery = None) -> bool:
         for cls in self.classes:
-            has_cst, has_head_exist, has_fr, has_ans_var = (False,)*4
+            has_rigid, has_head_exist, has_fr, has_ans_var = (False,)*4
             for t in cls:
-                if isinstance(t, Constant):
-                    if has_cst or has_head_exist:
+                if t.is_rigid:
+                    if has_rigid or has_head_exist:
                         return False
-                    has_cst = True
+                    has_rigid = True
                 elif t in rule.existential_variables:
-                    if has_head_exist or has_fr or has_cst or has_ans_var:
+                    if has_head_exist or has_fr or has_rigid or has_ans_var:
                         return False
                     has_head_exist = True
                 elif t in rule.frontier:
@@ -63,15 +55,15 @@ class TermPartition(Partition[Term]):
                 if representative is None:
                     representative = self.get_representative(t)
 
-                if isinstance(t, Constant) and representative != t:
+                if t.is_rigid and representative != t:
                     return None
 
-                if (isinstance(representative, Variable)
+                if (not representative.is_rigid
                         and representative not in context_answer_variables
                         and t in context_variables):
                     representative = t
             for t in cls:
-                if isinstance(t, Variable) and t != representative:
+                if not t.is_rigid and t != representative:
                     sub[t] = representative
 
         return sub
@@ -80,8 +72,8 @@ class TermPartition(Partition[Term]):
     def is_admissible(self) -> bool:
         for cls in self.classes:
             representative = self.get_representative(next(iter(cls)))
-            if isinstance(representative, Constant):
+            if representative.is_rigid:
                 for term in cls:
-                    if term != representative and isinstance(term, Constant):
+                    if term != representative and term.is_rigid:
                         return False
         return True
