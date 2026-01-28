@@ -1,28 +1,23 @@
 from math import inf
-from collections import defaultdict, Counter
+from typing import Optional
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
 from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.scheduler.backtrack_scheduler import BacktrackScheduler
-from prototyping_inference_engine.api.atom.set.index.IndexedAtomSet import IndexedAtomSet
-from prototyping_inference_engine.api.atom.set.index.index_by_term import IndexByTerm
-from prototyping_inference_engine.api.atom.set.index.index_by_term_and_predicate import IndexByTermAndPredicate
-from prototyping_inference_engine.api.atom.set.index.indexed_by_term_atom_set import IndexedByTermAtomSet
-from prototyping_inference_engine.api.atom.set.mutable_atom_set import MutableAtomSet
-from prototyping_inference_engine.api.atom.term.variable import Variable
+from prototyping_inference_engine.api.atom.set.index.index_provider import IndexProvider, BestAvailableIndexProvider
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
 class DynamicBacktrackScheduler(BacktrackScheduler):
-    def __init__(self, from_atom_set: AtomSet):
+    def __init__(self, from_atom_set: AtomSet, index_provider: Optional[IndexProvider] = None):
         BacktrackScheduler.__init__(self, from_atom_set)
         self._order = []
         self._not_ordered = set(from_atom_set)
 
-        if isinstance(from_atom_set, IndexedAtomSet):
-            self._index = from_atom_set.index
-        else:
-            self._index = IndexByTermAndPredicate(from_atom_set)
+        if index_provider is None:
+            index_provider = BestAvailableIndexProvider()
+
+        self._index = index_provider.get_index(from_atom_set)
 
     def has_next_atom(self, level: int) -> bool:
         return level < len(self._order) + len(self._not_ordered)

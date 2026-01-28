@@ -1,24 +1,23 @@
-from collections import defaultdict, Counter
+from collections import Counter
+from typing import Optional
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
 from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.scheduler.backtrack_scheduler import BacktrackScheduler
-from prototyping_inference_engine.api.atom.set.index.index_by_term import IndexByTerm
-from prototyping_inference_engine.api.atom.set.index.indexed_by_term_atom_set import IndexedByTermAtomSet
-from prototyping_inference_engine.api.atom.set.mutable_atom_set import MutableAtomSet
+from prototyping_inference_engine.api.atom.set.index.index_provider import IndexProvider, IndexByTermProvider
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
 class ByVariableBacktrackScheduler(BacktrackScheduler):
-    def __init__(self, from_atom_set: AtomSet):
+    def __init__(self, from_atom_set: AtomSet, index_provider: Optional[IndexProvider] = None):
         BacktrackScheduler.__init__(self, from_atom_set)
         self._order = []
 
-        if isinstance(from_atom_set, IndexedByTermAtomSet):
-            index = from_atom_set.index_by_term
-        else:
-            index = IndexByTerm(from_atom_set)
+        if index_provider is None:
+            index_provider = IndexByTermProvider()
+
+        index = index_provider.get_index(from_atom_set)
 
         if from_atom_set:
             first_atom = Counter({a: len(a.variables) for a in from_atom_set}).most_common(1)[0][0]
