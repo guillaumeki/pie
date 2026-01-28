@@ -130,7 +130,7 @@ class DisjunctivePieceUnifierAlgorithm:
                                        cq: ConjunctiveQuery) -> list[PieceUnifier]:
         return PieceUnifierAlgorithm. \
             compute_most_general_full_piece_unifiers(
-            Substitution.safe_renaming(cq.existential_variables)(cq),
+            Variable.safe_renaming_substitution(cq.existential_variables)(cq),
             Rule.extract_conjunctive_rule(rule, head_number))
 
     @staticmethod

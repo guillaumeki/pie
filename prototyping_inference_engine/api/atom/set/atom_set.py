@@ -3,19 +3,22 @@ Created on 26 déc. 2021
 
 @author: guillaume
 """
-
+from abc import abstractmethod
 from collections.abc import Set as AbcSet
-from typing import Set, Iterator
+from typing import Set, Iterator, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.substitution.substitution import Substitution
+from prototyping_inference_engine.api.substitution.substitutable import Substitutable
+
+if TYPE_CHECKING:
+    from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
-class AtomSet(AbcSet[Atom]):
+class AtomSet(AbcSet[Atom], Substitutable["AtomSet"]):
     def __init__(self, s):
         self._set = s
 
@@ -48,8 +51,12 @@ class AtomSet(AbcSet[Atom]):
     def predicates(self) -> Set[Predicate]:
         return {a.predicate for a in self}
 
-    def match(self, atom: Atom, sub: Substitution = None) -> Iterator[Atom]:
-        for a in filter(lambda x: Substitution.specialize(atom, x, sub) is not None, self._set):
+    def apply_substitution(self, substitution: "Substitution") -> "AtomSet":
+        return self.__class__({a.apply_substitution(substitution) for a in self})
+
+    def match(self, atom: Atom, sub: "Substitution" = None) -> Iterator[Atom]:
+        from prototyping_inference_engine.api.atom.atom_operations import specialize
+        for a in filter(lambda x: specialize(atom, x, sub) is not None, self._set):
             yield a
 
     def __str__(self):

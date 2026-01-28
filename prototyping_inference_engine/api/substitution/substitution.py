@@ -1,23 +1,21 @@
-from collections.abc import Set
-from functools import cache
-from typing import Union, TypeVar
+"""
+A substitution mapping variables to terms.
+"""
 from collections.abc import Iterable
+from typing import Union, TypeVar
 
-from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitutable import Substitutable
 
-S1 = TypeVar("S1", Term, Atom, Set[Atom], Substitutable)
-S2 = TypeVar("S2", "Substitution", Term, Atom, Set[Atom], Iterable, Substitutable)
+S = TypeVar("S", bound=Substitutable)
 
 
 class Substitution(dict[Variable, Term]):
+    """A mapping from variables to terms, representing a substitution."""
+
     def __init__(self, initial: Union["Substitution", dict[Variable, Term]] = None):
-        if initial is None:
-            initial = {}
-        super().__init__(initial)
+        super().__init__(initial or {})
 
     @property
     def graph(self):
@@ -32,70 +30,40 @@ class Substitution(dict[Variable, Term]):
         return self.values()
 
     def restrict_to(self, variables: Iterable[Variable]) -> "Substitution":
-        return Substitution({v: self(v) for v in variables if v != self(v)})
+        return Substitution({v: self.apply(v) for v in variables if v != self.apply(v)})
 
-    def apply(self, other: S1) -> S1:
-        if isinstance(other, Variable):
-            if other in self.domain:
-                return self[other]
-            else:
-                return other
-        elif isinstance(other, Atom):
-            return Atom(other.predicate, *(self(t) for t in other.terms))  # type: ignore
-        elif isinstance(other, Substitutable):
+    def apply(self, other: S) -> S:
+        """Apply this substitution to a Substitutable object."""
+        if isinstance(other, Substitutable):
             return other.apply_substitution(self)
-        elif isinstance(other, Set) or isinstance(other, Iterable):
-            return other.__class__({self(a) for a in other})  # type: ignore
+        # Handle iterables (tuples, lists) of Substitutable objects
+        elif isinstance(other, (tuple, list)):
+            return other.__class__(self.apply(item) for item in other)
         else:
-            return other
+            raise TypeError(f"Cannot apply substitution to object of type {type(other).__name__}. "
+                            f"Expected Substitutable, tuple, or list.")
 
-    def compose(self, sub: "Substitution") -> "Substitution":
-        new_sub = {}
-
-        for k, v in sub.graph:
-            new_sub[k] = self.apply(v)
-        for k, v in self.graph:
+    def compose(self, other: "Substitution") -> "Substitution":
+        """Compose this substitution with another (self . other)."""
+        new_sub = {k: self.apply(v) for k, v in other.items()}
+        for k, v in self.items():
             if k not in new_sub:
                 new_sub[k] = v
+        # Remove identity mappings
+        return Substitution({k: v for k, v in new_sub.items() if k != v})
 
-        # Remove the cases where k = v
-        new_sub = {k: v for k, v in filter(lambda x: x[0] != x[1], new_sub.items())}
+    def aggregate(self, other: "Substitution") -> "Substitution":
+        """Merge two substitutions (union of mappings)."""
+        return Substitution(self | other)
 
-        return Substitution(new_sub)
-
-    def aggregate(self, sub: "Substitution") -> "Substitution":
-        return Substitution(self | sub)
-
-    def __call__(self, other: S2) -> S2:
+    def __call__(self, other):
+        """Shorthand: compose if Substitution, apply otherwise."""
         if isinstance(other, Substitution):
             return self.compose(other)
-        else:
-            return self.apply(other)
-
-    @staticmethod
-    def safe_renaming(variables: Iterable[Variable]) -> "Substitution":
-        return Substitution({v: Variable.safe_renaming(v) for v in variables})
-
-    @staticmethod
-    def specialize(from_atom: Atom, to_atom: Atom, sub: "Substitution" = None) -> "Optionnal[Substitution]":
-        if from_atom.predicate != to_atom.predicate:
-            return None
-
-        sub = Substitution(sub)
-
-        for i in range(from_atom.predicate.arity):
-            if isinstance(from_atom.terms[i], Constant):
-                if from_atom.terms[i] != to_atom.terms[i]:
-                    return None
-            elif isinstance(from_atom.terms[i], Variable):
-                if from_atom.terms[i] in sub.domain and sub(from_atom.terms[i]) != to_atom.terms[i]:
-                    return None
-                sub[from_atom.terms[i]] = to_atom.terms[i]
-
-        return sub
+        return self.apply(other)
 
     def __str__(self):
         return "{" + ", ".join(f"{v} \u21A6 {t}" for v, t in self.graph) + "}"
 
     def __repr__(self):
-        return f"<Substitution:{str(self)}>"
+        return f"<Substitution:{self}>"

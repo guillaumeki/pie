@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 from functools import cached_property, cache
 from collections.abc import Hashable
-from typing import Iterator
+from typing import Iterator, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
@@ -19,7 +19,9 @@ from prototyping_inference_engine.api.atom.set.index.indexed_by_term_atom_set im
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.substitution.substitution import Substitution
+
+if TYPE_CHECKING:
+    from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
 class FrozenAtomSet(IndexedByTermAndPredicateAtomSet, Hashable):
@@ -58,6 +60,9 @@ class FrozenAtomSet(IndexedByTermAndPredicateAtomSet, Hashable):
     def backtrack_scheduler(self):
         return ByVariableBacktrackScheduler(self)
 
-    def match(self, atom: Atom, sub: Substitution = None) -> Iterator[Atom]:
+    def match(self, atom: Atom, sub: "Substitution" = None) -> Iterator[Atom]:
         return self.index_by_predicate.match(atom, sub)
+
+    def apply_substitution(self, substitution: "Substitution") -> "FrozenAtomSet":
+        return FrozenAtomSet(a.apply_substitution(substitution) for a in self)
 
