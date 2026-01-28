@@ -1,42 +1,40 @@
 from functools import cache
 from math import inf
-from typing import Callable
+from typing import Callable, Optional
 
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.redundancies.redundancies_cleaner_union_conjunctive_queries import \
     RedundanciesCleanerUnionConjunctiveQueries
+from prototyping_inference_engine.api.query.redundancies.ucq_redundancies_cleaner_provider import (
+    UCQRedundanciesCleanerProvider, DefaultUCQRedundanciesCleanerProvider
+)
 from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.backward_chaining.rewriting_operator.rewriting_operator import RewritingOperator
-from prototyping_inference_engine.backward_chaining.rewriting_operator.without_aggregation_rewriting_operator import \
-    WithoutAggregationRewritingOperator
+from prototyping_inference_engine.backward_chaining.rewriting_operator.rewriting_operator_provider import (
+    RewritingOperatorProvider, DefaultRewritingOperatorProvider
+)
 from prototyping_inference_engine.backward_chaining.ucq_rewriting_algorithm import UcqRewritingAlgorithm
 
 
 class BreadthFirstRewriting(UcqRewritingAlgorithm):
     def __init__(self,
-                 rewriting_operator: RewritingOperator = None,
-                 ucq_redundancies_cleaner: RedundanciesCleanerUnionConjunctiveQueries = None):
-        if ucq_redundancies_cleaner:
-            self._ucq_redundancies_cleaner: RedundanciesCleanerUnionConjunctiveQueries = ucq_redundancies_cleaner
-        else:
-            self._ucq_redundancies_cleaner: RedundanciesCleanerUnionConjunctiveQueries\
-                = RedundanciesCleanerUnionConjunctiveQueries.instance()
+                 rewriting_operator_provider: Optional[RewritingOperatorProvider] = None,
+                 ucq_cleaner_provider: Optional[UCQRedundanciesCleanerProvider] = None):
+        if ucq_cleaner_provider is None:
+            ucq_cleaner_provider = DefaultUCQRedundanciesCleanerProvider()
+        self._ucq_redundancies_cleaner: RedundanciesCleanerUnionConjunctiveQueries = ucq_cleaner_provider.get_cleaner()
 
-        if rewriting_operator:
-            self._rewriting_operator: RewritingOperator = rewriting_operator
-        else:
-            self._rewriting_operator: RewritingOperator = WithoutAggregationRewritingOperator()
+        if rewriting_operator_provider is None:
+            rewriting_operator_provider = DefaultRewritingOperatorProvider()
+        self._rewriting_operator: RewritingOperator = rewriting_operator_provider.get_operator()
 
     @staticmethod
     @cache
-    def instance(
-            rewriting_operator: RewritingOperator = None,
-            ucq_redundancies_cleaner: RedundanciesCleanerUnionConjunctiveQueries = None) \
-            -> "BreadthFirstRewriting":
-        return BreadthFirstRewriting(rewriting_operator, ucq_redundancies_cleaner)
+    def instance() -> "BreadthFirstRewriting":
+        return BreadthFirstRewriting()
 
     @staticmethod
     def _safe_renaming(ucq: UnionConjunctiveQueries,
