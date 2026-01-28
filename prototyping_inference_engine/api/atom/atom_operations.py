@@ -6,8 +6,6 @@ Atom-related operations extracted from Substitution class.
 from typing import Optional
 
 from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.term.constant import Constant
-from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
@@ -27,10 +25,10 @@ def specialize(from_atom: Atom, to_atom: Atom, sub: Substitution = None) -> Opti
         from_term = from_atom.terms[i]
         to_term = to_atom.terms[i]
 
-        if isinstance(from_term, Constant):
+        if from_term.is_rigid:
             if from_term != to_term:
                 return None
-        elif isinstance(from_term, Variable):
+        else:  # flexible term (Variable)
             if from_term in sub.domain and sub[from_term] != to_term:
                 return None
             sub[from_term] = to_term
