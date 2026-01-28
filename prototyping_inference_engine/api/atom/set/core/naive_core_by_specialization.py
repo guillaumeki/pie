@@ -1,10 +1,12 @@
 from functools import cache
-from typing import TypeVar
+from typing import TypeVar, Optional
 
 from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
 from prototyping_inference_engine.api.atom.set.core.core_algorithm import CoreAlgorithm
 from prototyping_inference_engine.api.atom.set.homomorphism.homomorphism_algorithm import HomomorphismAlgorithm
-from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.naive_backtrack_homomorphism_algorithm import NaiveBacktrackHomomorphismAlgorithm
+from prototyping_inference_engine.api.atom.set.homomorphism.homomorphism_algorithm_provider import (
+    HomomorphismAlgorithmProvider, DefaultHomomorphismAlgorithmProvider
+)
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
@@ -12,11 +14,10 @@ AS = TypeVar("AS", bound=AtomSet)
 
 
 class NaiveCoreBySpecialization(CoreAlgorithm):
-    def __init__(self, homomorphism_algorithm: HomomorphismAlgorithm = None):
-        if homomorphism_algorithm:
-            self._homomorphism_algorithm: HomomorphismAlgorithm = homomorphism_algorithm
-        else:
-            self._homomorphism_algorithm: HomomorphismAlgorithm = NaiveBacktrackHomomorphismAlgorithm.instance()
+    def __init__(self, algorithm_provider: Optional[HomomorphismAlgorithmProvider] = None):
+        if algorithm_provider is None:
+            algorithm_provider = DefaultHomomorphismAlgorithmProvider()
+        self._homomorphism_algorithm: HomomorphismAlgorithm = algorithm_provider.get_algorithm()
 
     @staticmethod
     @cache
