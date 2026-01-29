@@ -5,7 +5,7 @@ from abc import ABC
 from typing import Type
 
 from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-from prototyping_inference_engine.api.query.evaluator.formula_evaluator import FormulaEvaluator
+from prototyping_inference_engine.query_processing.evaluator.formula_evaluator import FormulaEvaluator
 
 
 class ConjunctionEvaluator(FormulaEvaluator[ConjunctionFormula], ABC):

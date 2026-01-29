@@ -10,11 +10,11 @@ from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.api.query.evaluator.fo_query_evaluator import (
+from prototyping_inference_engine.query_processing.evaluator.fo_query_evaluator import (
     FOQueryEvaluator,
     UnsupportedFormulaError,
 )
-from prototyping_inference_engine.api.query.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_processing.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
 

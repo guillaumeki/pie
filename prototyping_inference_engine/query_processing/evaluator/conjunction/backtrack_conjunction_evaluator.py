@@ -5,9 +5,9 @@ from typing import Iterator, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-from prototyping_inference_engine.api.query.evaluator.conjunction.conjunction_evaluator import ConjunctionEvaluator
-from prototyping_inference_engine.api.query.evaluator.conjunction.scheduler.formula_scheduler import FormulaScheduler
-from prototyping_inference_engine.api.query.evaluator.conjunction.scheduler.formula_scheduler_provider import (
+from prototyping_inference_engine.query_processing.evaluator.conjunction.conjunction_evaluator import ConjunctionEvaluator
+from prototyping_inference_engine.query_processing.evaluator.conjunction.scheduler.formula_scheduler import FormulaScheduler
+from prototyping_inference_engine.query_processing.evaluator.conjunction.scheduler.formula_scheduler_provider import (
     FormulaSchedulerProvider,
     SequentialSchedulerProvider,
 )
@@ -15,7 +15,7 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.fact_base.fact_base import FactBase
-    from prototyping_inference_engine.api.query.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
+    from prototyping_inference_engine.query_processing.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
 
 
 class BacktrackConjunctionEvaluator(ConjunctionEvaluator):
@@ -54,7 +54,7 @@ class BacktrackConjunctionEvaluator(ConjunctionEvaluator):
     def _get_registry(self) -> "FormulaEvaluatorRegistry":
         """Get the registry, lazily importing if needed."""
         if self._registry is None:
-            from prototyping_inference_engine.api.query.evaluator.formula_evaluator_registry import (
+            from prototyping_inference_engine.query_processing.evaluator.formula_evaluator_registry import (
                 FormulaEvaluatorRegistry,
             )
             self._registry = FormulaEvaluatorRegistry.instance()
@@ -141,7 +141,7 @@ class BacktrackConjunctionEvaluator(ConjunctionEvaluator):
             evaluator = self._get_registry().get_evaluator(next_formula)
 
             if evaluator is None:
-                from prototyping_inference_engine.api.query.evaluator.fo_query_evaluator import (
+                from prototyping_inference_engine.query_processing.evaluator.fo_query_evaluator import (
                     UnsupportedFormulaError,
                 )
                 raise UnsupportedFormulaError(type(next_formula))
