@@ -7,10 +7,10 @@ from prototyping_inference_engine.api.query.conjunctive_query import Conjunctive
 
 from prototyping_inference_engine.api.query.query import Query
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.query_processing.query_processing import QueryProcessing
+from prototyping_inference_engine.query_evaluation.query_evaluation import QueryEvaluation
 
 
-class CSPQueryProcessing(QueryProcessing):
+class CSPQueryEvaluation(QueryEvaluation):
     def execute_query(self, target: FactBase, query: Query, sub: Substitution, filter_out_nulls: bool = True)\
             -> Iterable[tuple[Term]]:
         pass

@@ -4,7 +4,7 @@ Evaluator for first-order queries.
 from typing import Iterator, Tuple, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.term.term import Term
-from prototyping_inference_engine.query_processing.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 
 if TYPE_CHECKING:

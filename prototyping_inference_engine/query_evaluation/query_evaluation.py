@@ -7,7 +7,7 @@ from prototyping_inference_engine.api.query.query import Query
 from prototyping_inference_engine.api.query.query_support import QuerySupport
 
 
-class QueryProcessing(QuerySupport):
+class QueryEvaluation(QuerySupport):
     @abstractmethod
     def execute_query(self, target: FactBase, query: Query) -> Iterable[tuple[Term]]:
         pass

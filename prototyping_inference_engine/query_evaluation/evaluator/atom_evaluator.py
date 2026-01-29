@@ -9,7 +9,7 @@ from prototyping_inference_engine.api.atom.set.homomorphism.homomorphism_algorit
     HomomorphismAlgorithmProvider,
     DefaultHomomorphismAlgorithmProvider,
 )
-from prototyping_inference_engine.query_processing.evaluator.formula_evaluator import FormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import FormulaEvaluator
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 if TYPE_CHECKING:
