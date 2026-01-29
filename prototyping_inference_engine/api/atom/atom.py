@@ -7,7 +7,7 @@ from typing import Set, Type, TypeVar, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.predicate import Predicate, SpecialPredicate
 from prototyping_inference_engine.api.atom.term.term import Term
-from prototyping_inference_engine.api.substitution.substitutable import Substitutable
+from prototyping_inference_engine.api.formula.formula import Formula
 
 T = TypeVar("T", bound=Term)
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
-class Atom(Substitutable["Atom"]):
+class Atom(Formula):
     def __init__(self, predicate: Predicate, *terms: Term):
         self._predicate = predicate
         self._terms = terms
@@ -43,6 +43,22 @@ class Atom(Substitutable["Atom"]):
     def constants(self) -> Set["Constant"]:
         from prototyping_inference_engine.api.atom.term.constant import Constant
         return self.terms_of_type(Constant)
+
+    # Formula interface implementation
+    @property
+    def free_variables(self) -> frozenset["Variable"]:
+        """An atom has no quantifiers, so all variables are free."""
+        return frozenset(self.variables)
+
+    @property
+    def bound_variables(self) -> frozenset["Variable"]:
+        """An atom has no quantifiers, so no variables are bound."""
+        return frozenset()
+
+    @property
+    def atoms(self) -> frozenset["Atom"]:
+        """An atom contains only itself."""
+        return frozenset([self])
 
     def apply_substitution(self, substitution: "Substitution") -> "Atom":
         return Atom(self.predicate, *(t.apply_substitution(substitution) for t in self.terms))
