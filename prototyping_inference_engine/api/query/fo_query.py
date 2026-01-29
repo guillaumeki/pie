@@ -2,7 +2,7 @@
 First-Order Query: a query based on a first-order logic formula.
 """
 from functools import cached_property
-from typing import Optional, Iterable, TYPE_CHECKING
+from typing import Optional, Iterable, Generic, TypeVar, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
@@ -16,8 +16,10 @@ from prototyping_inference_engine.api.substitution.substitutable import Substitu
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.substitution.substitution import Substitution
 
+F = TypeVar("F", bound=Formula)
 
-class FOQuery(Query, Substitutable["FOQuery"]):
+
+class FOQuery(Query, Substitutable["FOQuery[F]"], Generic[F]):
     """
     A first-order query consisting of a formula and answer variables.
 
@@ -32,7 +34,7 @@ class FOQuery(Query, Substitutable["FOQuery"]):
 
     def __init__(
         self,
-        formula: Formula,
+        formula: F,
         answer_variables: Optional[Iterable[Variable]] = None,
         label: Optional[str] = None,
     ):
@@ -60,7 +62,7 @@ class FOQuery(Query, Substitutable["FOQuery"]):
                 )
 
     @property
-    def formula(self) -> Formula:
+    def formula(self) -> F:
         """The formula defining this query."""
         return self._formula
 
@@ -117,7 +119,7 @@ class FOQuery(Query, Substitutable["FOQuery"]):
         """String representation of the formula without answer variables."""
         return str(self._formula)
 
-    def apply_substitution(self, substitution: "Substitution") -> "FOQuery":
+    def apply_substitution(self, substitution: "Substitution") -> "FOQuery[F]":
         """
         Apply a substitution to this query.
 

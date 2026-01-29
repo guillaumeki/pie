@@ -1,7 +1,7 @@
 """
 Factory for creating first-order queries.
 """
-from typing import Optional, TYPE_CHECKING, Union
+from typing import Optional, TYPE_CHECKING, TypeVar, Union
 
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.formula.formula import Formula
@@ -10,6 +10,8 @@ from prototyping_inference_engine.api.query.fo_query import FOQuery
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+F = TypeVar("F", bound=Formula)
 
 
 class FOQueryFactory:
@@ -41,10 +43,10 @@ class FOQueryFactory:
 
     def from_formula(
         self,
-        formula: Formula,
+        formula: F,
         answer_variables: Optional[list[Union[str, Variable]]] = None,
         label: Optional[str] = None,
-    ) -> FOQuery:
+    ) -> FOQuery[F]:
         """
         Create a FOQuery from an existing formula.
 
@@ -54,7 +56,7 @@ class FOQueryFactory:
             label: Optional label for the query
 
         Returns:
-            A new FOQuery instance
+            A new FOQuery instance with the same formula type
         """
         vars_list: list[Variable] = []
         if answer_variables:
@@ -213,7 +215,7 @@ class FOQueryBuilder:
         self._ensure_formula_builder().exists(var_name)
         return self
 
-    def build(self) -> FOQuery:
+    def build(self) -> FOQuery[Formula]:
         """
         Build the final FOQuery.
 

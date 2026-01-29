@@ -5,7 +5,7 @@ Provides a session context for reasoning with managed vocabulary,
 fact bases, ontologies, and query rewriting.
 """
 from math import inf
-from typing import Optional, Iterable, Union, TYPE_CHECKING
+from typing import Optional, Iterable, Iterator, Tuple, Union, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
@@ -43,6 +43,7 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.fact_base.fact_base import FactBase
     from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
     from prototyping_inference_engine.api.formula.formula_builder import FormulaBuilder
+    from prototyping_inference_engine.api.query.fo_query import FOQuery
     from prototyping_inference_engine.api.query.fo_query_factory import FOQueryFactory
 
 
@@ -414,6 +415,34 @@ class ReasoningSession:
 
         algorithm = self._rewriting_provider.get_algorithm()
         return algorithm.rewrite(query, rules, step_limit, verbose)
+
+    def evaluate_query(
+        self,
+        query: "FOQuery",
+        fact_base: "FactBase",
+    ) -> Iterator[Tuple[Term, ...]]:
+        """
+        Evaluate a first-order query against a fact base.
+
+        Args:
+            query: The FOQuery to evaluate
+            fact_base: The fact base to query against
+
+        Yields:
+            Tuples of terms corresponding to the answer variables
+
+        Example:
+            query = (session.fo_query().builder()
+                .answer("X")
+                .atom("p", "a", "X")
+                .build())
+            for answer in session.evaluate_query(query, fact_base):
+                print(answer)  # (b,), (c,), ...
+        """
+        from prototyping_inference_engine.api.query.evaluator.fo_query_evaluator import FOQueryEvaluator
+        self._check_not_closed()
+        evaluator = FOQueryEvaluator()
+        return evaluator.evaluate(query, fact_base)
 
     # =========================================================================
     # Lifecycle methods
