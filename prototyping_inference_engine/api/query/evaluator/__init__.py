@@ -9,10 +9,16 @@ from prototyping_inference_engine.api.query.evaluator.fo_query_evaluator import 
     FOQueryEvaluator,
     UnsupportedFormulaError,
 )
+from prototyping_inference_engine.api.query.evaluator.conjunction import (
+    ConjunctionEvaluator,
+    BacktrackConjunctionEvaluator,
+)
 
 __all__ = [
     "FormulaEvaluator",
     "AtomEvaluator",
+    "ConjunctionEvaluator",
+    "BacktrackConjunctionEvaluator",
     "FormulaEvaluatorRegistry",
     "FOQueryEvaluator",
     "UnsupportedFormulaError",

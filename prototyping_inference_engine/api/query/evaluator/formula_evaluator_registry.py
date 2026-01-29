@@ -48,7 +48,11 @@ class FormulaEvaluatorRegistry:
     def _register_defaults(self) -> None:
         """Register default evaluators."""
         from prototyping_inference_engine.api.query.evaluator.atom_evaluator import AtomEvaluator
+        from prototyping_inference_engine.api.query.evaluator.conjunction.backtrack_conjunction_evaluator import (
+            BacktrackConjunctionEvaluator,
+        )
         self.register(AtomEvaluator())
+        self.register(BacktrackConjunctionEvaluator(registry=self))
 
     def register(self, evaluator: FormulaEvaluator) -> None:
         """
