@@ -17,6 +17,13 @@ from prototyping_inference_engine.query_evaluation.evaluator.negation_evaluator 
     NegationFormulaEvaluator,
     UnsafeNegationWarning,
 )
+from prototyping_inference_engine.query_evaluation.evaluator.universal_evaluator import (
+    UniversalFormulaEvaluator,
+    UniversalQuantifierWarning,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.existential_evaluator import (
+    ExistentialFormulaEvaluator,
+)
 
 __all__ = [
     "FormulaEvaluator",
@@ -25,6 +32,9 @@ __all__ = [
     "BacktrackConjunctionEvaluator",
     "NegationFormulaEvaluator",
     "UnsafeNegationWarning",
+    "UniversalFormulaEvaluator",
+    "UniversalQuantifierWarning",
+    "ExistentialFormulaEvaluator",
     "FormulaEvaluatorRegistry",
     "FOQueryEvaluator",
     "UnsupportedFormulaError",
