@@ -12,6 +12,7 @@ from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
     BacktrackConjunctionEvaluator,
@@ -95,14 +96,15 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
     # =========================================================================
     def test_chain_join_arity3(self):
         """
-        Query: ?(X) :- p3(X,Z,W) ∧ p3(Z,W,T)
+        Query: ?(X) :- ∃Z.∃W.∃T.(p3(X,Z,W) ∧ p3(Z,W,T))
         FactBase: {p3(a,b,c), p3(b,c,d)}
         Expected: {X→a} (chain: a->b->c->d)
         """
-        formula = ConjunctionFormula(
+        conj = ConjunctionFormula(
             Atom(self.p3, self.x, self.z, self.w),
             Atom(self.p3, self.z, self.w, self.t),
         )
+        formula = ExistentialFormula(self.z, ExistentialFormula(self.w, ExistentialFormula(self.t, conj)))
         query = FOQuery(formula, [self.x])
 
         results = list(self.evaluator.evaluate(query, self.fact_base_3))
@@ -133,14 +135,15 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
     # =========================================================================
     def test_transitive_join_success(self):
         """
-        Query: ?(X,Z) :- p(X,Y) ∧ p(Y,Z)
+        Query: ?(X,Z) :- ∃Y.(p(X,Y) ∧ p(Y,Z))
         FactBase: {p(a,b), p(b,c)}
         Expected: {X→a, Z→c} (path a->b->c)
         """
-        formula = ConjunctionFormula(
+        conj = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),
         )
+        formula = ExistentialFormula(self.y, conj)
         query = FOQuery(formula, [self.x, self.z])
 
         results = list(self.evaluator.evaluate(query, self.fb_pab_pbc))
@@ -150,14 +153,15 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
 
     def test_transitive_join_failure(self):
         """
-        Query: ?(X,Z) :- p(X,Y) ∧ p(Y,Z)
+        Query: ?(X,Z) :- ∃Y.(p(X,Y) ∧ p(Y,Z))
         FactBase: {p(a,b), p(c,d)}
         Expected: empty (no join possible, b != c)
         """
-        formula = ConjunctionFormula(
+        conj = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),
         )
+        formula = ExistentialFormula(self.y, conj)
         query = FOQuery(formula, [self.x, self.z])
 
         results = list(self.evaluator.evaluate(query, self.fb_pab_pcd))
@@ -166,14 +170,15 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
 
     def test_transitive_boolean_success(self):
         """
-        Query: ?() :- p(X,Y) ∧ p(Y,Z)
+        Query: ?() :- ∃X.∃Y.∃Z.(p(X,Y) ∧ p(Y,Z))
         FactBase: {p(a,b), p(b,c)}
         Expected: true (one empty tuple)
         """
-        formula = ConjunctionFormula(
+        conj = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),
         )
+        formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
         query = FOQuery(formula, [])
 
         results = list(self.evaluator.evaluate(query, self.fb_pab_pbc))
@@ -183,14 +188,15 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
 
     def test_transitive_boolean_failure(self):
         """
-        Query: ?() :- p(X,Y) ∧ p(Y,Z)
+        Query: ?() :- ∃X.∃Y.∃Z.(p(X,Y) ∧ p(Y,Z))
         FactBase: {p(a,b), p(c,d)}
         Expected: false (empty)
         """
-        formula = ConjunctionFormula(
+        conj = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),
         )
+        formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
         query = FOQuery(formula, [])
 
         results = list(self.evaluator.evaluate(query, self.fb_pab_pcd))
@@ -203,14 +209,15 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
     # =========================================================================
     def test_cartesian_product_small(self):
         """
-        Query: ?(X,Z) :- p(X,Y) ∧ p(Z,T)
+        Query: ?(X,Z) :- ∃Y.∃T.(p(X,Y) ∧ p(Z,T))
         FactBase: {p(a,b), p(b,c)}
         Expected: 4 results (2x2 cartesian)
         """
-        formula = ConjunctionFormula(
+        conj = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.z, self.t),
         )
+        formula = ExistentialFormula(self.y, ExistentialFormula(self.t, conj))
         query = FOQuery(formula, [self.x, self.z])
 
         results = list(self.evaluator.evaluate(query, self.fb_pab_pbc))
@@ -251,14 +258,15 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
 
     def test_self_join_projection(self):
         """
-        Query: ?(X) :- p(X,Y) ∧ p(X,Z)
+        Query: ?(X) :- ∃Y.∃Z.(p(X,Y) ∧ p(X,Z))
         FactBase: {p(a,a), p(a,b), p(c,d)}
         Expected: {a, c} (deduplicated)
         """
-        formula = ConjunctionFormula(
+        conj = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.x, self.z),
         )
+        formula = ExistentialFormula(self.y, ExistentialFormula(self.z, conj))
         query = FOQuery(formula, [self.x])
 
         results = list(self.evaluator.evaluate(query, self.fact_base_1))
@@ -273,7 +281,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
     # =========================================================================
     def test_triangle_pattern(self):
         """
-        Query: ?() :- p(X,Y) ∧ p(Y,Z) ∧ p(Z,X)
+        Query: ?() :- ∃X.∃Y.∃Z.(p(X,Y) ∧ p(Y,Z) ∧ p(Z,X))
         FactBase: {p(a,b), p(b,c), p(c,a)}
         Expected: true (triangle a->b->c->a)
         """
@@ -286,7 +294,8 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),
         )
-        formula = ConjunctionFormula(inner, Atom(self.p2, self.z, self.x))
+        conj = ConjunctionFormula(inner, Atom(self.p2, self.z, self.x))
+        formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
         query = FOQuery(formula, [])
 
         results = list(self.evaluator.evaluate(query, fb_triangle))
@@ -296,7 +305,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
 
     def test_triangle_no_match(self):
         """
-        Query: ?() :- p(X,Y) ∧ p(Y,Z) ∧ p(Z,X)
+        Query: ?() :- ∃X.∃Y.∃Z.(p(X,Y) ∧ p(Y,Z) ∧ p(Z,X))
         FactBase: {p(a,b), p(b,c), p(c,d)} (no cycle)
         Expected: false
         """
@@ -309,7 +318,8 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),
         )
-        formula = ConjunctionFormula(inner, Atom(self.p2, self.z, self.x))
+        conj = ConjunctionFormula(inner, Atom(self.p2, self.z, self.x))
+        formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
         query = FOQuery(formula, [])
 
         results = list(self.evaluator.evaluate(query, fb_no_triangle))
@@ -322,7 +332,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
     # =========================================================================
     def test_two_predicates_join(self):
         """
-        Query: ?(X,Z) :- p(X,Y) ∧ q(Y,Z)
+        Query: ?(X,Z) :- ∃Y.(p(X,Y) ∧ q(Y,Z))
         FactBase: {p(a,b), q(b,c), q(b,d)}
         Expected: {(a,c), (a,d)}
         """
@@ -331,10 +341,11 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
             Atom(self.q2, self.b, self.c),
             Atom(self.q2, self.b, self.d),
         ])
-        formula = ConjunctionFormula(
+        conj = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.q2, self.y, self.z),
         )
+        formula = ExistentialFormula(self.y, conj)
         query = FOQuery(formula, [self.x, self.z])
 
         results = list(self.evaluator.evaluate(query, fb))
@@ -345,7 +356,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
 
     def test_two_predicates_no_join(self):
         """
-        Query: ?(X,Z) :- p(X,Y) ∧ q(Y,Z)
+        Query: ?(X,Z) :- ∃Y.(p(X,Y) ∧ q(Y,Z))
         FactBase: {p(a,b), q(c,d)} (no common value for Y)
         Expected: empty
         """
@@ -353,10 +364,11 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
             Atom(self.p2, self.a, self.b),
             Atom(self.q2, self.c, self.d),
         ])
-        formula = ConjunctionFormula(
+        conj = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.q2, self.y, self.z),
         )
+        formula = ExistentialFormula(self.y, conj)
         query = FOQuery(formula, [self.x, self.z])
 
         results = list(self.evaluator.evaluate(query, fb))
@@ -368,7 +380,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
     # =========================================================================
     def test_long_chain(self):
         """
-        Query: ?(A,E) :- p(A,B) ∧ p(B,C) ∧ p(C,D) ∧ p(D,E)
+        Query: ?(A,E) :- ∃B.∃C.∃D.(p(A,B) ∧ p(B,C) ∧ p(C,D) ∧ p(D,E))
         FactBase: {p(1,2), p(2,3), p(3,4), p(4,5)}
         Expected: {(1,5)}
         """
@@ -390,10 +402,11 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
             Atom(self.p2, c4, c5),
         ])
 
-        # Build: ((p(A,B) ∧ p(B,C)) ∧ p(C,D)) ∧ p(D,E)
+        # Build: ∃B.∃C.∃D.(((p(A,B) ∧ p(B,C)) ∧ p(C,D)) ∧ p(D,E))
         conj1 = ConjunctionFormula(Atom(self.p2, va, vb), Atom(self.p2, vb, vc))
         conj2 = ConjunctionFormula(conj1, Atom(self.p2, vc, vd))
-        formula = ConjunctionFormula(conj2, Atom(self.p2, vd, ve))
+        conj3 = ConjunctionFormula(conj2, Atom(self.p2, vd, ve))
+        formula = ExistentialFormula(vb, ExistentialFormula(vc, ExistentialFormula(vd, conj3)))
         query = FOQuery(formula, [va, ve])
 
         results = list(self.evaluator.evaluate(query, fb))
@@ -450,7 +463,8 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
         z = Variable("Z")
 
         fb = MutableInMemoryFactBase()
-        formula = ConjunctionFormula(Atom(p, x, y), Atom(p, y, z))
+        conj = ConjunctionFormula(Atom(p, x, y), Atom(p, y, z))
+        formula = ExistentialFormula(y, conj)
         query = FOQuery(formula, [x, z])
 
         results = list(self.evaluator.evaluate(query, fb))
@@ -480,7 +494,7 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
 
     def test_conjunction_with_constants(self):
         """
-        Query: ?() :- p(a,X) ∧ p(X,b)
+        Query: ?() :- ∃X.(p(a,X) ∧ p(X,b))
         FactBase: {p(a,c), p(c,b)}
         Expected: true (X=c)
         """
@@ -491,7 +505,8 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
         x = Variable("X")
 
         fb = MutableInMemoryFactBase([Atom(p, a, c), Atom(p, c, b)])
-        formula = ConjunctionFormula(Atom(p, a, x), Atom(p, x, b))
+        conj = ConjunctionFormula(Atom(p, a, x), Atom(p, x, b))
+        formula = ExistentialFormula(x, conj)
         query = FOQuery(formula, [])
 
         results = list(self.evaluator.evaluate(query, fb))

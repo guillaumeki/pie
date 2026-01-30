@@ -52,14 +52,25 @@ class FOQuery(Query, Substitutable["FOQuery[F]"], Generic[F]):
         Query.__init__(self, answer_variables, label)
         self._formula = formula
 
-        # Validate that answer variables are free in the formula
+        # Validate that answer variables are exactly the free variables
         free_vars = formula.free_variables
+        answer_vars_set = set(self._answer_variables)
+
+        # Check that all answer variables are free in the formula
         for v in self._answer_variables:
             if v not in free_vars:
                 raise ValueError(
                     f"Answer variable {v} is not free in the formula. "
                     f"Free variables are: {free_vars}"
                 )
+
+        # Check that all free variables are answer variables
+        non_answer_free_vars = free_vars - answer_vars_set
+        if non_answer_free_vars:
+            raise ValueError(
+                f"Free variables {non_answer_free_vars} are not answer variables. "
+                f"Use explicit ∃ quantification or add them to answer variables."
+            )
 
     @property
     def formula(self) -> F:

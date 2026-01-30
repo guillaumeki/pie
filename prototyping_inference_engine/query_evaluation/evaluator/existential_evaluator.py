@@ -69,7 +69,7 @@ class ExistentialFormulaEvaluator(FormulaEvaluator[ExistentialFormula]):
             })
 
             # Deduplicate
-            key = tuple(sorted(projected.items()))
+            key = frozenset(projected.items())
             if key not in seen:
                 seen.add(key)
                 yield projected

@@ -11,6 +11,7 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
+from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.atom_evaluator import AtomEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import FOQueryEvaluator
@@ -84,11 +85,12 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
     # =========================================================================
     def test_reflexive_query_no_match(self):
         """
-        Query: ?() :- p(X,X)
+        Query: ?() :- ∃X.p(X,X)
         FactBase: {p(a,b)}
         Expected: no matches (a != b)
         """
-        query = FOQuery(Atom(self.p2, self.x, self.x), [])
+        formula = ExistentialFormula(self.x, Atom(self.p2, self.x, self.x))
+        query = FOQuery(formula, [])
         results = list(self.evaluator.evaluate(query, self.fact_base_2))
         self.assertEqual(len(results), 0)
 
@@ -97,11 +99,12 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
     # =========================================================================
     def test_query_with_projection_on_first_var(self):
         """
-        Query: ?(X) :- p(X,Y)
+        Query: ?(X) :- ∃Y.p(X,Y)
         FactBase: {p(a,a), p(a,b), p(c,d)}
         Expected: {a, c} (deduplicated since a appears twice)
         """
-        query = FOQuery(Atom(self.p2, self.x, self.y), [self.x])
+        formula = ExistentialFormula(self.y, Atom(self.p2, self.x, self.y))
+        query = FOQuery(formula, [self.x])
         results = list(self.evaluator.evaluate(query, self.fact_base_1))
 
         result_values = {r[0] for r in results}

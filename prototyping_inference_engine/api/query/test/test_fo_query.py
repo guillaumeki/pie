@@ -32,9 +32,9 @@ class TestFOQuery(unittest.TestCase):
 
     def test_create_simple_query(self):
         atom = Atom(self.p, self.x, self.y)
-        query = FOQuery(atom, [self.x])
+        query = FOQuery(atom, [self.x, self.y])
         self.assertEqual(query.formula, atom)
-        self.assertEqual(query.answer_variables, (self.x,))
+        self.assertEqual(query.answer_variables, (self.x, self.y))
 
     def test_create_boolean_query(self):
         atom = Atom(self.p, self.a, self.a)
@@ -44,7 +44,7 @@ class TestFOQuery(unittest.TestCase):
 
     def test_create_query_with_label(self):
         atom = Atom(self.p, self.x, self.y)
-        query = FOQuery(atom, [self.x], label="my_query")
+        query = FOQuery(atom, [self.x, self.y], label="my_query")
         self.assertEqual(query.label, "my_query")
 
     def test_invalid_answer_variable_raises(self):
@@ -52,14 +52,21 @@ class TestFOQuery(unittest.TestCase):
         with self.assertRaises(ValueError):
             FOQuery(atom, [self.z])  # Z is not in the formula
 
+    def test_free_var_not_answer_raises(self):
+        """Free variables must all be answer variables."""
+        atom = Atom(self.p, self.x, self.y)
+        with self.assertRaises(ValueError) as ctx:
+            FOQuery(atom, [self.x])  # Y is free but not answer
+        self.assertIn("Y", str(ctx.exception))
+
     def test_formula_property(self):
         atom = Atom(self.p, self.x, self.y)
-        query = FOQuery(atom, [self.x])
+        query = FOQuery(atom, [self.x, self.y])
         self.assertIsInstance(query.formula, Atom)
 
     def test_free_variables(self):
         atom = Atom(self.p, self.x, self.y)
-        query = FOQuery(atom, [self.x])
+        query = FOQuery(atom, [self.x, self.y])
         self.assertEqual(query.free_variables, frozenset([self.x, self.y]))
 
     def test_bound_variables(self):
@@ -68,16 +75,19 @@ class TestFOQuery(unittest.TestCase):
         query = FOQuery(exists, [self.x])
         self.assertEqual(query.bound_variables, frozenset([self.y]))
 
-    def test_existential_variables(self):
+    def test_existential_variables_empty(self):
+        """With strict validation, existential_variables is always empty."""
         atom = Atom(self.p, self.x, self.y)
-        query = FOQuery(atom, [self.x])
-        self.assertEqual(query.existential_variables, {self.y})
+        query = FOQuery(atom, [self.x, self.y])
+        self.assertEqual(query.existential_variables, set())
 
     def test_atoms(self):
         p_xy = Atom(self.p, self.x, self.y)
         q_y = Atom(self.q, self.y)
         conj = ConjunctionFormula(p_xy, q_y)
-        query = FOQuery(conj, [self.x])
+        # Use ∃Y to make only X free
+        exists = ExistentialFormula(self.y, conj)
+        query = FOQuery(exists, [self.x])
         self.assertEqual(query.atoms, frozenset([p_xy, q_y]))
 
     def test_terms(self):
@@ -92,14 +102,13 @@ class TestFOQuery(unittest.TestCase):
         self.assertEqual(query.variables, {self.x, self.y})
 
     def test_constants(self):
-        b = Constant("b")
         atom = Atom(self.p, self.x, self.a)
         query = FOQuery(atom, [self.x])
         self.assertIn(self.a, query.constants)
 
     def test_is_closed_false(self):
         atom = Atom(self.p, self.x, self.y)
-        query = FOQuery(atom, [self.x])
+        query = FOQuery(atom, [self.x, self.y])
         self.assertFalse(query.is_closed)
 
     def test_is_closed_true(self):
@@ -109,18 +118,18 @@ class TestFOQuery(unittest.TestCase):
 
     def test_str_representation(self):
         atom = Atom(self.p, self.x, self.y)
-        query = FOQuery(atom, [self.x])
-        self.assertIn("?(X)", str(query))
+        query = FOQuery(atom, [self.x, self.y])
+        self.assertIn("?(X, Y)", str(query))
         self.assertIn("p(X, Y)", str(query))
 
     def test_str_without_answer_variables(self):
         atom = Atom(self.p, self.x, self.y)
-        query = FOQuery(atom, [self.x])
+        query = FOQuery(atom, [self.x, self.y])
         self.assertEqual(query.str_without_answer_variables, "p(X, Y)")
 
     def test_apply_substitution(self):
         atom = Atom(self.p, self.x, self.y)
-        query = FOQuery(atom, [self.x])
+        query = FOQuery(atom, [self.x, self.y])
         sub = Substitution({self.y: self.z})
         result = query.apply_substitution(sub)
         self.assertIsInstance(result, FOQuery)
@@ -135,27 +144,28 @@ class TestFOQuery(unittest.TestCase):
 
     def test_equality(self):
         atom = Atom(self.p, self.x, self.y)
-        q1 = FOQuery(atom, [self.x])
-        q2 = FOQuery(atom, [self.x])
+        q1 = FOQuery(atom, [self.x, self.y])
+        q2 = FOQuery(atom, [self.x, self.y])
         self.assertEqual(q1, q2)
 
     def test_inequality_different_formula(self):
         atom1 = Atom(self.p, self.x, self.y)
         atom2 = Atom(self.q, self.x)
-        q1 = FOQuery(atom1, [self.x])
+        q1 = FOQuery(atom1, [self.x, self.y])
         q2 = FOQuery(atom2, [self.x])
         self.assertNotEqual(q1, q2)
 
     def test_inequality_different_answer_vars(self):
         atom = Atom(self.p, self.x, self.y)
-        q1 = FOQuery(atom, [self.x])
-        q2 = FOQuery(atom, [self.y])
+        q1 = FOQuery(atom, [self.x, self.y])
+        q2 = FOQuery(atom, [self.y, self.x])  # Different order
+        # Note: order matters for equality
         self.assertNotEqual(q1, q2)
 
     def test_hash(self):
         atom = Atom(self.p, self.x, self.y)
-        q1 = FOQuery(atom, [self.x])
-        q2 = FOQuery(atom, [self.x])
+        q1 = FOQuery(atom, [self.x, self.y])
+        q2 = FOQuery(atom, [self.x, self.y])
         self.assertEqual(hash(q1), hash(q2))
 
     def test_answer_atom(self):
@@ -220,14 +230,16 @@ class TestFOQueryFactory(unittest.TestCase):
 
     def test_from_formula_with_string_vars(self):
         formula = self.session.formula().atom("p", "X", "Y").build()
-        query = self.session.fo_query().from_formula(formula, ["X"])
-        self.assertEqual(len(query.answer_variables), 1)
+        query = self.session.fo_query().from_formula(formula, ["X", "Y"])
+        self.assertEqual(len(query.answer_variables), 2)
 
     def test_from_formula_with_variable_objects(self):
         formula = self.session.formula().atom("p", "X", "Y").build()
         x = self.session.variable("X")
-        query = self.session.fo_query().from_formula(formula, [x])
-        self.assertEqual(query.answer_variables[0], x)
+        y = self.session.variable("Y")
+        query = self.session.fo_query().from_formula(formula, [x, y])
+        self.assertIn(x, query.answer_variables)
+        self.assertIn(y, query.answer_variables)
 
     def test_from_formula_with_label(self):
         formula = self.session.formula().atom("p", "X").build()
@@ -251,11 +263,11 @@ class TestFOQueryBuilder(unittest.TestCase):
 
     def test_build_simple_query(self):
         query = (self.session.fo_query().builder()
-            .answer("X")
+            .answer("X", "Y")
             .atom("p", "X", "Y")
             .build())
         self.assertIsInstance(query, FOQuery)
-        self.assertEqual(len(query.answer_variables), 1)
+        self.assertEqual(len(query.answer_variables), 2)
 
     def test_build_query_multiple_answers(self):
         query = (self.session.fo_query().builder()
@@ -275,11 +287,13 @@ class TestFOQueryBuilder(unittest.TestCase):
     def test_build_query_with_conjunction(self):
         query = (self.session.fo_query().builder()
             .answer("X")
+            .exists("Y")
             .atom("p", "X", "Y")
             .and_()
             .atom("q", "Y")
             .build())
-        self.assertIsInstance(query.formula, ConjunctionFormula)
+        self.assertIsInstance(query.formula, ExistentialFormula)
+        self.assertIsInstance(query.formula.inner, ConjunctionFormula)
 
     def test_build_query_with_disjunction(self):
         query = (self.session.fo_query().builder()

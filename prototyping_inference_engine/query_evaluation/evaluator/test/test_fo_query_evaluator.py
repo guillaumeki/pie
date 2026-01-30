@@ -8,6 +8,7 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
+from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import FOQueryEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
@@ -115,13 +116,14 @@ class TestFOQueryEvaluator(unittest.TestCase):
         # Fact base: {p(a, b), p(a, b)} (duplicate)
         # Actually MutableInMemoryFactBase uses a set, so let's test differently
         # Fact base: {p(a, b), p(a, c)}
-        # Query: ?(X) :- p(X, Y)  (Y is not in answer, so X=a appears twice)
+        # Query: ?(X) :- ∃Y.p(X, Y)  (Y is projected out, so X=a appears twice)
         # Expected: (a,) - deduplicated
         fact_base = MutableInMemoryFactBase([
             Atom(self.p, self.a, self.b),
             Atom(self.p, self.a, self.c),
         ])
-        query = FOQuery(Atom(self.p, self.x, self.y), [self.x])
+        formula = ExistentialFormula(self.y, Atom(self.p, self.x, self.y))
+        query = FOQuery(formula, [self.x])
 
         results = list(self.evaluator.evaluate(query, fact_base))
 

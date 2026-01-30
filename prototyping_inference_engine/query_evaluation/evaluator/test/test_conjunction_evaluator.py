@@ -9,6 +9,7 @@ from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
     BacktrackConjunctionEvaluator,
@@ -270,7 +271,7 @@ class TestConjunctionFOQuery(unittest.TestCase):
 
     def test_conjunction_query_with_answer_vars(self):
         """
-        Query: ?(X) :- p(X,Y) ∧ q(Y)
+        Query: ?(X) :- ∃Y.(p(X,Y) ∧ q(Y))
         FactBase: {p(a,b), p(c,b), q(b)}
         Expected: {a}, {c}
         """
@@ -287,7 +288,8 @@ class TestConjunctionFOQuery(unittest.TestCase):
             Atom(p, c, b),
             Atom(q, b),
         ])
-        formula = ConjunctionFormula(Atom(p, x, y), Atom(q, y))
+        conj = ConjunctionFormula(Atom(p, x, y), Atom(q, y))
+        formula = ExistentialFormula(y, conj)
         query = FOQuery(formula, [x])
 
         results = list(self.evaluator.evaluate(query, fact_base))
