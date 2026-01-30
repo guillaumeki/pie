@@ -8,9 +8,22 @@ from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator i
 )
 from prototyping_inference_engine.query_evaluation.evaluator.atom_evaluator import AtomEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.query_evaluator import QueryEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
     FOQueryEvaluator,
     UnsupportedFormulaError,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator_registry import (
+    FOQueryEvaluatorRegistry,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import (
+    AtomicFOQueryEvaluator,
+    ConjunctiveFOQueryEvaluator,
+    DisjunctiveFOQueryEvaluator,
+    NegationFOQueryEvaluator,
+    UniversalFOQueryEvaluator,
+    ExistentialFOQueryEvaluator,
+    GenericFOQueryEvaluator,
 )
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
     ConjunctionEvaluator,
@@ -32,6 +45,19 @@ from prototyping_inference_engine.query_evaluation.evaluator.disjunction_evaluat
 )
 
 __all__ = [
+    # Query evaluators
+    "QueryEvaluator",
+    "FOQueryEvaluator",
+    "FOQueryEvaluatorRegistry",
+    "AtomicFOQueryEvaluator",
+    "ConjunctiveFOQueryEvaluator",
+    "DisjunctiveFOQueryEvaluator",
+    "NegationFOQueryEvaluator",
+    "UniversalFOQueryEvaluator",
+    "ExistentialFOQueryEvaluator",
+    "GenericFOQueryEvaluator",
+    "UnsupportedFormulaError",
+    # Formula evaluators (internal)
     "FormulaEvaluator",
     "RegistryMixin",
     "AtomEvaluator",
@@ -44,6 +70,4 @@ __all__ = [
     "UniversalQuantifierWarning",
     "ExistentialFormulaEvaluator",
     "FormulaEvaluatorRegistry",
-    "FOQueryEvaluator",
-    "UnsupportedFormulaError",
 ]

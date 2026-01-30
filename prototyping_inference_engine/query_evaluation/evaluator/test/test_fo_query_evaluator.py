@@ -10,7 +10,7 @@ from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import FOQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
@@ -20,7 +20,7 @@ class TestFOQueryEvaluator(unittest.TestCase):
 
     def setUp(self):
         FormulaEvaluatorRegistry.reset()
-        self.evaluator = FOQueryEvaluator()
+        self.evaluator = GenericFOQueryEvaluator()
         self.p = Predicate("p", 2)
         self.q = Predicate("q", 1)
         self.x = Variable("X")
@@ -39,7 +39,7 @@ class TestFOQueryEvaluator(unittest.TestCase):
         fact_base = MutableInMemoryFactBase([Atom(self.p, self.a, self.b)])
         query = FOQuery(Atom(self.p, self.a, self.x), [self.x])
 
-        results = list(self.evaluator.evaluate(query, fact_base))
+        results = list(self.evaluator.evaluate_and_project(query, fact_base))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], (self.b,))
@@ -54,7 +54,7 @@ class TestFOQueryEvaluator(unittest.TestCase):
         ])
         query = FOQuery(Atom(self.p, self.a, self.x), [self.x])
 
-        results = list(self.evaluator.evaluate(query, fact_base))
+        results = list(self.evaluator.evaluate_and_project(query, fact_base))
 
         self.assertEqual(len(results), 2)
         result_set = set(results)
@@ -71,7 +71,7 @@ class TestFOQueryEvaluator(unittest.TestCase):
         ])
         query = FOQuery(Atom(self.p, self.x, self.y), [self.x, self.y])
 
-        results = list(self.evaluator.evaluate(query, fact_base))
+        results = list(self.evaluator.evaluate_and_project(query, fact_base))
 
         self.assertEqual(len(results), 2)
         result_set = set(results)
@@ -85,7 +85,7 @@ class TestFOQueryEvaluator(unittest.TestCase):
         fact_base = MutableInMemoryFactBase([Atom(self.p, self.a, self.b)])
         query = FOQuery(Atom(self.p, self.a, self.b), [])
 
-        results = list(self.evaluator.evaluate(query, fact_base))
+        results = list(self.evaluator.evaluate_and_project(query, fact_base))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], ())
@@ -97,7 +97,7 @@ class TestFOQueryEvaluator(unittest.TestCase):
         fact_base = MutableInMemoryFactBase([Atom(self.p, self.a, self.b)])
         query = FOQuery(Atom(self.p, self.a, self.c), [])
 
-        results = list(self.evaluator.evaluate(query, fact_base))
+        results = list(self.evaluator.evaluate_and_project(query, fact_base))
 
         self.assertEqual(len(results), 0)
 
@@ -108,7 +108,7 @@ class TestFOQueryEvaluator(unittest.TestCase):
         fact_base = MutableInMemoryFactBase([Atom(self.p, self.a, self.b)])
         query = FOQuery(Atom(self.q, self.x), [self.x])
 
-        results = list(self.evaluator.evaluate(query, fact_base))
+        results = list(self.evaluator.evaluate_and_project(query, fact_base))
 
         self.assertEqual(len(results), 0)
 
@@ -125,7 +125,7 @@ class TestFOQueryEvaluator(unittest.TestCase):
         formula = ExistentialFormula(self.y, Atom(self.p, self.x, self.y))
         query = FOQuery(formula, [self.x])
 
-        results = list(self.evaluator.evaluate(query, fact_base))
+        results = list(self.evaluator.evaluate_and_project(query, fact_base))
 
         # Should be deduplicated to just (a,)
         self.assertEqual(len(results), 1)

@@ -17,7 +17,7 @@ from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
     BacktrackConjunctionEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import FOQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
@@ -85,7 +85,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
 
     def setUp(self):
         FormulaEvaluatorRegistry.reset()
-        self.evaluator = FOQueryEvaluator()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def tearDown(self):
         FormulaEvaluatorRegistry.reset()
@@ -107,7 +107,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.z, ExistentialFormula(self.w, ExistentialFormula(self.t, conj)))
         query = FOQuery(formula, [self.x])
 
-        results = list(self.evaluator.evaluate(query, self.fact_base_3))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_3))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], (self.a,))
@@ -124,7 +124,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         )
         query = FOQuery(formula, [self.x, self.z, self.w, self.t])
 
-        results = list(self.evaluator.evaluate(query, self.fact_base_3))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_3))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], (self.a, self.b, self.c, self.d))
@@ -146,7 +146,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.y, conj)
         query = FOQuery(formula, [self.x, self.z])
 
-        results = list(self.evaluator.evaluate(query, self.fb_pab_pbc))
+        results = list(self.evaluator.evaluate_and_project(query, self.fb_pab_pbc))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], (self.a, self.c))
@@ -164,7 +164,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.y, conj)
         query = FOQuery(formula, [self.x, self.z])
 
-        results = list(self.evaluator.evaluate(query, self.fb_pab_pcd))
+        results = list(self.evaluator.evaluate_and_project(query, self.fb_pab_pcd))
 
         self.assertEqual(len(results), 0)
 
@@ -181,7 +181,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
         query = FOQuery(formula, [])
 
-        results = list(self.evaluator.evaluate(query, self.fb_pab_pbc))
+        results = list(self.evaluator.evaluate_and_project(query, self.fb_pab_pbc))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], ())
@@ -199,7 +199,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
         query = FOQuery(formula, [])
 
-        results = list(self.evaluator.evaluate(query, self.fb_pab_pcd))
+        results = list(self.evaluator.evaluate_and_project(query, self.fb_pab_pcd))
 
         self.assertEqual(len(results), 0)
 
@@ -220,7 +220,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.y, ExistentialFormula(self.t, conj))
         query = FOQuery(formula, [self.x, self.z])
 
-        results = list(self.evaluator.evaluate(query, self.fb_pab_pbc))
+        results = list(self.evaluator.evaluate_and_project(query, self.fb_pab_pbc))
 
         self.assertEqual(len(results), 4)
         result_pairs = set(results)
@@ -246,7 +246,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         )
         query = FOQuery(formula, [self.x, self.y, self.z])
 
-        results = list(self.evaluator.evaluate(query, self.fact_base_1))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_1))
 
         # X=a: (a,a,a), (a,a,b), (a,b,a), (a,b,b) = 4
         # X=c: (c,d,d) = 1
@@ -269,7 +269,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.y, ExistentialFormula(self.z, conj))
         query = FOQuery(formula, [self.x])
 
-        results = list(self.evaluator.evaluate(query, self.fact_base_1))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_1))
 
         self.assertEqual(len(results), 2)
         result_values = {r[0] for r in results}
@@ -298,7 +298,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
         query = FOQuery(formula, [])
 
-        results = list(self.evaluator.evaluate(query, fb_triangle))
+        results = list(self.evaluator.evaluate_and_project(query, fb_triangle))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], ())
@@ -322,7 +322,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
         query = FOQuery(formula, [])
 
-        results = list(self.evaluator.evaluate(query, fb_no_triangle))
+        results = list(self.evaluator.evaluate_and_project(query, fb_no_triangle))
 
         self.assertEqual(len(results), 0)
 
@@ -348,7 +348,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.y, conj)
         query = FOQuery(formula, [self.x, self.z])
 
-        results = list(self.evaluator.evaluate(query, fb))
+        results = list(self.evaluator.evaluate_and_project(query, fb))
 
         self.assertEqual(len(results), 2)
         result_pairs = set(results)
@@ -371,7 +371,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(self.y, conj)
         query = FOQuery(formula, [self.x, self.z])
 
-        results = list(self.evaluator.evaluate(query, fb))
+        results = list(self.evaluator.evaluate_and_project(query, fb))
 
         self.assertEqual(len(results), 0)
 
@@ -409,7 +409,7 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         formula = ExistentialFormula(vb, ExistentialFormula(vc, ExistentialFormula(vd, conj3)))
         query = FOQuery(formula, [va, ve])
 
-        results = list(self.evaluator.evaluate(query, fb))
+        results = list(self.evaluator.evaluate_and_project(query, fb))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], (c1, c5))
@@ -450,7 +450,7 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
 
     def setUp(self):
         FormulaEvaluatorRegistry.reset()
-        self.evaluator = FOQueryEvaluator()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def tearDown(self):
         FormulaEvaluatorRegistry.reset()
@@ -467,7 +467,7 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
         formula = ExistentialFormula(y, conj)
         query = FOQuery(formula, [x, z])
 
-        results = list(self.evaluator.evaluate(query, fb))
+        results = list(self.evaluator.evaluate_and_project(query, fb))
 
         self.assertEqual(len(results), 0)
 
@@ -487,7 +487,7 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
         formula = ConjunctionFormula(Atom(p, x, y), Atom(p, y, z))
         query = FOQuery(formula, [x, y, z])
 
-        results = list(self.evaluator.evaluate(query, fb))
+        results = list(self.evaluator.evaluate_and_project(query, fb))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], (a, a, a))
@@ -509,7 +509,7 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
         formula = ExistentialFormula(x, conj)
         query = FOQuery(formula, [])
 
-        results = list(self.evaluator.evaluate(query, fb))
+        results = list(self.evaluator.evaluate_and_project(query, fb))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], ())
@@ -529,7 +529,7 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
         formula = ConjunctionFormula(Atom(p, a, b), Atom(p, b, c))
         query = FOQuery(formula, [])
 
-        results = list(self.evaluator.evaluate(query, fb))
+        results = list(self.evaluator.evaluate_and_project(query, fb))
 
         self.assertEqual(len(results), 1)
 
@@ -549,7 +549,7 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
         formula = ConjunctionFormula(Atom(p, a, b), Atom(p, b, d))
         query = FOQuery(formula, [])
 
-        results = list(self.evaluator.evaluate(query, fb))
+        results = list(self.evaluator.evaluate_and_project(query, fb))
 
         self.assertEqual(len(results), 0)
 

@@ -439,10 +439,10 @@ class ReasoningSession:
             for answer in session.evaluate_query(query, fact_base):
                 print(answer)  # (b,), (c,), ...
         """
-        from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import FOQueryEvaluator
+        from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
         self._check_not_closed()
-        evaluator = FOQueryEvaluator()
-        return evaluator.evaluate(query, fact_base)
+        evaluator = GenericFOQueryEvaluator()
+        return evaluator.evaluate_and_project(query, fact_base)
 
     # =========================================================================
     # Lifecycle methods

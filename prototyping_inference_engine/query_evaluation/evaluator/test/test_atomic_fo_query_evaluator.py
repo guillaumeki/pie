@@ -14,7 +14,7 @@ from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base impo
 from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.atom_evaluator import AtomEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import FOQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
@@ -75,7 +75,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
 
     def setUp(self):
         FormulaEvaluatorRegistry.reset()
-        self.evaluator = FOQueryEvaluator()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def tearDown(self):
         FormulaEvaluatorRegistry.reset()
@@ -91,7 +91,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         """
         formula = ExistentialFormula(self.x, Atom(self.p2, self.x, self.x))
         query = FOQuery(formula, [])
-        results = list(self.evaluator.evaluate(query, self.fact_base_2))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_2))
         self.assertEqual(len(results), 0)
 
     # =========================================================================
@@ -105,7 +105,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         """
         formula = ExistentialFormula(self.y, Atom(self.p2, self.x, self.y))
         query = FOQuery(formula, [self.x])
-        results = list(self.evaluator.evaluate(query, self.fact_base_1))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_1))
 
         result_values = {r[0] for r in results}
         self.assertEqual(result_values, {self.a, self.c})
@@ -120,7 +120,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Expected: {(a,a), (a,b), (c,d)}
         """
         query = FOQuery(Atom(self.p2, self.x, self.y), [self.x, self.y])
-        results = list(self.evaluator.evaluate(query, self.fact_base_1))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_1))
 
         result_set = set(results)
         expected = {
@@ -200,7 +200,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Expected: one empty tuple (query is satisfied)
         """
         query = FOQuery(Atom(self.p2, self.a, self.b), [])
-        results = list(self.evaluator.evaluate(query, self.fact_base_2))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_2))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], ())
@@ -215,7 +215,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Expected: empty (query not satisfied)
         """
         query = FOQuery(Atom(self.p2, self.a, self.c), [])
-        results = list(self.evaluator.evaluate(query, self.fact_base_2))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_2))
 
         self.assertEqual(len(results), 0)
 
@@ -229,7 +229,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Expected: empty
         """
         query = FOQuery(Atom(self.q2, self.x, self.y), [self.x, self.y])
-        results = list(self.evaluator.evaluate(query, self.fact_base_2))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_2))
 
         self.assertEqual(len(results), 0)
 
@@ -243,7 +243,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Expected: {a, b, c}
         """
         query = FOQuery(Atom(self.p2, self.x, self.x), [self.x])
-        results = list(self.evaluator.evaluate(query, self.fact_base_4))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_4))
 
         result_values = {r[0] for r in results}
         self.assertEqual(result_values, {self.a, self.b, self.c})
@@ -255,7 +255,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Expected: {a} (only p(a,a) is reflexive)
         """
         query = FOQuery(Atom(self.p2, self.x, self.x), [self.x])
-        results = list(self.evaluator.evaluate(query, self.fact_base_1))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_1))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], (self.a,))
@@ -270,7 +270,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Expected: empty
         """
         query = FOQuery(Atom(self.p2, self.x, self.y), [self.x, self.y])
-        results = list(self.evaluator.evaluate(query, self.fact_base_3))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_3))
 
         self.assertEqual(len(results), 0)
 
@@ -281,7 +281,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Expected: empty (not satisfied)
         """
         query = FOQuery(Atom(self.p2, self.a, self.b), [])
-        results = list(self.evaluator.evaluate(query, self.fact_base_3))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_3))
 
         self.assertEqual(len(results), 0)
 
@@ -295,7 +295,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Expected: {a, b}
         """
         query = FOQuery(Atom(self.p2, self.a, self.x), [self.x])
-        results = list(self.evaluator.evaluate(query, self.fact_base_1))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_1))
 
         result_values = {r[0] for r in results}
         self.assertEqual(result_values, {self.a, self.b})
@@ -307,7 +307,7 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Expected: {a} (only p(a,a) has 'a' in second position)
         """
         query = FOQuery(Atom(self.p2, self.x, self.a), [self.x])
-        results = list(self.evaluator.evaluate(query, self.fact_base_1))
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_1))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], (self.a,))

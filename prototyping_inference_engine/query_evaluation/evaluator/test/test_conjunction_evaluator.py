@@ -14,7 +14,7 @@ from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
     BacktrackConjunctionEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import FOQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
@@ -264,7 +264,7 @@ class TestConjunctionFOQuery(unittest.TestCase):
 
     def setUp(self):
         FormulaEvaluatorRegistry.reset()
-        self.evaluator = FOQueryEvaluator()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def tearDown(self):
         FormulaEvaluatorRegistry.reset()
@@ -292,7 +292,7 @@ class TestConjunctionFOQuery(unittest.TestCase):
         formula = ExistentialFormula(y, conj)
         query = FOQuery(formula, [x])
 
-        results = list(self.evaluator.evaluate(query, fact_base))
+        results = list(self.evaluator.evaluate_and_project(query, fact_base))
 
         self.assertEqual(len(results), 2)
         result_values = {r[0] for r in results}
@@ -316,7 +316,7 @@ class TestConjunctionFOQuery(unittest.TestCase):
         formula = ConjunctionFormula(Atom(p, a, b), Atom(q, b))
         query = FOQuery(formula, [])
 
-        results = list(self.evaluator.evaluate(query, fact_base))
+        results = list(self.evaluator.evaluate_and_project(query, fact_base))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], ())
@@ -340,7 +340,7 @@ class TestConjunctionFOQuery(unittest.TestCase):
         formula = ConjunctionFormula(Atom(p, a, b), Atom(q, c))
         query = FOQuery(formula, [])
 
-        results = list(self.evaluator.evaluate(query, fact_base))
+        results = list(self.evaluator.evaluate_and_project(query, fact_base))
 
         self.assertEqual(len(results), 0)
 

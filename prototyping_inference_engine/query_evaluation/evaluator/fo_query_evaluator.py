@@ -1,14 +1,17 @@
 """
-Evaluator for first-order queries.
+Abstract base class for first-order query evaluators.
 """
-from typing import Iterator, Tuple, TYPE_CHECKING
+from abc import abstractmethod
+from typing import Iterator, Tuple, Type, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.term.term import Term
-from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
+from prototyping_inference_engine.query_evaluation.evaluator.query_evaluator import QueryEvaluator
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.fact_base.fact_base import FactBase
+    from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
 class UnsupportedFormulaError(Exception):
@@ -21,63 +24,74 @@ class UnsupportedFormulaError(Exception):
         )
 
 
-class FOQueryEvaluator:
+class FOQueryEvaluator(QueryEvaluator[FOQuery]):
     """
-    Evaluates first-order queries against a fact base.
+    Abstract base class for first-order query evaluators.
 
-    Uses the FormulaEvaluatorRegistry to dispatch evaluation to the
-    appropriate evaluator based on the formula type.
+    Each concrete evaluator handles FOQuery instances with a specific
+    formula type (Atom, Conjunction, Disjunction, etc.).
 
-    Example:
-        evaluator = FOQueryEvaluator()
-        for answer in evaluator.evaluate(query, fact_base):
-            print(answer)  # Tuple of terms for answer variables
+    Type parameter F specifies the formula type this evaluator handles.
+    Evaluators return Iterator[Substitution] - the projection to answer
+    variable tuples is done separately.
     """
 
-    def __init__(self, registry: FormulaEvaluatorRegistry = None):
-        """
-        Create a query evaluator.
+    @classmethod
+    def supported_query_type(cls) -> Type[FOQuery]:
+        return FOQuery
 
-        Args:
-            registry: The formula evaluator registry to use.
-                      Defaults to the singleton instance.
-        """
-        self._registry = registry or FormulaEvaluatorRegistry.instance()
+    @classmethod
+    @abstractmethod
+    def supported_formula_type(cls) -> Type[Formula]:
+        """Return the formula type this evaluator handles."""
+        ...
 
+    @abstractmethod
     def evaluate(
         self,
         query: FOQuery,
         fact_base: "FactBase",
-    ) -> Iterator[Tuple[Term, ...]]:
+        substitution: "Substitution" = None,
+    ) -> Iterator["Substitution"]:
         """
         Evaluate a query against a fact base.
 
         Args:
             query: The first-order query to evaluate
             fact_base: The fact base to query
+            substitution: An optional initial substitution (pre-homomorphism)
 
         Yields:
-            Tuples of terms corresponding to the answer variables
-
-        Raises:
-            UnsupportedFormulaError: If no evaluator is registered for
-                                     the query's formula type
+            Substitutions that satisfy the query's formula
         """
-        formula = query.formula
-        evaluator = self._registry.get_evaluator(formula)
+        ...
 
-        if evaluator is None:
-            raise UnsupportedFormulaError(type(formula))
+    def evaluate_and_project(
+        self,
+        query: FOQuery,
+        fact_base: "FactBase",
+        substitution: "Substitution" = None,
+    ) -> Iterator[Tuple[Term, ...]]:
+        """
+        Evaluate a query and project results onto answer variables.
 
+        This is a convenience method that evaluates the query and projects
+        the resulting substitutions onto the answer variables, with deduplication.
+
+        Args:
+            query: The first-order query to evaluate
+            fact_base: The fact base to query
+            substitution: An optional initial substitution
+
+        Yields:
+            Deduplicated tuples of terms for answer variables
+        """
         seen: set[Tuple[Term, ...]] = set()
 
-        for substitution in evaluator.evaluate(formula, fact_base):
-            # Project the substitution onto the answer variables
+        for result_sub in self.evaluate(query, fact_base, substitution):
             answer = tuple(
-                substitution.apply(v) for v in query.answer_variables
+                result_sub.apply(v) for v in query.answer_variables
             )
-
-            # Deduplicate answers
             if answer not in seen:
                 seen.add(answer)
                 yield answer

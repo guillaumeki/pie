@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Pie (Prototyping Inference Engine) is a Python library for building inference engines. It supports:
 - Existential disjunctive rules (Disjunctive Datalog with existentially quantified variables)
+- First-order queries with conjunction, disjunction, negation, and quantifiers
+- Query evaluation against fact bases - 85% complete
 - Backward chaining (query rewriting) - 90% complete
 - Forward chaining - not yet implemented
 - Extended DLGP 2.1 format parser with disjunction support
@@ -77,6 +79,24 @@ pip install -e .
 - `Dlgp2Transformer` - transforms parse tree to domain objects
 - Grammar in `dlgp2.lark`
 
+### Query Evaluation (`query_evaluation/`)
+
+Hierarchical evaluator architecture:
+- `QueryEvaluator[Q]` - abstract base for all query evaluators
+- `FOQueryEvaluator` - abstract base for first-order query evaluators
+  - `AtomicFOQueryEvaluator` - atomic formulas
+  - `ConjunctiveFOQueryEvaluator` - conjunctions (backtracking)
+  - `DisjunctiveFOQueryEvaluator` - disjunctions
+  - `NegationFOQueryEvaluator` - negation-as-failure
+  - `UniversalFOQueryEvaluator` - universal quantification
+  - `ExistentialFOQueryEvaluator` - existential quantification
+  - `GenericFOQueryEvaluator` - dispatches by formula type
+- `FOQueryEvaluatorRegistry` - singleton registry for evaluators
+
+Internal formula evaluators (used by FOQueryEvaluators):
+- `FormulaEvaluator[F]` - returns `Iterator[Substitution]`
+- `AtomEvaluator`, `BacktrackConjunctionEvaluator`, etc.
+
 ### Homomorphism (`api/atom/set/homomorphism/`)
 
 - `NaiveBacktrackHomomorphismAlgorithm` - backtracking-based pattern matching
@@ -105,6 +125,8 @@ p(a,b).
 - All substitutable objects implement `apply_substitution(self, sub) -> Self`
 - `Variable.safe_renaming_substitution(vars)` creates fresh variable renaming
 - `atom_operations.specialize(from_atom, to_atom, sub)` for atom specialization
+- Use `GenericFOQueryEvaluator()` for query evaluation when formula type is unknown
+- `evaluate()` returns `Iterator[Substitution]`, `evaluate_and_project()` returns tuples
 
 ## Code Style
 
