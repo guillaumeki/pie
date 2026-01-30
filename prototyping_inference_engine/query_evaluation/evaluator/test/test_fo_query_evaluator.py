@@ -8,7 +8,7 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
+from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
     FOQueryEvaluator,
@@ -134,15 +134,18 @@ class TestFOQueryEvaluator(unittest.TestCase):
         self.assertEqual(results[0], (self.a,))
 
     def test_unsupported_formula_raises(self):
-        # NegationFormula is not supported (no evaluator registered)
+        # DisjunctionFormula is not supported (no evaluator registered)
         fact_base = MutableInMemoryFactBase()
-        neg_formula = NegationFormula(Atom(self.p, self.x, self.y))
-        query = FOQuery(neg_formula, [self.x])
+        disj_formula = DisjunctionFormula(
+            Atom(self.p, self.x, self.y),
+            Atom(self.q, self.x),
+        )
+        query = FOQuery(disj_formula, [self.x])
 
         with self.assertRaises(UnsupportedFormulaError) as ctx:
             list(self.evaluator.evaluate(query, fact_base))
 
-        self.assertEqual(ctx.exception.formula_type, NegationFormula)
+        self.assertEqual(ctx.exception.formula_type, DisjunctionFormula)
 
 
 class TestFOQueryEvaluatorWithSession(unittest.TestCase):

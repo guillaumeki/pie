@@ -13,12 +13,18 @@ from prototyping_inference_engine.query_evaluation.evaluator.conjunction import 
     ConjunctionEvaluator,
     BacktrackConjunctionEvaluator,
 )
+from prototyping_inference_engine.query_evaluation.evaluator.negation_evaluator import (
+    NegationFormulaEvaluator,
+    UnsafeNegationWarning,
+)
 
 __all__ = [
     "FormulaEvaluator",
     "AtomEvaluator",
     "ConjunctionEvaluator",
     "BacktrackConjunctionEvaluator",
+    "NegationFormulaEvaluator",
+    "UnsafeNegationWarning",
     "FormulaEvaluatorRegistry",
     "FOQueryEvaluator",
     "UnsupportedFormulaError",
