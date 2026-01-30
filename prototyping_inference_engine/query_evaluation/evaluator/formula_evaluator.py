@@ -2,15 +2,41 @@
 Abstract base class for formula evaluators.
 """
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Type, Iterator, TYPE_CHECKING
+from typing import Generic, TypeVar, Type, Iterator, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.formula.formula import Formula
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.fact_base.fact_base import FactBase
     from prototyping_inference_engine.api.substitution.substitution import Substitution
+    from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
+        FormulaEvaluatorRegistry,
+    )
 
 F = TypeVar("F", bound=Formula)
+
+
+class RegistryMixin:
+    """
+    Mixin providing lazy access to the FormulaEvaluatorRegistry.
+
+    Evaluators that need to delegate to other evaluators should inherit
+    from this mixin and call _get_registry() to obtain the registry.
+    """
+
+    _registry: Optional["FormulaEvaluatorRegistry"]
+
+    def __init__(self, registry: Optional["FormulaEvaluatorRegistry"] = None):
+        self._registry = registry
+
+    def _get_registry(self) -> "FormulaEvaluatorRegistry":
+        """Get the registry, lazily importing the singleton if needed."""
+        if self._registry is None:
+            from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
+                FormulaEvaluatorRegistry,
+            )
+            return FormulaEvaluatorRegistry.instance()
+        return self._registry
 
 
 class FormulaEvaluator(ABC, Generic[F]):

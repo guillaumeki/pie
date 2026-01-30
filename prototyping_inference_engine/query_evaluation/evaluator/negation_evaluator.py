@@ -6,7 +6,14 @@ from itertools import product
 from typing import Type, Iterator, TYPE_CHECKING, Optional
 
 from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
-from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import FormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import (
+    FormulaEvaluator,
+    RegistryMixin,
+)
+
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
+    UnsupportedFormulaError,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.fact_base.fact_base import FactBase
@@ -21,7 +28,7 @@ class UnsafeNegationWarning(UserWarning):
     pass
 
 
-class NegationFormulaEvaluator(FormulaEvaluator[NegationFormula]):
+class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula]):
     """
     Evaluator for negation formulas using negation-as-failure (NAF).
 
@@ -33,15 +40,7 @@ class NegationFormulaEvaluator(FormulaEvaluator[NegationFormula]):
     """
 
     def __init__(self, registry: Optional["FormulaEvaluatorRegistry"] = None):
-        self._registry = registry
-
-    def _get_registry(self) -> "FormulaEvaluatorRegistry":
-        if self._registry is None:
-            from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
-                FormulaEvaluatorRegistry,
-            )
-            return FormulaEvaluatorRegistry.instance()
-        return self._registry
+        RegistryMixin.__init__(self, registry)
 
     @classmethod
     def supported_formula_type(cls) -> Type[NegationFormula]:
@@ -81,7 +80,7 @@ class NegationFormulaEvaluator(FormulaEvaluator[NegationFormula]):
         """Evaluate safe negation using negation-as-failure."""
         inner_evaluator = self._get_registry().get_evaluator(inner_formula)
         if inner_evaluator is None:
-            raise ValueError(f"No evaluator found for formula type: {type(inner_formula)}")
+            raise UnsupportedFormulaError(type(inner_formula))
 
         # Check if inner formula has any results
         results = inner_evaluator.evaluate(inner_formula, fact_base, substitution)
@@ -125,7 +124,7 @@ class NegationFormulaEvaluator(FormulaEvaluator[NegationFormula]):
         unbound_vars_list = list(unbound_vars)
         inner_evaluator = self._get_registry().get_evaluator(inner_formula)
         if inner_evaluator is None:
-            raise ValueError(f"No evaluator found for formula type: {type(inner_formula)}")
+            raise UnsupportedFormulaError(type(inner_formula))
 
         # Iterate over all possible assignments for unbound variables
         for assignment in product(domain, repeat=len(unbound_vars_list)):

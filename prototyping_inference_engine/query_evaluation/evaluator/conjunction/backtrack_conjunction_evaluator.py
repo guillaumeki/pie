@@ -11,6 +11,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.conjunction.schedul
     FormulaSchedulerProvider,
     SequentialSchedulerProvider,
 )
+from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import RegistryMixin
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 if TYPE_CHECKING:
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
 
 
-class BacktrackConjunctionEvaluator(ConjunctionEvaluator):
+class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
     """
     Evaluates conjunction formulas using a backtracking algorithm.
 
@@ -48,17 +49,8 @@ class BacktrackConjunctionEvaluator(ConjunctionEvaluator):
             scheduler_provider: Provider for formula schedulers.
                                Defaults to SequentialSchedulerProvider.
         """
-        self._registry = registry
+        RegistryMixin.__init__(self, registry)
         self._scheduler_provider = scheduler_provider or SequentialSchedulerProvider()
-
-    def _get_registry(self) -> "FormulaEvaluatorRegistry":
-        """Get the registry, lazily importing if needed."""
-        if self._registry is None:
-            from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
-                FormulaEvaluatorRegistry,
-            )
-            self._registry = FormulaEvaluatorRegistry.instance()
-        return self._registry
 
     def evaluate(
         self,

@@ -4,7 +4,14 @@ Evaluator for existential quantification formulas.
 from typing import Type, Iterator, TYPE_CHECKING, Optional
 
 from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
-from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import FormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import (
+    FormulaEvaluator,
+    RegistryMixin,
+)
+
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
+    UnsupportedFormulaError,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.fact_base.fact_base import FactBase
@@ -14,7 +21,7 @@ if TYPE_CHECKING:
     )
 
 
-class ExistentialFormulaEvaluator(FormulaEvaluator[ExistentialFormula]):
+class ExistentialFormulaEvaluator(RegistryMixin, FormulaEvaluator[ExistentialFormula]):
     """
     Evaluator for existential quantification formulas (∃x.φ).
 
@@ -26,15 +33,7 @@ class ExistentialFormulaEvaluator(FormulaEvaluator[ExistentialFormula]):
     """
 
     def __init__(self, registry: Optional["FormulaEvaluatorRegistry"] = None):
-        self._registry = registry
-
-    def _get_registry(self) -> "FormulaEvaluatorRegistry":
-        if self._registry is None:
-            from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
-                FormulaEvaluatorRegistry,
-            )
-            return FormulaEvaluatorRegistry.instance()
-        return self._registry
+        RegistryMixin.__init__(self, registry)
 
     @classmethod
     def supported_formula_type(cls) -> Type[ExistentialFormula]:
@@ -56,7 +55,7 @@ class ExistentialFormulaEvaluator(FormulaEvaluator[ExistentialFormula]):
 
         inner_evaluator = self._get_registry().get_evaluator(inner)
         if inner_evaluator is None:
-            raise ValueError(f"No evaluator found for formula type: {type(inner)}")
+            raise UnsupportedFormulaError(type(inner))
 
         # Track seen results for deduplication
         seen = set()
