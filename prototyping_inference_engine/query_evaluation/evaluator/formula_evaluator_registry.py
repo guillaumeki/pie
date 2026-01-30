@@ -60,11 +60,15 @@ class FormulaEvaluatorRegistry:
         from prototyping_inference_engine.query_evaluation.evaluator.existential_evaluator import (
             ExistentialFormulaEvaluator,
         )
+        from prototyping_inference_engine.query_evaluation.evaluator.disjunction_evaluator import (
+            DisjunctionFormulaEvaluator,
+        )
         self.register(AtomEvaluator())
         self.register(BacktrackConjunctionEvaluator(registry=self))
         self.register(NegationFormulaEvaluator(registry=self))
         self.register(UniversalFormulaEvaluator(registry=self))
         self.register(ExistentialFormulaEvaluator(registry=self))
+        self.register(DisjunctionFormulaEvaluator(registry=self))
 
     def register(self, evaluator: FormulaEvaluator) -> None:
         """

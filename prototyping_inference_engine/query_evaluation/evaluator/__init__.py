@@ -24,12 +24,16 @@ from prototyping_inference_engine.query_evaluation.evaluator.universal_evaluator
 from prototyping_inference_engine.query_evaluation.evaluator.existential_evaluator import (
     ExistentialFormulaEvaluator,
 )
+from prototyping_inference_engine.query_evaluation.evaluator.disjunction_evaluator import (
+    DisjunctionFormulaEvaluator,
+)
 
 __all__ = [
     "FormulaEvaluator",
     "AtomEvaluator",
     "ConjunctionEvaluator",
     "BacktrackConjunctionEvaluator",
+    "DisjunctionFormulaEvaluator",
     "NegationFormulaEvaluator",
     "UnsafeNegationWarning",
     "UniversalFormulaEvaluator",

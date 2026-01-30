@@ -8,12 +8,8 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
-    FOQueryEvaluator,
-    UnsupportedFormulaError,
-)
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import FOQueryEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
@@ -132,20 +128,6 @@ class TestFOQueryEvaluator(unittest.TestCase):
         # Should be deduplicated to just (a,)
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], (self.a,))
-
-    def test_unsupported_formula_raises(self):
-        # DisjunctionFormula is not supported (no evaluator registered)
-        fact_base = MutableInMemoryFactBase()
-        disj_formula = DisjunctionFormula(
-            Atom(self.p, self.x, self.y),
-            Atom(self.q, self.x),
-        )
-        query = FOQuery(disj_formula, [self.x])
-
-        with self.assertRaises(UnsupportedFormulaError) as ctx:
-            list(self.evaluator.evaluate(query, fact_base))
-
-        self.assertEqual(ctx.exception.formula_type, DisjunctionFormula)
 
 
 class TestFOQueryEvaluatorWithSession(unittest.TestCase):
