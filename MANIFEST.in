@@ -1,4 +1,3 @@
 include README.md
-include *.lark
-include *.dlgp
-include *.py
+include LICENSE
+recursive-include prototyping_inference_engine *.lark *.dlgp

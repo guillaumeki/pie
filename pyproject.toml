@@ -4,24 +4,57 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prototyping_inference_engine"
-version = "0.0.12"
+version = "0.0.13"
 authors = [
   { name="Guillaume Pérution-Kihli", email="guillaume.kihli@yahoo.fr" },
 ]
-description = "A library to protorype inference engines"
+description = "A library to prototype inference engines with logical reasoning capabilities"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
+license = {text = "GPL-3.0-or-later"}
 classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Operating System :: OS Independent",
 ]
+keywords = [
+    "inference-engine",
+    "reasoning",
+    "datalog",
+    "knowledge-base",
+    "query-rewriting",
+    "backward-chaining",
+    "first-order-logic",
+]
 dependencies = [
-  'lark'
+    "lark>=1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "build",
+    "twine",
 ]
 
 [project.scripts]
 disjunctive-rewriter = "prototyping_inference_engine.apps.disjunctive_rewriter:main"
 
 [project.urls]
-"Homepage" = "https://bitbucket.org/guillaume-perution-kihli/pie/src/master/"
+Homepage = "https://github.com/guillaumeki/pie"
+Repository = "https://github.com/guillaumeki/pie"
+Documentation = "https://github.com/guillaumeki/pie#readme"
+Issues = "https://github.com/guillaumeki/pie/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["prototyping_inference_engine*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.lark", "*.dlgp"]

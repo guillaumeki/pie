@@ -1,9 +1,4 @@
-from setuptools import setup, find_packages
-
-setup(name='prototyping_inference_engine',
-      package_data={'': ['*.lark', '*.dlgp']},
-      include_package_data=True)
-
-
-
-
+# Legacy setup.py - kept for editable installs compatibility
+# All configuration is in pyproject.toml
+from setuptools import setup
+setup()
