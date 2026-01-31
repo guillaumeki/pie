@@ -23,7 +23,8 @@ Requires Python 3.10+ (uses match/case syntax).
 | Module | Status | Description |
 |--------|--------|-------------|
 | **API** | 90% | Core classes: terms, atoms, formulas, queries, fact bases, ontologies |
-| **Query Evaluation** | 85% | Evaluating first-order queries against fact bases |
+| **Data Abstraction** | 80% | ReadableData interface for heterogeneous data sources |
+| **Query Evaluation** | 85% | Evaluating first-order queries against data sources |
 | **DLGP Parser** | 80% | Extended DLGP 2.1 with disjunction support |
 | **Homomorphism** | 70% | Pattern matching with backtracking and indexing |
 | **Backward Chaining** | 90% | UCQ rewriting with disjunctive existential rules |
@@ -85,6 +86,18 @@ with ReasoningSession() as session:
 - **Fact Bases**: `MutableInMemoryFactBase`, `FrozenInMemoryFactBase`
 - **Rules & Ontology**: Generic rules with disjunctive head support
 
+### Data Abstraction (`api/data/`)
+
+Abstraction layer for data sources (fact bases, SQL databases, REST APIs, etc.):
+
+- **`ReadableData`**: Abstract interface for queryable data sources
+- **`MaterializedData`**: Extension for fully iterable data sources
+- **`BasicQuery`**: Simple query with predicate, bound positions, and answer variables
+- **`AtomicPattern`**: Describes constraints for querying predicates (mandatory positions, type constraints)
+- **`PositionConstraint`**: Validators for term types at positions (`GROUND`, `CONSTANT`, `VARIABLE`, etc.)
+
+Data sources declare their capabilities via `AtomicPattern` and implement `evaluate(BasicQuery)` returning tuples of terms. Evaluators handle variable mapping and post-processing.
+
 ### Query Evaluation (`query_evaluation/`)
 
 Hierarchical evaluator architecture:
@@ -102,8 +115,10 @@ QueryEvaluator[Q]
 ```
 
 Each evaluator provides:
-- `evaluate(query, fact_base, substitution)` → `Iterator[Substitution]`
-- `evaluate_and_project(query, fact_base, substitution)` → `Iterator[Tuple[Term, ...]]`
+- `evaluate(query, data, substitution)` → `Iterator[Substitution]`
+- `evaluate_and_project(query, data, substitution)` → `Iterator[Tuple[Term, ...]]`
+
+Evaluators work with any `ReadableData` source, not just in-memory fact bases.
 
 ### Backward Chaining (`backward_chaining/`)
 
@@ -148,4 +163,4 @@ python3 -m unittest discover -s prototyping_inference_engine/query_evaluation -v
 
 ## License
 
-[To be defined]
+[GNU General Public License v3 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html)
