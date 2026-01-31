@@ -7,7 +7,7 @@ from typing import Generic, TypeVar, Type, Iterator, Optional, TYPE_CHECKING
 from prototyping_inference_engine.api.formula.formula import Formula
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.fact_base.fact_base import FactBase
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
     from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
         FormulaEvaluatorRegistry,
@@ -57,18 +57,18 @@ class FormulaEvaluator(ABC, Generic[F]):
     def evaluate(
         self,
         formula: F,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
         """
-        Evaluate a formula against a fact base.
+        Evaluate a formula against a data source.
 
         Args:
             formula: The formula to evaluate
-            fact_base: The fact base to query
+            data: The data source to query
             substitution: An optional initial substitution to apply
 
         Yields:
-            All substitutions that satisfy the formula in the fact base
+            All substitutions that satisfy the formula in the data source
         """
         ...

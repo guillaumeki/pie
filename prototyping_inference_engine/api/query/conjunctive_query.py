@@ -4,7 +4,8 @@ Created on 26 déc. 2021
 @author: guillaume
 """
 import typing
-from functools import cached_property
+from functools import cached_property, reduce
+from typing import TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.term.constant import Constant
@@ -14,6 +15,9 @@ from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitutable import Substitutable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
+
+if TYPE_CHECKING:
+    from prototyping_inference_engine.api.query.fo_query import FOQuery
 
 
 class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
@@ -57,6 +61,44 @@ class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
     @property
     def terms(self) -> set[Term]:
         return self.atoms.terms
+
+    @cached_property
+    def existential_variables(self) -> frozenset[Variable]:
+        """Variables in the atoms that are not answer variables (implicitly ∃-quantified)."""
+        return frozenset(self.atoms.variables - set(self.answer_variables))
+
+    def to_fo_query(self) -> "FOQuery":
+        """
+        Convert this conjunctive query to a first-order query.
+
+        The conversion wraps the atoms in a conjunction formula and adds
+        explicit existential quantifiers for non-answer variables.
+
+        Example:
+            CQ: ?(X) :- p(X,Y), q(Y)
+            FOQuery: ?(X) :- ∃Y.(p(X,Y) ∧ q(Y))
+        """
+        from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+        from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+        from prototyping_inference_engine.api.formula.formula import Formula
+        from prototyping_inference_engine.api.query.fo_query import FOQuery
+
+        atoms_list = list(self.atoms)
+        if not atoms_list:
+            raise ValueError("Cannot convert empty conjunctive query to FOQuery")
+
+        # Build conjunction from atoms
+        formula: Formula = reduce(
+            lambda acc, atom: ConjunctionFormula(acc, atom),
+            atoms_list[1:],
+            atoms_list[0]
+        )
+
+        # Wrap in existential quantifiers for non-answer variables
+        for var in self.existential_variables:
+            formula = ExistentialFormula(var, formula)
+
+        return FOQuery(formula, self.answer_variables, self.label)
 
     def query_with_other_answer_variables(self, answers_variables: tuple[Variable]) -> 'ConjunctiveQuery':
         return ConjunctiveQuery(self._atoms, answers_variables)

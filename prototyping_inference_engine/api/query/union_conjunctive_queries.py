@@ -1,5 +1,5 @@
-from functools import cached_property
-from typing import Iterable, Iterator
+from functools import cached_property, reduce
+from typing import Iterable, Iterator, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
@@ -8,6 +8,9 @@ from prototyping_inference_engine.api.query.conjunctive_query import Conjunctive
 from prototyping_inference_engine.api.query.query import Query
 from prototyping_inference_engine.api.substitution.substitutable import Substitutable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
+
+if TYPE_CHECKING:
+    from prototyping_inference_engine.api.query.fo_query import FOQuery
 
 
 class UnionConjunctiveQueries(Query, Substitutable["UnionConjunctiveQueries"]):
@@ -44,6 +47,57 @@ class UnionConjunctiveQueries(Query, Substitutable["UnionConjunctiveQueries"]):
     @cached_property
     def variables(self) -> set[Variable]:
         return set().union(*[cq.variables for cq in self.conjunctive_queries])
+
+    def to_fo_query(self) -> "FOQuery":
+        """
+        Convert this union of conjunctive queries to a first-order query.
+
+        Each CQ is converted to a formula (conjunction with existential quantifiers),
+        then combined with disjunctions.
+
+        Example:
+            UCQ: ?(X) :- p(X,Y) | q(X,Z)
+            FOQuery: ?(X) :- (∃Y.p(X,Y)) ∨ (∃Z.q(X,Z))
+        """
+        from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+        from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
+        from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+        from prototyping_inference_engine.api.formula.formula import Formula
+        from prototyping_inference_engine.api.query.fo_query import FOQuery
+
+        if not self._cqs:
+            raise ValueError("Cannot convert empty UCQ to FOQuery")
+
+        def cq_to_formula(cq: ConjunctiveQuery) -> Formula:
+            """Convert a single CQ to a formula with existential quantification."""
+            atoms_list = list(cq.atoms)
+            if not atoms_list:
+                raise ValueError("Cannot convert empty conjunctive query")
+
+            # Build conjunction from atoms
+            formula: Formula = reduce(
+                lambda acc, atom: ConjunctionFormula(acc, atom),
+                atoms_list[1:],
+                atoms_list[0]
+            )
+
+            # Wrap in existential quantifiers for non-answer variables
+            for var in cq.existential_variables:
+                formula = ExistentialFormula(var, formula)
+
+            return formula
+
+        # Convert all CQs to formulas
+        formulas = [cq_to_formula(cq) for cq in self._cqs]
+
+        # Combine with disjunctions
+        combined: Formula = reduce(
+            lambda acc, f: DisjunctionFormula(acc, f),
+            formulas[1:],
+            formulas[0]
+        )
+
+        return FOQuery(combined, self.answer_variables, self.label)
 
     def apply_substitution(self, substitution: Substitution) -> "UnionConjunctiveQueries":
         return UnionConjunctiveQueries((substitution(cq) for cq in self.conjunctive_queries),

@@ -15,7 +15,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator i
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.fact_base.fact_base import FactBase
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
 
 
@@ -55,15 +55,15 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
     def evaluate(
         self,
         formula: ConjunctionFormula,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: Substitution = None,
     ) -> Iterator[Substitution]:
         """
-        Evaluate a conjunction formula against a fact base.
+        Evaluate a conjunction formula against a data source.
 
         Args:
             formula: The conjunction formula to evaluate
-            fact_base: The fact base to query
+            data: The data source to query
             substitution: An optional initial substitution
 
         Yields:
@@ -79,7 +79,7 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
         scheduler = self._scheduler_provider.create_scheduler(sub_formulas)
 
         # Run backtracking
-        yield from self._backtrack(fact_base, substitution, scheduler, level=0)
+        yield from self._backtrack(data, substitution, scheduler, level=0)
 
     def _flatten_conjunction(self, formula: ConjunctionFormula) -> list[Formula]:
         """
@@ -105,7 +105,7 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
 
     def _backtrack(
         self,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: Substitution,
         scheduler: FormulaScheduler,
         level: int,
@@ -114,7 +114,7 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
         Recursive backtracking algorithm.
 
         Args:
-            fact_base: The fact base to query
+            data: The data source to query
             substitution: The current substitution
             scheduler: The formula scheduler
             level: The current backtracking level
@@ -139,5 +139,5 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
                 raise UnsupportedFormulaError(type(next_formula))
 
             # Evaluate the formula and recurse for each result
-            for extended_sub in evaluator.evaluate(next_formula, fact_base, substitution):
-                yield from self._backtrack(fact_base, extended_sub, scheduler, level + 1)
+            for extended_sub in evaluator.evaluate(next_formula, data, substitution):
+                yield from self._backtrack(data, extended_sub, scheduler, level + 1)

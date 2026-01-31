@@ -7,7 +7,7 @@ from typing import Generic, TypeVar, Type, Iterator, TYPE_CHECKING
 from prototyping_inference_engine.api.query.query import Query
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.fact_base.fact_base import FactBase
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 Q = TypeVar("Q", bound=Query)
@@ -31,15 +31,15 @@ class QueryEvaluator(ABC, Generic[Q]):
     def evaluate(
         self,
         query: Q,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
         """
-        Evaluate a query against a fact base.
+        Evaluate a query against a data source.
 
         Args:
             query: The query to evaluate
-            fact_base: The fact base to query
+            data: The data source to query
             substitution: An optional initial substitution (pre-homomorphism)
 
         Yields:

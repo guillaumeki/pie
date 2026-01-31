@@ -14,7 +14,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator 
 )
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.fact_base.fact_base import FactBase
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
     from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
         FormulaEvaluatorRegistry,
@@ -39,7 +39,7 @@ class DisjunctionFormulaEvaluator(RegistryMixin, FormulaEvaluator[DisjunctionFor
     def evaluate(
         self,
         formula: DisjunctionFormula,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
         from prototyping_inference_engine.api.substitution.substitution import Substitution
@@ -62,14 +62,14 @@ class DisjunctionFormulaEvaluator(RegistryMixin, FormulaEvaluator[DisjunctionFor
         seen = set()
 
         # Evaluate left sub-formula
-        for result_sub in left_evaluator.evaluate(formula.left, fact_base, substitution):
+        for result_sub in left_evaluator.evaluate(formula.left, data, substitution):
             key = frozenset(result_sub.items())
             if key not in seen:
                 seen.add(key)
                 yield result_sub
 
         # Evaluate right sub-formula
-        for result_sub in right_evaluator.evaluate(formula.right, fact_base, substitution):
+        for result_sub in right_evaluator.evaluate(formula.right, data, substitution):
             key = frozenset(result_sub.items())
             if key not in seen:
                 seen.add(key)

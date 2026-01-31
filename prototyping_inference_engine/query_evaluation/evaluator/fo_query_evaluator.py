@@ -10,7 +10,7 @@ from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.query_evaluator import QueryEvaluator
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.fact_base.fact_base import FactBase
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
@@ -50,15 +50,15 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
     def evaluate(
         self,
         query: FOQuery,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
         """
-        Evaluate a query against a fact base.
+        Evaluate a query against a data source.
 
         Args:
             query: The first-order query to evaluate
-            fact_base: The fact base to query
+            data: The data source to query
             substitution: An optional initial substitution (pre-homomorphism)
 
         Yields:
@@ -69,7 +69,7 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
     def evaluate_and_project(
         self,
         query: FOQuery,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator[Tuple[Term, ...]]:
         """
@@ -80,7 +80,7 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
 
         Args:
             query: The first-order query to evaluate
-            fact_base: The fact base to query
+            data: The data source to query
             substitution: An optional initial substitution
 
         Yields:
@@ -88,7 +88,7 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
         """
         seen: set[Tuple[Term, ...]] = set()
 
-        for result_sub in self.evaluate(query, fact_base, substitution):
+        for result_sub in self.evaluate(query, data, substitution):
             answer = tuple(
                 result_sub.apply(v) for v in query.answer_variables
             )

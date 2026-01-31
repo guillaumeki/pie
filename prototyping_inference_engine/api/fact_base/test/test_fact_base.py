@@ -8,8 +8,6 @@ from prototyping_inference_engine.api.fact_base.factory import FactBaseFactory
 from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base import FrozenInMemoryFactBase
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.api.fact_base.protocols import TermInspectable, Writable, Enumerable
-from prototyping_inference_engine.api.query.atomic_query import AtomicQuery
-from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
@@ -42,23 +40,6 @@ class TestFrozenInMemoryFactBase(TestCase):
         atoms = Dlgp2Parser.instance().parse_atoms("p(X,a), q(Y).")
         fb = FrozenInMemoryFactBase(atoms)
         self.assertEqual(fb.terms, {Variable("X"), Variable("Y"), Constant("a")})
-
-    def test_execute_atomic_query(self):
-        """Test executing an atomic query."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
-        fb = FrozenInMemoryFactBase(atoms)
-
-        query_atom = Atom(Predicate("p", 2), Variable("X"), Variable("Y"))
-        query = AtomicQuery(query_atom)
-
-        results = list(fb.execute_query(query, Substitution()))
-        self.assertEqual(len(results), 2)
-
-        # Check that the results contain the expected tuples
-        result_set = {tuple(r) for r in results}
-        self.assertIn((Constant("a"), Constant("b")), result_set)
-        self.assertIn((Constant("c"), Constant("d")), result_set)
-
 
 class TestMutableInMemoryFactBase(TestCase):
     def test_instantiation_empty(self):
@@ -107,18 +88,6 @@ class TestMutableInMemoryFactBase(TestCase):
         atoms = Dlgp2Parser.instance().parse_atoms("p(X,a), q(Y).")
         fb.update(atoms)
         self.assertEqual(fb.terms, {Variable("X"), Variable("Y"), Constant("a")})
-
-    def test_execute_atomic_query(self):
-        """Test executing an atomic query."""
-        fb = MutableInMemoryFactBase()
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
-        fb.update(atoms)
-
-        query_atom = Atom(Predicate("p", 2), Variable("X"), Variable("Y"))
-        query = AtomicQuery(query_atom)
-
-        results = list(fb.execute_query(query, Substitution()))
-        self.assertEqual(len(results), 2)
 
     def test_add_after_instantiation(self):
         """Test adding atoms after instantiation with initial atoms."""
@@ -216,16 +185,3 @@ class TestFactory(TestCase):
         self.assertEqual(len(fb), 2)
 
 
-class TestQueryExecutor(TestCase):
-    def test_atomic_query_executor(self):
-        """Test executing an atomic query through the executor pattern."""
-        fb = FrozenInMemoryFactBase(Dlgp2Parser.instance().parse_atoms("p(a,b)."))
-        query = AtomicQuery(Atom(Predicate("p", 2), Variable("X"), Variable("Y")))
-        results = list(fb.execute_query(query, Substitution()))
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0], (Constant("a"), Constant("b")))
-
-    def test_supported_query_types(self):
-        """Test that supported query types are correctly reported."""
-        self.assertIn(AtomicQuery, FrozenInMemoryFactBase.get_supported_query_types())
-        self.assertIn(AtomicQuery, MutableInMemoryFactBase.get_supported_query_types())

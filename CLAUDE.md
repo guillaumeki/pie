@@ -54,7 +54,8 @@ pip install -e .
 - All core types (Term, Atom, AtomSet, Query) implement `Substitutable`
 
 **Queries:**
-- `Query` → `AtomicQuery`, `ConjunctiveQuery`, `UnionConjunctiveQueries`
+- `Query` → `ConjunctiveQuery`, `UnionConjunctiveQueries` (for backward chaining)
+- `FOQuery` - first-order queries with any formula type (for evaluation)
 - Queries have answer variables and support substitution
 
 **Rules & Ontology:**
@@ -127,6 +128,7 @@ p(a,b).
 - `atom_operations.specialize(from_atom, to_atom, sub)` for atom specialization
 - Use `GenericFOQueryEvaluator()` for query evaluation when formula type is unknown
 - `evaluate()` returns `Iterator[Substitution]`, `evaluate_and_project()` returns tuples
+- Convert CQ/UCQ to FOQuery via `cq.to_fo_query()` for evaluation
 
 ## Code Style
 

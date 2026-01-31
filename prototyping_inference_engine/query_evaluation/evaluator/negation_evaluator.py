@@ -16,7 +16,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator 
 )
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.fact_base.fact_base import FactBase
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
     from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
         FormulaEvaluatorRegistry,
@@ -49,7 +49,7 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
     def evaluate(
         self,
         formula: NegationFormula,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
         from prototyping_inference_engine.api.substitution.substitution import Substitution
@@ -64,17 +64,17 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
 
         if not unbound_vars:
             # Safe negation: all variables are bound
-            yield from self._evaluate_safe(inner, fact_base, substitution)
+            yield from self._evaluate_safe(inner, data, substitution)
         else:
             # Unsafe negation: iterate over domain
             yield from self._evaluate_unsafe(
-                inner, fact_base, substitution, unbound_vars
+                inner, data, substitution, unbound_vars
             )
 
     def _evaluate_safe(
         self,
         inner_formula,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution",
     ) -> Iterator["Substitution"]:
         """Evaluate safe negation using negation-as-failure."""
@@ -83,7 +83,7 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
             raise UnsupportedFormulaError(type(inner_formula))
 
         # Check if inner formula has any results
-        results = inner_evaluator.evaluate(inner_formula, fact_base, substitution)
+        results = inner_evaluator.evaluate(inner_formula, data, substitution)
         has_result = False
         for _ in results:
             has_result = True
@@ -96,7 +96,7 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
     def _evaluate_unsafe(
         self,
         inner_formula,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution",
         unbound_vars: set,
     ) -> Iterator["Substitution"]:
@@ -105,19 +105,19 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
 
         warnings.warn(
             f"Unsafe negation: variables {unbound_vars} are free in negated formula. "
-            "Iterating over the entire domain. This may be slow for large fact bases.",
+            "Iterating over the entire domain. This may be slow for large data sources.",
             UnsafeNegationWarning,
             stacklevel=4,
         )
 
-        # Get the domain (all terms in the fact base)
-        if not hasattr(fact_base, 'terms'):
+        # Get the domain (all terms in the data source)
+        if not hasattr(data, 'terms'):
             raise ValueError(
-                "Cannot evaluate unsafe negation: fact base does not support "
+                "Cannot evaluate unsafe negation: data source does not support "
                 "term enumeration. Use a safe negation pattern instead."
             )
 
-        domain = fact_base.terms
+        domain = data.terms
         if not domain:
             return
 
@@ -133,7 +133,7 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
             extended_sub = substitution.compose(Substitution(var_assignment))
 
             # Check if inner formula has any results with this assignment
-            results = inner_evaluator.evaluate(inner_formula, fact_base, extended_sub)
+            results = inner_evaluator.evaluate(inner_formula, data, extended_sub)
             has_result = False
             for _ in results:
                 has_result = True

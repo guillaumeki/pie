@@ -21,7 +21,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.universal_evaluator
 from prototyping_inference_engine.query_evaluation.evaluator.existential_evaluator import ExistentialFormulaEvaluator
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.fact_base.fact_base import FactBase
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
     from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator_registry import (
         FOQueryEvaluatorRegistry,
@@ -41,10 +41,10 @@ class AtomicFOQueryEvaluator(FOQueryEvaluator):
     def evaluate(
         self,
         query: FOQuery,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
-        yield from self._formula_evaluator.evaluate(query.formula, fact_base, substitution)
+        yield from self._formula_evaluator.evaluate(query.formula, data, substitution)
 
 
 class ConjunctiveFOQueryEvaluator(FOQueryEvaluator):
@@ -66,10 +66,10 @@ class ConjunctiveFOQueryEvaluator(FOQueryEvaluator):
     def evaluate(
         self,
         query: FOQuery,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
-        yield from self._get_formula_evaluator().evaluate(query.formula, fact_base, substitution)
+        yield from self._get_formula_evaluator().evaluate(query.formula, data, substitution)
 
 
 class DisjunctiveFOQueryEvaluator(FOQueryEvaluator):
@@ -91,10 +91,10 @@ class DisjunctiveFOQueryEvaluator(FOQueryEvaluator):
     def evaluate(
         self,
         query: FOQuery,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
-        yield from self._get_formula_evaluator().evaluate(query.formula, fact_base, substitution)
+        yield from self._get_formula_evaluator().evaluate(query.formula, data, substitution)
 
 
 class NegationFOQueryEvaluator(FOQueryEvaluator):
@@ -116,10 +116,10 @@ class NegationFOQueryEvaluator(FOQueryEvaluator):
     def evaluate(
         self,
         query: FOQuery,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
-        yield from self._get_formula_evaluator().evaluate(query.formula, fact_base, substitution)
+        yield from self._get_formula_evaluator().evaluate(query.formula, data, substitution)
 
 
 class UniversalFOQueryEvaluator(FOQueryEvaluator):
@@ -141,10 +141,10 @@ class UniversalFOQueryEvaluator(FOQueryEvaluator):
     def evaluate(
         self,
         query: FOQuery,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
-        yield from self._get_formula_evaluator().evaluate(query.formula, fact_base, substitution)
+        yield from self._get_formula_evaluator().evaluate(query.formula, data, substitution)
 
 
 class ExistentialFOQueryEvaluator(FOQueryEvaluator):
@@ -166,10 +166,10 @@ class ExistentialFOQueryEvaluator(FOQueryEvaluator):
     def evaluate(
         self,
         query: FOQuery,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
-        yield from self._get_formula_evaluator().evaluate(query.formula, fact_base, substitution)
+        yield from self._get_formula_evaluator().evaluate(query.formula, data, substitution)
 
 
 class GenericFOQueryEvaluator(FOQueryEvaluator):
@@ -199,7 +199,7 @@ class GenericFOQueryEvaluator(FOQueryEvaluator):
     def evaluate(
         self,
         query: FOQuery,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
         from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
@@ -210,4 +210,4 @@ class GenericFOQueryEvaluator(FOQueryEvaluator):
         if evaluator is None:
             raise UnsupportedFormulaError(type(query.formula))
 
-        yield from evaluator.evaluate(query, fact_base, substitution)
+        yield from evaluator.evaluate(query, data, substitution)

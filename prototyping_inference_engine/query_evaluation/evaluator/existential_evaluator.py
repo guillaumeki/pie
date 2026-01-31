@@ -14,7 +14,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator 
 )
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.fact_base.fact_base import FactBase
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
     from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
         FormulaEvaluatorRegistry,
@@ -42,7 +42,7 @@ class ExistentialFormulaEvaluator(RegistryMixin, FormulaEvaluator[ExistentialFor
     def evaluate(
         self,
         formula: ExistentialFormula,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
         from prototyping_inference_engine.api.substitution.substitution import Substitution
@@ -61,7 +61,7 @@ class ExistentialFormulaEvaluator(RegistryMixin, FormulaEvaluator[ExistentialFor
         seen = set()
 
         # Evaluate inner formula (bound variable is treated as free)
-        for result_sub in inner_evaluator.evaluate(inner, fact_base, substitution):
+        for result_sub in inner_evaluator.evaluate(inner, data, substitution):
             # Project out the bound variable
             projected = Substitution({
                 k: v for k, v in result_sub.items() if k != bound_var

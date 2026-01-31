@@ -4,61 +4,10 @@ from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.query.atomic_query import AtomicQuery
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
-
-
-class TestAtomicQuery(TestCase):
-    def test_creation(self):
-        """Test basic AtomicQuery creation."""
-        p = Predicate("p", 2)
-        x = Variable("X")
-        y = Variable("Y")
-        atom = Atom(p, x, y)
-        query = AtomicQuery(atom, [x])
-        self.assertEqual(query.atom, atom)
-        self.assertEqual(query.answer_variables, (x,))
-
-    def test_variables_property(self):
-        """Test variables property."""
-        p = Predicate("p", 2)
-        x = Variable("X")
-        y = Variable("Y")
-        atom = Atom(p, x, y)
-        query = AtomicQuery(atom)
-        self.assertEqual(query.variables, {x, y})
-
-    def test_constants_property(self):
-        """Test constants property."""
-        p = Predicate("p", 2)
-        x = Variable("X")
-        a = Constant("a")
-        atom = Atom(p, x, a)
-        query = AtomicQuery(atom)
-        self.assertEqual(query.constants, {a})
-
-    def test_terms_property(self):
-        """Test terms property."""
-        p = Predicate("p", 2)
-        x = Variable("X")
-        a = Constant("a")
-        atom = Atom(p, x, a)
-        query = AtomicQuery(atom)
-        self.assertEqual(query.terms, {x, a})
-
-    def test_query_with_other_answer_variables(self):
-        """Test creating query with different answer variables."""
-        p = Predicate("p", 2)
-        x = Variable("X")
-        y = Variable("Y")
-        atom = Atom(p, x, y)
-        query1 = AtomicQuery(atom, [x])
-        query2 = query1.query_with_other_answer_variables((y,))
-        self.assertEqual(query2.answer_variables, (y,))
-        self.assertEqual(query2.atom, atom)
 
 
 class TestConjunctiveQuery(TestCase):
@@ -378,3 +327,85 @@ class TestUnionConjunctiveQueries(TestCase):
         cq = ConjunctiveQuery(atoms1, [x, y])  # 2 answer variables
         with self.assertRaises(ValueError):
             UnionConjunctiveQueries([cq], [Variable("Z")])  # Only 1 expected
+
+
+class TestCQToFOQueryConversion(TestCase):
+    """Test conversion from CQ/UCQ to FOQuery."""
+
+    def test_cq_to_fo_query_simple(self):
+        """Test converting a simple CQ to FOQuery."""
+        from prototyping_inference_engine.api.query.fo_query import FOQuery
+
+        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        x = Variable("X")
+        y = Variable("Y")
+        cq = ConjunctiveQuery(atoms, [x, y])
+
+        fo_query = cq.to_fo_query()
+
+        self.assertIsInstance(fo_query, FOQuery)
+        self.assertEqual(set(fo_query.answer_variables), {x, y})
+        # Formula should be just the atom (no existential quantifiers)
+        self.assertEqual(fo_query.formula.atoms, cq.atoms)
+
+    def test_cq_to_fo_query_with_existential(self):
+        """Test converting a CQ with existentially quantified variable."""
+        from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+        from prototyping_inference_engine.api.query.fo_query import FOQuery
+
+        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y,Z).")
+        x = Variable("X")
+        cq = ConjunctiveQuery(atoms, [x])  # Y and Z are existential
+
+        fo_query = cq.to_fo_query()
+
+        self.assertIsInstance(fo_query, FOQuery)
+        self.assertEqual(fo_query.answer_variables, (x,))
+        # Formula should be wrapped in existential quantifiers for Y and Z
+        self.assertIsInstance(fo_query.formula, ExistentialFormula)
+        self.assertEqual(fo_query.free_variables, frozenset({x}))
+
+    def test_cq_existential_variables(self):
+        """Test existential_variables property on CQ."""
+        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y,Z).")
+        x = Variable("X")
+        y = Variable("Y")
+        z = Variable("Z")
+        cq = ConjunctiveQuery(atoms, [x])
+
+        self.assertEqual(cq.existential_variables, frozenset({y, z}))
+
+    def test_ucq_to_fo_query_single_cq(self):
+        """Test converting a UCQ with one CQ to FOQuery."""
+        from prototyping_inference_engine.api.query.fo_query import FOQuery
+
+        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        x = Variable("X")
+        cq = ConjunctiveQuery(atoms, [x])
+        ucq = UnionConjunctiveQueries([cq], [x])
+
+        fo_query = ucq.to_fo_query()
+
+        self.assertIsInstance(fo_query, FOQuery)
+        self.assertEqual(fo_query.answer_variables, (x,))
+
+    def test_ucq_to_fo_query_multiple_cqs(self):
+        """Test converting a UCQ with multiple CQs to FOQuery."""
+        from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
+        from prototyping_inference_engine.api.query.fo_query import FOQuery
+
+        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y).")
+        x = Variable("X")
+        y = Variable("Y")
+        z = Variable("Z")
+        cq1 = ConjunctiveQuery(atoms1, [x])
+        cq2 = ConjunctiveQuery(atoms2, [y])
+        ucq = UnionConjunctiveQueries([cq1, cq2], [z])
+
+        fo_query = ucq.to_fo_query()
+
+        self.assertIsInstance(fo_query, FOQuery)
+        self.assertEqual(fo_query.answer_variables, (z,))
+        # Formula should be a disjunction
+        self.assertIsInstance(fo_query.formula, DisjunctionFormula)

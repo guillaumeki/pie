@@ -1,10 +1,7 @@
-from abc import ABC, abstractmethod
-from typing import Tuple, Iterable
-
-from prototyping_inference_engine.api.atom.term.term import Term
-from prototyping_inference_engine.api.query.query import Query
-from prototyping_inference_engine.api.query.query_support import QuerySupport
-from prototyping_inference_engine.api.substitution.substitution import Substitution
+"""
+FactBase - materialized data source for the inference engine.
+"""
+from prototyping_inference_engine.api.data.materialized_data import MaterializedData
 
 
 class UnsupportedFactBaseOperation(Exception):
@@ -14,7 +11,11 @@ class UnsupportedFactBaseOperation(Exception):
         super().__init__(msg, *args)
 
 
-class FactBase(QuerySupport, ABC):
-    @abstractmethod
-    def execute_query(self, query: Query, sub: Substitution) -> Iterable[Tuple[Term, ...]]:
-        pass
+class FactBase(MaterializedData):
+    """
+    Abstract base class for fact bases.
+
+    A fact base is a materialized data source where all atoms are
+    available in memory. Use FOQueryEvaluator for query evaluation.
+    """
+    pass

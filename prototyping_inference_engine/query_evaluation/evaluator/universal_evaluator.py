@@ -15,7 +15,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator 
 )
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.fact_base.fact_base import FactBase
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
     from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
         FormulaEvaluatorRegistry,
@@ -48,7 +48,7 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
     def evaluate(
         self,
         formula: UniversalFormula,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
         from prototyping_inference_engine.api.substitution.substitution import Substitution
@@ -57,13 +57,13 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
             substitution = Substitution()
 
         # Get the domain
-        if not hasattr(fact_base, 'terms'):
+        if not hasattr(data, 'terms'):
             raise ValueError(
-                "Cannot evaluate universal quantifier: fact base does not support "
+                "Cannot evaluate universal quantifier: data source does not support "
                 "term enumeration."
             )
 
-        domain = fact_base.terms
+        domain = data.terms
         if not domain:
             # Empty domain: ∀x.φ is vacuously true
             yield substitution
@@ -71,7 +71,7 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
 
         warnings.warn(
             f"Universal quantifier ∀{formula.variable}: iterating over domain "
-            f"({len(domain)} terms). This may be slow for large fact bases.",
+            f"({len(domain)} terms). This may be slow for large data sources.",
             UniversalQuantifierWarning,
             stacklevel=3,
         )
@@ -89,18 +89,18 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
         if not has_other_free_vars:
             # Simple case: just check if φ holds for all x
             yield from self._evaluate_boolean(
-                inner, fact_base, substitution, bound_var, domain, inner_evaluator
+                inner, data, substitution, bound_var, domain, inner_evaluator
             )
         else:
             # Complex case: find intersection of results across all x values
             yield from self._evaluate_with_free_vars(
-                inner, fact_base, substitution, bound_var, domain, inner_evaluator
+                inner, data, substitution, bound_var, domain, inner_evaluator
             )
 
     def _evaluate_boolean(
         self,
         inner_formula,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution",
         bound_var,
         domain,
@@ -114,7 +114,7 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
 
             # Check if inner formula has at least one result
             has_result = False
-            for _ in inner_evaluator.evaluate(inner_formula, fact_base, extended_sub):
+            for _ in inner_evaluator.evaluate(inner_formula, data, extended_sub):
                 has_result = True
                 break
 
@@ -128,7 +128,7 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
     def _evaluate_with_free_vars(
         self,
         inner_formula,
-        fact_base: "FactBase",
+        data: "ReadableData",
         substitution: "Substitution",
         bound_var,
         domain,
@@ -150,7 +150,7 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
 
             # Get all results for this term
             results = set()
-            for result_sub in inner_evaluator.evaluate(inner_formula, fact_base, extended_sub):
+            for result_sub in inner_evaluator.evaluate(inner_formula, data, extended_sub):
                 # Remove the bound variable from the result
                 filtered = Substitution({
                     k: v for k, v in result_sub.items() if k != bound_var
