@@ -8,8 +8,6 @@ The library supports:
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
 - **Extended DLGP 2.1 format** parser with disjunction support
 
-> **Warning**: This library is still in development. API changes may occur.
-
 ## Installation
 
 ```bash
