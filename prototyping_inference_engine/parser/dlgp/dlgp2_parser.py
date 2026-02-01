@@ -7,7 +7,7 @@ from prototyping_inference_engine.api.query.conjunctive_query import Conjunctive
 from prototyping_inference_engine.api.atom.set.mutable_atom_set import MutableAtomSet
 from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.parser.dlgp.dlgp2_transformer import Dlgp2Transformer
 
 
@@ -68,21 +68,21 @@ class Dlgp2Parser:
     def parse_conjunctive_queries(self, to_parse: str) -> Iterable[ConjunctiveQuery]:
         return set(nc for nc in self.parse_all(to_parse, lambda x: isinstance(x, ConjunctiveQuery)))  # type: ignore
 
-    def parse_union_conjunctive_queries(self, to_parse: str) -> Iterable[UnionConjunctiveQueries]:
-        for query in self.parse_all(to_parse, lambda x: isinstance(x, UnionConjunctiveQueries)
+    def parse_union_conjunctive_queries(self, to_parse: str) -> Iterable[UnionQuery[ConjunctiveQuery]]:
+        for query in self.parse_all(to_parse, lambda x: isinstance(x, UnionQuery)
                                                         or isinstance(x, ConjunctiveQuery)):
-            if isinstance(query, UnionConjunctiveQueries):
+            if isinstance(query, UnionQuery):
                 yield query
             else:
-                yield UnionConjunctiveQueries([query], query.answer_variables, query.label)
+                yield UnionQuery([query], query.answer_variables, query.label)
 
-    def parse_union_conjunctive_queries_from_file(self, file_path: str) -> Iterable[UnionConjunctiveQueries]:
-        for query in self.parse_all_from_file(file_path, lambda x: isinstance(x, UnionConjunctiveQueries)
+    def parse_union_conjunctive_queries_from_file(self, file_path: str) -> Iterable[UnionQuery[ConjunctiveQuery]]:
+        for query in self.parse_all_from_file(file_path, lambda x: isinstance(x, UnionQuery)
                                                         or isinstance(x, ConjunctiveQuery)):
-            if isinstance(query, UnionConjunctiveQueries):
+            if isinstance(query, UnionQuery):
                 yield query
             else:
-                yield UnionConjunctiveQueries([query], query.answer_variables, query.label)
+                yield UnionQuery([query], query.answer_variables, query.label)
 
     def parse_conjunctive_queries_from_file(self, file_path: str) -> Iterable[ConjunctiveQuery]:
         return set(  # type: ignore

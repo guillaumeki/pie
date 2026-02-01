@@ -9,7 +9,7 @@ from prototyping_inference_engine.api.atom.term.term_partition import TermPartit
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.backward_chaining.unifier.disjunctive_piece_unifier import DisjunctivePieceUnifier
 from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import PieceUnifier
 from prototyping_inference_engine.backward_chaining.unifier.piece_unifier_algorithm import PieceUnifierAlgorithm
@@ -28,7 +28,7 @@ class _PartialDisjunctivePieceUnifier:
         """Convert to a complete DisjunctivePieceUnifier."""
         return DisjunctivePieceUnifier(self.rule,
                                        tuple(self.piece_unifiers),
-                                       UnionConjunctiveQueries(self.cqs, self.answer_variables))
+                                       UnionQuery[ConjunctiveQuery](self.cqs, self.answer_variables))
 
     @property
     def partial_associated_partition(self):
@@ -68,8 +68,8 @@ class DisjunctivePieceUnifierAlgorithm:
         self._cache = cache if cache is not None else PieceUnifierCache()
 
     def compute_disjunctive_unifiers(self,
-                                     all_cqs: UnionConjunctiveQueries,
-                                     new_cqs: UnionConjunctiveQueries,
+                                     all_cqs: UnionQuery[ConjunctiveQuery],
+                                     new_cqs: UnionQuery[ConjunctiveQuery],
                                      rule: Rule[ConjunctiveQuery, ConjunctiveQuery]) -> set[DisjunctivePieceUnifier]:
         """
         Compute disjunctive piece unifiers for a rule and set of conjunctive queries.
@@ -153,7 +153,7 @@ class DisjunctivePieceUnifierAlgorithm:
     @staticmethod
     def _compute_full_unifiers_of_a_ucq(rule: Rule[ConjunctiveQuery, ConjunctiveQuery],
                                         head_number: int,
-                                        ucq: UnionConjunctiveQueries) -> list[tuple[PieceUnifier, ConjunctiveQuery]]:
+                                        ucq: UnionQuery[ConjunctiveQuery]) -> list[tuple[PieceUnifier, ConjunctiveQuery]]:
         """Compute full piece unifiers for all CQs in a UCQ."""
         return [(fpu, cq) for cq in ucq
                 for fpu in DisjunctivePieceUnifierAlgorithm._compute_full_unifiers_of_a_cq(rule, head_number, cq)]

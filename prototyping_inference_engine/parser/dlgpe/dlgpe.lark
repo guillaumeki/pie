@@ -1,0 +1,253 @@
+// DLGPE Grammar for Lark
+// Based on ANTLR4 grammar from https://gitlab.inria.fr/jfbaget/dlgpe
+// Subset implementation for PIE - unsupported features will raise errors
+
+?start: document
+
+// ==================== TERMINALS ====================
+
+%import common.WS
+%ignore WS
+
+// Comments
+COMMENT: "%" /[^\r\n]*/
+%ignore COMMENT
+
+// Basic character classes
+HEX: /[0-9A-Fa-f]/
+PN_CHARS_BASE: /[A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/
+PN_CHARS_U: PN_CHARS_BASE | "_"
+PN_CHARS: PN_CHARS_U | /[\-0-9\u00B7\u0300-\u036F\u203F-\u2040]/
+
+// Turtle-like tokens
+IRIREF: "<" /[^\x00-\x20<>"{}|^`\\]*/ ">"
+PNAME_NS: PN_PREFIX? ":"
+PNAME_LN: PNAME_NS PN_LOCAL
+PN_PREFIX: PN_CHARS_BASE ((PN_CHARS | ".")* PN_CHARS)?
+PN_LOCAL: (PN_CHARS_U | ":" | /[0-9]/ | PLX) ((PN_CHARS | "." | ":" | PLX)* (PN_CHARS | ":" | PLX))?
+PLX: PERCENT | PN_LOCAL_ESC
+PERCENT: "%" HEX HEX
+PN_LOCAL_ESC: "\\" /[_~.\-!$&'()*+,;=\/?#@%]/
+
+// String literals
+STRING_LITERAL_QUOTE: "\"" (/[^\x22\x5C\x0A\x0D]/ | ECHAR | UCHAR)* "\""
+STRING_LITERAL_SINGLE_QUOTE: "'" (/[^\x27\x5C\x0A\x0D]/ | ECHAR | UCHAR)* "'"
+UCHAR: "\\u" HEX~4 | "\\U" HEX~8
+ECHAR: "\\" /[tbnrf"'\\]/
+
+// Numeric literals
+INTEGER: /[+-]?[0-9]+/
+DECIMAL: /[+-]?[0-9]*\.[0-9]+/
+DOUBLE: /[+-]?([0-9]+\.[0-9]*[eE][+-]?[0-9]+|\.[0-9]+[eE][+-]?[0-9]+|[0-9]+[eE][+-]?[0-9]+)/
+
+// Language tag
+LANGTAG: "@" /[a-zA-Z]+/ ("-" /[a-zA-Z0-9]+/)*
+
+// DLGPE-specific identifiers
+// Variables start with uppercase or underscore followed by chars
+NAMED_VARIABLE: /[A-Z][A-Za-z0-9_]*/ | "_" /[A-Za-z0-9_]+/
+// Simple identifiers start with lowercase
+SIMPLE_IDENTIFIER: /[a-z][A-Za-z0-9_]*/
+// Uppercase prefix (for variables)
+UPPERCASE_PREFIX: /[A-Z][A-Za-z0-9_]*/
+// Lowercase prefix
+LOWERCASE_PREFIX: /[a-z][A-Za-z0-9_]*/
+
+// Anonymous variable
+UNDERSCORE: "_"
+
+// Label content
+LABEL_CONTENT: /[^\]\n]+/
+
+// ==================== KEYWORDS ====================
+
+BASE_KWD: "@base"i
+PREFIX_KWD: "@prefix"i
+IMPORT_KWD: "@import"i
+COMPUTED_KWD: "@computed"i
+VIEW_KWD: "@view"i
+TOP_KWD: "@top"i
+UNA_KWD: "@una"i
+PATTERNS_KWD: "@patterns"i
+
+FACTS_KWD: "@facts"i
+RULES_KWD: "@rules"i
+QUERIES_KWD: "@queries"i
+CONSTRAINTS_KWD: "@constraints"i
+
+NOT_KWD: "not"i
+TRUE_KWD: "true"i
+FALSE_KWD: "false"i
+
+// Operators
+NECK: ":-"
+GNECK: "::-"
+SUBNECK: ":="
+
+// ==================== GRAMMAR ====================
+
+// Document structure
+document: header body
+
+header: directive*
+
+body: statement* | block*
+
+// Directives
+directive: base_directive
+         | prefix_directive
+         | import_directive      -> unsupported_import
+         | computed_directive    -> unsupported_computed
+         | view_directive        -> unsupported_view
+         | top_directive
+         | una_directive
+         | patterns_directive    -> unsupported_patterns
+
+base_directive: BASE_KWD identifier "."
+prefix_directive: PREFIX_KWD prefix ":" identifier "."
+import_directive: IMPORT_KWD identifier "."
+computed_directive: COMPUTED_KWD prefix ":" identifier "."
+view_directive: VIEW_KWD prefix ":" identifier "."
+top_directive: TOP_KWD identifier "."
+una_directive: UNA_KWD
+patterns_directive: PATTERNS_KWD
+
+// Blocks
+block: facts_block
+     | rules_block
+     | constraints_block
+     | queries_block
+
+facts_block: FACTS_KWD dlgpe_fact*
+rules_block: RULES_KWD dlgpe_rule*
+constraints_block: CONSTRAINTS_KWD dlgpe_constraint*
+queries_block: QUERIES_KWD dlgpe_query*
+
+// Statements
+statement: dlgpe_fact
+         | dlgpe_rule
+         | dlgpe_constraint
+         | dlgpe_query
+
+// Main sentence types
+dlgpe_query: item_info? "?" ( "(" answer_vars ")" )? neck body_formula? "."
+dlgpe_fact: item_info? head_formula "."
+dlgpe_rule: item_info? head_formula neck body_formula? "."
+dlgpe_constraint: item_info? "!" neck body_formula? "."
+
+answer_vars: variable_list | STAR
+STAR: "*"
+
+neck: NECK | GNECK
+
+// Item info (labels)
+item_info: label | json_object -> unsupported_json
+
+label: "[" LABEL_CONTENT? "]"
+
+json_object: "{" JSON_CONTENT? "}"
+JSON_CONTENT: /[^}]+/
+
+// Head formula (disjunction of conjunctions)
+head_formula: head_disjunction
+
+head_disjunction: head_conjunction ("|" head_conjunction)*
+
+head_conjunction: head_elementary ("," head_elementary)*
+
+head_elementary: "(" head_disjunction ")"
+               | head_atom
+               | equal_atom
+
+// Body formula (disjunction of conjunctions with negation)
+body_formula: body_disjunction
+
+body_disjunction: body_conjunction ("|" body_conjunction)*
+
+body_conjunction: body_elementary ("," body_elementary)*
+
+body_elementary: sub_query                           -> unsupported_subquery
+               | NOT_KWD "(" body_disjunction ")"    -> negated_formula
+               | NOT_KWD body_atom                   -> negated_atom
+               | "(" body_disjunction ")"            -> grouped_formula
+               | body_atom
+               | operator_atom                       -> unsupported_operator
+               | repeated_atom                       -> unsupported_repeated
+               | equal_atom
+
+// Atoms
+head_atom: predicate ( "(" head_terms_list ")" )?
+         | pattern_predicate ( "(" head_terms_list ")" )?  -> unsupported_pattern_atom
+
+body_atom: predicate ( "(" body_terms_list ")" )?
+         | pattern_predicate ( "(" body_terms_list ")" )?  -> unsupported_pattern_atom
+
+equal_atom: term "=" term
+
+operator_atom: term PREDICATE_OPERATOR term
+PREDICATE_OPERATOR: "<" | ">" | "<=" | ">=" | "!="
+
+repeated_atom: predicate REPEAT_SYMBOL "(" term "," term ")"
+REPEAT_SYMBOL: "+" | "*"
+
+sub_query: NAMED_VARIABLE ( "(" (variable_list | "*") ")" )? SUBNECK (body_atom | "(" body_disjunction ")")
+
+// Term lists
+head_terms_list: (head_term ("," head_term)*)?
+body_terms_list: (body_term ("," body_term)*)?
+variable_list: (named_variable ("," named_variable)*)?
+
+// Terms
+head_term: additive_term      -> unsupported_arithmetic
+         | constant
+         | named_variable
+
+body_term: additive_term      -> unsupported_arithmetic
+         | constant
+         | anonymous_variable
+         | named_variable
+
+// Arithmetic (unsupported - will raise error)
+additive_term: multiplicative_term (ADDOP multiplicative_term)+
+multiplicative_term: opposite_term (MULTOP opposite_term)+
+opposite_term: "-" exponential_term
+exponential_term: elementary_term "**" opposite_term
+elementary_term: "(" additive_term ")" | functional_term | named_variable | literal
+
+ADDOP: "+" | "-"
+MULTOP: "*" | "/"
+
+functional_term: function_symbol "(" non_constant_term_list ")"  -> unsupported_functional
+function_symbol: identifier
+non_constant_term_list: (additive_term ("," additive_term)*)?
+
+// Basic terms
+term: named_variable | constant | anonymous_variable
+
+predicate: identifier
+pattern_predicate: "$" SIMPLE_IDENTIFIER
+
+named_variable: NAMED_VARIABLE | UPPERCASE_PREFIX
+anonymous_variable: UNDERSCORE
+constant: identifier | literal
+
+// Literals
+literal: typed_literal
+       | STRING_LITERAL_QUOTE
+       | STRING_LITERAL_SINGLE_QUOTE
+       | numeric_literal
+       | boolean_literal
+
+typed_literal: (STRING_LITERAL_QUOTE | STRING_LITERAL_SINGLE_QUOTE) "^^" identifier
+
+numeric_literal: DOUBLE | DECIMAL | INTEGER
+boolean_literal: TRUE_KWD | FALSE_KWD
+
+// Identifiers
+identifier: IRIREF
+          | PNAME_LN
+          | PNAME_NS
+          | SIMPLE_IDENTIFIER
+          | LOWERCASE_PREFIX
+
+prefix: LOWERCASE_PREFIX | UPPERCASE_PREFIX

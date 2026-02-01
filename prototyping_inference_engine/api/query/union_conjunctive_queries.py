@@ -1,52 +1,38 @@
-from functools import cached_property, reduce
-from typing import Iterable, Iterator, TYPE_CHECKING
+from functools import reduce
+from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
-from prototyping_inference_engine.api.atom.term.constant import Constant
-from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.api.query.query import Query
-from prototyping_inference_engine.api.substitution.substitutable import Substitutable
+from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.query.fo_query import FOQuery
 
 
-class UnionConjunctiveQueries(Query, Substitutable["UnionConjunctiveQueries"]):
-    def __init__(self, cqs: Iterable[ConjunctiveQuery] = None, answer_variables: Iterable[Variable] = None,
-                 label: str = None):
-        if answer_variables is None:
-            answer_variables = ()
-        if cqs is None:
-            cqs = []
+class UnionConjunctiveQueries(UnionQuery[ConjunctiveQuery]):
+    """
+    A union (disjunction) of conjunctive queries.
 
-        Query.__init__(self, answer_variables, label)
+    This is a specialized subclass of UnionQuery[ConjunctiveQuery] that provides
+    backward compatibility with the legacy API including the `conjunctive_queries`
+    property and `to_fo_query()` method.
 
-        ncqs = []
-        for cq in cqs:
-            if len(answer_variables) != len(cq.answer_variables):
-                raise ValueError("This CQ has an unappropriated number of answer variables: " + repr(cq) +
-                                 " - expected: " + str(len(answer_variables)))
-            ncqs.append(Substitution({v: t for v, t in zip(cq.answer_variables, self.answer_variables)})(cq))
+    Note: For new code, consider using UnionQuery[ConjunctiveQuery] directly.
+    """
 
-        self._cqs = frozenset(ncqs)
+    def __init__(
+        self,
+        cqs: Iterable[ConjunctiveQuery] = None,
+        answer_variables: Iterable[Variable] = None,
+        label: Optional[str] = None,
+    ):
+        super().__init__(cqs, answer_variables, label)
 
     @property
     def conjunctive_queries(self) -> frozenset[ConjunctiveQuery]:
-        return self._cqs
-
-    @cached_property
-    def terms(self) -> set[Term]:
-        return set().union(*[cq.terms for cq in self.conjunctive_queries])
-
-    @cached_property
-    def constants(self) -> set[Constant]:
-        return set().union(*[cq.constants for cq in self.conjunctive_queries])
-
-    @cached_property
-    def variables(self) -> set[Variable]:
-        return set().union(*[cq.variables for cq in self.conjunctive_queries])
+        """Alias for queries property for backward compatibility."""
+        return self._queries
 
     def to_fo_query(self) -> "FOQuery":
         """
@@ -65,7 +51,7 @@ class UnionConjunctiveQueries(Query, Substitutable["UnionConjunctiveQueries"]):
         from prototyping_inference_engine.api.formula.formula import Formula
         from prototyping_inference_engine.api.query.fo_query import FOQuery
 
-        if not self._cqs:
+        if not self._queries:
             raise ValueError("Cannot convert empty UCQ to FOQuery")
 
         def cq_to_formula(cq: ConjunctiveQuery) -> Formula:
@@ -88,7 +74,7 @@ class UnionConjunctiveQueries(Query, Substitutable["UnionConjunctiveQueries"]):
             return formula
 
         # Convert all CQs to formulas
-        formulas = [cq_to_formula(cq) for cq in self._cqs]
+        formulas = [cq_to_formula(cq) for cq in self._queries]
 
         # Combine with disjunctions
         combined: Formula = reduce(

@@ -4,7 +4,7 @@ Tests for ConjunctionEvaluator.
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.predicate import Predicate
+from prototyping_inference_engine.api.atom.predicate import Predicate, SpecialPredicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
@@ -257,6 +257,166 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         self.assertEqual(len(results), 2)
         result_pairs = {(r[self.x], r[self.z]) for r in results}
         self.assertEqual(result_pairs, {(self.a, e), (self.c, f)})
+
+
+class TestConjunctionWithEquality(unittest.TestCase):
+    """Test BacktrackConjunctionEvaluator with equality atoms."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.p = Predicate("p", 2)
+        cls.q = Predicate("q", 1)
+        cls.eq = SpecialPredicate.EQUALITY.value
+        cls.x = Variable("X")
+        cls.y = Variable("Y")
+        cls.z = Variable("Z")
+        cls.a = Constant("a")
+        cls.b = Constant("b")
+        cls.c = Constant("c")
+
+    def setUp(self):
+        FormulaEvaluatorRegistry.reset()
+        self.evaluator = BacktrackConjunctionEvaluator()
+
+    def tearDown(self):
+        FormulaEvaluatorRegistry.reset()
+
+    def test_equality_variable_constant(self):
+        """
+        Query: p(X,Y) ∧ X=a
+        FactBase: {p(a,b), p(c,d)}
+        Expected: {X→a, Y→b}
+        """
+        d = Constant("d")
+        fact_base = MutableInMemoryFactBase([
+            Atom(self.p, self.a, self.b),
+            Atom(self.p, self.c, d),
+        ])
+        formula = ConjunctionFormula(
+            Atom(self.p, self.x, self.y),
+            Atom(self.eq, self.x, self.a),
+        )
+
+        results = list(self.evaluator.evaluate(formula, fact_base))
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0][self.x], self.a)
+        self.assertEqual(results[0][self.y], self.b)
+
+    def test_equality_two_variables(self):
+        """
+        Query: p(X,Y) ∧ q(Z) ∧ Y=Z
+        FactBase: {p(a,b), q(b)}
+        Expected: {X→a, Y→b, Z→b}
+        """
+        fact_base = MutableInMemoryFactBase([
+            Atom(self.p, self.a, self.b),
+            Atom(self.q, self.b),
+        ])
+        conj1 = ConjunctionFormula(
+            Atom(self.p, self.x, self.y),
+            Atom(self.q, self.z),
+        )
+        formula = ConjunctionFormula(
+            conj1,
+            Atom(self.eq, self.y, self.z),
+        )
+
+        results = list(self.evaluator.evaluate(formula, fact_base))
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0][self.x], self.a)
+        # Y and Z should both be b (or one maps to the other)
+        self.assertEqual(results[0].apply(self.y), self.b)
+        self.assertEqual(results[0].apply(self.z), self.b)
+
+    def test_equality_transitive(self):
+        """
+        Query: p(X) ∧ q(Y) ∧ r(Z) ∧ X=Y ∧ Y=Z
+        FactBase: {p(a), q(a), r(a)}
+        Expected: {X→a, Y→a, Z→a}
+        """
+        p1 = Predicate("p", 1)
+        q1 = Predicate("q", 1)
+        r1 = Predicate("r", 1)
+        fact_base = MutableInMemoryFactBase([
+            Atom(p1, self.a),
+            Atom(q1, self.a),
+            Atom(r1, self.a),
+        ])
+        conj1 = ConjunctionFormula(Atom(p1, self.x), Atom(q1, self.y))
+        conj2 = ConjunctionFormula(conj1, Atom(r1, self.z))
+        conj3 = ConjunctionFormula(conj2, Atom(self.eq, self.x, self.y))
+        formula = ConjunctionFormula(conj3, Atom(self.eq, self.y, self.z))
+
+        results = list(self.evaluator.evaluate(formula, fact_base))
+
+        self.assertEqual(len(results), 1)
+        # All three should map to 'a'
+        self.assertEqual(results[0].apply(self.x), self.a)
+        self.assertEqual(results[0].apply(self.y), self.a)
+        self.assertEqual(results[0].apply(self.z), self.a)
+
+    def test_equality_inconsistent_constants(self):
+        """
+        Query: p(X) ∧ X=a ∧ X=b (where a≠b)
+        Expected: no results (inconsistent)
+        """
+        p1 = Predicate("p", 1)
+        fact_base = MutableInMemoryFactBase([
+            Atom(p1, self.a),
+            Atom(p1, self.b),
+        ])
+        conj1 = ConjunctionFormula(
+            Atom(p1, self.x),
+            Atom(self.eq, self.x, self.a),
+        )
+        formula = ConjunctionFormula(
+            conj1,
+            Atom(self.eq, self.x, self.b),
+        )
+
+        results = list(self.evaluator.evaluate(formula, fact_base))
+
+        self.assertEqual(len(results), 0)
+
+    def test_equality_same_constant(self):
+        """
+        Query: p(X) ∧ a=a
+        FactBase: {p(b)}
+        Expected: {X→b}
+        """
+        p1 = Predicate("p", 1)
+        fact_base = MutableInMemoryFactBase([
+            Atom(p1, self.b),
+        ])
+        formula = ConjunctionFormula(
+            Atom(p1, self.x),
+            Atom(self.eq, self.a, self.a),
+        )
+
+        results = list(self.evaluator.evaluate(formula, fact_base))
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0][self.x], self.b)
+
+    def test_equality_only(self):
+        """
+        Query: X=a ∧ Y=X (only equalities, no regular atoms)
+        FactBase: empty
+        Expected: {X→a, Y→a}
+        """
+        fact_base = MutableInMemoryFactBase([])
+        formula = ConjunctionFormula(
+            Atom(self.eq, self.x, self.a),
+            Atom(self.eq, self.y, self.x),
+        )
+
+        results = list(self.evaluator.evaluate(formula, fact_base))
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].apply(self.x), self.a)
+        self.assertEqual(results[0].apply(self.y), self.a)
 
 
 class TestConjunctionFOQuery(unittest.TestCase):

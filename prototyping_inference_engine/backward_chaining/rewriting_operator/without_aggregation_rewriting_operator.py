@@ -1,7 +1,7 @@
 from prototyping_inference_engine.api.atom.set.mutable_atom_set import MutableAtomSet
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.backward_chaining.rewriting_operator.rewriting_operator import RewritingOperator
 from prototyping_inference_engine.backward_chaining.unifier.disjunctive_piece_unifier import DisjunctivePieceUnifier
@@ -13,9 +13,9 @@ class WithoutAggregationRewritingOperator(RewritingOperator):
         self.disj_piece_unifier_algo = DisjunctivePieceUnifierAlgorithm()
 
     def rewrite(self,
-                all_cqs: UnionConjunctiveQueries,
-                new_cqs: UnionConjunctiveQueries,
-                rules: set[Rule[ConjunctiveQuery, ConjunctiveQuery]]) -> UnionConjunctiveQueries:
+                all_cqs: UnionQuery[ConjunctiveQuery],
+                new_cqs: UnionQuery[ConjunctiveQuery],
+                rules: set[Rule[ConjunctiveQuery, ConjunctiveQuery]]) -> UnionQuery[ConjunctiveQuery]:
         rewritten_cqs: set[ConjunctiveQuery] = set()
         disj_unifiers: set[DisjunctivePieceUnifier] = set()
         for rule in rules:
@@ -31,6 +31,6 @@ class WithoutAggregationRewritingOperator(RewritingOperator):
                 pre_substitution=Substitution({v: u(v) for v in disj_unifier.query.answer_variables if v != u(v)})))
 
         if rewritten_cqs:
-            return UnionConjunctiveQueries(rewritten_cqs, all_cqs.answer_variables)
+            return UnionQuery(rewritten_cqs, all_cqs.answer_variables)
 
-        return UnionConjunctiveQueries(answer_variables=all_cqs.answer_variables)
+        return UnionQuery(answer_variables=all_cqs.answer_variables)

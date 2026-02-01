@@ -10,7 +10,7 @@ from prototyping_inference_engine.api.query.redundancies.redundancies_cleaner_un
 from prototyping_inference_engine.api.query.redundancies.ucq_redundancies_cleaner_provider import (
     UCQRedundanciesCleanerProvider, DefaultUCQRedundanciesCleanerProvider
 )
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.backward_chaining.rewriting_operator.rewriting_operator import RewritingOperator
 from prototyping_inference_engine.backward_chaining.rewriting_operator.rewriting_operator_provider import (
@@ -37,8 +37,8 @@ class BreadthFirstRewriting(UcqRewritingAlgorithm):
         return BreadthFirstRewriting()
 
     @staticmethod
-    def _safe_renaming(ucq: UnionConjunctiveQueries,
-                       rule_set: set[Rule[ConjunctiveQuery, ConjunctiveQuery]]) -> UnionConjunctiveQueries:
+    def _safe_renaming(ucq: UnionQuery[ConjunctiveQuery],
+                       rule_set: set[Rule[ConjunctiveQuery, ConjunctiveQuery]]) -> UnionQuery[ConjunctiveQuery]:
         rules_variables = set(v for r in rule_set for v in r.variables)
         renaming = Substitution()
         for v in ucq.variables:
@@ -47,11 +47,11 @@ class BreadthFirstRewriting(UcqRewritingAlgorithm):
 
         return renaming(ucq)
 
-    def rewrite(self, ucq: UnionConjunctiveQueries,
+    def rewrite(self, ucq: UnionQuery[ConjunctiveQuery],
                 rule_set: set[Rule[ConjunctiveQuery, ConjunctiveQuery]],
                 step_limit: int = inf,
                 verbose: bool = False,
-                printer: "Callable[[UnionConjunctiveQueries, int], None]" = None) -> UnionConjunctiveQueries:
+                printer: "Callable[[UnionQuery[ConjunctiveQuery], int], None]" = None) -> UnionQuery[ConjunctiveQuery]:
         ucq = self._safe_renaming(ucq, rule_set)
         ucq_new = self._ucq_redundancies_cleaner.compute_cover(ucq)
         ucq_result = ucq_new

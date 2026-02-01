@@ -52,6 +52,24 @@ class Substitution(dict[Variable, Term]):
         # Remove identity mappings
         return Substitution({k: v for k, v in new_sub.items() if k != v})
 
+    def normalize(self) -> "Substitution":
+        """
+        Normalize the substitution by transitively resolving variable chains.
+
+        If the substitution contains {X→Y, Y→a}, normalize returns {X→a, Y→a}.
+        This ensures that applying the substitution to any variable in the domain
+        directly yields its final value without intermediate variable references.
+        """
+        result = {}
+        for var in self.keys():
+            # Follow the chain until we reach a non-variable or a variable not in domain
+            current = self[var]
+            while isinstance(current, Variable) and current in self:
+                current = self[current]
+            result[var] = current
+        # Remove identity mappings
+        return Substitution({k: v for k, v in result.items() if k != v})
+
     def aggregate(self, other: "Substitution") -> "Substitution":
         """Merge two substitutions (union of mappings)."""
         return Substitution(self | other)

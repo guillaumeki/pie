@@ -9,7 +9,7 @@ from prototyping_inference_engine.api.ontology.constraint.negative_constraint im
 from prototyping_inference_engine.api.atom.predicate import Predicate, SpecialPredicate
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
@@ -60,9 +60,9 @@ class Dlgp2Transformer(Transformer):
                                     label=q[0],
                                     pre_substitution=pre_substitution)
 
-        return UnionConjunctiveQueries((Dlgp2Transformer.query(q[:2]+[[disjunct]]) for disjunct in q[2]),
-                                       answer_variables=q[1],
-                                       label=q[0])
+        return UnionQuery((Dlgp2Transformer.query(q[:2]+[[disjunct]]) for disjunct in q[2]),
+                          answer_variables=q[1],
+                          label=q[0])
 
     @staticmethod
     def fact(items):

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.ontology.rule.rule import Rule
     from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
     from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-    from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+    from prototyping_inference_engine.api.query.union_query import UnionQuery
 
 
 @dataclass(frozen=True)
@@ -28,7 +28,7 @@ class ParseResult:
 
     facts: "FrozenAtomSet"
     rules: FrozenSet["Rule"]
-    queries: FrozenSet[Union["ConjunctiveQuery", "UnionConjunctiveQueries"]]
+    queries: FrozenSet[Union["ConjunctiveQuery", "UnionQuery[ConjunctiveQuery]"]]
     constraints: FrozenSet["NegativeConstraint"]
 
     @property

@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
@@ -14,11 +14,11 @@ class TestDlgp2Parser(TestCase):
     def test_parse_union_conjunctive_queries(self):
         tests = (
             {"to_parse": "?() :- q(U), r(U).",
-             "ucqs": {UnionConjunctiveQueries(
+             "ucqs": {UnionQuery(
                         [ConjunctiveQuery(
                             FrozenAtomSet(Dlgp2Parser.instance().parse_atoms("q(U), r(U).")))])}},
             {"to_parse": "?() :- (g(U), e(U,V), g(V)); (r(U), e(U,V), r(V)).",
-             "ucqs": {UnionConjunctiveQueries([
+             "ucqs": {UnionQuery([
                  ConjunctiveQuery(FrozenAtomSet(Dlgp2Parser.instance().parse_atoms("g(U), e(U,V), g(V)."))),
                  ConjunctiveQuery(FrozenAtomSet(Dlgp2Parser.instance().parse_atoms("r(U), e(U,V), r(V).")))
              ])}}

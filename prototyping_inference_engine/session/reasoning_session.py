@@ -26,7 +26,7 @@ from prototyping_inference_engine.api.ontology.ontology import Ontology
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.session.cleanup_stats import SessionCleanupStats
 from prototyping_inference_engine.session.parse_result import ParseResult
 from prototyping_inference_engine.session.term_factories import TermFactories
@@ -386,11 +386,11 @@ class ReasoningSession:
 
     def rewrite(
         self,
-        query: Union[ConjunctiveQuery, UnionConjunctiveQueries],
+        query: Union[ConjunctiveQuery, UnionQuery[ConjunctiveQuery]],
         rules: set[Rule],
         step_limit: float = inf,
         verbose: bool = False,
-    ) -> UnionConjunctiveQueries:
+    ) -> UnionQuery[ConjunctiveQuery]:
         """
         Perform UCQ rewriting.
 
@@ -407,7 +407,7 @@ class ReasoningSession:
 
         # Convert CQ to UCQ if needed
         if isinstance(query, ConjunctiveQuery):
-            query = UnionConjunctiveQueries(
+            query = UnionQuery(
                 frozenset([query]),
                 query.answer_variables,
                 query.label,
@@ -558,12 +558,12 @@ class ReasoningSession:
                 self._track_atom(atom)
 
     def _track_query(
-        self, query: Union[ConjunctiveQuery, UnionConjunctiveQueries]
+        self, query: Union[ConjunctiveQuery, UnionQuery[ConjunctiveQuery]]
     ) -> None:
         """Track all terms in a query."""
         if isinstance(query, ConjunctiveQuery):
             for atom in query.atoms:
                 self._track_atom(atom)
-        elif isinstance(query, UnionConjunctiveQueries):
+        elif isinstance(query, UnionQuery):
             for cq in query.conjunctive_queries:
                 self._track_query(cq)

@@ -1,12 +1,13 @@
 from functools import cache
 from typing import Optional, Protocol, runtime_checkable
 
+from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.containment.conjunctive_query_containment import ConjunctiveQueryContainment
 from prototyping_inference_engine.api.query.containment.conjunctive_query_containment_provider import (
     ConjunctiveQueryContainmentProvider, DefaultCQContainmentProvider
 )
 from prototyping_inference_engine.api.query.redundancies.redundancies_cleaner_conjunctive_query import RedundanciesCleanerConjunctiveQuery
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_query import UnionQuery
 
 
 @runtime_checkable
@@ -41,17 +42,17 @@ class RedundanciesCleanerUnionConjunctiveQueries:
     def instance() -> "RedundanciesCleanerUnionConjunctiveQueries":
         return RedundanciesCleanerUnionConjunctiveQueries()
 
-    def compute_cover(self, ucq: UnionConjunctiveQueries, del_redundancies_in_cqs: bool = True) \
-            -> UnionConjunctiveQueries:
-        return UnionConjunctiveQueries(
+    def compute_cover(self, ucq: UnionQuery[ConjunctiveQuery], del_redundancies_in_cqs: bool = True) \
+            -> UnionQuery[ConjunctiveQuery]:
+        return UnionQuery(
             self._cq_redundancies_cleaner.compute_cover(ucq.conjunctive_queries, del_redundancies_in_cqs),
             ucq.answer_variables,
             ucq.label)
 
     def remove_more_specific_than(self,
-                                  ucq1: UnionConjunctiveQueries,
-                                  ucq2: UnionConjunctiveQueries) -> UnionConjunctiveQueries:
-        return UnionConjunctiveQueries(
+                                  ucq1: UnionQuery[ConjunctiveQuery],
+                                  ucq2: UnionQuery[ConjunctiveQuery]) -> UnionQuery[ConjunctiveQuery]:
+        return UnionQuery(
             self._cq_redundancies_cleaner.remove_more_specific_than(ucq1.conjunctive_queries, ucq2.conjunctive_queries),
             ucq1.answer_variables,
             ucq1.label)

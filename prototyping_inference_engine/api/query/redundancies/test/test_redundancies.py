@@ -5,6 +5,7 @@ from prototyping_inference_engine.api.query.conjunctive_query import Conjunctive
 from prototyping_inference_engine.api.query.redundancies.redundancies_cleaner_conjunctive_query import RedundanciesCleanerConjunctiveQuery
 from prototyping_inference_engine.api.query.redundancies.redundancies_cleaner_union_conjunctive_queries import RedundanciesCleanerUnionConjunctiveQueries
 from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
@@ -122,7 +123,7 @@ class TestRedundanciesCleanerUnionConjunctiveQueries(TestCase):
         cover = self.cleaner.compute_cover(ucq)
         # Only the more general CQ should remain
         self.assertEqual(len(cover), 1)
-        self.assertIsInstance(cover, UnionConjunctiveQueries)
+        self.assertIsInstance(cover, UnionQuery)
         self.assertEqual(cover.answer_variables, (z,))
 
     def test_compute_cover_preserves_label(self):
@@ -153,4 +154,4 @@ class TestRedundanciesCleanerUnionConjunctiveQueries(TestCase):
         # cq1 is contained in cq2, so it should be removed
         # cq3 is not contained in cq2, so it should remain
         self.assertEqual(len(result), 1)
-        self.assertIsInstance(result, UnionConjunctiveQueries)
+        self.assertIsInstance(result, UnionQuery)
