@@ -11,6 +11,7 @@ Pie (Prototyping Inference Engine) is a Python library for building inference en
 - Backward chaining (query rewriting) - 90% complete
 - Forward chaining - not yet implemented
 - Extended DLGP 2.1 format parser with disjunction support
+- DLGPE format parser with negation, equality, and sections support
 
 ## Commands
 
@@ -54,9 +55,20 @@ pip install -e .
 - All core types (Term, Atom, AtomSet, Query) implement `Substitutable`
 
 **Queries:**
-- `Query` → `ConjunctiveQuery`, `UnionConjunctiveQueries` (for backward chaining)
+- `Query` → `ConjunctiveQuery`, `UnionQuery[Q]` (generic union of queries)
+- `UnionConjunctiveQueries` extends `UnionQuery[ConjunctiveQuery]` (for backward chaining)
 - `FOQuery` - first-order queries with any formula type (for evaluation)
 - Queries have answer variables and support substitution
+
+**Term Factories (`api/atom/term/factory/`):**
+- `VariableFactory`, `ConstantFactory`, `PredicateFactory` - create/cache terms
+- Pluggable storage strategies for memory management
+
+**Storage Strategies (`api/atom/term/storage/`):**
+- `TermStorageStrategy` - protocol for cache interface
+- `DictStorage` - simple dictionary cache
+- `WeakRefStorage` - weak reference cache with automatic GC cleanup
+- `GlobalCacheStorage` - adapter for existing global caches
 
 **Rules & Ontology:**
 - `Rule[BodyType, HeadType]` - generic rule with disjunctive head support
@@ -74,16 +86,23 @@ pip install -e .
 - `PieceUnifierAlgorithm` - computes most general piece unifiers
 - `RewritingOperator` - applies rules to queries
 
-### Parser (`parser/dlgp/`)
+### Parser (`parser/`)
 
+**DLGP 2.1 (`parser/dlgp/`):**
 - `Dlgp2Parser` - singleton parser using Lark
 - `Dlgp2Transformer` - transforms parse tree to domain objects
 - Grammar in `dlgp2.lark`
+
+**DLGPE (`parser/dlgpe/`):**
+- `DlgpeParser` - extended Datalog+- parser
+- Supports: disjunction, negation (`not`), equality (`=`), sections (`@facts`, `@rules`, etc.)
+- `DlgpeUnsupportedFeatureError` for unsupported features
 
 ### Query Evaluation (`query_evaluation/`)
 
 Hierarchical evaluator architecture:
 - `QueryEvaluator[Q]` - abstract base for all query evaluators
+- `QueryEvaluatorRegistry` - centralized dispatch for query evaluation by type
 - `FOQueryEvaluator` - abstract base for first-order query evaluators
   - `AtomicFOQueryEvaluator` - atomic formulas
   - `ConjunctiveFOQueryEvaluator` - conjunctions (backtracking)
@@ -92,11 +111,12 @@ Hierarchical evaluator architecture:
   - `UniversalFOQueryEvaluator` - universal quantification
   - `ExistentialFOQueryEvaluator` - existential quantification
   - `GenericFOQueryEvaluator` - dispatches by formula type
-- `FOQueryEvaluatorRegistry` - singleton registry for evaluators
+- `UnionQueryEvaluator` - evaluates `UnionQuery[Q]` by evaluating each sub-query
+- `ConjunctiveQueryEvaluator` - converts CQ to FOQuery and delegates
 
 Internal formula evaluators (used by FOQueryEvaluators):
 - `FormulaEvaluator[F]` - returns `Iterator[Substitution]`
-- `AtomEvaluator`, `BacktrackConjunctionEvaluator`, etc.
+- `AtomEvaluator`, `BacktrackConjunctionEvaluator` (supports equality atoms), etc.
 
 ### Homomorphism (`api/atom/set/homomorphism/`)
 
@@ -120,15 +140,34 @@ q(X); r(Y) :- p(X,Y).
 p(a,b).
 ```
 
+## DLGPE Format
+
+```prolog
+@facts
+person(alice).
+knows(alice, bob).
+
+@rules
+[transitivity] knows(X, Z) :- knows(X, Y), knows(Y, Z).
+stranger(X, Y) :- person(X), person(Y), not knows(X, Y).
+
+@queries
+?(X, Y) :- knows(X, Y), X = Y.
+```
+
 ## Key Patterns
 
-- Use `Dlgp2Parser.instance()` singleton for parsing
+- Use `Dlgp2Parser.instance()` singleton for DLGP parsing
+- Use `DlgpeParser.instance()` singleton for DLGPE parsing
 - All substitutable objects implement `apply_substitution(self, sub) -> Self`
 - `Variable.safe_renaming_substitution(vars)` creates fresh variable renaming
 - `atom_operations.specialize(from_atom, to_atom, sub)` for atom specialization
 - Use `GenericFOQueryEvaluator()` for query evaluation when formula type is unknown
+- Use `QueryEvaluatorRegistry.instance()` for centralized query evaluation dispatch
 - `evaluate()` returns `Iterator[Substitution]`, `evaluate_and_project()` returns tuples
 - Convert CQ/UCQ to FOQuery via `cq.to_fo_query()` for evaluation
+- `Substitution.normalize()` resolves transitive variable chains
+- `UnionQuery[Q]` is the generic union type; `UnionConjunctiveQueries` for backward chaining
 
 ## Code Style
 
