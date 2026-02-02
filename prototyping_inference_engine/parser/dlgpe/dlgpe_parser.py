@@ -73,7 +73,7 @@ class DlgpeParser:
             cls._instance = cls()
         return cls._instance
 
-    def parse(self, text: str) -> dict:
+    def parse(self, text: str, transformer: Optional[DlgpeTransformer] = None) -> dict:
         """
         Parse DLGPE text and return structured results.
 
@@ -94,8 +94,9 @@ class DlgpeParser:
         """
         self._raise_for_unsupported_text(text)
         tree = self._lark.parse(text)
+        transformer = transformer or self._transformer
         try:
-            result = self._transformer.transform(tree)
+            result = transformer.transform(tree)
         except VisitError as e:
             # Unwrap DlgpeUnsupportedFeatureError from Lark's VisitError
             if isinstance(e.orig_exc, DlgpeUnsupportedFeatureError):
@@ -148,7 +149,7 @@ class DlgpeParser:
         text = path.read_text(encoding="utf-8")
         return self.parse(text)
 
-    def parse_atoms(self, text: str) -> Iterator[Atom]:
+    def parse_atoms(self, text: str, transformer: Optional[DlgpeTransformer] = None) -> Iterator[Atom]:
         """
         Parse text containing only facts and yield atoms.
 
@@ -158,10 +159,10 @@ class DlgpeParser:
         Yields:
             Atom objects
         """
-        result = self.parse(text)
+        result = self.parse(text, transformer)
         yield from result["facts"]
 
-    def parse_rules(self, text: str) -> Iterator[Rule]:
+    def parse_rules(self, text: str, transformer: Optional[DlgpeTransformer] = None) -> Iterator[Rule]:
         """
         Parse text and yield rules.
 
@@ -171,10 +172,10 @@ class DlgpeParser:
         Yields:
             Rule objects
         """
-        result = self.parse(text)
+        result = self.parse(text, transformer)
         yield from result["rules"]
 
-    def parse_queries(self, text: str) -> Iterator[FOQuery]:
+    def parse_queries(self, text: str, transformer: Optional[DlgpeTransformer] = None) -> Iterator[FOQuery]:
         """
         Parse text and yield queries.
 
@@ -184,10 +185,10 @@ class DlgpeParser:
         Yields:
             FOQuery objects
         """
-        result = self.parse(text)
+        result = self.parse(text, transformer)
         yield from result["queries"]
 
-    def parse_constraints(self, text: str) -> Iterator[NegativeConstraint]:
+    def parse_constraints(self, text: str, transformer: Optional[DlgpeTransformer] = None) -> Iterator[NegativeConstraint]:
         """
         Parse text and yield constraints.
 
@@ -197,7 +198,7 @@ class DlgpeParser:
         Yields:
             NegativeConstraint objects
         """
-        result = self.parse(text)
+        result = self.parse(text, transformer)
         yield from result["constraints"]
 
     def _organize_result(self, raw_result: dict) -> dict:

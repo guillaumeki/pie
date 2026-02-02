@@ -24,7 +24,7 @@ class Variable(Term):
         Term.__init__(self, identifier)
 
     @property
-    def is_rigid(self) -> bool:
+    def is_ground(self) -> bool:
         return False
 
     @property

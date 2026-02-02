@@ -14,14 +14,19 @@ from prototyping_inference_engine.parser.dlgp.dlgp2_transformer import Dlgp2Tran
 class Dlgp2Parser:
     _instance = None
 
-    def __init__(self):
-        self._parser = Lark.open("dlgp2.lark", rel_to=__file__, parser="lalr", transformer=Dlgp2Transformer())
+    def __init__(self, transformer: Dlgp2Transformer | None = None):
+        transformer = transformer or Dlgp2Transformer()
+        self._parser = Lark.open("dlgp2.lark", rel_to=__file__, parser="lalr", transformer=transformer)
 
     @classmethod
     def instance(cls) -> "Dlgp2Parser":
         if not cls._instance:
             cls._instance = Dlgp2Parser()
         return cls._instance
+
+    @classmethod
+    def create(cls, transformer: Dlgp2Transformer) -> "Dlgp2Parser":
+        return cls(transformer)
 
     def parse_all(self, to_parse: str, filter_fun: Callable[[object], bool] = None) -> Iterable[object]:
         return self._parse_all(self._parser.parse(to_parse)["body"], filter_fun)  # type: ignore

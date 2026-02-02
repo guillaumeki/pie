@@ -11,17 +11,20 @@ from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.atom.term.factory import (
     VariableFactory,
     ConstantFactory,
+    LiteralFactory,
     PredicateFactory,
 )
 from prototyping_inference_engine.api.atom.term.storage import (
     DictStorage,
     WeakRefStorage,
 )
+from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
 from prototyping_inference_engine.api.ontology.ontology import Ontology
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
@@ -80,6 +83,7 @@ class ReasoningSession:
         parser_provider: Optional[ParserProvider] = None,
         fact_base_provider: Optional[FactBaseFactoryProvider] = None,
         rewriting_provider: Optional[RewritingAlgorithmProvider] = None,
+        literal_config: Optional[LiteralConfig] = None,
     ) -> None:
         """
         Initialize a reasoning session.
@@ -91,7 +95,12 @@ class ReasoningSession:
             rewriting_provider: Provider for rewriting algorithm (default: DefaultRewritingAlgorithmProvider)
         """
         self._term_factories = term_factories
-        self._parser_provider = parser_provider or DlgpeParserProvider()
+        self._literal_config = literal_config or LiteralConfig.default()
+
+        if Literal not in self._term_factories:
+            self._term_factories.register(Literal, LiteralFactory(DictStorage(), self._literal_config))
+
+        self._parser_provider = parser_provider or DlgpeParserProvider(self._term_factories)
         self._fact_base_provider = fact_base_provider or DefaultFactBaseFactoryProvider()
         self._rewriting_provider = rewriting_provider or DefaultRewritingAlgorithmProvider()
 
@@ -107,6 +116,7 @@ class ReasoningSession:
         parser_provider: Optional[ParserProvider] = None,
         fact_base_provider: Optional[FactBaseFactoryProvider] = None,
         rewriting_provider: Optional[RewritingAlgorithmProvider] = None,
+        literal_config: Optional[LiteralConfig] = None,
     ) -> "ReasoningSession":
         """
         Factory method to create a session with default term factories.
@@ -126,15 +136,18 @@ class ReasoningSession:
             var_storage = WeakRefStorage()
             const_storage = WeakRefStorage()
             pred_storage = WeakRefStorage()
+            lit_storage = WeakRefStorage()
         else:
             var_storage = DictStorage()
             const_storage = DictStorage()
             pred_storage = DictStorage()
+            lit_storage = DictStorage()
 
         # Create and register standard factories
         factories = TermFactories()
         factories.register(Variable, VariableFactory(var_storage))
         factories.register(Constant, ConstantFactory(const_storage))
+        factories.register(Literal, LiteralFactory(lit_storage, literal_config or LiteralConfig.default()))
         factories.register(Predicate, PredicateFactory(pred_storage))
 
         return cls(
@@ -142,6 +155,7 @@ class ReasoningSession:
             parser_provider=parser_provider,
             fact_base_provider=fact_base_provider,
             rewriting_provider=rewriting_provider,
+            literal_config=literal_config,
         )
 
     # =========================================================================
@@ -152,6 +166,11 @@ class ReasoningSession:
     def term_factories(self) -> TermFactories:
         """Access the term factory registry."""
         return self._term_factories
+
+    @property
+    def literal_config(self) -> LiteralConfig:
+        """Access the literal configuration for this session."""
+        return self._literal_config
 
     @property
     def fact_bases(self) -> list["FactBase"]:
@@ -197,6 +216,26 @@ class ReasoningSession:
         """
         self._check_not_closed()
         return self._term_factories.get(Constant).create(identifier)
+
+    def literal(
+        self,
+        lexical: str,
+        datatype: Optional[str] = None,
+        lang: Optional[str] = None,
+    ) -> Literal:
+        """
+        Create or get a literal term.
+
+        Args:
+            lexical: The literal lexical form
+            datatype: Optional datatype IRI or prefixed name
+            lang: Optional language tag
+
+        Returns:
+            The Literal instance
+        """
+        self._check_not_closed()
+        return self._term_factories.get(Literal).create(lexical, datatype, lang)
 
     def predicate(self, name: str, arity: int) -> Predicate:
         """
@@ -546,6 +585,10 @@ class ReasoningSession:
                 self._term_factories.get(Variable).create(str(term.identifier))
             elif isinstance(term, Constant) and Constant in self._term_factories:
                 self._term_factories.get(Constant).create(term.identifier)
+            elif isinstance(term, Literal) and Literal in self._term_factories:
+                self._term_factories.get(Literal).create(
+                    term.lexical or str(term.value), term.datatype, term.lang
+                )
 
     def _track_rule(self, rule: Rule) -> None:
         """Track all terms in a rule."""

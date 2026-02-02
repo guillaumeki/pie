@@ -4,7 +4,7 @@ from typing import Optional
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
-from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
@@ -70,11 +70,11 @@ class PieceUnifier:
                          for v in cls if v in self.unified_query_part.variables)
 
     @cached_property
-    def frontier_instantiation(self) -> tuple[Optional[Constant], ...]:
+    def frontier_instantiation(self) -> tuple[Optional[Term], ...]:
         instantiation = []
         for v in self.rule.frontier:
             representative = self.partition.get_representative(v)
-            if isinstance(representative, Constant):
+            if representative.is_ground:
                 instantiation.append(representative)
             else:
                 instantiation.append(None)

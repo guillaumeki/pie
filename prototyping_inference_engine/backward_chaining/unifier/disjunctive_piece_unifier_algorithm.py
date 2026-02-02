@@ -50,7 +50,7 @@ class _PartialDisjunctivePieceUnifier:
         instantiation = []
         for v in self.rule.head_frontier(head_number):
             representative = self.partial_associated_partition.get_representative(v)
-            if representative.is_rigid:
+            if representative.is_ground:
                 instantiation.append(representative)
             else:
                 instantiation.append(None)

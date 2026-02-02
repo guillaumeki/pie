@@ -3,7 +3,6 @@ from collections import defaultdict
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
 from prototyping_inference_engine.api.atom.set.index.index import Index
-from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
@@ -26,7 +25,7 @@ class IndexByTerm(Index):
     def domain(self, atom: Atom, sub: Substitution) -> frozenset[Atom]:
         smallest_domain = None
         for t in atom.terms:
-            if ((isinstance(t, Constant)
+            if ((t.is_ground
                  and (smallest_domain is None or len(self.atoms_by_term(t)) < len(smallest_domain)))
                 or (t in sub.domain
                     and (smallest_domain is None or len(self.atoms_by_term(sub(t))) < len(smallest_domain)))):

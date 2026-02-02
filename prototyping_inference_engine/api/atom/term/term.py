@@ -22,8 +22,8 @@ class Term(Substitutable["Term"], ABC):
 
     @property
     @abstractmethod
-    def is_rigid(self) -> bool:
-        """A rigid term cannot be unified with a different rigid term."""
+    def is_ground(self) -> bool:
+        """True if this term is ground (contains no variables)."""
         pass
 
     @property

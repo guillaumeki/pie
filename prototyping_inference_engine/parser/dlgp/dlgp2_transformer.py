@@ -4,6 +4,7 @@ from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.set.mutable_atom_set import MutableAtomSet
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
 from prototyping_inference_engine.api.atom.predicate import Predicate, SpecialPredicate
@@ -11,9 +12,28 @@ from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.api.substitution.substitution import Substitution
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import LiteralFactory
+from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
+from prototyping_inference_engine.api.atom.term.storage.dict_storage import DictStorage
+from prototyping_inference_engine.api.atom.term.literal_xsd import (
+    XSD_PREFIX,
+    XSD_BOOLEAN,
+    XSD_INTEGER,
+    XSD_DECIMAL,
+    XSD_DOUBLE,
+    RDF_PREFIX,
+    RDF_LANG_STRING,
+    XSD_STRING,
+)
 
 
 class Dlgp2Transformer(Transformer):
+    def __init__(self, literal_factory: LiteralFactory | None = None):
+        super().__init__()
+        self._literal_factory = literal_factory or LiteralFactory(
+            DictStorage(), LiteralConfig.default()
+        )
+
     @staticmethod
     def std_atom(items):
         predicate, terms = items
@@ -48,7 +68,7 @@ class Dlgp2Transformer(Transformer):
                     atoms.add(atom)
             for atom in q[2][0]:
                 if atom.predicate == SpecialPredicate.EQUALITY.value:
-                    if (isinstance(atom.terms[0], Constant)
+                    if (isinstance(atom.terms[0], (Constant, Literal))
                             or (atom.terms[1] not in atoms.variables and atom.terms[1] in q[1])):
                         first_term, second_term = atom.terms[1], atom.terms[0]
                     else:
@@ -99,7 +119,12 @@ class Dlgp2Transformer(Transformer):
     def __join(s):
         return "".join(s)
 
-    constant = v_args(inline=True)(Constant)
+    def constant(self, items):
+        value = items[0]
+        if isinstance(value, (Constant, Literal)):
+            return value
+        return Constant(str(value))
+
     variable = v_args(inline=True)(Variable)
     not_empty_conjunction = FrozenAtomSet
     not_empty_disjunction_of_conjunctions = list
@@ -116,3 +141,67 @@ class Dlgp2Transformer(Transformer):
     l_ident = __join
     label = __join
 
+    def STRING_LITERAL_QUOTE(self, token) -> str:
+        return str(token)[1:-1]
+
+    def STRING_LITERAL_SINGLE_QUOTE(self, token) -> str:
+        return str(token)[1:-1]
+
+    def STRING_LITERAL_LONG_SINGLE_QUOTE(self, token) -> str:
+        raw = str(token)
+        return raw[3:-3]
+
+    def STRING_LITERAL_LONG_QUOTE(self, token) -> str:
+        raw = str(token)
+        return raw[3:-3]
+
+    def IRIREF(self, token) -> str:
+        value = str(token)
+        return value[1:-1]
+
+    def LANGTAG(self, token) -> str:
+        value = str(token)
+        return value[1:] if value.startswith("@") else value
+
+    def PNAME_LN(self, token) -> str:
+        return str(token)
+
+    def PNAME_NS(self, token) -> str:
+        return str(token)
+
+    def prefixed_name(self, items):
+        return items[0]
+
+    def iri(self, items):
+        return items[0]
+
+    def string(self, items):
+        return items[0]
+
+    def rdf_literal(self, items):
+        lexical = items[0]
+        if len(items) == 1:
+            return self._literal_factory.create(lexical, f"{XSD_PREFIX}{XSD_STRING}")
+        qualifier = items[1]
+        if not isinstance(qualifier, str):
+            qualifier = str(qualifier)
+        if ":" not in qualifier and "/" not in qualifier and "#" not in qualifier:
+            return self._literal_factory.create(lexical, f"{RDF_PREFIX}{RDF_LANG_STRING}", qualifier)
+        return self._literal_factory.create(lexical, qualifier)
+
+    def numeric_literal(self, items):
+        literal_type, lexical = items[0]
+        return self._literal_factory.create(lexical, f"{XSD_PREFIX}{literal_type}")
+
+    def boolean_literal(self, items):
+        lexical = str(items[0]).lower()
+        return self._literal_factory.create(lexical, f"{XSD_PREFIX}{XSD_BOOLEAN}")
+
+    def INTEGER(self, token) -> tuple[str, str]:
+        return XSD_INTEGER, str(token)
+
+    def DECIMAL(self, token) -> tuple[str, str]:
+        return XSD_DECIMAL, str(token)
+
+    def DOUBLE(self, token) -> tuple[str, str]:
+        return XSD_DOUBLE, str(token)

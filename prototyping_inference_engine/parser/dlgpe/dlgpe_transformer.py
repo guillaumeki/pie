@@ -7,8 +7,20 @@ from lark import Transformer, v_args, Token
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.atom.term.term import Term
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import LiteralFactory
+from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
+from prototyping_inference_engine.api.atom.term.storage.dict_storage import DictStorage
+from prototyping_inference_engine.api.atom.term.literal_xsd import (
+    XSD_PREFIX,
+    XSD_STRING,
+    XSD_INTEGER,
+    XSD_DECIMAL,
+    XSD_DOUBLE,
+    XSD_BOOLEAN,
+)
 from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
 from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
@@ -52,13 +64,16 @@ class DlgpeTransformer(Transformer):
     - JSON metadata
     """
 
-    def __init__(self):
+    def __init__(self, literal_factory: Optional[LiteralFactory] = None):
         super().__init__()
         self._base_iri: Optional[str] = None
         self._prefixes: dict[str, str] = {}
         self._top: Optional[str] = None
         self._una: bool = False
         self._ground_neck: bool = False  # Track if ::- was used
+        self._literal_factory = literal_factory or LiteralFactory(
+            DictStorage(), LiteralConfig.default()
+        )
 
     # ==================== Unsupported Features ====================
 
@@ -403,9 +418,11 @@ class DlgpeTransformer(Transformer):
         # Generate a unique anonymous variable
         return Variable.anonymous()
 
-    def constant(self, items) -> Constant:
+    def constant(self, items) -> Term:
         value = items[0]
         if isinstance(value, Constant):
+            return value
+        if isinstance(value, Literal):
             return value
         return Constant(str(value))
 
@@ -416,19 +433,26 @@ class DlgpeTransformer(Transformer):
 
     # ==================== Literals ====================
 
-    def literal(self, items) -> Constant:
-        return Constant(str(items[0]))
+    def literal(self, items) -> Literal:
+        value = items[0]
+        if isinstance(value, Literal):
+            return value
+        lexical = str(value)
+        return self._literal_factory.create(lexical, f"{XSD_PREFIX}{XSD_STRING}")
 
-    def typed_literal(self, items) -> Constant:
-        value = str(items[0])
+    def typed_literal(self, items) -> Literal:
+        lexical = str(items[0])
         type_iri = str(items[1])
-        return Constant(f"{value}^^{type_iri}")
+        return self._literal_factory.create(lexical, type_iri)
 
-    def numeric_literal(self, items) -> Constant:
-        return Constant(str(items[0]))
+    def numeric_literal(self, items) -> Literal:
+        literal_type, lexical = items[0]
+        datatype = f"{XSD_PREFIX}{literal_type}"
+        return self._literal_factory.create(lexical, datatype)
 
-    def boolean_literal(self, items) -> Constant:
-        return Constant(str(items[0]).lower())
+    def boolean_literal(self, items) -> Literal:
+        lexical = str(items[0]).lower()
+        return self._literal_factory.create(lexical, f"{XSD_PREFIX}{XSD_BOOLEAN}")
 
     def STRING_LITERAL_QUOTE(self, token) -> str:
         # Remove surrounding quotes
@@ -474,14 +498,14 @@ class DlgpeTransformer(Transformer):
     def UPPERCASE_PREFIX(self, token) -> str:
         return str(token)
 
-    def INTEGER(self, token) -> str:
-        return str(token)
+    def INTEGER(self, token) -> tuple[str, str]:
+        return XSD_INTEGER, str(token)
 
-    def DECIMAL(self, token) -> str:
-        return str(token)
+    def DECIMAL(self, token) -> tuple[str, str]:
+        return XSD_DECIMAL, str(token)
 
-    def DOUBLE(self, token) -> str:
-        return str(token)
+    def DOUBLE(self, token) -> tuple[str, str]:
+        return XSD_DOUBLE, str(token)
 
     # ==================== Labels ====================
 

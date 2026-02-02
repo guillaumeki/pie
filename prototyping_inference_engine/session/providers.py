@@ -225,36 +225,44 @@ class Dlgp2ParserProvider:
     Delegates to the existing Dlgp2Parser for parsing DLGP format content.
     """
 
+    def __init__(self, term_factories=None) -> None:
+        self._term_factories = term_factories
+
+    def _parser(self):
+        from prototyping_inference_engine.api.atom.term.literal import Literal
+        from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+        from prototyping_inference_engine.parser.dlgp.dlgp2_transformer import Dlgp2Transformer
+
+        if self._term_factories and Literal in self._term_factories:
+            literal_factory = self._term_factories.get(Literal)
+            return Dlgp2Parser.create(Dlgp2Transformer(literal_factory))
+        return Dlgp2Parser.instance()
+
     def parse_atoms(self, text: str) -> Iterable["Atom"]:
         """Parse atoms from DLGP text."""
-        from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
-        return Dlgp2Parser.instance().parse_atoms(text)
+        return self._parser().parse_atoms(text)
 
     def parse_rules(self, text: str) -> Iterable["Rule"]:
         """Parse rules from DLGP text."""
-        from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
-        return Dlgp2Parser.instance().parse_rules(text)
+        return self._parser().parse_rules(text)
 
     def parse_conjunctive_queries(self, text: str) -> Iterable["ConjunctiveQuery"]:
         """Parse conjunctive queries from DLGP text."""
-        from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
-        return Dlgp2Parser.instance().parse_conjunctive_queries(text)
+        return self._parser().parse_conjunctive_queries(text)
 
     def parse_queries(self, text: str) -> Iterable["Query"]:
         """Parse queries from DLGP text."""
-        from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
-        yield from Dlgp2Parser.instance().parse_conjunctive_queries(text)
-        yield from Dlgp2Parser.instance().parse_union_conjunctive_queries(text)
+        parser = self._parser()
+        yield from parser.parse_conjunctive_queries(text)
+        yield from parser.parse_union_conjunctive_queries(text)
 
     def parse_union_conjunctive_queries(self, text: str) -> Iterable["UnionConjunctiveQueries"]:
         """Parse union of conjunctive queries from DLGP text."""
-        from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
-        return Dlgp2Parser.instance().parse_union_conjunctive_queries(text)
+        return self._parser().parse_union_conjunctive_queries(text)
 
     def parse_negative_constraints(self, text: str) -> Iterable["NegativeConstraint"]:
         """Parse negative constraints from DLGP text."""
-        from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
-        return Dlgp2Parser.instance().parse_negative_constraints(text)
+        return self._parser().parse_negative_constraints(text)
 
 
 class DlgpeParserProvider:
@@ -264,15 +272,26 @@ class DlgpeParserProvider:
     Delegates to the existing DlgpeParser for parsing DLGPE format content.
     """
 
+    def __init__(self, term_factories=None) -> None:
+        self._term_factories = term_factories
+
+    def _transformer(self):
+        from prototyping_inference_engine.api.atom.term.literal import Literal
+        from prototyping_inference_engine.parser.dlgpe.dlgpe_transformer import DlgpeTransformer
+        if self._term_factories and Literal in self._term_factories:
+            literal_factory = self._term_factories.get(Literal)
+            return DlgpeTransformer(literal_factory)
+        return DlgpeTransformer()
+
     def parse_atoms(self, text: str) -> Iterable["Atom"]:
         """Parse atoms from DLGPE text."""
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
-        return DlgpeParser.instance().parse_atoms(text)
+        return DlgpeParser.instance().parse_atoms(text, self._transformer())
 
     def parse_rules(self, text: str) -> Iterable["Rule"]:
         """Parse rules from DLGPE text."""
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
-        return DlgpeParser.instance().parse_rules(text)
+        return DlgpeParser.instance().parse_rules(text, self._transformer())
 
     def parse_conjunctive_queries(self, text: str) -> Iterable["ConjunctiveQuery"]:
         """Parse conjunctive queries from DLGPE text when possible."""
@@ -280,7 +299,7 @@ class DlgpeParserProvider:
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
         from prototyping_inference_engine.parser.dlgpe.conversions import try_convert_fo_query
 
-        for query in DlgpeParser.instance().parse_queries(text):
+        for query in DlgpeParser.instance().parse_queries(text, self._transformer()):
             converted = try_convert_fo_query(query)
             if isinstance(converted, ConjunctiveQuery):
                 yield converted
@@ -288,7 +307,7 @@ class DlgpeParserProvider:
     def parse_queries(self, text: str) -> Iterable["Query"]:
         """Parse queries from DLGPE text."""
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
-        return DlgpeParser.instance().parse_queries(text)
+        return DlgpeParser.instance().parse_queries(text, self._transformer())
 
     def parse_union_conjunctive_queries(self, text: str) -> Iterable["UnionConjunctiveQueries"]:
         """Parse UCQs from DLGPE text when possible."""
@@ -296,7 +315,7 @@ class DlgpeParserProvider:
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
         from prototyping_inference_engine.parser.dlgpe.conversions import try_convert_fo_query
 
-        for query in DlgpeParser.instance().parse_queries(text):
+        for query in DlgpeParser.instance().parse_queries(text, self._transformer()):
             converted = try_convert_fo_query(query)
             if isinstance(converted, UnionConjunctiveQueries):
                 yield converted
@@ -304,4 +323,4 @@ class DlgpeParserProvider:
     def parse_negative_constraints(self, text: str) -> Iterable["NegativeConstraint"]:
         """Parse negative constraints from DLGPE text."""
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
-        return DlgpeParser.instance().parse_constraints(text)
+        return DlgpeParser.instance().parse_constraints(text, self._transformer())

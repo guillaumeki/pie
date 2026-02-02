@@ -104,7 +104,7 @@ class BasicQuery:
 
         for pos, term in enumerate(atom.terms):
             resolved = sub.apply(term)
-            if resolved.is_rigid:
+            if resolved.is_ground:
                 bound_positions[pos] = resolved
             elif isinstance(resolved, Variable):
                 answer_variables[pos] = resolved

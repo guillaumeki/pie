@@ -21,14 +21,14 @@ class TermPartition(Partition[Term]):
 
     def is_valid(self, rule: Rule[ConjunctiveQuery, ConjunctiveQuery], context: ConjunctiveQuery = None) -> bool:
         for cls in self.classes:
-            has_rigid, has_head_exist, has_fr, has_ans_var = (False,)*4
+            has_ground, has_head_exist, has_fr, has_ans_var = (False,)*4
             for t in cls:
-                if t.is_rigid:
-                    if has_rigid or has_head_exist:
+                if t.is_ground:
+                    if has_ground or has_head_exist:
                         return False
-                    has_rigid = True
+                    has_ground = True
                 elif t in rule.existential_variables:
-                    if has_head_exist or has_fr or has_rigid or has_ans_var:
+                    if has_head_exist or has_fr or has_ground or has_ans_var:
                         return False
                     has_head_exist = True
                 elif t in rule.frontier:
@@ -55,15 +55,15 @@ class TermPartition(Partition[Term]):
                 if representative is None:
                     representative = self.get_representative(t)
 
-                if t.is_rigid and representative != t:
+                if t.is_ground and representative != t:
                     return None
 
-                if (not representative.is_rigid
+                if (not representative.is_ground
                         and representative not in context_answer_variables
                         and t in context_variables):
                     representative = t
             for t in cls:
-                if not t.is_rigid and t != representative:
+                if not t.is_ground and t != representative:
                     sub[t] = representative
 
         return sub
@@ -72,8 +72,8 @@ class TermPartition(Partition[Term]):
     def is_admissible(self) -> bool:
         for cls in self.classes:
             representative = self.get_representative(next(iter(cls)))
-            if representative.is_rigid:
+            if representative.is_ground:
                 for term in cls:
-                    if term != representative and term.is_rigid:
+                    if term != representative and term.is_ground:
                         return False
         return True
