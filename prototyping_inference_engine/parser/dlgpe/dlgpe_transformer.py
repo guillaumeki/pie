@@ -12,6 +12,7 @@ from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
 from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
+from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
 from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.fo_query import FOQuery
@@ -284,6 +285,10 @@ class DlgpeTransformer(Transformer):
         # If answer_vars is None (*), compute from body
         if answer_vars is None:
             answer_vars = body_formula.free_variables
+        else:
+            extra_free_vars = body_formula.free_variables - set(answer_vars)
+            for var in sorted(extra_free_vars, key=str):
+                body_formula = ExistentialFormula(var, body_formula)
 
         query = FOQuery(formula=body_formula, answer_variables=answer_vars, label=label)
         return ("query", query, label)
@@ -332,11 +337,11 @@ class DlgpeTransformer(Transformer):
 
     def negated_formula(self, items) -> NegationFormula:
         """not (formula)"""
-        return NegationFormula(items[0])
+        return NegationFormula(items[-1])
 
     def negated_atom(self, items) -> NegationFormula:
         """not atom"""
-        return NegationFormula(items[0])
+        return NegationFormula(items[-1])
 
     # ==================== Atoms ====================
 
@@ -358,7 +363,7 @@ class DlgpeTransformer(Transformer):
         """Equality atom: term = term"""
         # Create equality as a special atom with predicate "="
         eq_pred = Predicate("=", 2)
-        return Atom(eq_pred, (items[0], items[1]))
+        return Atom(eq_pred, items[0], items[1])
 
     # ==================== Terms ====================
 

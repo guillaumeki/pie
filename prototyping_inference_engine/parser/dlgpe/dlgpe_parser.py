@@ -10,6 +10,7 @@ This parser implements a subset of DLGPE compatible with PIE's capabilities.
 from pathlib import Path
 from typing import List, Iterator, Optional, Union, Any
 from functools import cache
+import re
 
 from lark import Lark
 
@@ -91,6 +92,7 @@ class DlgpeParser:
             DlgpeUnsupportedFeatureError: If the text uses unsupported features
             lark.exceptions.LarkError: If the text has syntax errors
         """
+        self._raise_for_unsupported_text(text)
         tree = self._lark.parse(text)
         try:
             result = self._transformer.transform(tree)
@@ -100,6 +102,33 @@ class DlgpeParser:
                 raise e.orig_exc from None
             raise
         return self._organize_result(result)
+
+    def _raise_for_unsupported_text(self, text: str) -> None:
+        """Pre-scan for unsupported constructs that may fail in the parser."""
+        stripped = re.sub(r"%[^\r\n]*", "", text)
+
+        if re.search(r"\b[A-Za-z_][A-Za-z0-9_]*\s*\*\s*\(", stripped):
+            return
+
+        if (
+            re.search(r"(?<![eE])\b\d+\s*[+\-*/]\s*\d+\b", stripped)
+            or re.search(
+                r"\b[A-Za-z_][A-Za-z0-9_]*\s*[+\-*/]\s*[A-Za-z0-9_]",
+                stripped,
+            )
+            or "**" in stripped
+        ):
+            raise DlgpeUnsupportedFeatureError(
+                "Arithmetic expressions (+, -, *, /, **) are not supported by PIE"
+            )
+
+        if re.search(
+            r"\b(?!not\b)[a-z][A-Za-z0-9_]*\s*\(\s*[a-z][A-Za-z0-9_]*\s*\(",
+            stripped,
+        ):
+            raise DlgpeUnsupportedFeatureError(
+                "Functional terms (f(X, Y)) are not supported by PIE"
+            )
 
     def parse_file(self, path: Union[str, Path]) -> dict:
         """

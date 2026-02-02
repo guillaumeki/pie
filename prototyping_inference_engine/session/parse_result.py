@@ -2,14 +2,13 @@
 ParseResult dataclass for structured DLGP parsing results.
 """
 from dataclasses import dataclass
-from typing import FrozenSet, Union, TYPE_CHECKING
+from typing import FrozenSet, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
     from prototyping_inference_engine.api.ontology.rule.rule import Rule
     from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
-    from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-    from prototyping_inference_engine.api.query.union_query import UnionQuery
+    from prototyping_inference_engine.api.query.query import Query
 
 
 @dataclass(frozen=True)
@@ -20,7 +19,7 @@ class ParseResult:
     Contains all parsed elements categorized by type:
     - facts: Ground atoms (the extensional database)
     - rules: Inference rules (the intensional database)
-    - queries: Conjunctive or union of conjunctive queries
+    - queries: Parsed queries (any Query implementation)
     - constraints: Negative constraints
 
     This class is immutable (frozen dataclass).
@@ -28,7 +27,7 @@ class ParseResult:
 
     facts: "FrozenAtomSet"
     rules: FrozenSet["Rule"]
-    queries: FrozenSet[Union["ConjunctiveQuery", "UnionQuery[ConjunctiveQuery]"]]
+    queries: FrozenSet["Query"]
     constraints: FrozenSet["NegativeConstraint"]
 
     @property

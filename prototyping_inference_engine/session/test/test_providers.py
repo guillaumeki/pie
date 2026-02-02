@@ -171,6 +171,9 @@ class TestCustomParserProvider(TestCase):
             def parse_conjunctive_queries(self, text):
                 return []
 
+            def parse_queries(self, text):
+                return []
+
             def parse_union_conjunctive_queries(self, text):
                 return []
 
@@ -183,6 +186,61 @@ class TestCustomParserProvider(TestCase):
         atoms = list(provider.parse_atoms("anything"))
         self.assertEqual(len(atoms), 1)
         self.assertEqual(atoms[0].predicate.name, "mock")
+
+
+class TestDlgpeParserProvider(TestCase):
+    """Tests for DlgpeParserProvider."""
+
+    def test_implements_protocol(self):
+        """Test that DlgpeParserProvider implements the protocol."""
+        from prototyping_inference_engine.session.providers import DlgpeParserProvider
+
+        provider = DlgpeParserProvider()
+        self.assertIsInstance(provider, ParserProvider)
+
+    def test_parse_atoms(self):
+        """Test parsing atoms."""
+        from prototyping_inference_engine.session.providers import DlgpeParserProvider
+
+        provider = DlgpeParserProvider()
+        atoms = list(provider.parse_atoms("p(a,b). q(c)."))
+        self.assertEqual(len(atoms), 2)
+
+    def test_parse_rules(self):
+        """Test parsing rules."""
+        from prototyping_inference_engine.session.providers import DlgpeParserProvider
+
+        provider = DlgpeParserProvider()
+        rules = list(provider.parse_rules("q(X) :- p(X,Y)."))
+        self.assertEqual(len(rules), 1)
+
+    def test_parse_queries(self):
+        """Test parsing queries."""
+        from prototyping_inference_engine.api.query.fo_query import FOQuery
+        from prototyping_inference_engine.session.providers import DlgpeParserProvider
+
+        provider = DlgpeParserProvider()
+        queries = list(provider.parse_queries("?(X) :- p(X,Y)."))
+        self.assertEqual(len(queries), 1)
+        self.assertIsInstance(queries[0], FOQuery)
+
+    def test_parse_conjunctive_queries(self):
+        """Test parsing conjunctive queries when compatible."""
+        from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
+        from prototyping_inference_engine.session.providers import DlgpeParserProvider
+
+        provider = DlgpeParserProvider()
+        cqs = list(provider.parse_conjunctive_queries("?(X) :- p(X,Y)."))
+        self.assertEqual(len(cqs), 1)
+        self.assertIsInstance(cqs[0], ConjunctiveQuery)
+
+    def test_parse_negative_constraints(self):
+        """Test parsing negative constraints."""
+        from prototyping_inference_engine.session.providers import DlgpeParserProvider
+
+        provider = DlgpeParserProvider()
+        constraints = list(provider.parse_negative_constraints("! :- p(X), q(X)."))
+        self.assertEqual(len(constraints), 1)
 
 
 if __name__ == "__main__":

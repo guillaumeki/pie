@@ -11,6 +11,7 @@ from prototyping_inference_engine.session.providers import (
     DefaultFactBaseFactoryProvider,
     DefaultRewritingAlgorithmProvider,
     Dlgp2ParserProvider,
+    DlgpeParserProvider,
 )
 from prototyping_inference_engine.session.parse_result import ParseResult
 from prototyping_inference_engine.session.cleanup_stats import SessionCleanupStats
@@ -29,6 +30,7 @@ __all__ = [
     "DefaultFactBaseFactoryProvider",
     "DefaultRewritingAlgorithmProvider",
     "Dlgp2ParserProvider",
+    "DlgpeParserProvider",
     # Support classes
     "ParseResult",
     "SessionCleanupStats",

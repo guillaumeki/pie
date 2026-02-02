@@ -36,7 +36,7 @@ from prototyping_inference_engine.session.providers import (
     ParserProvider,
     DefaultFactBaseFactoryProvider,
     DefaultRewritingAlgorithmProvider,
-    Dlgp2ParserProvider,
+    DlgpeParserProvider,
 )
 
 if TYPE_CHECKING:
@@ -54,7 +54,7 @@ class ReasoningSession:
     The session provides:
     - Extensible term factory registry (OCP compliant)
     - Factory methods for creating atoms, fact bases, and ontologies
-    - DLGP parsing with term tracking
+    - DLGPE parsing with term tracking
     - UCQ rewriting
     - Context manager support for automatic cleanup
 
@@ -86,12 +86,12 @@ class ReasoningSession:
 
         Args:
             term_factories: Registry of term factories (must include Variable, Constant, Predicate)
-            parser_provider: Provider for parsing content (default: Dlgp2ParserProvider)
+            parser_provider: Provider for parsing content (default: DlgpeParserProvider)
             fact_base_provider: Provider for creating fact bases (default: DefaultFactBaseFactoryProvider)
             rewriting_provider: Provider for rewriting algorithm (default: DefaultRewritingAlgorithmProvider)
         """
         self._term_factories = term_factories
-        self._parser_provider = parser_provider or Dlgp2ParserProvider()
+        self._parser_provider = parser_provider or DlgpeParserProvider()
         self._fact_base_provider = fact_base_provider or DefaultFactBaseFactoryProvider()
         self._rewriting_provider = rewriting_provider or DefaultRewritingAlgorithmProvider()
 
@@ -114,7 +114,7 @@ class ReasoningSession:
         Args:
             auto_cleanup: If True, use WeakRefStorage for automatic cleanup.
                          If False, use DictStorage (manual cleanup via clear).
-            parser_provider: Custom parser provider (optional, default: Dlgp2ParserProvider)
+            parser_provider: Custom parser provider (optional, default: DlgpeParserProvider)
             fact_base_provider: Custom fact base provider (optional)
             rewriting_provider: Custom rewriting provider (optional)
 
@@ -330,7 +330,7 @@ class ReasoningSession:
         """
         Parse text content and return structured results.
 
-        Uses the configured parser provider (default: DLGP2).
+        Uses the configured parser provider (default: DLGPE).
         All terms and predicates are tracked by this session's factories.
 
         Args:
@@ -344,9 +344,7 @@ class ReasoningSession:
         # Parse different types using the configured parser provider
         facts = list(self._parser_provider.parse_atoms(text))
         rules = set(self._parser_provider.parse_rules(text))
-        cqs = set(self._parser_provider.parse_conjunctive_queries(text))
-        ucqs = set(self._parser_provider.parse_union_conjunctive_queries(text))
-        queries = cqs | ucqs
+        queries = set(self._parser_provider.parse_queries(text))
         constraints = set(self._parser_provider.parse_negative_constraints(text))
 
         # Track all terms and predicates
@@ -557,13 +555,16 @@ class ReasoningSession:
             for atom in head_cq.atoms:
                 self._track_atom(atom)
 
-    def _track_query(
-        self, query: Union[ConjunctiveQuery, UnionQuery[ConjunctiveQuery]]
-    ) -> None:
+    def _track_query(self, query) -> None:
         """Track all terms in a query."""
-        if isinstance(query, ConjunctiveQuery):
-            for atom in query.atoms:
-                self._track_atom(atom)
-        elif isinstance(query, UnionQuery):
+        if isinstance(query, UnionQuery):
             for cq in query.conjunctive_queries:
                 self._track_query(cq)
+            return
+
+        atoms = getattr(query, "atoms", None)
+        if atoms is None:
+            return
+
+        for atom in atoms:
+            self._track_atom(atom)

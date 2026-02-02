@@ -120,6 +120,9 @@ class TestReasoningSessionCustomFactories(TestCase):
             def parse_union_conjunctive_queries(self, text):
                 return []
 
+            def parse_queries(self, text):
+                return []
+
             def parse_negative_constraints(self, text):
                 return []
 
@@ -193,7 +196,7 @@ class TestReasoningSessionTermCreation(TestCase):
 
 
 class TestReasoningSessionParsing(TestCase):
-    """Tests for DLGP parsing."""
+    """Tests for session parsing."""
 
     def setUp(self):
         self.session = ReasoningSession.create(auto_cleanup=False)
@@ -304,7 +307,8 @@ class TestReasoningSessionRewriting(TestCase):
     """Tests for query rewriting."""
 
     def setUp(self):
-        self.session = ReasoningSession.create()
+        from prototyping_inference_engine.session.providers import Dlgp2ParserProvider
+        self.session = ReasoningSession.create(parser_provider=Dlgp2ParserProvider())
 
     def tearDown(self):
         self.session.close()

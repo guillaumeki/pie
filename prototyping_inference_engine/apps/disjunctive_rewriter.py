@@ -10,23 +10,47 @@ from prototyping_inference_engine.api.query.conjunctive_query import Conjunctive
 from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
 from prototyping_inference_engine.backward_chaining.breadth_first_rewriting import BreadthFirstRewriting
 from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+from prototyping_inference_engine.parser.dlgpe.conversions import fo_query_to_ucq
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("file", help="The dlgp file containing the rules and the UCQ to rewrite with them", type=str)
+    parser.add_argument(
+        "file",
+        help="The .dlgp or .dlgpe file containing the rules and the UCQ to rewrite with them",
+        type=str,
+    )
     parser.add_argument("-l", "--limit", help="Limit number of breadth first steps", type=int, default=inf)
     parser.add_argument("-v", "--verbose", help="Print all intermediate steps", action="store_true")
     parser.add_argument("-m", "--mapping", help="Make an S-rewriting", action="store_true")
     args = parser.parse_args()
 
-    rules: set[Rule[ConjunctiveQuery, ConjunctiveQuery]] = set(Dlgp2Parser.instance().parse_rules_from_file(args.file))
+    _, ext = os.path.splitext(args.file)
+    ext = ext.lower()
 
-    try:
-        ucq = next(iter(Dlgp2Parser.instance().parse_union_conjunctive_queries_from_file(args.file)))
-    except StopIteration:
-        print("The file should contain a UCQ", file=sys.stderr)
-        exit()
+    if ext == ".dlgpe":
+        parsed = DlgpeParser.instance().parse_file(args.file)
+        rules = set(parsed["rules"])
+        queries = parsed["queries"]
+        if not queries:
+            print("The file should contain a UCQ-compatible query", file=sys.stderr)
+            exit()
+        if len(queries) > 1:
+            print("The file should contain a single UCQ-compatible query", file=sys.stderr)
+            exit()
+        try:
+            ucq = fo_query_to_ucq(queries[0])
+        except ValueError as exc:
+            print(f"The query is not UCQ-compatible: {exc}", file=sys.stderr)
+            exit()
+    else:
+        rules = set(Dlgp2Parser.instance().parse_rules_from_file(args.file))
+        try:
+            ucq = next(iter(Dlgp2Parser.instance().parse_union_conjunctive_queries_from_file(args.file)))
+        except StopIteration:
+            print("The file should contain a UCQ", file=sys.stderr)
+            exit()
 
     if args.mapping:
         schema_predicates: set[Predicate] = {a.predicate for r in rules for a in r.body.atoms}

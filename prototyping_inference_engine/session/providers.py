@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.ontology.rule.rule import Rule
     from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
     from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
+    from prototyping_inference_engine.api.query.query import Query
     from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
 
 
@@ -180,6 +181,18 @@ class ParserProvider(Protocol):
         """
         ...
 
+    def parse_queries(self, text: str) -> Iterable["Query"]:
+        """
+        Parse queries from text.
+
+        Args:
+            text: The text content to parse
+
+        Returns:
+            An iterable of parsed Query instances
+        """
+        ...
+
     def parse_union_conjunctive_queries(self, text: str) -> Iterable["UnionConjunctiveQueries"]:
         """
         Parse union of conjunctive queries from text.
@@ -227,6 +240,12 @@ class Dlgp2ParserProvider:
         from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
         return Dlgp2Parser.instance().parse_conjunctive_queries(text)
 
+    def parse_queries(self, text: str) -> Iterable["Query"]:
+        """Parse queries from DLGP text."""
+        from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+        yield from Dlgp2Parser.instance().parse_conjunctive_queries(text)
+        yield from Dlgp2Parser.instance().parse_union_conjunctive_queries(text)
+
     def parse_union_conjunctive_queries(self, text: str) -> Iterable["UnionConjunctiveQueries"]:
         """Parse union of conjunctive queries from DLGP text."""
         from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
@@ -236,3 +255,53 @@ class Dlgp2ParserProvider:
         """Parse negative constraints from DLGP text."""
         from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
         return Dlgp2Parser.instance().parse_negative_constraints(text)
+
+
+class DlgpeParserProvider:
+    """
+    Default parser provider using DLGPE format.
+
+    Delegates to the existing DlgpeParser for parsing DLGPE format content.
+    """
+
+    def parse_atoms(self, text: str) -> Iterable["Atom"]:
+        """Parse atoms from DLGPE text."""
+        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        return DlgpeParser.instance().parse_atoms(text)
+
+    def parse_rules(self, text: str) -> Iterable["Rule"]:
+        """Parse rules from DLGPE text."""
+        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        return DlgpeParser.instance().parse_rules(text)
+
+    def parse_conjunctive_queries(self, text: str) -> Iterable["ConjunctiveQuery"]:
+        """Parse conjunctive queries from DLGPE text when possible."""
+        from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
+        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        from prototyping_inference_engine.parser.dlgpe.conversions import try_convert_fo_query
+
+        for query in DlgpeParser.instance().parse_queries(text):
+            converted = try_convert_fo_query(query)
+            if isinstance(converted, ConjunctiveQuery):
+                yield converted
+
+    def parse_queries(self, text: str) -> Iterable["Query"]:
+        """Parse queries from DLGPE text."""
+        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        return DlgpeParser.instance().parse_queries(text)
+
+    def parse_union_conjunctive_queries(self, text: str) -> Iterable["UnionConjunctiveQueries"]:
+        """Parse UCQs from DLGPE text when possible."""
+        from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        from prototyping_inference_engine.parser.dlgpe.conversions import try_convert_fo_query
+
+        for query in DlgpeParser.instance().parse_queries(text):
+            converted = try_convert_fo_query(query)
+            if isinstance(converted, UnionConjunctiveQueries):
+                yield converted
+
+    def parse_negative_constraints(self, text: str) -> Iterable["NegativeConstraint"]:
+        """Parse negative constraints from DLGPE text."""
+        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        return DlgpeParser.instance().parse_constraints(text)
