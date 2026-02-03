@@ -16,9 +16,8 @@ class TestDlgpeUnsupportedFeaturesExtra(unittest.TestCase):
         self.parser = DlgpeParser.instance()
 
     def test_unsupported_operator(self):
-        with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:
-            self.parser.parse("?(X) :- X < Y.")
-        self.assertIn("Comparison operators", str(ctx.exception))
+        result = self.parser.parse("?(X) :- X < Y.")
+        self.assertEqual(len(result["queries"]), 1)
 
     def test_unsupported_arithmetic(self):
         with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:

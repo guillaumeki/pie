@@ -1,0 +1,10 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
+
+## [Unreleased]
+
+## [2026-02-03]
+- Added: DLGPE comparison operators support (<, >, <=, >=, !=) with infix display and evaluation via readable data sources.
+- Added: comparison data source and helper to evaluate queries with extra sources.

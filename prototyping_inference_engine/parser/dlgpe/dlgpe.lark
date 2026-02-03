@@ -171,7 +171,7 @@ body_elementary: sub_query                           -> unsupported_subquery
                | NOT_KWD body_atom                   -> negated_atom
                | "(" body_disjunction ")"            -> grouped_formula
                | body_atom
-               | operator_atom                       -> unsupported_operator
+               | operator_atom
                | repeated_atom                       -> unsupported_repeated
                | equal_atom
 

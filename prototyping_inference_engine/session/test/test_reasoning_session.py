@@ -17,6 +17,9 @@ from prototyping_inference_engine.api.atom.term.factory import (
     PredicateFactory,
 )
 from prototyping_inference_engine.api.atom.term.storage import DictStorage
+from prototyping_inference_engine.api.atom.predicate import comparison_predicate
+from prototyping_inference_engine.api.data.comparison_data import ComparisonDataSource
+from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.session import (
     ParseResult,
     SessionCleanupStats,
@@ -241,6 +244,26 @@ class TestReasoningSessionParsing(TestCase):
         """Test parsing empty string."""
         result = self.session.parse("")
         self.assertTrue(result.is_empty)
+
+
+class TestReasoningSessionEvaluationWithSources(TestCase):
+    """Tests for query evaluation with extra sources."""
+
+    def setUp(self):
+        self.session = ReasoningSession.create(auto_cleanup=False)
+
+    def tearDown(self):
+        self.session.close()
+
+    def test_evaluate_query_with_comparison_source(self):
+        left = self.session.literal("1", "xsd:integer")
+        right = self.session.literal("2", "xsd:integer")
+        atom = Atom(comparison_predicate("<"), left, right)
+        query = FOQuery(atom, answer_variables=[])
+        data_source = ComparisonDataSource(self.session.literal_config.comparison)
+        fact_base = self.session.create_fact_base([])
+        results = list(self.session.evaluate_query_with_sources(query, fact_base, [data_source]))
+        self.assertEqual(results, [tuple()])
 
 
 class TestReasoningSessionFactBase(TestCase):

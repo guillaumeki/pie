@@ -15,6 +15,7 @@ import re
 from lark import Lark
 
 from prototyping_inference_engine.api.atom.atom import Atom
+from prototyping_inference_engine.api.atom.predicate import is_comparison_predicate
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
@@ -24,6 +25,7 @@ from prototyping_inference_engine.parser.dlgpe.dlgpe_transformer import (
     DlgpeTransformer,
     DlgpeUnsupportedFeatureError,
 )
+from prototyping_inference_engine.api.data.comparison_data import ComparisonDataSource
 
 
 class DlgpeParser:
@@ -39,7 +41,6 @@ class DlgpeParser:
     Features NOT supported by PIE (will raise DlgpeUnsupportedFeatureError):
     - Functional terms
     - Arithmetic expressions
-    - Comparison operators
     - Subqueries
     - Macro predicates
     - @import, @computed, @view, @patterns directives
@@ -87,6 +88,7 @@ class DlgpeParser:
             - "rules": List of Rule objects
             - "constraints": List of NegativeConstraint objects
             - "queries": List of FOQuery objects
+            - "sources": List of ReadableData sources required for evaluation
 
         Raises:
             DlgpeUnsupportedFeatureError: If the text uses unsupported features
@@ -234,13 +236,39 @@ class DlgpeParser:
             elif isinstance(stmt, FOQuery):
                 queries.append(stmt)
 
+        sources = self._build_sources(facts, rules, queries, constraints)
         return {
             "header": raw_result.get("header", {}),
             "facts": facts,
             "rules": rules,
             "constraints": constraints,
             "queries": queries,
+            "sources": sources,
         }
+
+    @staticmethod
+    def _build_sources(
+        facts: List[Atom],
+        rules: List[Rule],
+        queries: List[FOQuery],
+        constraints: List[NegativeConstraint],
+    ) -> list:
+        atoms: list[Atom] = list(facts)
+
+        for rule in rules:
+            atoms.extend(rule.body.atoms)
+            for head in rule.head:
+                atoms.extend(head.atoms)
+
+        for query in queries:
+            atoms.extend(query.formula.atoms)
+
+        for constraint in constraints:
+            atoms.extend(constraint.body.atoms)
+
+        if any(is_comparison_predicate(atom.predicate) for atom in atoms):
+            return [ComparisonDataSource()]
+        return []
 
 
 # Re-export the exception for convenience

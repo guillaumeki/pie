@@ -278,5 +278,24 @@ class TestDlgpeParserEquality(unittest.TestCase):
         self.assertEqual(len(result["rules"]), 1)
 
 
+class TestDlgpeParserComparison(unittest.TestCase):
+    """Test DLGPE comparison operator parsing."""
+
+    def setUp(self):
+        self.parser = DlgpeParser.instance()
+
+    def test_comparison_in_body(self):
+        result = self.parser.parse("h(X) :- p(X), X < 3.")
+        self.assertEqual(len(result["rules"]), 1)
+        rule = result["rules"][0]
+        atoms = list(rule.body.atoms)
+        self.assertTrue(any(str(atom) == "X < 3" for atom in atoms))
+
+    def test_comparison_sources(self):
+        result = self.parser.parse("?(X) :- X != 1.")
+        self.assertIn("sources", result)
+        self.assertEqual(len(result["sources"]), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

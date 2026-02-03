@@ -49,6 +49,7 @@ DLGPE grammar is based on: https://gitlab.inria.fr/jfbaget/dlgpe
 | Disjunction in body | ✅ Supported | `h(X) :- p(X) \| q(X).` |
 | Negation | ✅ Supported | `not p(X)` or `not (p(X), q(X))` |
 | Equality | ✅ Supported | `X = Y` |
+| Comparison operators | ✅ Supported | `<`, `>`, `<=`, `>=`, `!=` |
 | Labels | ✅ Supported | `[rule1] p(X) :- q(X).` |
 
 ### Neck Types
@@ -87,7 +88,6 @@ The following features will raise `DlgpeUnsupportedFeatureError` when encountere
 
 | Feature | Reason |
 |---------|--------|
-| Comparison operators | Not implemented: `<`, `>`, `<=`, `>=`, `!=` |
 | Pattern predicates | Macro system not implemented: `$pattern(X)` |
 | Repeated atoms | Transitive closure not implemented: `p+(X, Y)`, `p*(X, Y)` |
 
@@ -158,7 +158,6 @@ for rule in parser.parse_rules("h(X) :- b(X). g(X) | f(X) :- p(X)."):
 Features that could be implemented in future versions:
 
 1. **IRI resolution**: Properly resolve `@base` and `@prefix` directives
-2. **Comparison operators**: Add support for `<`, `>`, `<=`, `>=`, `!=`
-3. **Arithmetic expressions**: Add support for basic arithmetic
-4. **Subqueries**: Implement subquery evaluation
-5. **`@import` directive**: Support modular knowledge bases
+2. **Arithmetic expressions**: Add support for basic arithmetic
+3. **Subqueries**: Implement subquery evaluation
+4. **`@import` directive**: Support modular knowledge bases

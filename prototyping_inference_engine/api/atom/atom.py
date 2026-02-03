@@ -5,7 +5,7 @@ Created on 23 déc. 2021
 """
 from typing import Set, Type, TypeVar, TYPE_CHECKING
 
-from prototyping_inference_engine.api.atom.predicate import Predicate, SpecialPredicate
+from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.formula.formula import Formula
 
@@ -66,12 +66,18 @@ class Atom(Formula):
     def __getitem__(self, item: int):
         return self._terms[item]
 
-    def __repr__(self) -> str:
-        if self.predicate == SpecialPredicate.EQUALITY.value:
-            return f"{str(self.terms[0])}={str(self.terms[1])}"
+    def __str__(self) -> str:
+        if self.predicate.display_mode == "infix" and self.predicate.arity == 2:
+            symbol = self.predicate.display_symbol or str(self.predicate)
+            return f"{str(self.terms[0])} {symbol} {str(self.terms[1])}"
+        if self.predicate.display_mode == "infix_no_spaces" and self.predicate.arity == 2:
+            symbol = self.predicate.display_symbol or str(self.predicate)
+            return f"{str(self.terms[0])}{symbol}{str(self.terms[1])}"
 
-        return str(self.predicate)\
-            + "(" + ", ".join(map(str, self.terms)) + ")"
+        return str(self.predicate) + "(" + ", ".join(map(str, self.terms)) + ")"
+
+    def __repr__(self) -> str:
+        return str(self)
 
     def __eq__(self, other):
         if not isinstance(other, Atom):

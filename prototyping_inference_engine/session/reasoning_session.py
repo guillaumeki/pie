@@ -47,6 +47,7 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
     from prototyping_inference_engine.api.formula.formula_builder import FormulaBuilder
     from prototyping_inference_engine.api.query.fo_query import FOQuery
+    from prototyping_inference_engine.api.query.query import Query
     from prototyping_inference_engine.api.query.fo_query_factory import FOQueryFactory
 
 
@@ -376,7 +377,7 @@ class ReasoningSession:
             text: Text content to parse (format depends on parser provider)
 
         Returns:
-            ParseResult containing facts, rules, queries, and constraints
+            ParseResult containing facts, rules, queries, constraints, and sources
         """
         self._check_not_closed()
 
@@ -396,12 +397,56 @@ class ReasoningSession:
         for constraint in constraints:
             self._track_query(constraint.body)
 
+        sources = self._build_parse_sources(facts, rules, queries, constraints)
         return ParseResult(
             facts=FrozenAtomSet(facts),
             rules=frozenset(rules),
             queries=frozenset(queries),
             constraints=frozenset(constraints),
+            sources=tuple(sources),
         )
+
+    def _build_parse_sources(
+        self,
+        facts: list[Atom],
+        rules: set[Rule],
+        queries: set["Query"],
+        constraints: set[NegativeConstraint],
+    ) -> list["ReadableData"]:
+        from prototyping_inference_engine.api.atom.predicate import is_comparison_predicate
+        from prototyping_inference_engine.api.data.comparison_data import ComparisonDataSource
+        from prototyping_inference_engine.api.data.readable_data import ReadableData
+
+        atoms: list[Atom] = list(facts)
+
+        for rule in rules:
+            atoms.extend(rule.body.atoms)
+            for head in rule.head:
+                atoms.extend(head.atoms)
+
+        for query in queries:
+            atoms.extend(self._extract_query_atoms(query))
+
+        for constraint in constraints:
+            atoms.extend(constraint.body.atoms)
+
+        sources: list[ReadableData] = []
+        if any(is_comparison_predicate(atom.predicate) for atom in atoms):
+            sources.append(ComparisonDataSource(self._literal_config.comparison))
+        return sources
+
+    @staticmethod
+    def _extract_query_atoms(query: object) -> list[Atom]:
+        if hasattr(query, "formula"):
+            return list(query.formula.atoms)
+        if hasattr(query, "atoms"):
+            return list(query.atoms)
+        if hasattr(query, "queries"):
+            atoms: list[Atom] = []
+            for sub in query.queries:
+                atoms.extend(ReasoningSession._extract_query_atoms(sub))
+            return atoms
+        return []
 
     def parse_file(self, file_path: str) -> ParseResult:
         """
@@ -480,6 +525,36 @@ class ReasoningSession:
         self._check_not_closed()
         evaluator = GenericFOQueryEvaluator()
         return evaluator.evaluate_and_project(query, fact_base)
+
+    def evaluate_query_with_sources(
+        self,
+        query: "FOQuery",
+        fact_base: "FactBase",
+        sources: Iterable["ReadableData"],
+    ) -> Iterator[Tuple[Term, ...]]:
+        """
+        Evaluate a first-order query against a fact base plus extra sources.
+
+        Args:
+            query: The FOQuery to evaluate
+            fact_base: The fact base to query against
+            sources: Extra ReadableData sources to combine with the fact base
+
+        Yields:
+            Tuples of terms corresponding to the answer variables
+        """
+        from prototyping_inference_engine.api.data.collection.builder import ReadableCollectionBuilder
+        from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import (
+            GenericFOQueryEvaluator,
+        )
+
+        self._check_not_closed()
+        builder = ReadableCollectionBuilder().add_all_predicates_from(fact_base)
+        for source in sources:
+            builder.add_all_predicates_from(source)
+        data = builder.build()
+        evaluator = GenericFOQueryEvaluator()
+        return evaluator.evaluate_and_project(query, data)
 
     # =========================================================================
     # Lifecycle methods

@@ -17,6 +17,13 @@ from prototyping_inference_engine.session.parse_result import ParseResult
 from prototyping_inference_engine.session.cleanup_stats import SessionCleanupStats
 from prototyping_inference_engine.session.term_factories import TermFactories
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+from prototyping_inference_engine.api.atom.term.literal_config import (
+    LiteralConfig,
+    LiteralNormalization,
+    LiteralComparison,
+    LiteralDatatypeResolution,
+    NumericNormalization,
+)
 
 __all__ = [
     # Main class
@@ -34,4 +41,10 @@ __all__ = [
     # Support classes
     "ParseResult",
     "SessionCleanupStats",
+    # Literal configuration helpers
+    "LiteralConfig",
+    "LiteralNormalization",
+    "LiteralComparison",
+    "LiteralDatatypeResolution",
+    "NumericNormalization",
 ]

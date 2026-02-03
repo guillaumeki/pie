@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.ontology.rule.rule import Rule
     from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
     from prototyping_inference_engine.api.query.query import Query
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
 
 
 @dataclass(frozen=True)
@@ -21,6 +22,7 @@ class ParseResult:
     - rules: Inference rules (the intensional database)
     - queries: Parsed queries (any Query implementation)
     - constraints: Negative constraints
+    - sources: Extra readable data sources needed for evaluation
 
     This class is immutable (frozen dataclass).
     """
@@ -29,6 +31,7 @@ class ParseResult:
     rules: FrozenSet["Rule"]
     queries: FrozenSet["Query"]
     constraints: FrozenSet["NegativeConstraint"]
+    sources: tuple["ReadableData", ...] = ()
 
     @property
     def is_empty(self) -> bool:

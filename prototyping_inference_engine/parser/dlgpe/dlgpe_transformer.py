@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple, Any
 from lark import Transformer, v_args, Token
 
 from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.predicate import Predicate
+from prototyping_inference_engine.api.atom.predicate import Predicate, comparison_predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.term.variable import Variable
@@ -56,7 +56,6 @@ class DlgpeTransformer(Transformer):
     Unsupported features (will raise DlgpeUnsupportedFeatureError):
     - Functional terms
     - Arithmetic expressions
-    - Comparison operators (<, >, <=, >=, !=)
     - Subqueries (Var := body)
     - Macro predicates ($predicate)
     - Repeated atoms (predicate+ or predicate*)
@@ -379,6 +378,14 @@ class DlgpeTransformer(Transformer):
         # Create equality as a special atom with predicate "="
         eq_pred = Predicate("=", 2)
         return Atom(eq_pred, items[0], items[1])
+
+    def operator_atom(self, items) -> Atom:
+        """Comparison atom: term < term, term != term, ..."""
+        left = items[0]
+        op = str(items[1])
+        right = items[2]
+        predicate = comparison_predicate(op)
+        return Atom(predicate, left, right)
 
     # ==================== Terms ====================
 
