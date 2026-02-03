@@ -19,6 +19,43 @@ Push to both remotes each time:
 - `bitbucket` (Bitbucket)
 - `origin` (GitHub, with Bitbucket as an additional push URL)
 
+### Python Execution (Always)
+Before running any Python code or unit tests:
+1) Create a virtual environment if it does not exist and install dependencies.
+2) Activate the virtual environment.
+3) Run the Python command/tests.
+
+## Change Process (Always)
+For any important change:
+1) Propose a plan first, including:
+   - Design choices + justification
+   - List of files to be modified
+2) Wait for user feedback/approval.
+3) Once approved, record the plan in `plans/` and reference it in this file.
+4) Execute the plan and amend it per user requests.
+5) When done, update `CHANGELOG.md` with the date and version if it changed.
+6) Record design decisions in `design/<feature_name>.md` with a date and list the file here.
+7) Commit and push changes to both `bitbucket` and `origin`.
+8) Delete the plan file after changelog and design docs are written.
+
+### Tracked Plans
+- (none)
+
+### Design Docs
+- `design/process-templates.md`
+- `design/commit-process.md`
+
+### Process Artifacts
+- `plans/PLAN_TEMPLATE.md`
+- `design/DESIGN_TEMPLATE.md`
+- `process/DEFINITION_OF_DONE.md`
+- `process/VERSIONING.md`
+- `process/REVIEW_CHECKLIST.md`
+- `process/RELEASE_CHECKLIST.md`
+- `process/CONVENTIONAL_COMMITS.md`
+- `process/COMMIT_TEMPLATE.md`
+- `process/COMMIT_POLICY.md`
+
 ### Installation
 ```bash
 pip install -e .
@@ -91,3 +128,5 @@ q(X); r(Y) :- p(X,Y).
 
 ## Code Style
 - Comments must always be in English.
+## Writing Language
+- All content written to any file must be in English.
