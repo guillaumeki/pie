@@ -12,8 +12,8 @@ from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base impo
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.query.union_query import UnionQuery
-from prototyping_inference_engine.query_evaluation.evaluator.query_evaluator_registry import QueryEvaluatorRegistry
-from prototyping_inference_engine.query_evaluation.evaluator.union_query_evaluator import UnionQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import QueryEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.query.union_query_evaluator import UnionQueryEvaluator
 
 
 class TestUnionQueryEvaluator(unittest.TestCase):

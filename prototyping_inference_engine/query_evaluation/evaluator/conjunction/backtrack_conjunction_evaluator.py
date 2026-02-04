@@ -15,8 +15,8 @@ from prototyping_inference_engine.query_evaluation.evaluator.conjunction.schedul
     FormulaSchedulerProvider,
     SequentialSchedulerProvider,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import RegistryMixin
-from prototyping_inference_engine.query_evaluation.evaluator.function_term_rewriter import (
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import RegistryMixin
+from prototyping_inference_engine.query_evaluation.evaluator.rewriting.function_term_rewriter import (
     expand_function_terms,
     formula_contains_function,
 )
@@ -24,7 +24,7 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
-    from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
+    from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
 
 
 class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
@@ -215,7 +215,7 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
         evaluator = self._get_registry().get_evaluator(next_formula)
 
         if evaluator is None:
-            from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
+            from prototyping_inference_engine.query_evaluation.evaluator.errors import (
                 UnsupportedFormulaError,
             )
             raise UnsupportedFormulaError(type(next_formula))

@@ -2,21 +2,21 @@
 Formula and query evaluators.
 """
 
-from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import (
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
     FormulaEvaluator,
     RegistryMixin,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.atom_evaluator import AtomEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
-from prototyping_inference_engine.query_evaluation.evaluator.query_evaluator import QueryEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
+from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import AtomEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import QueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.errors import UnsupportedFormulaError
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator import (
     FOQueryEvaluator,
-    UnsupportedFormulaError,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator_registry import (
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator_registry import (
     FOQueryEvaluatorRegistry,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import (
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
     AtomicFOQueryEvaluator,
     ConjunctiveFOQueryEvaluator,
     DisjunctiveFOQueryEvaluator,
@@ -29,18 +29,18 @@ from prototyping_inference_engine.query_evaluation.evaluator.conjunction import 
     ConjunctionEvaluator,
     BacktrackConjunctionEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.negation_evaluator import (
+from prototyping_inference_engine.query_evaluation.evaluator.negation.negation_formula_evaluator import (
     NegationFormulaEvaluator,
     UnsafeNegationWarning,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.universal_evaluator import (
+from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.universal_formula_evaluator import (
     UniversalFormulaEvaluator,
     UniversalQuantifierWarning,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.existential_evaluator import (
+from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.existential_formula_evaluator import (
     ExistentialFormulaEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.disjunction_evaluator import (
+from prototyping_inference_engine.query_evaluation.evaluator.disjunction.disjunction_formula_evaluator import (
     DisjunctionFormulaEvaluator,
 )
 

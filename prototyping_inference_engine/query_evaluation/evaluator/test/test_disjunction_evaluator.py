@@ -11,10 +11,10 @@ from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base impo
 from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
 from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.query_evaluation.evaluator.disjunction_evaluator import (
+from prototyping_inference_engine.query_evaluation.evaluator.disjunction.disjunction_formula_evaluator import (
     DisjunctionFormulaEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
 
 
 class TestDisjunctionFormulaEvaluator(unittest.TestCase):

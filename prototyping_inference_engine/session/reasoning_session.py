@@ -576,7 +576,7 @@ class ReasoningSession:
             for answer in session.evaluate_query(query, fact_base):
                 print(answer)  # (b,), (c,), ...
         """
-        from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
+        from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
         self._check_not_closed()
         evaluator = GenericFOQueryEvaluator()
         return evaluator.evaluate_and_project(query, fact_base)
@@ -599,7 +599,7 @@ class ReasoningSession:
             Tuples of terms corresponding to the answer variables
         """
         from prototyping_inference_engine.api.data.collection.builder import ReadableCollectionBuilder
-        from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import (
+        from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
             GenericFOQueryEvaluator,
         )
 

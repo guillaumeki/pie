@@ -8,7 +8,7 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.query_evaluation.evaluator.atom_evaluator import AtomEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import AtomEvaluator
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 

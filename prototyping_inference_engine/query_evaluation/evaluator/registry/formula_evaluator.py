@@ -9,7 +9,7 @@ from prototyping_inference_engine.api.formula.formula import Formula
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
-    from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
+    from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
         FormulaEvaluatorRegistry,
     )
 
@@ -32,7 +32,7 @@ class RegistryMixin:
     def _get_registry(self) -> "FormulaEvaluatorRegistry":
         """Get the registry, lazily importing the singleton if needed."""
         if self._registry is None:
-            from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
+            from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
                 FormulaEvaluatorRegistry,
             )
             return FormulaEvaluatorRegistry.instance()

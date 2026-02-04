@@ -4,7 +4,7 @@ Registry for query evaluators.
 from typing import Type, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.query.query import Query
-from prototyping_inference_engine.query_evaluation.evaluator.query_evaluator import QueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import QueryEvaluator
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.query.fo_query import FOQuery
@@ -42,13 +42,13 @@ class QueryEvaluatorRegistry:
         """Register default evaluators."""
         from prototyping_inference_engine.api.query.fo_query import FOQuery
         from prototyping_inference_engine.api.query.union_query import UnionQuery
-        from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import (
+        from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
             GenericFOQueryEvaluator,
         )
-        from prototyping_inference_engine.query_evaluation.evaluator.union_query_evaluator import (
+        from prototyping_inference_engine.query_evaluation.evaluator.query.union_query_evaluator import (
             UnionQueryEvaluator,
         )
-        from prototyping_inference_engine.query_evaluation.evaluator.conjunctive_query_evaluator import (
+        from prototyping_inference_engine.query_evaluation.evaluator.query.conjunctive_query_evaluator import (
             ConjunctiveQueryEvaluator,
         )
 

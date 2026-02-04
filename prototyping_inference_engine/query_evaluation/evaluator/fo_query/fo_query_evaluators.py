@@ -10,20 +10,20 @@ from prototyping_inference_engine.api.formula.negation_formula import NegationFo
 from prototyping_inference_engine.api.formula.universal_formula import UniversalFormula
 from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import FOQueryEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.atom_evaluator import AtomEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator import FOQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import AtomEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
     BacktrackConjunctionEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.disjunction_evaluator import DisjunctionFormulaEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.negation_evaluator import NegationFormulaEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.universal_evaluator import UniversalFormulaEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.existential_evaluator import ExistentialFormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.disjunction.disjunction_formula_evaluator import DisjunctionFormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.negation.negation_formula_evaluator import NegationFormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.universal_formula_evaluator import UniversalFormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.existential_formula_evaluator import ExistentialFormulaEvaluator
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
-    from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator_registry import (
+    from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator_registry import (
         FOQueryEvaluatorRegistry,
     )
 
@@ -185,7 +185,7 @@ class GenericFOQueryEvaluator(FOQueryEvaluator):
 
     def _get_registry(self) -> "FOQueryEvaluatorRegistry":
         if self._registry is None:
-            from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator_registry import (
+            from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator_registry import (
                 FOQueryEvaluatorRegistry,
             )
             return FOQueryEvaluatorRegistry.instance()
@@ -202,7 +202,7 @@ class GenericFOQueryEvaluator(FOQueryEvaluator):
         data: "ReadableData",
         substitution: "Substitution" = None,
     ) -> Iterator["Substitution"]:
-        from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
+        from prototyping_inference_engine.query_evaluation.evaluator.errors import (
             UnsupportedFormulaError,
         )
 

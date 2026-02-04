@@ -5,19 +5,17 @@ import warnings
 from typing import Type, Iterator, TYPE_CHECKING, Optional
 
 from prototyping_inference_engine.api.formula.universal_formula import UniversalFormula
-from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import (
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
     FormulaEvaluator,
     RegistryMixin,
 )
 
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
-    UnsupportedFormulaError,
-)
+from prototyping_inference_engine.query_evaluation.evaluator.errors import UnsupportedFormulaError
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
-    from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator_registry import (
+    from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
         FormulaEvaluatorRegistry,
     )
 

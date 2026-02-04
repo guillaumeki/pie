@@ -5,8 +5,8 @@ from typing import Type, Iterator, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
-from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import FormulaEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.function_term_rewriter import (
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import FormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.rewriting.function_term_rewriter import (
     formula_contains_function,
     rewrite_atom_function_terms,
 )

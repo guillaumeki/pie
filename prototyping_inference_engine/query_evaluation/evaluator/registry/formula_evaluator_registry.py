@@ -4,7 +4,7 @@ Registry for formula evaluators.
 from typing import Type, Optional
 
 from prototyping_inference_engine.api.formula.formula import Formula
-from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import FormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import FormulaEvaluator
 
 
 class FormulaEvaluatorRegistry:
@@ -47,20 +47,20 @@ class FormulaEvaluatorRegistry:
 
     def _register_defaults(self) -> None:
         """Register default evaluators."""
-        from prototyping_inference_engine.query_evaluation.evaluator.atom_evaluator import AtomEvaluator
+        from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import AtomEvaluator
         from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
             BacktrackConjunctionEvaluator,
         )
-        from prototyping_inference_engine.query_evaluation.evaluator.negation_evaluator import (
+        from prototyping_inference_engine.query_evaluation.evaluator.negation.negation_formula_evaluator import (
             NegationFormulaEvaluator,
         )
-        from prototyping_inference_engine.query_evaluation.evaluator.universal_evaluator import (
+        from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.universal_formula_evaluator import (
             UniversalFormulaEvaluator,
         )
-        from prototyping_inference_engine.query_evaluation.evaluator.existential_evaluator import (
+        from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.existential_formula_evaluator import (
             ExistentialFormulaEvaluator,
         )
-        from prototyping_inference_engine.query_evaluation.evaluator.disjunction_evaluator import (
+        from prototyping_inference_engine.query_evaluation.evaluator.disjunction.disjunction_formula_evaluator import (
             DisjunctionFormulaEvaluator,
         )
         self.register(AtomEvaluator())

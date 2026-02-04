@@ -5,7 +5,7 @@ from typing import Type, Optional
 
 from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import FOQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator import FOQueryEvaluator
 
 
 class FOQueryEvaluatorRegistry:
@@ -35,7 +35,7 @@ class FOQueryEvaluatorRegistry:
 
     def _register_defaults(self) -> None:
         """Register default evaluators."""
-        from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import (
+        from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
             AtomicFOQueryEvaluator,
             ConjunctiveFOQueryEvaluator,
             DisjunctiveFOQueryEvaluator,

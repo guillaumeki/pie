@@ -45,6 +45,7 @@ For any important change:
 - `design/process-templates.md`
 - `design/commit-process.md`
 - `design/functional-terms.md`
+- `design/query-evaluation-structure.md`
 
 ### Process Artifacts
 - `plans/PLAN_TEMPLATE.md`

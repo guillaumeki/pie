@@ -5,12 +5,12 @@ from typing import Iterator, Type, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.query_evaluation.evaluator.query_evaluator import QueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import QueryEvaluator
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
-    from prototyping_inference_engine.query_evaluation.evaluator.query_evaluator_registry import (
+    from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import (
         QueryEvaluatorRegistry,
     )
 
@@ -36,7 +36,7 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         """Get the registry, using singleton if not provided."""
         if self._registry is not None:
             return self._registry
-        from prototyping_inference_engine.query_evaluation.evaluator.query_evaluator_registry import (
+        from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import (
             QueryEvaluatorRegistry,
         )
         return QueryEvaluatorRegistry.instance()

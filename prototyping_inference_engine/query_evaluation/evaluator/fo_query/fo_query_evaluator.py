@@ -7,21 +7,12 @@ from typing import Iterator, Tuple, Type, TYPE_CHECKING
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.query_evaluator import QueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.errors import UnsupportedFormulaError
+from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import QueryEvaluator
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.substitution.substitution import Substitution
-
-
-class UnsupportedFormulaError(Exception):
-    """Raised when no evaluator is registered for a formula type."""
-
-    def __init__(self, formula_type: type):
-        self.formula_type = formula_type
-        super().__init__(
-            f"No evaluator registered for formula type: {formula_type.__name__}"
-        )
 
 
 class FOQueryEvaluator(QueryEvaluator[FOQuery]):
