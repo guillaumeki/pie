@@ -1,6 +1,7 @@
 """
 Evaluator for universal quantification formulas.
 """
+
 import warnings
 from typing import Type, Iterator, TYPE_CHECKING, Optional
 
@@ -10,7 +11,9 @@ from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_ev
     RegistryMixin,
 )
 
-from prototyping_inference_engine.query_evaluation.evaluator.errors import UnsupportedFormulaError
+from prototyping_inference_engine.query_evaluation.evaluator.errors import (
+    UnsupportedFormulaError,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
@@ -24,6 +27,7 @@ if TYPE_CHECKING:
 
 class UniversalQuantifierWarning(UserWarning):
     """Warning emitted when evaluating universal quantifier (requires domain iteration)."""
+
     pass
 
 
@@ -51,13 +55,15 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         if substitution is None:
             substitution = Substitution()
 
         # Get the domain
-        if not hasattr(data, 'terms'):
+        if not hasattr(data, "terms"):
             raise ValueError(
                 "Cannot evaluate universal quantifier: data source does not support "
                 "term enumeration."
@@ -107,7 +113,9 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
         inner_evaluator,
     ) -> Iterator["Substitution"]:
         """Evaluate ∀x.φ where φ has no other free variables."""
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         for term in domain:
             extended_sub = substitution.compose(Substitution({bound_var: term}))
@@ -139,7 +147,9 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
         Returns substitutions for Y such that φ(x, Y) holds for ALL x.
         Uses intersection semantics.
         """
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         # For the first term, get all possible results
         first_term = True
@@ -150,11 +160,13 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
 
             # Get all results for this term
             results = set()
-            for result_sub in inner_evaluator.evaluate(inner_formula, data, extended_sub):
+            for result_sub in inner_evaluator.evaluate(
+                inner_formula, data, extended_sub
+            ):
                 # Remove the bound variable from the result
-                filtered = Substitution({
-                    k: v for k, v in result_sub.items() if k != bound_var
-                })
+                filtered = Substitution(
+                    {k: v for k, v in result_sub.items() if k != bound_var}
+                )
                 # Convert to hashable tuple for set operations
                 results.add(tuple(sorted(filtered.items())))
 

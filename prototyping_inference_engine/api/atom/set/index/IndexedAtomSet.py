@@ -8,5 +8,4 @@ class IndexedAtomSet(Protocol):
     """Protocol for atom sets that provide an index."""
 
     @property
-    def index(self) -> Index:
-        ...
+    def index(self) -> Index: ...

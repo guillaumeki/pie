@@ -1,15 +1,20 @@
 """
 Evaluator for disjunction formulas.
 """
+
 from typing import Type, Iterator, TYPE_CHECKING, Optional
 
-from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
+from prototyping_inference_engine.api.formula.disjunction_formula import (
+    DisjunctionFormula,
+)
 from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
     FormulaEvaluator,
     RegistryMixin,
 )
 
-from prototyping_inference_engine.query_evaluation.evaluator.errors import UnsupportedFormulaError
+from prototyping_inference_engine.query_evaluation.evaluator.errors import (
+    UnsupportedFormulaError,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
@@ -40,7 +45,9 @@ class DisjunctionFormulaEvaluator(RegistryMixin, FormulaEvaluator[DisjunctionFor
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         if substitution is None:
             substitution = Substitution()

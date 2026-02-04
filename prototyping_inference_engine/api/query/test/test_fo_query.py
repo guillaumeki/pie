@@ -1,6 +1,7 @@
 """
 Tests for FOQuery and FOQueryFactory.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -247,7 +248,10 @@ class TestFOQueryFactory(unittest.TestCase):
         self.assertEqual(query.label, "test")
 
     def test_builder_returns_builder(self):
-        from prototyping_inference_engine.api.query.fo_query_factory import FOQueryBuilder
+        from prototyping_inference_engine.api.query.fo_query_factory import (
+            FOQueryBuilder,
+        )
+
         builder = self.session.fo_query().builder()
         self.assertIsInstance(builder, FOQueryBuilder)
 
@@ -262,82 +266,98 @@ class TestFOQueryBuilder(unittest.TestCase):
         self.session.close()
 
     def test_build_simple_query(self):
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .answer("X", "Y")
             .atom("p", "X", "Y")
-            .build())
+            .build()
+        )
         self.assertIsInstance(query, FOQuery)
         self.assertEqual(len(query.answer_variables), 2)
 
     def test_build_query_multiple_answers(self):
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .answer("X", "Y")
             .atom("p", "X", "Y")
-            .build())
+            .build()
+        )
         self.assertEqual(len(query.answer_variables), 2)
 
     def test_build_query_with_label(self):
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .label("my_query")
             .answer("X")
             .atom("p", "X")
-            .build())
+            .build()
+        )
         self.assertEqual(query.label, "my_query")
 
     def test_build_query_with_conjunction(self):
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .answer("X")
             .exists("Y")
             .atom("p", "X", "Y")
             .and_()
             .atom("q", "Y")
-            .build())
+            .build()
+        )
         self.assertIsInstance(query.formula, ExistentialFormula)
         self.assertIsInstance(query.formula.inner, ConjunctionFormula)
 
     def test_build_query_with_disjunction(self):
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .answer("X")
             .atom("p", "X")
             .or_()
             .atom("q", "X")
-            .build())
+            .build()
+        )
         self.assertIsInstance(query.formula, DisjunctionFormula)
 
     def test_build_query_with_negation(self):
-        query = (self.session.fo_query().builder()
-            .answer("X")
-            .atom("p", "X")
-            .not_()
-            .build())
+        query = (
+            self.session.fo_query().builder().answer("X").atom("p", "X").not_().build()
+        )
         self.assertIsInstance(query.formula, NegationFormula)
 
     def test_build_query_with_existential(self):
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .answer("X")
             .exists("Y")
             .atom("p", "X", "Y")
-            .build())
+            .build()
+        )
         self.assertIsInstance(query.formula, ExistentialFormula)
         self.assertEqual(query.free_variables, frozenset([self.session.variable("X")]))
 
     def test_build_query_with_universal(self):
-        query = (self.session.fo_query().builder()
-            .forall("X")
-            .atom("p", "X")
-            .build())
+        query = self.session.fo_query().builder().forall("X").atom("p", "X").build()
         self.assertIsInstance(query.formula, UniversalFormula)
         self.assertTrue(query.is_boolean)
 
     def test_build_complex_query(self):
         # ?(X) :- ∃Y.(p(X,Y) ∧ q(Y))
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .answer("X")
             .exists("Y")
             .atom("p", "X", "Y")
             .and_()
             .atom("q", "Y")
-            .build())
+            .build()
+        )
 
         self.assertIsInstance(query.formula, ExistentialFormula)
         self.assertIsInstance(query.formula.inner, ConjunctionFormula)
@@ -374,14 +394,17 @@ class TestFOQueryFromSession(unittest.TestCase):
     def test_full_workflow(self):
         with ReasoningSession.create() as session:
             # Build query: ?(X) :- ∃Y.(p(X,Y) ∧ ¬q(Y))
-            query = (session.fo_query().builder()
+            query = (
+                session.fo_query()
+                .builder()
                 .answer("X")
                 .exists("Y")
                 .atom("p", "X", "Y")
                 .and_()
                 .atom("q", "Y")
                 .not_()
-                .build())
+                .build()
+            )
 
             self.assertIsInstance(query, FOQuery)
             self.assertEqual(len(query.answer_variables), 1)

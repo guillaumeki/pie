@@ -1,6 +1,7 @@
 """
 Negation formula: ¬φ
 """
+
 from typing import TYPE_CHECKING
 
 from prototyping_inference_engine.api.formula.formula import Formula

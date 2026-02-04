@@ -1,16 +1,25 @@
 """
 Conversion helpers between FO queries and CQ/UCQ forms.
 """
+
 from typing import List
 
 from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
+from prototyping_inference_engine.api.formula.disjunction_formula import (
+    DisjunctionFormula,
+)
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
 from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_conjunctive_queries import (
+    UnionConjunctiveQueries,
+)
 
 
 def _formula_to_atom_sets(formula: Formula) -> List[frozenset[Atom]]:

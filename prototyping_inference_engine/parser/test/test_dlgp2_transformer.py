@@ -5,7 +5,8 @@ from prototyping_inference_engine.parser.dlgp.dlgp2_transformer import Dlgp2Tran
 
 
 class TestDlgp2Transformer(TestCase):
-    examples = ("""@facts
+    examples = (
+        """@facts
         [f1] p(a), relatedTo(a,b), q(b).
         [f2] p(X), t(X,a,b), s(a,z).
         t(X,a,b), relatedTo(Y,z).
@@ -28,9 +29,15 @@ class TestDlgp2Transformer(TestCase):
         ? :- p(X).
         ? :- p(X); q(Y).
         ? (X) :- p(X); q(X).
-        ?() :- .""",)
+        ?() :- .""",
+    )
     parsing_results: list[object] = []
-    parser = Lark.open("../dlgp/dlgp2.lark", rel_to=__file__, parser="lalr", transformer=Dlgp2Transformer())
+    parser = Lark.open(
+        "../dlgp/dlgp2.lark",
+        rel_to=__file__,
+        parser="lalr",
+        transformer=Dlgp2Transformer(),
+    )
 
     def setUp(self) -> None:
         self.parsing_results = []
@@ -40,8 +47,8 @@ class TestDlgp2Transformer(TestCase):
 
     def test_base_properties(self):
         for r in self.parsing_results:
-            self.assertIn('body', r)
-            self.assertIn('header', r)
+            self.assertIn("body", r)
+            self.assertIn("header", r)
 
     def __test_no_tree_no_token(self, t):
         self.assertNotIsInstance(t, Tree)
@@ -49,7 +56,12 @@ class TestDlgp2Transformer(TestCase):
         if isinstance(t, dict):
             for v in t.values():
                 self.__test_no_tree_no_token(v)
-        if isinstance(t, list) or isinstance(t, tuple) or isinstance(t, set) or isinstance(t, frozenset):
+        if (
+            isinstance(t, list)
+            or isinstance(t, tuple)
+            or isinstance(t, set)
+            or isinstance(t, frozenset)
+        ):
             for v in t:
                 self.__test_no_tree_no_token(v)
 

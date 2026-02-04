@@ -1,4 +1,5 @@
 """Tests for MaterializedDataCollection."""
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -27,12 +28,8 @@ class TestMaterializedDataCollection(unittest.TestCase):
         self.p = Predicate("p", 2)
         self.q = Predicate("q", 1)
 
-        self.fb1 = FrozenInMemoryFactBase(
-            self.parser.parse_atoms("p(a,b), p(c,d).")
-        )
-        self.fb2 = FrozenInMemoryFactBase(
-            self.parser.parse_atoms("q(x), q(y).")
-        )
+        self.fb1 = FrozenInMemoryFactBase(self.parser.parse_atoms("p(a,b), p(c,d)."))
+        self.fb2 = FrozenInMemoryFactBase(self.parser.parse_atoms("q(x), q(y)."))
 
     def test_isinstance_materialized_data(self):
         """Test collection is instance of MaterializedData."""
@@ -47,19 +44,19 @@ class TestMaterializedDataCollection(unittest.TestCase):
 
     def test_iter_multiple_sources(self):
         """Test iteration over multiple sources."""
-        collection = MaterializedDataCollection({
-            self.p: self.fb1,
-            self.q: self.fb2,
-        })
+        collection = MaterializedDataCollection(
+            {
+                self.p: self.fb1,
+                self.q: self.fb2,
+            }
+        )
         atoms = set(collection)
         self.assertEqual(len(atoms), 4)
 
     def test_iter_no_duplicates(self):
         """Test iteration does not yield duplicates."""
         # Both sources share the same predicate
-        fb1 = FrozenInMemoryFactBase(
-            self.parser.parse_atoms("p(a,b).")
-        )
+        fb1 = FrozenInMemoryFactBase(self.parser.parse_atoms("p(a,b)."))
         fb2 = FrozenInMemoryFactBase(
             self.parser.parse_atoms("p(a,b), p(c,d).")  # p(a,b) is duplicate
         )
@@ -78,18 +75,22 @@ class TestMaterializedDataCollection(unittest.TestCase):
 
     def test_len(self):
         """Test len returns total unique atom count."""
-        collection = MaterializedDataCollection({
-            self.p: self.fb1,
-            self.q: self.fb2,
-        })
+        collection = MaterializedDataCollection(
+            {
+                self.p: self.fb1,
+                self.q: self.fb2,
+            }
+        )
         self.assertEqual(len(collection), 4)
 
     def test_contains(self):
         """Test containment check."""
-        collection = MaterializedDataCollection({
-            self.p: self.fb1,
-            self.q: self.fb2,
-        })
+        collection = MaterializedDataCollection(
+            {
+                self.p: self.fb1,
+                self.q: self.fb2,
+            }
+        )
         atom_p = Atom(self.p, Constant("a"), Constant("b"))
         atom_q = Atom(self.q, Constant("x"))
         atom_r = Atom(Predicate("r", 1), Constant("z"))
@@ -106,51 +107,55 @@ class TestMaterializedDataCollection(unittest.TestCase):
 
     def test_variables_property(self):
         """Test variables property aggregates from all sources."""
-        fb1 = FrozenInMemoryFactBase(
-            self.parser.parse_atoms("p(X,a).")
+        fb1 = FrozenInMemoryFactBase(self.parser.parse_atoms("p(X,a)."))
+        fb2 = FrozenInMemoryFactBase(self.parser.parse_atoms("q(Y)."))
+        collection = MaterializedDataCollection(
+            {
+                self.p: fb1,
+                self.q: fb2,
+            }
         )
-        fb2 = FrozenInMemoryFactBase(
-            self.parser.parse_atoms("q(Y).")
-        )
-        collection = MaterializedDataCollection({
-            self.p: fb1,
-            self.q: fb2,
-        })
         self.assertEqual(collection.variables, {Variable("X"), Variable("Y")})
 
     def test_constants_property(self):
         """Test constants property aggregates from all sources."""
-        collection = MaterializedDataCollection({
-            self.p: self.fb1,
-            self.q: self.fb2,
-        })
+        collection = MaterializedDataCollection(
+            {
+                self.p: self.fb1,
+                self.q: self.fb2,
+            }
+        )
         expected = {
-            Constant("a"), Constant("b"), Constant("c"), Constant("d"),
-            Constant("x"), Constant("y"),
+            Constant("a"),
+            Constant("b"),
+            Constant("c"),
+            Constant("d"),
+            Constant("x"),
+            Constant("y"),
         }
         self.assertEqual(collection.constants, expected)
 
     def test_terms_property(self):
         """Test terms property aggregates from all sources."""
-        fb1 = FrozenInMemoryFactBase(
-            self.parser.parse_atoms("p(X,a).")
+        fb1 = FrozenInMemoryFactBase(self.parser.parse_atoms("p(X,a)."))
+        fb2 = FrozenInMemoryFactBase(self.parser.parse_atoms("q(Y)."))
+        collection = MaterializedDataCollection(
+            {
+                self.p: fb1,
+                self.q: fb2,
+            }
         )
-        fb2 = FrozenInMemoryFactBase(
-            self.parser.parse_atoms("q(Y).")
-        )
-        collection = MaterializedDataCollection({
-            self.p: fb1,
-            self.q: fb2,
-        })
         expected = {Variable("X"), Variable("Y"), Constant("a")}
         self.assertEqual(collection.terms, expected)
 
     def test_term_caching(self):
         """Test that term properties are cached."""
-        collection = MaterializedDataCollection({
-            self.p: self.fb1,
-            self.q: self.fb2,
-        })
+        collection = MaterializedDataCollection(
+            {
+                self.p: self.fb1,
+                self.q: self.fb2,
+            }
+        )
         # First access
         vars1 = collection.variables
         consts1 = collection.constants
@@ -163,6 +168,7 @@ class TestMaterializedDataCollection(unittest.TestCase):
 
     def test_non_materializable_source_raises(self):
         """Test that non-Materializable sources raise TypeError."""
+
         # Create a minimal Queryable that is not Materializable
         class NonMaterializableSource:
             def get_predicates(self):
@@ -186,10 +192,12 @@ class TestMaterializedDataCollection(unittest.TestCase):
 
     def test_readable_data_functionality(self):
         """Test that ReadableData functionality still works."""
-        collection = MaterializedDataCollection({
-            self.p: self.fb1,
-            self.q: self.fb2,
-        })
+        collection = MaterializedDataCollection(
+            {
+                self.p: self.fb1,
+                self.q: self.fb2,
+            }
+        )
 
         # Test get_predicates
         predicates = set(collection.get_predicates())

@@ -1,11 +1,14 @@
 """
 Evaluator for UnionQuery (disjunction of queries).
 """
+
 from typing import Iterator, Type, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.query.union_query import UnionQuery
-from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import QueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import (
+    QueryEvaluator,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
@@ -42,6 +45,7 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import (
             QueryEvaluatorRegistry,
         )
+
         return QueryEvaluatorRegistry.instance()
 
     @classmethod
@@ -68,7 +72,9 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         Yields:
             Substitutions that satisfy at least one sub-query
         """
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         if substitution is None:
             substitution = Substitution()
@@ -112,9 +118,7 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         seen: set[tuple[Term, ...]] = set()
 
         for result_sub in self.evaluate(query, data, substitution):
-            answer = tuple(
-                result_sub.apply(v) for v in query.answer_variables
-            )
+            answer = tuple(result_sub.apply(v) for v in query.answer_variables)
             if answer not in seen:
                 seen.add(answer)
                 yield answer

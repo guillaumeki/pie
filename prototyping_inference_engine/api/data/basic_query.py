@@ -1,6 +1,7 @@
 """
 Basic query for querying data sources.
 """
+
 from typing import Mapping, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -28,7 +29,7 @@ class BasicQuery:
         self,
         predicate: "Predicate",
         bound_positions: Optional[Mapping[int, "Term"]] = None,
-        answer_variables: Optional[Mapping[int, "Variable"]] = None
+        answer_variables: Optional[Mapping[int, "Variable"]] = None,
     ):
         """
         Create a basic query.
@@ -41,8 +42,12 @@ class BasicQuery:
                             that should receive the value at that position.
         """
         self._predicate = predicate
-        self._bound_positions: dict[int, "Term"] = dict(bound_positions) if bound_positions else {}
-        self._answer_variables: dict[int, "Variable"] = dict(answer_variables) if answer_variables else {}
+        self._bound_positions: dict[int, "Term"] = (
+            dict(bound_positions) if bound_positions else {}
+        )
+        self._answer_variables: dict[int, "Variable"] = (
+            dict(answer_variables) if answer_variables else {}
+        )
 
     @property
     def predicate(self) -> "Predicate":
@@ -77,9 +82,7 @@ class BasicQuery:
 
     @classmethod
     def from_atom(
-        cls,
-        atom: "Atom",
-        substitution: Optional["Substitution"] = None
+        cls, atom: "Atom", substitution: Optional["Substitution"] = None
     ) -> "BasicQuery":
         """
         Create a BasicQuery from an atom and substitution.
@@ -95,7 +98,9 @@ class BasicQuery:
         Returns:
             A BasicQuery with ground positions as bound, variables as answers
         """
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
         from prototyping_inference_engine.api.atom.term.variable import Variable
 
         sub = substitution or Substitution()
@@ -135,8 +140,10 @@ class BasicQuery:
         )
 
     def __hash__(self) -> int:
-        return hash((
-            self._predicate,
-            frozenset(self._bound_positions.items()),
-            frozenset(self._answer_variables.items())
-        ))
+        return hash(
+            (
+                self._predicate,
+                frozenset(self._bound_positions.items()),
+                frozenset(self._answer_variables.items()),
+            )
+        )

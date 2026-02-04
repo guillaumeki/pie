@@ -53,6 +53,7 @@ For any important change:
 - `design/github-ci.md`
 - `design/ci-badge.md`
 - `design/mypy-test-gate.md`
+- `design/code-quality-tooling.md`
 
 ### Process Artifacts
 - `plans/PLAN_TEMPLATE.md`
@@ -70,6 +71,11 @@ For any important change:
 pip install -e .
 ```
 
+### Dev Tools
+```bash
+pip install -r requirements-dev.txt
+```
+
 ### Tests
 ```bash
 # Run all tests
@@ -80,6 +86,18 @@ python3 -m unittest prototyping_inference_engine.api.fact_base.test.test_fact_ba
 
 # Run a specific test class
 python3 -m unittest prototyping_inference_engine.backward_chaining.test.test_breadth_first_rewriting.TestBreadthFirstRewriting
+```
+
+### Quality Checks
+```bash
+ruff check .
+ruff format --check .
+python3 -m coverage run -m unittest discover -s prototyping_inference_engine -v
+python3 -m coverage report -m
+bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test" -ll
+pip-audit
+vulture prototyping_inference_engine
+radon cc -a -s prototyping_inference_engine
 ```
 
 ### CLI

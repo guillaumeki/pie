@@ -17,7 +17,7 @@ class TestDlgp2Literals(unittest.TestCase):
 
         self.assertTrue(all(isinstance(t, Literal) for t in terms))
         lang_term = next(t for t in terms if t.lang == "fr")
-        self.assertEqual(str(lang_term), "\"chat\"@fr")
+        self.assertEqual(str(lang_term), '"chat"@fr')
 
         int_terms = [t for t in terms if t.datatype == "xsd:integer"]
         self.assertEqual(len(int_terms), 1)

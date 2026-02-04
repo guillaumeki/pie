@@ -3,6 +3,7 @@ Created on 23 déc. 2021
 
 @author: guillaume
 """
+
 from functools import cached_property
 from typing import Optional, Iterable, TypeVar, Generic, cast
 
@@ -15,11 +16,25 @@ HeadQueryType = TypeVar("HeadQueryType", bound=Query)
 
 
 class Rule(Generic[BodyQueryType, HeadQueryType]):
-    def __init__(self, body: BodyQueryType, head: Iterable[HeadQueryType], label: Optional[str] = None):
-        self._frontier = body.variables & frozenset(v for h in head for v in h.variables)
-        self._body = cast(BodyQueryType, body.query_with_other_answer_variables(tuple(self._frontier)))
+    def __init__(
+        self,
+        body: BodyQueryType,
+        head: Iterable[HeadQueryType],
+        label: Optional[str] = None,
+    ):
+        self._frontier = body.variables & frozenset(
+            v for h in head for v in h.variables
+        )
+        self._body = cast(
+            BodyQueryType, body.query_with_other_answer_variables(tuple(self._frontier))
+        )
         self._head = tuple(
-            cast(HeadQueryType, h.query_with_other_answer_variables(tuple(self._frontier & h.variables)))
+            cast(
+                HeadQueryType,
+                h.query_with_other_answer_variables(
+                    tuple(self._frontier & h.variables)
+                ),
+            )
             for h in head
         )
         self._label = label
@@ -57,31 +72,46 @@ class Rule(Generic[BodyQueryType, HeadQueryType]):
 
     @staticmethod
     def aggregate_conjunctive_rules(
-            rule1: "Rule[ConjunctiveQuery, ConjunctiveQuery]",
-            rule2: "Rule[ConjunctiveQuery, ConjunctiveQuery]") -> "Rule[ConjunctiveQuery, ConjunctiveQuery]":
-        return Rule(rule1.body.aggregate(rule2.body), [rule1.head[0].aggregate(rule2.head[0])])
+        rule1: "Rule[ConjunctiveQuery, ConjunctiveQuery]",
+        rule2: "Rule[ConjunctiveQuery, ConjunctiveQuery]",
+    ) -> "Rule[ConjunctiveQuery, ConjunctiveQuery]":
+        return Rule(
+            rule1.body.aggregate(rule2.body), [rule1.head[0].aggregate(rule2.head[0])]
+        )
 
     @staticmethod
-    def extract_conjunctive_rule(rule: "Rule[ConjunctiveQuery, ConjunctiveQuery]",
-                                 head_number: int) -> "Rule[ConjunctiveQuery, ConjunctiveQuery]":
+    def extract_conjunctive_rule(
+        rule: "Rule[ConjunctiveQuery, ConjunctiveQuery]", head_number: int
+    ) -> "Rule[ConjunctiveQuery, ConjunctiveQuery]":
         return Rule(rule.body, [rule.head[head_number]], rule.label)
 
     def __eq__(self, other):
-        return self.body == other.body and self.head == other.head and self.label == other.label
+        return (
+            self.body == other.body
+            and self.head == other.head
+            and self.label == other.label
+        )
 
     def __hash__(self):
         return hash((self.body, self.head, self.label))
 
     def __str__(self):
         heads = [
-            ("\u2203" + ",".join(str(v) for v in h.existential_variables) + " " if h.existential_variables else "")
+            (
+                "\u2203" + ",".join(str(v) for v in h.existential_variables) + " "
+                if h.existential_variables
+                else ""
+            )
             + str(h.str_without_answer_variables)
-            for h in self.head]
+            for h in self.head
+        ]
         return "{}{} \u2192 {}".format(
-            "" if not self.label else "["+str(self.label)+"] ",
+            "" if not self.label else "[" + str(self.label) + "] ",
             str(self.body.str_without_answer_variables),
-            " \u2228 ".join("("+h+")" for h in heads) if not self.is_conjunctive
-            else " \u2228 ".join(h for h in heads))
+            " \u2228 ".join("(" + h + ")" for h in heads)
+            if not self.is_conjunctive
+            else " \u2228 ".join(h for h in heads),
+        )
 
     def __repr__(self):
-        return "<Rule: "+str(self)+">"
+        return "<Rule: " + str(self) + ">"

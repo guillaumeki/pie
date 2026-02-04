@@ -3,9 +3,13 @@ from unittest import TestCase
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
-from prototyping_inference_engine.api.atom.set.index.index_by_predicate import IndexByPredicate
+from prototyping_inference_engine.api.atom.set.index.index_by_predicate import (
+    IndexByPredicate,
+)
 from prototyping_inference_engine.api.atom.set.index.index_by_term import IndexByTerm
-from prototyping_inference_engine.api.atom.set.index.index_by_term_and_predicate import IndexByTermAndPredicate
+from prototyping_inference_engine.api.atom.set.index.index_by_term_and_predicate import (
+    IndexByTermAndPredicate,
+)
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitution import Substitution

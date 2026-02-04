@@ -1,15 +1,20 @@
 """
 Evaluator for existential quantification formulas.
 """
+
 from typing import Type, Iterator, TYPE_CHECKING, Optional
 
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
 from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
     FormulaEvaluator,
     RegistryMixin,
 )
 
-from prototyping_inference_engine.query_evaluation.evaluator.errors import UnsupportedFormulaError
+from prototyping_inference_engine.query_evaluation.evaluator.errors import (
+    UnsupportedFormulaError,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
@@ -43,7 +48,9 @@ class ExistentialFormulaEvaluator(RegistryMixin, FormulaEvaluator[ExistentialFor
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         if substitution is None:
             substitution = Substitution()
@@ -61,9 +68,9 @@ class ExistentialFormulaEvaluator(RegistryMixin, FormulaEvaluator[ExistentialFor
         # Evaluate inner formula (bound variable is treated as free)
         for result_sub in inner_evaluator.evaluate(inner, data, substitution):
             # Project out the bound variable
-            projected = Substitution({
-                k: v for k, v in result_sub.items() if k != bound_var
-            })
+            projected = Substitution(
+                {k: v for k, v in result_sub.items() if k != bound_var}
+            )
 
             # Deduplicate
             key = frozenset(projected.items())

@@ -1,24 +1,43 @@
 """
 Concrete FOQueryEvaluator implementations for each formula type.
 """
+
 from typing import Iterator, Type, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
+from prototyping_inference_engine.api.formula.disjunction_formula import (
+    DisjunctionFormula,
+)
 from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
 from prototyping_inference_engine.api.formula.universal_formula import UniversalFormula
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator import FOQueryEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import AtomEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator import (
+    FOQueryEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import (
+    AtomEvaluator,
+)
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
     BacktrackConjunctionEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.disjunction.disjunction_formula_evaluator import DisjunctionFormulaEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.negation.negation_formula_evaluator import NegationFormulaEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.universal_formula_evaluator import UniversalFormulaEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.existential_formula_evaluator import ExistentialFormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.disjunction.disjunction_formula_evaluator import (
+    DisjunctionFormulaEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.negation.negation_formula_evaluator import (
+    NegationFormulaEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.universal_formula_evaluator import (
+    UniversalFormulaEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.existential_formula_evaluator import (
+    ExistentialFormulaEvaluator,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
@@ -69,7 +88,9 @@ class ConjunctiveFOQueryEvaluator(FOQueryEvaluator):
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
-        yield from self._get_formula_evaluator().evaluate(query.formula, data, substitution)
+        yield from self._get_formula_evaluator().evaluate(
+            query.formula, data, substitution
+        )
 
 
 class DisjunctiveFOQueryEvaluator(FOQueryEvaluator):
@@ -94,7 +115,9 @@ class DisjunctiveFOQueryEvaluator(FOQueryEvaluator):
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
-        yield from self._get_formula_evaluator().evaluate(query.formula, data, substitution)
+        yield from self._get_formula_evaluator().evaluate(
+            query.formula, data, substitution
+        )
 
 
 class NegationFOQueryEvaluator(FOQueryEvaluator):
@@ -119,7 +142,9 @@ class NegationFOQueryEvaluator(FOQueryEvaluator):
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
-        yield from self._get_formula_evaluator().evaluate(query.formula, data, substitution)
+        yield from self._get_formula_evaluator().evaluate(
+            query.formula, data, substitution
+        )
 
 
 class UniversalFOQueryEvaluator(FOQueryEvaluator):
@@ -144,7 +169,9 @@ class UniversalFOQueryEvaluator(FOQueryEvaluator):
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
-        yield from self._get_formula_evaluator().evaluate(query.formula, data, substitution)
+        yield from self._get_formula_evaluator().evaluate(
+            query.formula, data, substitution
+        )
 
 
 class ExistentialFOQueryEvaluator(FOQueryEvaluator):
@@ -169,7 +196,9 @@ class ExistentialFOQueryEvaluator(FOQueryEvaluator):
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
-        yield from self._get_formula_evaluator().evaluate(query.formula, data, substitution)
+        yield from self._get_formula_evaluator().evaluate(
+            query.formula, data, substitution
+        )
 
 
 class GenericFOQueryEvaluator(FOQueryEvaluator):
@@ -188,6 +217,7 @@ class GenericFOQueryEvaluator(FOQueryEvaluator):
             from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator_registry import (
                 FOQueryEvaluatorRegistry,
             )
+
             return FOQueryEvaluatorRegistry.instance()
         return self._registry
 

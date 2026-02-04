@@ -1,6 +1,7 @@
 """
 Factory for creating Literal instances with configurable normalization.
 """
+
 from __future__ import annotations
 
 from typing import Optional, Callable
@@ -11,7 +12,6 @@ from prototyping_inference_engine.api.atom.term.literal_config import (
     LiteralNormalization,
     LiteralComparison,
     LiteralDatatypeResolution,
-    NumericNormalization,
 )
 from prototyping_inference_engine.api.atom.term.literal_xsd import (
     datatype_local_name,
@@ -48,9 +48,9 @@ def _resolve_builtin_prefix(datatype: Optional[str]) -> Optional[str]:
     if datatype is None:
         return None
     if datatype.startswith(XSD_PREFIX):
-        return XSD_NAMESPACE + datatype[len(XSD_PREFIX):]
+        return XSD_NAMESPACE + datatype[len(XSD_PREFIX) :]
     if datatype.startswith(RDF_PREFIX):
-        return RDF_NAMESPACE + datatype[len(RDF_PREFIX):]
+        return RDF_NAMESPACE + datatype[len(RDF_PREFIX) :]
     return datatype
 
 
@@ -62,7 +62,9 @@ class LiteralFactory:
         self._unparsers = self._merge_type_unparsers(self._config)
 
     @staticmethod
-    def _merge_type_parsers(config: LiteralConfig) -> dict[str, Callable[[str], object]]:
+    def _merge_type_parsers(
+        config: LiteralConfig,
+    ) -> dict[str, Callable[[str], object]]:
         numeric_mode = config.numeric_normalization.value
         defaults = default_type_parsers(numeric_mode)
         if config.type_parsers is None:
@@ -73,7 +75,9 @@ class LiteralFactory:
         return merged
 
     @staticmethod
-    def _merge_type_unparsers(config: LiteralConfig) -> dict[str, Callable[[object], str]]:
+    def _merge_type_unparsers(
+        config: LiteralConfig,
+    ) -> dict[str, Callable[[object], str]]:
         numeric_mode = config.numeric_normalization.value
         defaults = default_type_unparsers(numeric_mode)
         if config.type_unparsers is None:
@@ -94,14 +98,18 @@ class LiteralFactory:
 
         if self._config.normalization == LiteralNormalization.CUSTOM:
             if self._config.custom_normalizer is None:
-                raise ValueError("custom_normalizer must be set for CUSTOM normalization")
+                raise ValueError(
+                    "custom_normalizer must be set for CUSTOM normalization"
+                )
             value = self._config.custom_normalizer(raw_lexical, datatype, lang)
             normalized_lexical = self._unparse(value, datatype)
         elif self._config.normalization == LiteralNormalization.RAW_LEXICAL:
             value = raw_lexical
             normalized_lexical = raw_lexical
         else:
-            value, normalized_lexical = self._normalize_value(raw_lexical, datatype, lang)
+            value, normalized_lexical = self._normalize_value(
+                raw_lexical, datatype, lang
+            )
 
         stored_lexical = None
         if self._config.keep_lexical:
@@ -156,20 +164,27 @@ class LiteralFactory:
     ) -> object:
         if self._config.comparison == LiteralComparison.CUSTOM:
             if self._config.comparison_key_builder is None:
-                raise ValueError("comparison_key_builder must be set for CUSTOM comparison")
+                raise ValueError(
+                    "comparison_key_builder must be set for CUSTOM comparison"
+                )
             key = self._config.comparison_key_builder(value, datatype, lang)
             return _make_hashable(key)
         if self._config.comparison == LiteralComparison.BY_LEXICAL:
             return (datatype, raw_lexical, lang)
         return (datatype, _make_hashable(value), lang)
 
-    def _normalize_datatype(self, datatype: Optional[str], lang: Optional[str]) -> Optional[str]:
+    def _normalize_datatype(
+        self, datatype: Optional[str], lang: Optional[str]
+    ) -> Optional[str]:
         if datatype is None:
             datatype = XSD_PREFIX + XSD_STRING
 
         if lang:
             datatype = RDF_PREFIX + RDF_LANG_STRING
 
-        if self._config.datatype_resolution == LiteralDatatypeResolution.RESOLVE_PREFIXES:
+        if (
+            self._config.datatype_resolution
+            == LiteralDatatypeResolution.RESOLVE_PREFIXES
+        ):
             datatype = _resolve_builtin_prefix(datatype)
         return datatype

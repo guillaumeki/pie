@@ -4,6 +4,7 @@ Session management for Pie reasoning engine.
 This package provides ReasoningSession for scoped vocabulary management,
 fact base creation, and reasoning operations.
 """
+
 from prototyping_inference_engine.session.providers import (
     FactBaseFactoryProvider,
     RewritingAlgorithmProvider,

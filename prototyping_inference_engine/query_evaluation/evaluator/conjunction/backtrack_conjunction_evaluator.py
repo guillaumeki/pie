@@ -1,6 +1,7 @@
 """
 Backtracking-based conjunction evaluator.
 """
+
 from typing import Iterator, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -8,14 +9,19 @@ from prototyping_inference_engine.api.atom.predicate import SpecialPredicate
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
 from prototyping_inference_engine.api.formula.formula import Formula
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-from prototyping_inference_engine.query_evaluation.evaluator.conjunction.conjunction_evaluator import ConjunctionEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.conjunction.scheduler.formula_scheduler import FormulaScheduler
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.conjunction.conjunction_evaluator import (
+    ConjunctionEvaluator,
+)
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.scheduler.formula_scheduler_provider import (
     FormulaSchedulerProvider,
     SequentialSchedulerProvider,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import RegistryMixin
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
+    RegistryMixin,
+)
 from prototyping_inference_engine.query_evaluation.evaluator.rewriting.function_term_rewriter import (
     expand_function_terms,
     formula_contains_function,
@@ -24,7 +30,9 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
-    from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
+    from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
+        FormulaEvaluatorRegistry,
+    )
 
 
 class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
@@ -137,8 +145,7 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
         other_formulas: list[Formula] = []
 
         for f in formulas:
-            if (isinstance(f, Atom)
-                and f.predicate == SpecialPredicate.EQUALITY.value):
+            if isinstance(f, Atom) and f.predicate == SpecialPredicate.EQUALITY.value:
                 equality_atoms.append(f)
             else:
                 other_formulas.append(f)
@@ -218,6 +225,7 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
             from prototyping_inference_engine.query_evaluation.evaluator.errors import (
                 UnsupportedFormulaError,
             )
+
             raise UnsupportedFormulaError(type(next_formula))
 
         for extended_sub in evaluator.evaluate(next_formula, data, substitution):

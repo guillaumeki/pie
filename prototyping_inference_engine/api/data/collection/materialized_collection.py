@@ -1,6 +1,7 @@
 """
 MaterializedDataCollection for aggregating multiple materialized data sources.
 """
+
 from typing import Dict, Iterator, List, Optional, Set, TYPE_CHECKING
 
 from prototyping_inference_engine.api.data.materialized_data import MaterializedData

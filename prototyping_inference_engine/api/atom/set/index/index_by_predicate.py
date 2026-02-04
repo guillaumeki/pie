@@ -1,5 +1,4 @@
 from collections import defaultdict
-from typing import Iterator
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
@@ -13,7 +12,9 @@ class IndexByPredicate(Index):
         index = defaultdict(set)
         for atom in atom_set:
             index[atom.predicate].add(atom)
-        self._predicate_index: defaultdict[Predicate, frozenset[Atom]] = defaultdict(frozenset)
+        self._predicate_index: defaultdict[Predicate, frozenset[Atom]] = defaultdict(
+            frozenset
+        )
 
         for p in index:
             self._predicate_index[p] = frozenset(index[p])

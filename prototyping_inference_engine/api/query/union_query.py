@@ -1,6 +1,7 @@
 """
 UnionQuery: A union (disjunction) of queries of the same type.
 """
+
 from functools import cached_property
 from typing import Generic, Iterable, Iterator, Optional, TypeVar, TYPE_CHECKING, cast
 
@@ -12,7 +13,9 @@ from prototyping_inference_engine.api.substitution.substitutable import Substitu
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
+    from prototyping_inference_engine.api.query.conjunctive_query import (
+        ConjunctiveQuery,
+    )
     from prototyping_inference_engine.api.query.fo_query import FOQuery
 
 Q = TypeVar("Q", bound=Query)
@@ -73,9 +76,9 @@ class UnionQuery(Query, Substitutable["UnionQuery[Q]"], Generic[Q]):
                 )
             # Apply substitution to rename answer variables if needed
             if q.answer_variables != self.answer_variables:
-                rename_sub = Substitution({
-                    v: t for v, t in zip(q.answer_variables, self.answer_variables)
-                })
+                rename_sub = Substitution(
+                    {v: t for v, t in zip(q.answer_variables, self.answer_variables)}
+                )
                 if isinstance(q, Substitutable):
                     q = rename_sub.apply(q)
             normalized.append(q)
@@ -178,11 +181,19 @@ class UnionQuery(Query, Substitutable["UnionQuery[Q]"], Generic[Q]):
         Raises:
             ValueError: If the union is empty or contains non-ConjunctiveQuery queries
         """
-        from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-        from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
-        from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+        from prototyping_inference_engine.api.formula.conjunction_formula import (
+            ConjunctionFormula,
+        )
+        from prototyping_inference_engine.api.formula.disjunction_formula import (
+            DisjunctionFormula,
+        )
+        from prototyping_inference_engine.api.formula.existential_formula import (
+            ExistentialFormula,
+        )
         from prototyping_inference_engine.api.formula.formula import Formula
-        from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
+        from prototyping_inference_engine.api.query.conjunctive_query import (
+            ConjunctiveQuery,
+        )
         from prototyping_inference_engine.api.query.fo_query import FOQuery
 
         if not self._queries:

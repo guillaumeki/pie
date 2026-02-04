@@ -1,6 +1,7 @@
 """
 Abstract base class for formula evaluators.
 """
+
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar, Type, Iterator, Optional, TYPE_CHECKING
 
@@ -35,6 +36,7 @@ class RegistryMixin:
             from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
                 FormulaEvaluatorRegistry,
             )
+
             return FormulaEvaluatorRegistry.instance()
         return self._registry
 

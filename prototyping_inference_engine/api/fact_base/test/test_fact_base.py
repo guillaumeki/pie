@@ -5,9 +5,17 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.factory import FactBaseFactory
-from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base import FrozenInMemoryFactBase
-from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.api.fact_base.protocols import TermInspectable, Writable, Enumerable
+from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base import (
+    FrozenInMemoryFactBase,
+)
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+    MutableInMemoryFactBase,
+)
+from prototyping_inference_engine.api.fact_base.protocols import (
+    TermInspectable,
+    Writable,
+    Enumerable,
+)
 from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
@@ -40,6 +48,7 @@ class TestFrozenInMemoryFactBase(TestCase):
         atoms = Dlgp2Parser.instance().parse_atoms("p(X,a), q(Y).")
         fb = FrozenInMemoryFactBase(atoms)
         self.assertEqual(fb.terms, {Variable("X"), Variable("Y"), Constant("a")})
+
 
 class TestMutableInMemoryFactBase(TestCase):
     def test_instantiation_empty(self):
@@ -183,5 +192,3 @@ class TestFactory(TestCase):
         fb = FactBaseFactory.create_mutable(atoms)
         self.assertIsInstance(fb, MutableInMemoryFactBase)
         self.assertEqual(len(fb), 2)
-
-

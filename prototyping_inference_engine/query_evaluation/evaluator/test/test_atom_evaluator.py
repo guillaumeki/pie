@@ -1,14 +1,19 @@
 """
 Tests for AtomEvaluator.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import AtomEvaluator
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+    MutableInMemoryFactBase,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import (
+    AtomEvaluator,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
@@ -45,10 +50,12 @@ class TestAtomEvaluator(unittest.TestCase):
         # Fact base: {p(a, b), p(a, c)}
         # Query atom: p(a, X)
         # Expected: {X -> b}, {X -> c}
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.p, self.a, self.c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.p, self.a, self.c),
+            ]
+        )
         atom = Atom(self.p, self.a, self.x)
 
         results = list(self.evaluator.evaluate(atom, fact_base))
@@ -97,10 +104,12 @@ class TestAtomEvaluator(unittest.TestCase):
         # Query atom: p(X, Y)
         # Initial sub: {X -> a}
         # Expected: {X -> a, Y -> b}, {X -> a, Y -> c}
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.p, self.a, self.c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.p, self.a, self.c),
+            ]
+        )
         atom = Atom(self.p, self.x, self.y)
         initial_sub = Substitution({self.x: self.a})
 
@@ -125,10 +134,12 @@ class TestAtomEvaluator(unittest.TestCase):
         # Fact base: {p(a, a), p(a, b)}
         # Query atom: p(X, X)
         # Expected: {X -> a} (only p(a,a) matches)
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.a),
-            Atom(self.p, self.a, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.a),
+                Atom(self.p, self.a, self.b),
+            ]
+        )
         atom = Atom(self.p, self.x, self.x)
 
         results = list(self.evaluator.evaluate(atom, fact_base))

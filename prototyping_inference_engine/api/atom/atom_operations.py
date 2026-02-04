@@ -3,6 +3,7 @@ Atom-related operations extracted from Substitution class.
 
 @author: guillaume
 """
+
 from typing import Optional
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -10,7 +11,9 @@ from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
-def specialize(from_atom: Atom, to_atom: Atom, sub: Optional[Substitution] = None) -> Optional[Substitution]:
+def specialize(
+    from_atom: Atom, to_atom: Atom, sub: Optional[Substitution] = None
+) -> Optional[Substitution]:
     """
     Compute a substitution that specializes from_atom to to_atom, if possible.
 

@@ -32,12 +32,17 @@ class TestRule(TestCase):
             head_variables = set(v for h in rule.head for v in h.variables)
             frontier_variables = body_variables & head_variables
             self.assertEqual(frontier_variables, rule.frontier)
+
         self.check_on_conjunctive_rules(test_frontier)
         self.check_on_disjunctive_rules(test_frontier)
 
     def test_is_conjunctive(self):
-        self.check_on_conjunctive_rules(lambda rule, *args: self.assertTrue(rule.is_conjunctive))
-        self.check_on_disjunctive_rules(lambda rule, *args: self.assertFalse(rule.is_conjunctive))
+        self.check_on_conjunctive_rules(
+            lambda rule, *args: self.assertTrue(rule.is_conjunctive)
+        )
+        self.check_on_disjunctive_rules(
+            lambda rule, *args: self.assertFalse(rule.is_conjunctive)
+        )
 
     """def test_body(self):
         self.fail()

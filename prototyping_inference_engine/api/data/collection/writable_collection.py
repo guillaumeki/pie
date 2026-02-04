@@ -1,7 +1,8 @@
 """
 WritableDataCollection for aggregating multiple writable data sources.
 """
-from typing import Dict, Iterable, Iterator, List, Optional, TYPE_CHECKING, cast
+
+from typing import Dict, Iterable, List, Optional, TYPE_CHECKING, cast
 
 from prototyping_inference_engine.api.data.collection.materialized_collection import (
     MaterializedDataCollection,

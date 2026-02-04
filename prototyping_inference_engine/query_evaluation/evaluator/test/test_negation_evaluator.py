@@ -1,6 +1,7 @@
 """
 Tests for NegationFormulaEvaluator.
 """
+
 import unittest
 import warnings
 
@@ -8,15 +9,21 @@ from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+    MutableInMemoryFactBase,
+)
 from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.query_evaluation.evaluator.negation.negation_formula_evaluator import (
     NegationFormulaEvaluator,
     UnsafeNegationWarning,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
+    FormulaEvaluatorRegistry,
+)
 
 
 class TestNegationFormulaEvaluator(unittest.TestCase):
@@ -47,10 +54,12 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         ¬p(c) where p(a), p(b) are facts.
         c is not in p, so negation succeeds.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.p, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.p, self.b),
+            ]
+        )
         formula = NegationFormula(Atom(self.p, self.c))
 
         results = list(self.evaluator.evaluate(formula, fact_base))
@@ -63,9 +72,11 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         ¬p(a) where p(a) is a fact.
         Negation fails.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+            ]
+        )
         formula = NegationFormula(Atom(self.p, self.a))
 
         results = list(self.evaluator.evaluate(formula, fact_base))
@@ -77,10 +88,12 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         ¬p(X) with X bound to c, where p(a), p(b) are facts.
         p(c) is not a fact, so negation succeeds.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.p, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.p, self.b),
+            ]
+        )
         formula = NegationFormula(Atom(self.p, self.x))
         substitution = Substitution({self.x: self.c})
 
@@ -94,9 +107,11 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         ¬p(X) with X bound to a, where p(a) is a fact.
         Negation fails.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+            ]
+        )
         formula = NegationFormula(Atom(self.p, self.x))
         substitution = Substitution({self.x: self.a})
 
@@ -108,9 +123,11 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         """
         ¬p(X) with X free should emit UnsafeNegationWarning.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+            ]
+        )
         formula = NegationFormula(Atom(self.p, self.x))
 
         with warnings.catch_warnings(record=True) as w:
@@ -126,11 +143,13 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         Domain = {a, b, c}, p = {a, b}
         Result should be {X→c}
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.p, self.b),
-            Atom(self.q, self.c),  # c is in domain but not in p
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.p, self.b),
+                Atom(self.q, self.c),  # c is in domain but not in p
+            ]
+        )
         formula = NegationFormula(Atom(self.p, self.x))
 
         with warnings.catch_warnings():
@@ -147,12 +166,14 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         Result should be {X→b}, {X→c}, {X→d}
         """
         d = Constant("d")
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.q, self.b),
-            Atom(self.q, self.c),
-            Atom(self.q, d),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.q, self.b),
+                Atom(self.q, self.c),
+                Atom(self.q, d),
+            ]
+        )
         formula = NegationFormula(Atom(self.p, self.x))
 
         with warnings.catch_warnings():
@@ -167,10 +188,12 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         ¬p(X) where domain = {a, b} and p = {a, b}
         Result should be empty.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.p, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.p, self.b),
+            ]
+        )
         formula = NegationFormula(Atom(self.p, self.x))
 
         with warnings.catch_warnings():
@@ -184,10 +207,12 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         ¬p(X) where domain = {a, b} and p = {}
         Result should be {X→a}, {X→b}
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.q, self.a),
-            Atom(self.q, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.q, self.a),
+                Atom(self.q, self.b),
+            ]
+        )
         formula = NegationFormula(Atom(self.p, self.x))
 
         with warnings.catch_warnings():
@@ -203,9 +228,11 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         Domain = {a, b}, r = {(a, b)}
         Result should be all pairs except (a, b).
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.r, self.a, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.r, self.a, self.b),
+            ]
+        )
         formula = NegationFormula(Atom(self.r, self.x, self.y))
 
         with warnings.catch_warnings():
@@ -241,12 +268,14 @@ class TestNegationInConjunction(unittest.TestCase):
         b = Constant("b")
         c = Constant("c")
 
-        fact_base = MutableInMemoryFactBase([
-            Atom(q, a),
-            Atom(q, b),
-            Atom(q, c),
-            Atom(p, a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(q, a),
+                Atom(q, b),
+                Atom(q, c),
+                Atom(p, a),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(q, x),
             NegationFormula(Atom(p, x)),
@@ -255,6 +284,7 @@ class TestNegationInConjunction(unittest.TestCase):
         from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
             BacktrackConjunctionEvaluator,
         )
+
         evaluator = BacktrackConjunctionEvaluator()
 
         results = list(evaluator.evaluate(formula, fact_base))
@@ -275,11 +305,13 @@ class TestNegationInConjunction(unittest.TestCase):
         b = Constant("b")
         c = Constant("c")
 
-        fact_base = MutableInMemoryFactBase([
-            Atom(r, a, b),
-            Atom(r, a, c),
-            Atom(p, b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(r, a, b),
+                Atom(r, a, c),
+                Atom(p, b),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(r, x, y),
             NegationFormula(Atom(p, y)),
@@ -288,6 +320,7 @@ class TestNegationInConjunction(unittest.TestCase):
         from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
             BacktrackConjunctionEvaluator,
         )
+
         evaluator = BacktrackConjunctionEvaluator()
 
         results = list(evaluator.evaluate(formula, fact_base))

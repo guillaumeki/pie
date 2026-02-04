@@ -6,6 +6,7 @@ data sources, routing queries to the appropriate source by predicate.
 Collections implement ReadableData/MaterializedData interfaces, so they
 work as drop-in replacements for FactBase in evaluators.
 """
+
 from prototyping_inference_engine.api.data.collection.protocols import (
     Queryable,
     Materializable,

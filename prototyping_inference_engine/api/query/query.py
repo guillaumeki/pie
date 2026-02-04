@@ -3,6 +3,7 @@ Created on 26 déc. 2021
 
 @author: guillaume
 """
+
 import typing
 from abc import ABC, abstractmethod
 from functools import cached_property
@@ -15,9 +16,11 @@ from prototyping_inference_engine.api.atom.term.variable import Variable
 
 
 class Query(ABC):
-    def __init__(self,
-                 answer_variables: typing.Optional[typing.Iterable[Variable]] = None,
-                 label: typing.Optional[str] = None):
+    def __init__(
+        self,
+        answer_variables: typing.Optional[typing.Iterable[Variable]] = None,
+        label: typing.Optional[str] = None,
+    ):
         if not answer_variables:
             answer_variables = ()
         self._answer_variables = tuple(answer_variables)
@@ -30,7 +33,9 @@ class Query(ABC):
 
     @cached_property
     def answer_atom(self) -> Atom:
-        return Atom(Predicate("ans", len(self.answer_variables)), *self._answer_variables)
+        return Atom(
+            Predicate("ans", len(self.answer_variables)), *self._answer_variables
+        )
 
     @property
     @abstractmethod
@@ -59,10 +64,14 @@ class Query(ABC):
     def str_without_answer_variables(self) -> str:
         pass
 
-    def query_with_other_answer_variables(self, answers_variables: tuple[Variable, ...]) -> "Query":
+    def query_with_other_answer_variables(
+        self, answers_variables: tuple[Variable, ...]
+    ) -> "Query":
         """
         Return a query with the given answer variables.
 
         Subclasses supporting answer-variable changes should override this.
         """
-        raise NotImplementedError("query_with_other_answer_variables is not implemented for this query type.")
+        raise NotImplementedError(
+            "query_with_other_answer_variables is not implemented for this query type."
+        )

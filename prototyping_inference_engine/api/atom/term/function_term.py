@@ -1,6 +1,7 @@
 """
 Functional term (function symbol applied to terms).
 """
+
 from __future__ import annotations
 
 from typing import Iterable
@@ -32,7 +33,9 @@ class FunctionTerm(Term):
         return 2
 
     def apply_substitution(self, substitution) -> "FunctionTerm":
-        return FunctionTerm(self._name, (arg.apply_substitution(substitution) for arg in self._args))
+        return FunctionTerm(
+            self._name, (arg.apply_substitution(substitution) for arg in self._args)
+        )
 
     def __str__(self) -> str:
         return f"{self._name}({', '.join(str(a) for a in self._args)})"

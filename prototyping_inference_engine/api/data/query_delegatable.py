@@ -1,6 +1,7 @@
 """
 QueryDelegatable protocol for data sources that can evaluate queries directly.
 """
+
 from typing import Iterator, Optional, Protocol, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -30,9 +31,7 @@ class QueryDelegatable(Protocol):
         ...
 
     def delegate(
-        self,
-        query: "FOQuery",
-        substitution: Optional["Substitution"] = None
+        self, query: "FOQuery", substitution: Optional["Substitution"] = None
     ) -> Iterator["Substitution"]:
         """
         Delegate query evaluation to the underlying data source.

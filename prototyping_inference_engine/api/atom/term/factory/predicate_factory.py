@@ -4,10 +4,13 @@ Factory for creating Predicate instances.
 This factory delegates storage to a TermStorageStrategy,
 enabling different caching behaviors (dict, weak references, etc.).
 """
+
 from typing import Set, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.atom.term.storage.storage_strategy import TermStorageStrategy
+    from prototyping_inference_engine.api.atom.term.storage.storage_strategy import (
+        TermStorageStrategy,
+    )
     from prototyping_inference_engine.api.atom.predicate import Predicate
 
 
@@ -19,7 +22,9 @@ class PredicateFactory:
     Predicates are keyed by (name, arity) tuples.
     """
 
-    def __init__(self, storage: "TermStorageStrategy[tuple[str, int], Predicate]") -> None:
+    def __init__(
+        self, storage: "TermStorageStrategy[tuple[str, int], Predicate]"
+    ) -> None:
         """
         Initialize the factory with a storage strategy.
 
@@ -43,7 +48,10 @@ class PredicateFactory:
             The Predicate instance
         """
         from prototyping_inference_engine.api.atom.predicate import Predicate
-        return self._storage.get_or_create((name, arity), lambda: Predicate(name, arity))
+
+        return self._storage.get_or_create(
+            (name, arity), lambda: Predicate(name, arity)
+        )
 
     @property
     def tracked(self) -> Set["Predicate"]:

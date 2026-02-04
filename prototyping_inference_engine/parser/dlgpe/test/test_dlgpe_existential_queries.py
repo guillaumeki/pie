@@ -1,10 +1,13 @@
 """
 Additional DLGPE query tests for existential defaults and UCQ conversion.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
 from prototyping_inference_engine.parser.dlgpe import DlgpeParser
 from prototyping_inference_engine.parser.dlgpe.conversions import fo_query_to_ucq
 
@@ -77,7 +80,9 @@ class TestDlgpeConversions(unittest.TestCase):
 
         ucq = fo_query_to_ucq(query)
         self.assertEqual(len(ucq.conjunctive_queries), 2)
-        predicates = {next(iter(cq.atoms)).predicate.name for cq in ucq.conjunctive_queries}
+        predicates = {
+            next(iter(cq.atoms)).predicate.name for cq in ucq.conjunctive_queries
+        }
         self.assertEqual(predicates, {"p", "q"})
 
 

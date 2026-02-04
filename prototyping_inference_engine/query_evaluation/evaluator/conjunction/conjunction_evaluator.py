@@ -1,11 +1,16 @@
 """
 Abstract base class for conjunction evaluators.
 """
+
 from abc import ABC
 from typing import Type
 
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import FormulaEvaluator
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
+    FormulaEvaluator,
+)
 
 
 class ConjunctionEvaluator(FormulaEvaluator[ConjunctionFormula], ABC):

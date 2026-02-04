@@ -1,6 +1,7 @@
 """
 Position constraints for atomic patterns.
 """
+
 from prototyping_inference_engine.api.data.constraint.position_constraint import (
     PositionConstraint,
     GroundConstraint,

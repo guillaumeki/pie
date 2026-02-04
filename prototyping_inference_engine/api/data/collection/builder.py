@@ -1,6 +1,7 @@
 """
 Builder classes for constructing data collections with validation.
 """
+
 from typing import Dict, List, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.data.collection.protocols import (
@@ -110,7 +111,9 @@ class ReadableCollectionBuilder:
         """
         return ReadableDataCollection(
             sources=dict(self._sources),
-            dynamic_sources=list(self._dynamic_sources) if self._dynamic_sources else None,
+            dynamic_sources=list(self._dynamic_sources)
+            if self._dynamic_sources
+            else None,
         )
 
 
@@ -219,7 +222,9 @@ class MaterializedCollectionBuilder:
         """
         return MaterializedDataCollection(
             sources=dict(self._sources),
-            dynamic_sources=list(self._dynamic_sources) if self._dynamic_sources else None,
+            dynamic_sources=list(self._dynamic_sources)
+            if self._dynamic_sources
+            else None,
         )
 
 
@@ -344,6 +349,8 @@ class WritableCollectionBuilder:
         """
         return WritableDataCollection(
             sources=dict(self._sources),
-            dynamic_sources=list(self._dynamic_sources) if self._dynamic_sources else None,
+            dynamic_sources=list(self._dynamic_sources)
+            if self._dynamic_sources
+            else None,
             default_writable=self._default_writable,
         )

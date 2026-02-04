@@ -1,6 +1,7 @@
 """
 Conjunction formula: φ ∧ ψ
 """
+
 from typing import TYPE_CHECKING
 
 from prototyping_inference_engine.api.formula.binary_formula import BinaryFormula

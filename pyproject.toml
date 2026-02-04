@@ -39,7 +39,14 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "build",
+    "bandit",
+    "coverage",
+    "hypothesis",
+    "pip-audit",
+    "radon",
+    "ruff",
     "twine",
+    "vulture",
 ]
 
 [project.scripts]

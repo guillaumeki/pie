@@ -3,6 +3,7 @@ Created on 23 déc. 2021
 
 @author: guillaume
 """
+
 from builtins import property
 from enum import Enum
 from functools import cache
@@ -49,7 +50,7 @@ class Predicate:
         self._display_symbol = symbol
 
     def __repr__(self) -> str:
-        return str(self)+"/"+str(self.arity)
+        return str(self) + "/" + str(self.arity)
 
     def __str__(self) -> str:
         return self.name

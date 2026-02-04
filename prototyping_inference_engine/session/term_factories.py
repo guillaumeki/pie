@@ -4,12 +4,13 @@ TermFactories registry for extensible term factory management.
 This module provides a registry pattern for term factories,
 enabling OCP-compliant extension with new term types.
 """
-from typing import TypeVar, Generic, Any, Iterator, TYPE_CHECKING
+
+from typing import TypeVar, Any, Iterator, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.atom.term.term import Term
 
-T = TypeVar('T', bound='Term')
+T = TypeVar("T", bound="Term")
 
 
 class TermFactories:

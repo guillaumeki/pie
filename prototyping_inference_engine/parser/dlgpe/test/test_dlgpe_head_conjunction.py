@@ -1,6 +1,7 @@
 """
 Additional DLGPE head conjunction tests.
 """
+
 import unittest
 
 from prototyping_inference_engine.parser.dlgpe import DlgpeParser

@@ -1,6 +1,7 @@
 """
 Factory for creating first-order queries.
 """
+
 from typing import Optional, TYPE_CHECKING, TypeVar, Union
 
 from prototyping_inference_engine.api.atom.term.variable import Variable

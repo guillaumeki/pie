@@ -7,7 +7,9 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.set.index.index import Index
-from prototyping_inference_engine.api.atom.set.index.index_by_term_and_predicate import IndexByTermAndPredicate
+from prototyping_inference_engine.api.atom.set.index.index_by_term_and_predicate import (
+    IndexByTermAndPredicate,
+)
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
@@ -23,7 +25,7 @@ class FrozenAtomSet(AtomSet, Hashable):
         AtomSet.__init__(self, frozenset(iterable))
 
     def __repr__(self) -> str:
-        return "FrozenAtomSet: "+str(self)
+        return "FrozenAtomSet: " + str(self)
 
     def __hash__(self) -> int:
         return hash(self._set)

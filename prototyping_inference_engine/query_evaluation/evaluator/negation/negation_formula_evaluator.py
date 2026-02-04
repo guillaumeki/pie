@@ -1,6 +1,7 @@
 """
 Evaluator for negation formulas.
 """
+
 import warnings
 from itertools import product
 from typing import Type, Iterator, TYPE_CHECKING, Optional
@@ -11,7 +12,9 @@ from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_ev
     RegistryMixin,
 )
 
-from prototyping_inference_engine.query_evaluation.evaluator.errors import UnsupportedFormulaError
+from prototyping_inference_engine.query_evaluation.evaluator.errors import (
+    UnsupportedFormulaError,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
@@ -24,6 +27,7 @@ if TYPE_CHECKING:
 
 class UnsafeNegationWarning(UserWarning):
     """Warning emitted when evaluating unsafe negation (free variables in negated formula)."""
+
     pass
 
 
@@ -51,7 +55,9 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         if substitution is None:
             substitution = Substitution()
@@ -66,9 +72,7 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
             yield from self._evaluate_safe(inner, data, substitution)
         else:
             # Unsafe negation: iterate over domain
-            yield from self._evaluate_unsafe(
-                inner, data, substitution, unbound_vars
-            )
+            yield from self._evaluate_unsafe(inner, data, substitution, unbound_vars)
 
     def _evaluate_safe(
         self,
@@ -100,7 +104,9 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
         unbound_vars: set["Variable"],
     ) -> Iterator["Substitution"]:
         """Evaluate unsafe negation by iterating over the domain."""
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         warnings.warn(
             f"Unsafe negation: variables {unbound_vars} are free in negated formula. "
@@ -110,7 +116,7 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
         )
 
         # Get the domain (all terms in the data source)
-        if not hasattr(data, 'terms'):
+        if not hasattr(data, "terms"):
             raise ValueError(
                 "Cannot evaluate unsafe negation: data source does not support "
                 "term enumeration. Use a safe negation pattern instead."

@@ -4,10 +4,11 @@ Simple dictionary-based storage strategy.
 This storage keeps all items in memory until explicitly cleared.
 No automatic cleanup occurs.
 """
+
 from typing import TypeVar, Generic, Callable, Set, Optional
 
-K = TypeVar('K')
-V = TypeVar('V')
+K = TypeVar("K")
+V = TypeVar("V")
 
 
 class DictStorage(Generic[K, V]):

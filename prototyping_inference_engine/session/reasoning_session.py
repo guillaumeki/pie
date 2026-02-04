@@ -4,6 +4,7 @@ ReasoningSession - Main class for scoped reasoning sessions.
 Provides a session context for reasoning with managed vocabulary,
 fact bases, ontologies, and query rewriting.
 """
+
 from math import inf
 from typing import Optional, Iterable, Iterator, Tuple, Union, TYPE_CHECKING
 
@@ -24,12 +25,16 @@ from prototyping_inference_engine.api.atom.term.storage import (
     DictStorage,
     WeakRefStorage,
 )
-from prototyping_inference_engine.api.atom.term.storage.storage_strategy import TermStorageStrategy
+from prototyping_inference_engine.api.atom.term.storage.storage_strategy import (
+    TermStorageStrategy,
+)
 from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
 from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
 from prototyping_inference_engine.api.ontology.ontology import Ontology
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
-from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
+from prototyping_inference_engine.api.ontology.constraint.negative_constraint import (
+    NegativeConstraint,
+)
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.session.cleanup_stats import SessionCleanupStats
@@ -47,7 +52,9 @@ from prototyping_inference_engine.session.providers import (
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.fact_base.fact_base import FactBase
-    from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
+    from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+        MutableInMemoryFactBase,
+    )
     from prototyping_inference_engine.api.formula.formula_builder import FormulaBuilder
     from prototyping_inference_engine.api.query.fo_query import FOQuery
     from prototyping_inference_engine.api.query.query import Query
@@ -102,15 +109,26 @@ class ReasoningSession:
         self._literal_config = literal_config or LiteralConfig.default()
 
         if Literal not in self._term_factories:
-            self._term_factories.register(Literal, LiteralFactory(DictStorage(), self._literal_config))
+            self._term_factories.register(
+                Literal, LiteralFactory(DictStorage(), self._literal_config)
+            )
 
-        self._parser_provider = parser_provider or DlgpeParserProvider(self._term_factories)
-        self._fact_base_provider = fact_base_provider or DefaultFactBaseFactoryProvider()
-        self._rewriting_provider = rewriting_provider or DefaultRewritingAlgorithmProvider()
+        self._parser_provider = parser_provider or DlgpeParserProvider(
+            self._term_factories
+        )
+        self._fact_base_provider = (
+            fact_base_provider or DefaultFactBaseFactoryProvider()
+        )
+        self._rewriting_provider = (
+            rewriting_provider or DefaultRewritingAlgorithmProvider()
+        )
         self._python_function_source = None
 
         if Literal in self._term_factories:
-            from prototyping_inference_engine.api.data.python_function_data import PythonFunctionReadable
+            from prototyping_inference_engine.api.data.python_function_data import (
+                PythonFunctionReadable,
+            )
+
             literal_factory = self._term_factories.get(Literal)
             self._python_function_source = PythonFunctionReadable(literal_factory)
 
@@ -161,7 +179,10 @@ class ReasoningSession:
         factories = TermFactories()
         factories.register(Variable, VariableFactory(var_storage))
         factories.register(Constant, ConstantFactory(const_storage))
-        factories.register(Literal, LiteralFactory(lit_storage, literal_config or LiteralConfig.default()))
+        factories.register(
+            Literal,
+            LiteralFactory(lit_storage, literal_config or LiteralConfig.default()),
+        )
         factories.register(Predicate, PredicateFactory(pred_storage))
 
         return cls(
@@ -351,7 +372,10 @@ class ReasoningSession:
                 .atom("q", "Y")
                 .build())
         """
-        from prototyping_inference_engine.api.formula.formula_builder import FormulaBuilder
+        from prototyping_inference_engine.api.formula.formula_builder import (
+            FormulaBuilder,
+        )
+
         self._check_not_closed()
         return FormulaBuilder(self)
 
@@ -376,7 +400,10 @@ class ReasoningSession:
             formula = session.formula().atom("p", "X", "Y").build()
             query = session.fo_query().from_formula(formula, ["X"])
         """
-        from prototyping_inference_engine.api.query.fo_query_factory import FOQueryFactory
+        from prototyping_inference_engine.api.query.fo_query_factory import (
+            FOQueryFactory,
+        )
+
         self._check_not_closed()
         return FOQueryFactory(self)
 
@@ -472,8 +499,12 @@ class ReasoningSession:
         queries: set["Query"],
         constraints: set[NegativeConstraint],
     ) -> list["ReadableData"]:
-        from prototyping_inference_engine.api.atom.predicate import is_comparison_predicate
-        from prototyping_inference_engine.api.data.comparison_data import ComparisonDataSource
+        from prototyping_inference_engine.api.atom.predicate import (
+            is_comparison_predicate,
+        )
+        from prototyping_inference_engine.api.data.comparison_data import (
+            ComparisonDataSource,
+        )
         from prototyping_inference_engine.api.data.readable_data import ReadableData
 
         atoms: list[Atom] = list(facts)
@@ -582,7 +613,10 @@ class ReasoningSession:
             for answer in session.evaluate_query(query, fact_base):
                 print(answer)  # (b,), (c,), ...
         """
-        from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
+        from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+            GenericFOQueryEvaluator,
+        )
+
         self._check_not_closed()
         evaluator = GenericFOQueryEvaluator()
         return evaluator.evaluate_and_project(query, fact_base)
@@ -604,7 +638,9 @@ class ReasoningSession:
         Yields:
             Tuples of terms corresponding to the answer variables
         """
-        from prototyping_inference_engine.api.data.collection.builder import ReadableCollectionBuilder
+        from prototyping_inference_engine.api.data.collection.builder import (
+            ReadableCollectionBuilder,
+        )
         from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
             GenericFOQueryEvaluator,
         )
@@ -679,7 +715,7 @@ class ReasoningSession:
         # Clear storage in all factories
         for term_type in self._term_factories:
             factory = self._term_factories.get(term_type)
-            if hasattr(factory, '_storage'):
+            if hasattr(factory, "_storage"):
                 factory._storage.clear()
 
         self._fact_bases.clear()

@@ -3,6 +3,7 @@ XSD literal parsing and unparsing helpers.
 
 Provides default parsing/unparsing rules for common XSD datatypes.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -164,13 +165,13 @@ class XsdGMonth:
 
 def datatype_local_name(datatype: str) -> str:
     if datatype.startswith(XSD_NAMESPACE):
-        return datatype[len(XSD_NAMESPACE):]
+        return datatype[len(XSD_NAMESPACE) :]
     if datatype.startswith(XSD_PREFIX):
-        return datatype[len(XSD_PREFIX):]
+        return datatype[len(XSD_PREFIX) :]
     if datatype.startswith(RDF_NAMESPACE):
-        return datatype[len(RDF_NAMESPACE):]
+        return datatype[len(RDF_NAMESPACE) :]
     if datatype.startswith(RDF_PREFIX):
-        return datatype[len(RDF_PREFIX):]
+        return datatype[len(RDF_PREFIX) :]
     return datatype
 
 
@@ -434,44 +435,47 @@ def default_type_parsers(numeric_mode: str) -> dict[str, Callable[[str], object]
 
 
 def default_type_unparsers(numeric_mode: str) -> dict[str, Callable[[object], str]]:
-    return cast(dict[str, Callable[[object], str]], {
-        XSD_BOOLEAN: unparse_boolean,
-        XSD_STRING: lambda v: str(v),
-        RDF_LANG_STRING: lambda v: str(v),
-        "byte": unparse_integer,
-        "short": unparse_integer,
-        "int": unparse_integer,
-        "long": unparse_integer,
-        "integer": unparse_integer,
-        "nonPositiveInteger": unparse_integer,
-        "negativeInteger": unparse_integer,
-        "nonNegativeInteger": unparse_integer,
-        "unsignedLong": unparse_integer,
-        "unsignedInt": unparse_integer,
-        "unsignedShort": unparse_integer,
-        "unsignedByte": unparse_integer,
-        "positiveInteger": unparse_integer,
-        XSD_DECIMAL: unparse_decimal,
-        XSD_FLOAT: unparse_float,
-        XSD_DOUBLE: unparse_float,
-        "duration": unparse_duration,
-        "yearMonthDuration": unparse_duration,
-        "dayTimeDuration": unparse_duration,
-        "dateTime": unparse_datetime,
-        "time": unparse_time,
-        "date": unparse_date,
-        "gYearMonth": unparse_g_year_month,
-        "gYear": unparse_g_year,
-        "gMonthDay": unparse_g_month_day,
-        "gDay": unparse_g_day,
-        "gMonth": unparse_g_month,
-        "dateTimeStamp": unparse_datetime,
-        "hexBinary": lambda v: unparse_binary(cast(bytes, v), True),
-        "base64Binary": lambda v: unparse_binary(cast(bytes, v), False),
-        "anyURI": lambda v: str(v),
-        "QName": unparse_qname,
-        "NOTATION": unparse_qname,
-        "NMTOKENS": lambda v: " ".join(cast(Iterable[str], v)),
-        "IDREFS": lambda v: " ".join(cast(Iterable[str], v)),
-        "ENTITIES": lambda v: " ".join(cast(Iterable[str], v)),
-    })
+    return cast(
+        dict[str, Callable[[object], str]],
+        {
+            XSD_BOOLEAN: unparse_boolean,
+            XSD_STRING: lambda v: str(v),
+            RDF_LANG_STRING: lambda v: str(v),
+            "byte": unparse_integer,
+            "short": unparse_integer,
+            "int": unparse_integer,
+            "long": unparse_integer,
+            "integer": unparse_integer,
+            "nonPositiveInteger": unparse_integer,
+            "negativeInteger": unparse_integer,
+            "nonNegativeInteger": unparse_integer,
+            "unsignedLong": unparse_integer,
+            "unsignedInt": unparse_integer,
+            "unsignedShort": unparse_integer,
+            "unsignedByte": unparse_integer,
+            "positiveInteger": unparse_integer,
+            XSD_DECIMAL: unparse_decimal,
+            XSD_FLOAT: unparse_float,
+            XSD_DOUBLE: unparse_float,
+            "duration": unparse_duration,
+            "yearMonthDuration": unparse_duration,
+            "dayTimeDuration": unparse_duration,
+            "dateTime": unparse_datetime,
+            "time": unparse_time,
+            "date": unparse_date,
+            "gYearMonth": unparse_g_year_month,
+            "gYear": unparse_g_year,
+            "gMonthDay": unparse_g_month_day,
+            "gDay": unparse_g_day,
+            "gMonth": unparse_g_month,
+            "dateTimeStamp": unparse_datetime,
+            "hexBinary": lambda v: unparse_binary(cast(bytes, v), True),
+            "base64Binary": lambda v: unparse_binary(cast(bytes, v), False),
+            "anyURI": lambda v: str(v),
+            "QName": unparse_qname,
+            "NOTATION": unparse_qname,
+            "NMTOKENS": lambda v: " ".join(cast(Iterable[str], v)),
+            "IDREFS": lambda v: " ".join(cast(Iterable[str], v)),
+            "ENTITIES": lambda v: " ".join(cast(Iterable[str], v)),
+        },
+    )

@@ -1,4 +1,5 @@
 """Tests for WritableDataCollection."""
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -99,10 +100,12 @@ class TestWritableDataCollection(unittest.TestCase):
         fb_p = MutableInMemoryFactBase(self.parser.parse_atoms("p(a,b)."))
         fb_q = MutableInMemoryFactBase(self.parser.parse_atoms("q(x)."))
 
-        collection = WritableDataCollection({
-            self.p: fb_p,
-            self.q: fb_q,
-        })
+        collection = WritableDataCollection(
+            {
+                self.p: fb_p,
+                self.q: fb_q,
+            }
+        )
 
         atoms = [
             Atom(self.p, Constant("c"), Constant("d")),

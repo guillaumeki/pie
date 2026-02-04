@@ -1,9 +1,19 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar, Callable, Iterable, Iterator, Optional, Union, cast
+from typing import (
+    Any,
+    Generic,
+    TypeVar,
+    Callable,
+    Iterable,
+    Iterator,
+    Optional,
+    Union,
+    cast,
+)
 from collections.abc import Set
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class Partition(Generic[T]):
@@ -13,10 +23,13 @@ class Partition(Generic[T]):
     The data structure used to manage the partition is union-find, which is optimal in terms of algorithmic
     complexity for this problem
     """
-    def __init__(self,
-                 other_partition: Optional[Union["Partition[T]", Iterable[Set[T]]]] = None,
-                 initial_elements: Optional[Iterable[T]] = None,
-                 comparator: Optional[Callable[[T, T], int]] = None):
+
+    def __init__(
+        self,
+        other_partition: Optional[Union["Partition[T]", Iterable[Set[T]]]] = None,
+        initial_elements: Optional[Iterable[T]] = None,
+        comparator: Optional[Callable[[T, T], int]] = None,
+    ):
         """
         @param other_partition: the partition to copy
         @param initial_elements: the initial elements of this partition
@@ -89,7 +102,7 @@ class Partition(Generic[T]):
         This operation consists of merge the classes of this partition and the other one when they share a common
         element
         @param other : the partition we want to join
-         """
+        """
         for e in other._nodes:
             self.union(e, other.get_representative(e))
 
@@ -116,7 +129,7 @@ class Partition(Generic[T]):
 
     def __contains__(self, item: object) -> bool:
         return item in self._nodes
-    
+
     def __hash__(self) -> int:
         return sum(hash(c) * len(c) for c in self)
 
@@ -147,7 +160,10 @@ class Partition(Generic[T]):
         return self._nodes[x]
 
     def _order(self, x: Partition._Node, y: Partition._Node) -> None:
-        if self._comparator is not None and self._comparator(cast(T, x.value), cast(T, y.value)) > 0:
+        if (
+            self._comparator is not None
+            and self._comparator(cast(T, x.value), cast(T, y.value)) > 0
+        ):
             x.value, y.value = y.value, x.value
 
     def _link(self, x: Partition._Node, y: Partition._Node) -> None:
@@ -180,14 +196,17 @@ class Partition(Generic[T]):
         def __contains__(self, o: object) -> bool:
             if o not in self.partition._nodes:
                 return False
-            return (self.partition._find(self.partition._get_node(self.x))
-                    is self.partition._find(self.partition._get_node(cast(Any, o))))
+            return self.partition._find(
+                self.partition._get_node(self.x)
+            ) is self.partition._find(self.partition._get_node(cast(Any, o)))
 
         def __len__(self) -> int:
             return self.partition._find(self.partition._get_node(self.x)).size
 
         def __iter__(self) -> Iterator[object]:
-            queue: list[Partition._Node] = [self.partition._find(self.partition._get_node(self.x))]
+            queue: list[Partition._Node] = [
+                self.partition._find(self.partition._get_node(self.x))
+            ]
             while queue:
                 n = queue.pop()
                 queue += list(n.children)
@@ -218,7 +237,14 @@ class Partition(Generic[T]):
             return self.size
 
         def __repr__(self) -> str:
-            return ("<_Node: {size : " + str(self.size)
-                    + ", parent: " + str(self.parent.value)
-                    + ", children: " + str([c.value for c in self.children])
-                    + ", value: " + str(self.value)+"}>")
+            return (
+                "<_Node: {size : "
+                + str(self.size)
+                + ", parent: "
+                + str(self.parent.value)
+                + ", children: "
+                + str([c.value for c in self.children])
+                + ", value: "
+                + str(self.value)
+                + "}>"
+            )

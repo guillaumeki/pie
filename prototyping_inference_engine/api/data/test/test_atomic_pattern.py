@@ -1,4 +1,5 @@
 """Tests for atomic patterns."""
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -6,7 +7,6 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.data.atomic_pattern import (
-    AtomicPattern,
     UnconstrainedPattern,
     SimpleAtomicPattern,
 )

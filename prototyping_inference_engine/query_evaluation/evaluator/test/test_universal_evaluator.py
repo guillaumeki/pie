@@ -1,6 +1,7 @@
 """
 Tests for UniversalFormulaEvaluator.
 """
+
 import unittest
 import warnings
 
@@ -8,15 +9,21 @@ from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+    MutableInMemoryFactBase,
+)
 from prototyping_inference_engine.api.formula.universal_formula import UniversalFormula
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.universal_formula_evaluator import (
     UniversalFormulaEvaluator,
     UniversalQuantifierWarning,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
+    FormulaEvaluatorRegistry,
+)
 
 
 class TestUniversalFormulaEvaluator(unittest.TestCase):
@@ -44,9 +51,11 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
 
     def test_universal_emits_warning(self):
         """∀x.p(x) should emit UniversalQuantifierWarning."""
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+            ]
+        )
         formula = UniversalFormula(self.x, Atom(self.p, self.x))
 
         with warnings.catch_warnings(record=True) as w:
@@ -60,10 +69,12 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
         ∀x.p(x) where domain = {a, b} and p = {a, b}.
         All domain elements satisfy p, so ∀ is true.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.p, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.p, self.b),
+            ]
+        )
         formula = UniversalFormula(self.x, Atom(self.p, self.x))
 
         with warnings.catch_warnings():
@@ -78,11 +89,13 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
         ∀x.p(x) where domain = {a, b, c} and p = {a, b}.
         c is not in p, so ∀ is false.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.p, self.b),
-            Atom(self.q, self.c),  # c is in domain but not in p
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.p, self.b),
+                Atom(self.q, self.c),  # c is in domain but not in p
+            ]
+        )
         formula = UniversalFormula(self.x, Atom(self.p, self.x))
 
         with warnings.catch_warnings():
@@ -110,9 +123,11 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
         ∀x.p(x) where domain = {a} and p = {a}.
         True.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+            ]
+        )
         formula = UniversalFormula(self.x, Atom(self.p, self.x))
 
         with warnings.catch_warnings():
@@ -126,9 +141,11 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
         ∀x.p(x) where domain = {a} and p = {}.
         False.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.q, self.a),  # a is in domain but not in p
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.q, self.a),  # a is in domain but not in p
+            ]
+        )
         formula = UniversalFormula(self.x, Atom(self.p, self.x))
 
         with warnings.catch_warnings():
@@ -146,11 +163,13 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
         For x=c: no Y
         Intersection is empty, so no result.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.r, self.a, self.b),
-            Atom(self.r, self.a, self.c),
-            Atom(self.r, self.b, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.r, self.a, self.b),
+                Atom(self.r, self.a, self.c),
+                Atom(self.r, self.b, self.b),
+            ]
+        )
         formula = UniversalFormula(self.x, Atom(self.r, self.x, self.y))
 
         with warnings.catch_warnings():
@@ -168,10 +187,12 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
         For x=b: Y ∈ {b}
         Intersection: Y = b.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.r, self.a, self.b),
-            Atom(self.r, self.b, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.r, self.a, self.b),
+                Atom(self.r, self.b, self.b),
+            ]
+        )
         formula = UniversalFormula(self.x, Atom(self.r, self.x, self.y))
 
         with warnings.catch_warnings():
@@ -193,25 +214,16 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
         To get multiple results, we need r to cover all domain elements.
         """
         # Use a setup where domain = {a, b} exactly
-        s = Predicate("s", 2)
-        fact_base = MutableInMemoryFactBase([
-            Atom(s, self.a, self.b),
-            Atom(s, self.a, self.c),
-            Atom(s, self.b, self.b),
-            Atom(s, self.b, self.c),
-        ])
-        # Domain is {a, b, c} because c appears in second position
-        # For ∀x to succeed, we need s(c, Y) for some Y too
-        # Let's make a simpler test where domain is exactly covered
-
         # Better test: domain = {a, b} with r covering both
         r2 = Predicate("r2", 2)
-        fact_base2 = MutableInMemoryFactBase([
-            Atom(r2, self.a, self.a),
-            Atom(r2, self.a, self.b),
-            Atom(r2, self.b, self.a),
-            Atom(r2, self.b, self.b),
-        ])
+        fact_base2 = MutableInMemoryFactBase(
+            [
+                Atom(r2, self.a, self.a),
+                Atom(r2, self.a, self.b),
+                Atom(r2, self.b, self.a),
+                Atom(r2, self.b, self.b),
+            ]
+        )
         # Domain = {a, b}
         # For x=a: Y ∈ {a, b}
         # For x=b: Y ∈ {a, b}
@@ -231,10 +243,12 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
         r = {(a, b), (b, b)}, domain = {a, b}.
         Should succeed since r(a, b) and r(b, b) both exist.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.r, self.a, self.b),
-            Atom(self.r, self.b, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.r, self.a, self.b),
+                Atom(self.r, self.b, self.b),
+            ]
+        )
         formula = UniversalFormula(self.x, Atom(self.r, self.x, self.y))
         initial_sub = Substitution({self.y: self.b})
 
@@ -271,14 +285,16 @@ class TestUniversalInConjunction(unittest.TestCase):
         a = Constant("a")
         b = Constant("b")
 
-        fact_base = MutableInMemoryFactBase([
-            Atom(q, a),
-            Atom(q, b),
-            Atom(r, a, a),
-            Atom(r, a, b),
-            Atom(r, b, a),
-            Atom(r, b, b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(q, a),
+                Atom(q, b),
+                Atom(r, a, a),
+                Atom(r, a, b),
+                Atom(r, b, a),
+                Atom(r, b, b),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(q, y),
             UniversalFormula(x, Atom(r, x, y)),
@@ -287,6 +303,7 @@ class TestUniversalInConjunction(unittest.TestCase):
         from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
             BacktrackConjunctionEvaluator,
         )
+
         evaluator = BacktrackConjunctionEvaluator()
 
         with warnings.catch_warnings():

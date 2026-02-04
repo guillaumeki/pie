@@ -1,9 +1,10 @@
 """
 Readable data source for comparison operators.
 """
+
 from __future__ import annotations
 
-from typing import Any, Iterator, Tuple, Optional, Iterable
+from typing import Any, Iterator, Tuple, Iterable
 
 from prototyping_inference_engine.api.atom.predicate import (
     Predicate,
@@ -38,7 +39,9 @@ class ComparisonDataSource(ReadableData):
         }:
             raise ValueError(f"Unsupported comparison mode: {comparison_mode}")
         self._comparison_mode = comparison_mode
-        self._predicates = tuple(comparison_predicate(op) for op in COMPARISON_OPERATORS)
+        self._predicates = tuple(
+            comparison_predicate(op) for op in COMPARISON_OPERATORS
+        )
         self._patterns = {
             predicate: SimpleAtomicPattern(predicate, {0: GROUND, 1: GROUND})
             for predicate in self._predicates

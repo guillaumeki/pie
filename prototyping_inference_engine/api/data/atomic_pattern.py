@@ -1,13 +1,16 @@
 """
 Atomic pattern for describing constraints on queryable predicates.
 """
+
 from abc import ABC, abstractmethod
 from typing import Optional, Mapping, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.atom.atom import Atom
     from prototyping_inference_engine.api.atom.predicate import Predicate
-    from prototyping_inference_engine.api.data.constraint.position_constraint import PositionConstraint
+    from prototyping_inference_engine.api.data.constraint.position_constraint import (
+        PositionConstraint,
+    )
     from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
@@ -40,9 +43,7 @@ class AtomicPattern(ABC):
         ...
 
     def can_evaluate_with(
-        self,
-        atom: "Atom",
-        substitution: Optional["Substitution"] = None
+        self, atom: "Atom", substitution: Optional["Substitution"] = None
     ) -> bool:
         """
         Check if an atom can be evaluated against this pattern.
@@ -57,7 +58,9 @@ class AtomicPattern(ABC):
         Returns:
             True if all constraints are satisfied
         """
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         if atom.predicate != self.predicate:
             return False
@@ -73,9 +76,7 @@ class AtomicPattern(ABC):
         return True
 
     def get_unsatisfied_positions(
-        self,
-        atom: "Atom",
-        substitution: Optional["Substitution"] = None
+        self, atom: "Atom", substitution: Optional["Substitution"] = None
     ) -> dict[int, "PositionConstraint"]:
         """
         Get positions whose constraints are not satisfied.
@@ -87,7 +88,9 @@ class AtomicPattern(ABC):
         Returns:
             Dict mapping position index to the unsatisfied constraint
         """
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         sub = substitution or Substitution()
         unsatisfied = {}
@@ -116,9 +119,7 @@ class UnconstrainedPattern(AtomicPattern):
         return None
 
     def can_evaluate_with(
-        self,
-        atom: "Atom",
-        substitution: Optional["Substitution"] = None
+        self, atom: "Atom", substitution: Optional["Substitution"] = None
     ) -> bool:
         return atom.predicate == self._predicate
 
@@ -132,7 +133,7 @@ class SimpleAtomicPattern(AtomicPattern):
     def __init__(
         self,
         predicate: "Predicate",
-        constraints: Optional[Mapping[int, "PositionConstraint"]] = None
+        constraints: Optional[Mapping[int, "PositionConstraint"]] = None,
     ):
         """
         Create a pattern with position constraints.
@@ -143,7 +144,9 @@ class SimpleAtomicPattern(AtomicPattern):
                         Positions not in the mapping are unconstrained.
         """
         self._predicate = predicate
-        self._constraints: dict[int, "PositionConstraint"] = dict(constraints) if constraints else {}
+        self._constraints: dict[int, "PositionConstraint"] = (
+            dict(constraints) if constraints else {}
+        )
 
     @property
     def predicate(self) -> "Predicate":

@@ -1,9 +1,7 @@
 """
 Unit tests for ReasoningSession.
 """
-"""
-Unit tests for ReasoningSession.
-"""
+
 import unittest
 from unittest import TestCase
 
@@ -20,7 +18,6 @@ from prototyping_inference_engine.api.atom.term.storage import DictStorage
 from prototyping_inference_engine.api.atom.predicate import comparison_predicate
 from prototyping_inference_engine.api.data.comparison_data import ComparisonDataSource
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.session import (
     ParseResult,
     SessionCleanupStats,
@@ -71,6 +68,7 @@ class TestReasoningSessionCustomFactories(TestCase):
 
     def test_extensible_with_new_term_type(self):
         """Test that session is extensible with new term types (OCP)."""
+
         # Simulate a new term type with a mock factory
         class MockTermType:
             pass
@@ -263,7 +261,9 @@ class TestReasoningSessionEvaluationWithSources(TestCase):
         query = FOQuery(atom, answer_variables=[])
         data_source = ComparisonDataSource(self.session.literal_config.comparison)
         fact_base = self.session.create_fact_base([])
-        results = list(self.session.evaluate_query_with_sources(query, fact_base, [data_source]))
+        results = list(
+            self.session.evaluate_query_with_sources(query, fact_base, [data_source])
+        )
         self.assertEqual(results, [tuple()])
 
     def test_evaluate_query_with_function_term(self):
@@ -277,7 +277,9 @@ class TestReasoningSessionEvaluationWithSources(TestCase):
 
         result = self.session.parse("?( ) :- p(add(1,1)).")
         query = next(iter(result.queries))
-        answers = list(self.session.evaluate_query_with_sources(query, fact_base, result.sources))
+        answers = list(
+            self.session.evaluate_query_with_sources(query, fact_base, result.sources)
+        )
         self.assertEqual(answers, [tuple()])
 
 
@@ -336,8 +338,8 @@ class TestReasoningSessionOntology(TestCase):
 
     def test_ontologies_tracked(self):
         """Test that created ontologies are tracked."""
-        onto1 = self.session.create_ontology()
-        onto2 = self.session.create_ontology()
+        _ = self.session.create_ontology()
+        _ = self.session.create_ontology()
         self.assertEqual(len(self.session.ontologies), 2)
 
 
@@ -346,6 +348,7 @@ class TestReasoningSessionRewriting(TestCase):
 
     def setUp(self):
         from prototyping_inference_engine.session.providers import Dlgp2ParserProvider
+
         self.session = ReasoningSession.create(parser_provider=Dlgp2ParserProvider())
 
     def tearDown(self):

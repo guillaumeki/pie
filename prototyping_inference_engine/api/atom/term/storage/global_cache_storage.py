@@ -4,10 +4,11 @@ Global cache delegation storage strategy.
 This storage delegates to the existing global caches (Variable.variables,
 Constant's @cache, etc.) for backward compatibility with non-session code.
 """
+
 from typing import TypeVar, Generic, Callable, Set, Optional
 
-K = TypeVar('K')
-V = TypeVar('V')
+K = TypeVar("K")
+V = TypeVar("V")
 
 
 class GlobalCacheStorage(Generic[K, V]):
@@ -85,8 +86,9 @@ class GlobalCacheStorage(Generic[K, V]):
         Returns:
             A set of values accessed through this storage
         """
-        return {self._global_cache[k] for k in self._tracked_keys
-                if k in self._global_cache}
+        return {
+            self._global_cache[k] for k in self._tracked_keys if k in self._global_cache
+        }
 
     def clear(self) -> int:
         """

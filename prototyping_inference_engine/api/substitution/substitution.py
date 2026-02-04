@@ -1,6 +1,7 @@
 """
 A substitution mapping variables to terms.
 """
+
 from collections.abc import Iterable
 from typing import Optional, Union, TypeVar
 
@@ -14,7 +15,9 @@ S = TypeVar("S", bound=Substitutable)
 class Substitution(dict[Variable, Term]):
     """A mapping from variables to terms, representing a substitution."""
 
-    def __init__(self, initial: Optional[Union["Substitution", dict[Variable, Term]]] = None):
+    def __init__(
+        self, initial: Optional[Union["Substitution", dict[Variable, Term]]] = None
+    ):
         super().__init__(initial or {})
 
     @property
@@ -40,8 +43,10 @@ class Substitution(dict[Variable, Term]):
         elif isinstance(other, (tuple, list)):
             return other.__class__(self.apply(item) for item in other)
         else:
-            raise TypeError(f"Cannot apply substitution to object of type {type(other).__name__}. "
-                            f"Expected Substitutable, tuple, or list.")
+            raise TypeError(
+                f"Cannot apply substitution to object of type {type(other).__name__}. "
+                f"Expected Substitutable, tuple, or list."
+            )
 
     def compose(self, other: "Substitution") -> "Substitution":
         """Compose this substitution with another (self . other)."""
@@ -81,7 +86,7 @@ class Substitution(dict[Variable, Term]):
         return self.apply(other)
 
     def __str__(self):
-        return "{" + ", ".join(f"{v} \u21A6 {t}" for v, t in self.graph) + "}"
+        return "{" + ", ".join(f"{v} \u21a6 {t}" for v, t in self.graph) + "}"
 
     def __repr__(self):
         return f"<Substitution:{self}>"

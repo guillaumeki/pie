@@ -3,6 +3,7 @@ Created on 23 déc. 2021
 
 @author: guillaume
 """
+
 from typing import Set, Type, TypeVar, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.predicate import Predicate
@@ -37,11 +38,13 @@ class Atom(Formula):
     @property
     def variables(self) -> Set["Variable"]:
         from prototyping_inference_engine.api.atom.term.variable import Variable
+
         return self.terms_of_type(Variable)
 
     @property
     def constants(self) -> Set["Constant"]:
         from prototyping_inference_engine.api.atom.term.constant import Constant
+
         return self.terms_of_type(Constant)
 
     # Formula interface implementation
@@ -61,7 +64,9 @@ class Atom(Formula):
         return frozenset([self])
 
     def apply_substitution(self, substitution: "Substitution") -> "Atom":
-        return Atom(self.predicate, *(t.apply_substitution(substitution) for t in self.terms))
+        return Atom(
+            self.predicate, *(t.apply_substitution(substitution) for t in self.terms)
+        )
 
     def __getitem__(self, item: int):
         return self._terms[item]
@@ -70,7 +75,10 @@ class Atom(Formula):
         if self.predicate.display_mode == "infix" and self.predicate.arity == 2:
             symbol = self.predicate.display_symbol or str(self.predicate)
             return f"{str(self.terms[0])} {symbol} {str(self.terms[1])}"
-        if self.predicate.display_mode == "infix_no_spaces" and self.predicate.arity == 2:
+        if (
+            self.predicate.display_mode == "infix_no_spaces"
+            and self.predicate.arity == 2
+        ):
             symbol = self.predicate.display_symbol or str(self.predicate)
             return f"{str(self.terms[0])}{symbol}{str(self.terms[1])}"
 

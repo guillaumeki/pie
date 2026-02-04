@@ -1,4 +1,5 @@
 """Integration tests for data collections with evaluators."""
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -6,7 +7,6 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.data.collection import (
-    ReadableCollectionBuilder,
     MaterializedCollectionBuilder,
     WritableCollectionBuilder,
 )
@@ -60,8 +60,7 @@ class TestCollectionWithAtomEvaluator(unittest.TestCase):
         self.assertEqual(len(results), 3)
         values = {sub.apply(self.X) for sub in results}
         self.assertEqual(
-            values,
-            {Constant("alice"), Constant("bob"), Constant("carol")}
+            values, {Constant("alice"), Constant("bob"), Constant("carol")}
         )
 
     def test_evaluate_binary_atom(self):
@@ -76,7 +75,7 @@ class TestCollectionWithAtomEvaluator(unittest.TestCase):
             {
                 (Constant("alice"), Constant("bob")),
                 (Constant("bob"), Constant("carol")),
-            }
+            },
         )
 
     def test_evaluate_with_initial_substitution(self):
@@ -153,8 +152,7 @@ class TestCollectionWithMultipleSources(unittest.TestCase):
 
         # Constants should include all unique constants
         self.assertEqual(
-            collection.constants,
-            {Constant("a"), Constant("b"), Constant("c")}
+            collection.constants, {Constant("a"), Constant("b"), Constant("c")}
         )
 
     def test_empty_sources(self):
@@ -209,11 +207,7 @@ class TestWritableCollectionIntegration(unittest.TestCase):
         fb = MutableInMemoryFactBase()
         p = Predicate("p", 2)
 
-        collection = (
-            WritableCollectionBuilder()
-            .set_default_writable(fb)
-            .build()
-        )
+        collection = WritableCollectionBuilder().set_default_writable(fb).build()
 
         # Bulk add
         atoms = [
@@ -242,11 +236,7 @@ class TestCollectionAsDropInReplacement(unittest.TestCase):
         fb = FrozenInMemoryFactBase(atoms)
 
         # Create collection wrapping the same data
-        collection = (
-            MaterializedCollectionBuilder()
-            .add_all_predicates_from(fb)
-            .build()
-        )
+        collection = MaterializedCollectionBuilder().add_all_predicates_from(fb).build()
 
         # Query both
         p = Predicate("p", 2)
@@ -270,19 +260,16 @@ class TestCollectionAsDropInReplacement(unittest.TestCase):
         def count_matches(data, predicate):
             """Function that accepts any ReadableData."""
             from prototyping_inference_engine.api.data.basic_query import BasicQuery
+
             query = BasicQuery(
                 predicate,
                 bound_positions={},
-                answer_variables={i: Variable(f"V{i}") for i in range(predicate.arity)}
+                answer_variables={i: Variable(f"V{i}") for i in range(predicate.arity)},
             )
             return sum(1 for _ in data.evaluate(query))
 
         fb = FrozenInMemoryFactBase(parser.parse_atoms("p(a), p(b), p(c)."))
-        collection = (
-            MaterializedCollectionBuilder()
-            .add_all_predicates_from(fb)
-            .build()
-        )
+        collection = MaterializedCollectionBuilder().add_all_predicates_from(fb).build()
 
         p = Predicate("p", 1)
 
@@ -299,11 +286,7 @@ class TestEdgeCases(unittest.TestCase):
         parser = Dlgp2Parser.instance()
         fb = FrozenInMemoryFactBase(parser.parse_atoms("p(a)."))
 
-        collection = (
-            MaterializedCollectionBuilder()
-            .add_all_predicates_from(fb)
-            .build()
-        )
+        collection = MaterializedCollectionBuilder().add_all_predicates_from(fb).build()
 
         self.assertEqual(len(collection), 1)
         self.assertEqual(len(list(collection.get_predicates())), 1)
@@ -311,15 +294,9 @@ class TestEdgeCases(unittest.TestCase):
     def test_high_arity_predicates(self):
         """Test predicates with high arity."""
         parser = Dlgp2Parser.instance()
-        fb = FrozenInMemoryFactBase(
-            parser.parse_atoms("p(a,b,c,d,e).")
-        )
+        fb = FrozenInMemoryFactBase(parser.parse_atoms("p(a,b,c,d,e)."))
 
-        collection = (
-            MaterializedCollectionBuilder()
-            .add_all_predicates_from(fb)
-            .build()
-        )
+        collection = MaterializedCollectionBuilder().add_all_predicates_from(fb).build()
 
         p = Predicate("p", 5)
         self.assertTrue(collection.has_predicate(p))
@@ -328,30 +305,18 @@ class TestEdgeCases(unittest.TestCase):
         """Test constants with special names."""
         parser = Dlgp2Parser.instance()
         # Using quoted constants
-        fb = FrozenInMemoryFactBase(
-            parser.parse_atoms('p("hello world"), p("123").')
-        )
+        fb = FrozenInMemoryFactBase(parser.parse_atoms('p("hello world"), p("123").'))
 
-        collection = (
-            MaterializedCollectionBuilder()
-            .add_all_predicates_from(fb)
-            .build()
-        )
+        collection = MaterializedCollectionBuilder().add_all_predicates_from(fb).build()
 
         self.assertEqual(len(collection), 2)
 
     def test_same_source_multiple_predicates(self):
         """Test one source providing multiple predicates."""
         parser = Dlgp2Parser.instance()
-        fb = FrozenInMemoryFactBase(
-            parser.parse_atoms("p(a), q(b), r(c).")
-        )
+        fb = FrozenInMemoryFactBase(parser.parse_atoms("p(a), q(b), r(c)."))
 
-        collection = (
-            MaterializedCollectionBuilder()
-            .add_all_predicates_from(fb)
-            .build()
-        )
+        collection = MaterializedCollectionBuilder().add_all_predicates_from(fb).build()
 
         predicates = list(collection.get_predicates())
         self.assertEqual(len(predicates), 3)

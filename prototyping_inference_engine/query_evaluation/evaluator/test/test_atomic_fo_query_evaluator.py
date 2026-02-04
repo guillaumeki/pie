@@ -4,18 +4,29 @@ Tests for atomic FOQuery evaluation.
 Based on test cases from Integraal's AtomicFOQueryEvaluatorTest.java:
 https://gitlab.inria.fr/rules/integraal/-/blob/develop/integraal/integraal-query-evaluation/src/test/java/fr/boreal/test/query_evaluation/AtomicFOQueryEvaluatorTest.java
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+    MutableInMemoryFactBase,
+)
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import AtomEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import (
+    AtomEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+    GenericFOQueryEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
+    FormulaEvaluatorRegistry,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
@@ -52,26 +63,32 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         # factBase1: {p(a,a), p(a,b), p(c,d)}
         # Note: In the original test, p(x,x) is also present where x is a constant-like
         # We'll use just constants for simplicity
-        cls.fact_base_1 = MutableInMemoryFactBase([
-            Atom(cls.p2, cls.a, cls.a),
-            Atom(cls.p2, cls.a, cls.b),
-            Atom(cls.p2, cls.c, cls.d),
-        ])
+        cls.fact_base_1 = MutableInMemoryFactBase(
+            [
+                Atom(cls.p2, cls.a, cls.a),
+                Atom(cls.p2, cls.a, cls.b),
+                Atom(cls.p2, cls.c, cls.d),
+            ]
+        )
 
         # factBase2: {p(a,b)} - a simple single fact
-        cls.fact_base_2 = MutableInMemoryFactBase([
-            Atom(cls.p2, cls.a, cls.b),
-        ])
+        cls.fact_base_2 = MutableInMemoryFactBase(
+            [
+                Atom(cls.p2, cls.a, cls.b),
+            ]
+        )
 
         # factBase3: empty
         cls.fact_base_3 = MutableInMemoryFactBase()
 
         # factBase4: {p(a,a), p(b,b), p(c,c)} - for reflexive queries
-        cls.fact_base_4 = MutableInMemoryFactBase([
-            Atom(cls.p2, cls.a, cls.a),
-            Atom(cls.p2, cls.b, cls.b),
-            Atom(cls.p2, cls.c, cls.c),
-        ])
+        cls.fact_base_4 = MutableInMemoryFactBase(
+            [
+                Atom(cls.p2, cls.a, cls.a),
+                Atom(cls.p2, cls.b, cls.b),
+                Atom(cls.p2, cls.c, cls.c),
+            ]
+        )
 
     def setUp(self):
         FormulaEvaluatorRegistry.reset()

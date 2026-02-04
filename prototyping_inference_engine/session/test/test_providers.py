@@ -1,6 +1,7 @@
 """
 Unit tests for session providers.
 """
+
 import unittest
 from unittest import TestCase
 
@@ -226,7 +227,9 @@ class TestDlgpeParserProvider(TestCase):
 
     def test_parse_conjunctive_queries(self):
         """Test parsing conjunctive queries when compatible."""
-        from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
+        from prototyping_inference_engine.api.query.conjunctive_query import (
+            ConjunctiveQuery,
+        )
         from prototyping_inference_engine.session.providers import DlgpeParserProvider
 
         provider = DlgpeParserProvider()

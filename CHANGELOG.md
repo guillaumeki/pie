@@ -15,6 +15,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: GitHub Actions CI badge in README.
 - Fixed: CI now installs mypy and runtime requirements explicitly.
 - Changed: enforce mypy + full test suite passing before commit/push.
+- Added: code quality tooling (Ruff, Coverage, Bandit, pip-audit, Vulture, Radon, Hypothesis) with CI integration.
+- Changed: applied Ruff formatting baseline across the codebase.
 
 ## [2026-02-03]
 - Added: DLGPE comparison operators support (<, >, <=, >=, !=) with infix display and evaluation via readable data sources.

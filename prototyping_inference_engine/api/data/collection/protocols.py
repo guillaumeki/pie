@@ -4,6 +4,7 @@ Protocols for data source capabilities.
 These protocols define structural contracts that data sources may satisfy,
 enabling the collection system to work with heterogeneous backends.
 """
+
 from typing import Protocol, Iterator, Tuple, Set, runtime_checkable, TYPE_CHECKING
 
 if TYPE_CHECKING:

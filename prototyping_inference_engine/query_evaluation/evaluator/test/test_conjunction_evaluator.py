@@ -1,21 +1,32 @@
 """
 Tests for ConjunctionEvaluator.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate, SpecialPredicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+    MutableInMemoryFactBase,
+)
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
     BacktrackConjunctionEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+    GenericFOQueryEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
+    FormulaEvaluatorRegistry,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
@@ -54,10 +65,12 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         FactBase: {p(a,b), q(b)}
         Expected: {X→a, Y→b}
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.q, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.q, self.b),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(self.p, self.x, self.y),
             Atom(self.q, self.y),
@@ -75,11 +88,13 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         FactBase: {p(a,b), p(c,b), q(b)}
         Expected: {X→a, Y→b}, {X→c, Y→b}
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.p, self.c, self.b),
-            Atom(self.q, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.p, self.c, self.b),
+                Atom(self.q, self.b),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(self.p, self.x, self.y),
             Atom(self.q, self.y),
@@ -97,10 +112,12 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         FactBase: {p(a,b), q(c)}  (no q(b))
         Expected: empty
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.q, self.c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.q, self.c),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(self.p, self.x, self.y),
             Atom(self.q, self.y),
@@ -116,11 +133,13 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         FactBase: {p(a,b), p(c,b), q(b)}
         Expected: {X→a, Y→b}
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.p, self.c, self.b),
-            Atom(self.q, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.p, self.c, self.b),
+                Atom(self.q, self.b),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(self.p, self.x, self.y),
             Atom(self.q, self.y),
@@ -139,11 +158,13 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         FactBase: {p(a,b), q(b), r(b,c)}
         Expected: {X→a, Y→b, Z→c}
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.q, self.b),
-            Atom(self.r, self.b, self.c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.q, self.b),
+                Atom(self.r, self.b, self.c),
+            ]
+        )
         inner = ConjunctionFormula(
             Atom(self.p, self.x, self.y),
             Atom(self.q, self.y),
@@ -163,11 +184,13 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         FactBase: {p(a,b), q(b), r(b,c)}
         Expected: {X→a, Y→b, Z→c}
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.q, self.b),
-            Atom(self.r, self.b, self.c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.q, self.b),
+                Atom(self.r, self.b, self.c),
+            ]
+        )
         inner = ConjunctionFormula(
             Atom(self.q, self.y),
             Atom(self.r, self.y, self.z),
@@ -188,12 +211,14 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         Expected: {X→a, Y→b, Z→c, W→d}
         """
         w = Variable("W")
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.q, self.b),
-            Atom(self.r, self.b, self.c),
-            Atom(self.p, self.c, self.d),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.q, self.b),
+                Atom(self.r, self.b, self.c),
+                Atom(self.p, self.c, self.d),
+            ]
+        )
         inner1 = ConjunctionFormula(
             Atom(self.p, self.x, self.y),
             Atom(self.q, self.y),
@@ -217,12 +242,14 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         """
         p1 = Predicate("p", 1)
         q1 = Predicate("q", 1)
-        fact_base = MutableInMemoryFactBase([
-            Atom(p1, self.a),
-            Atom(p1, self.b),
-            Atom(q1, self.c),
-            Atom(q1, self.d),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(p1, self.a),
+                Atom(p1, self.b),
+                Atom(q1, self.c),
+                Atom(q1, self.d),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(p1, self.x),
             Atom(q1, self.y),
@@ -241,12 +268,14 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         e = Constant("e")
         f = Constant("f")
         q2 = Predicate("q", 2)
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.p, self.c, self.d),
-            Atom(q2, self.a, e),
-            Atom(q2, self.c, f),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.p, self.c, self.d),
+                Atom(q2, self.a, e),
+                Atom(q2, self.c, f),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(self.p, self.x, self.y),
             Atom(q2, self.x, self.z),
@@ -288,10 +317,12 @@ class TestConjunctionWithEquality(unittest.TestCase):
         Expected: {X→a, Y→b}
         """
         d = Constant("d")
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.p, self.c, d),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.p, self.c, d),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(self.p, self.x, self.y),
             Atom(self.eq, self.x, self.a),
@@ -309,10 +340,12 @@ class TestConjunctionWithEquality(unittest.TestCase):
         FactBase: {p(a,b), q(b)}
         Expected: {X→a, Y→b, Z→b}
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.q, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.q, self.b),
+            ]
+        )
         conj1 = ConjunctionFormula(
             Atom(self.p, self.x, self.y),
             Atom(self.q, self.z),
@@ -339,11 +372,13 @@ class TestConjunctionWithEquality(unittest.TestCase):
         p1 = Predicate("p", 1)
         q1 = Predicate("q", 1)
         r1 = Predicate("r", 1)
-        fact_base = MutableInMemoryFactBase([
-            Atom(p1, self.a),
-            Atom(q1, self.a),
-            Atom(r1, self.a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(p1, self.a),
+                Atom(q1, self.a),
+                Atom(r1, self.a),
+            ]
+        )
         conj1 = ConjunctionFormula(Atom(p1, self.x), Atom(q1, self.y))
         conj2 = ConjunctionFormula(conj1, Atom(r1, self.z))
         conj3 = ConjunctionFormula(conj2, Atom(self.eq, self.x, self.y))
@@ -363,10 +398,12 @@ class TestConjunctionWithEquality(unittest.TestCase):
         Expected: no results (inconsistent)
         """
         p1 = Predicate("p", 1)
-        fact_base = MutableInMemoryFactBase([
-            Atom(p1, self.a),
-            Atom(p1, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(p1, self.a),
+                Atom(p1, self.b),
+            ]
+        )
         conj1 = ConjunctionFormula(
             Atom(p1, self.x),
             Atom(self.eq, self.x, self.a),
@@ -387,9 +424,11 @@ class TestConjunctionWithEquality(unittest.TestCase):
         Expected: {X→b}
         """
         p1 = Predicate("p", 1)
-        fact_base = MutableInMemoryFactBase([
-            Atom(p1, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(p1, self.b),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(p1, self.x),
             Atom(self.eq, self.a, self.a),
@@ -443,11 +482,13 @@ class TestConjunctionFOQuery(unittest.TestCase):
         b = Constant("b")
         c = Constant("c")
 
-        fact_base = MutableInMemoryFactBase([
-            Atom(p, a, b),
-            Atom(p, c, b),
-            Atom(q, b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(p, a, b),
+                Atom(p, c, b),
+                Atom(q, b),
+            ]
+        )
         conj = ConjunctionFormula(Atom(p, x, y), Atom(q, y))
         formula = ExistentialFormula(y, conj)
         query = FOQuery(formula, [x])
@@ -469,10 +510,12 @@ class TestConjunctionFOQuery(unittest.TestCase):
         a = Constant("a")
         b = Constant("b")
 
-        fact_base = MutableInMemoryFactBase([
-            Atom(p, a, b),
-            Atom(q, b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(p, a, b),
+                Atom(q, b),
+            ]
+        )
         formula = ConjunctionFormula(Atom(p, a, b), Atom(q, b))
         query = FOQuery(formula, [])
 
@@ -493,10 +536,12 @@ class TestConjunctionFOQuery(unittest.TestCase):
         b = Constant("b")
         c = Constant("c")
 
-        fact_base = MutableInMemoryFactBase([
-            Atom(p, a, b),
-            Atom(q, b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(p, a, b),
+                Atom(q, b),
+            ]
+        )
         formula = ConjunctionFormula(Atom(p, a, b), Atom(q, c))
         query = FOQuery(formula, [])
 
@@ -529,12 +574,15 @@ class TestConjunctionWithSession(unittest.TestCase):
 
         # Query: Who are Alice's male children?
         # ?(X) :- parent(alice, X) ∧ male(X)
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .answer("X")
             .atom("parent", "alice", "X")
             .and_()
             .atom("male", "X")
-            .build())
+            .build()
+        )
 
         results = list(self.session.evaluate_query(query, fb))
 
@@ -552,14 +600,17 @@ class TestConjunctionWithSession(unittest.TestCase):
 
         # Query: paths of length 3
         # ?(X,Y,Z,W) :- edge(X,Y) ∧ edge(Y,Z) ∧ edge(Z,W)
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .answer("X", "Y", "Z", "W")
             .atom("edge", "X", "Y")
             .and_()
             .atom("edge", "Y", "Z")
             .and_()
             .atom("edge", "Z", "W")
-            .build())
+            .build()
+        )
 
         results = list(self.session.evaluate_query(query, fb))
 
@@ -577,12 +628,15 @@ class TestConjunctionWithSession(unittest.TestCase):
         fb = self.session.create_fact_base(result.facts)
 
         # ?(X,Y) :- p(X) ∧ q(Y)
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .answer("X", "Y")
             .atom("p", "X")
             .and_()
             .atom("q", "Y")
-            .build())
+            .build()
+        )
 
         results = list(self.session.evaluate_query(query, fb))
 

@@ -4,21 +4,32 @@ Tests for BacktrackConjunctionEvaluator.
 Based on test cases from Integraal's BacktrackEvaluatorTest.java:
 https://gitlab.inria.fr/rules/integraal/-/blob/develop/integraal/integraal-query-evaluation/src/test/java/fr/boreal/test/query_evaluation/BacktrackEvaluatorTest.java
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+    MutableInMemoryFactBase,
+)
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
     BacktrackConjunctionEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+    GenericFOQueryEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
+    FormulaEvaluatorRegistry,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
@@ -56,32 +67,42 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         cls.d = Constant("d")
 
         # Fact bases
-        cls.fact_base_1 = MutableInMemoryFactBase([
-            Atom(cls.p2, cls.a, cls.a),
-            Atom(cls.p2, cls.a, cls.b),
-            Atom(cls.p2, cls.c, cls.d),
-        ])
+        cls.fact_base_1 = MutableInMemoryFactBase(
+            [
+                Atom(cls.p2, cls.a, cls.a),
+                Atom(cls.p2, cls.a, cls.b),
+                Atom(cls.p2, cls.c, cls.d),
+            ]
+        )
 
-        cls.fact_base_2 = MutableInMemoryFactBase([
-            Atom(cls.p2, cls.a, cls.b),
-        ])
+        cls.fact_base_2 = MutableInMemoryFactBase(
+            [
+                Atom(cls.p2, cls.a, cls.b),
+            ]
+        )
 
-        cls.fact_base_3 = MutableInMemoryFactBase([
-            Atom(cls.p3, cls.a, cls.b, cls.c),
-            Atom(cls.p3, cls.b, cls.c, cls.d),
-        ])
+        cls.fact_base_3 = MutableInMemoryFactBase(
+            [
+                Atom(cls.p3, cls.a, cls.b, cls.c),
+                Atom(cls.p3, cls.b, cls.c, cls.d),
+            ]
+        )
 
         # fbPabPbc: {p(a,b), p(b,c)} - joinable
-        cls.fb_pab_pbc = MutableInMemoryFactBase([
-            Atom(cls.p2, cls.a, cls.b),
-            Atom(cls.p2, cls.b, cls.c),
-        ])
+        cls.fb_pab_pbc = MutableInMemoryFactBase(
+            [
+                Atom(cls.p2, cls.a, cls.b),
+                Atom(cls.p2, cls.b, cls.c),
+            ]
+        )
 
         # fbPabPcd: {p(a,b), p(c,d)} - not joinable on Y=Z
-        cls.fb_pab_pcd = MutableInMemoryFactBase([
-            Atom(cls.p2, cls.a, cls.b),
-            Atom(cls.p2, cls.c, cls.d),
-        ])
+        cls.fb_pab_pcd = MutableInMemoryFactBase(
+            [
+                Atom(cls.p2, cls.a, cls.b),
+                Atom(cls.p2, cls.c, cls.d),
+            ]
+        )
 
     def setUp(self):
         FormulaEvaluatorRegistry.reset()
@@ -104,7 +125,9 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
             Atom(self.p3, self.x, self.z, self.w),
             Atom(self.p3, self.z, self.w, self.t),
         )
-        formula = ExistentialFormula(self.z, ExistentialFormula(self.w, ExistentialFormula(self.t, conj)))
+        formula = ExistentialFormula(
+            self.z, ExistentialFormula(self.w, ExistentialFormula(self.t, conj))
+        )
         query = FOQuery(formula, [self.x])
 
         results = list(self.evaluator.evaluate_and_project(query, self.fact_base_3))
@@ -178,7 +201,9 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),
         )
-        formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
+        formula = ExistentialFormula(
+            self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj))
+        )
         query = FOQuery(formula, [])
 
         results = list(self.evaluator.evaluate_and_project(query, self.fb_pab_pbc))
@@ -196,7 +221,9 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),
         )
-        formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
+        formula = ExistentialFormula(
+            self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj))
+        )
         query = FOQuery(formula, [])
 
         results = list(self.evaluator.evaluate_and_project(query, self.fb_pab_pcd))
@@ -225,8 +252,10 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         self.assertEqual(len(results), 4)
         result_pairs = set(results)
         expected = {
-            (self.a, self.a), (self.a, self.b),
-            (self.b, self.a), (self.b, self.b),
+            (self.a, self.a),
+            (self.a, self.b),
+            (self.b, self.a),
+            (self.b, self.b),
         }
         self.assertEqual(result_pairs, expected)
 
@@ -285,17 +314,21 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         FactBase: {p(a,b), p(b,c), p(c,a)}
         Expected: true (triangle a->b->c->a)
         """
-        fb_triangle = MutableInMemoryFactBase([
-            Atom(self.p2, self.a, self.b),
-            Atom(self.p2, self.b, self.c),
-            Atom(self.p2, self.c, self.a),
-        ])
+        fb_triangle = MutableInMemoryFactBase(
+            [
+                Atom(self.p2, self.a, self.b),
+                Atom(self.p2, self.b, self.c),
+                Atom(self.p2, self.c, self.a),
+            ]
+        )
         inner = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),
         )
         conj = ConjunctionFormula(inner, Atom(self.p2, self.z, self.x))
-        formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
+        formula = ExistentialFormula(
+            self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj))
+        )
         query = FOQuery(formula, [])
 
         results = list(self.evaluator.evaluate_and_project(query, fb_triangle))
@@ -309,17 +342,21 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         FactBase: {p(a,b), p(b,c), p(c,d)} (no cycle)
         Expected: false
         """
-        fb_no_triangle = MutableInMemoryFactBase([
-            Atom(self.p2, self.a, self.b),
-            Atom(self.p2, self.b, self.c),
-            Atom(self.p2, self.c, self.d),
-        ])
+        fb_no_triangle = MutableInMemoryFactBase(
+            [
+                Atom(self.p2, self.a, self.b),
+                Atom(self.p2, self.b, self.c),
+                Atom(self.p2, self.c, self.d),
+            ]
+        )
         inner = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),
         )
         conj = ConjunctionFormula(inner, Atom(self.p2, self.z, self.x))
-        formula = ExistentialFormula(self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj)))
+        formula = ExistentialFormula(
+            self.x, ExistentialFormula(self.y, ExistentialFormula(self.z, conj))
+        )
         query = FOQuery(formula, [])
 
         results = list(self.evaluator.evaluate_and_project(query, fb_no_triangle))
@@ -336,11 +373,13 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         FactBase: {p(a,b), q(b,c), q(b,d)}
         Expected: {(a,c), (a,d)}
         """
-        fb = MutableInMemoryFactBase([
-            Atom(self.p2, self.a, self.b),
-            Atom(self.q2, self.b, self.c),
-            Atom(self.q2, self.b, self.d),
-        ])
+        fb = MutableInMemoryFactBase(
+            [
+                Atom(self.p2, self.a, self.b),
+                Atom(self.q2, self.b, self.c),
+                Atom(self.q2, self.b, self.d),
+            ]
+        )
         conj = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.q2, self.y, self.z),
@@ -360,10 +399,12 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         FactBase: {p(a,b), q(c,d)} (no common value for Y)
         Expected: empty
         """
-        fb = MutableInMemoryFactBase([
-            Atom(self.p2, self.a, self.b),
-            Atom(self.q2, self.c, self.d),
-        ])
+        fb = MutableInMemoryFactBase(
+            [
+                Atom(self.p2, self.a, self.b),
+                Atom(self.q2, self.c, self.d),
+            ]
+        )
         conj = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.q2, self.y, self.z),
@@ -395,18 +436,22 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         vd = Variable("D")
         ve = Variable("E")
 
-        fb = MutableInMemoryFactBase([
-            Atom(self.p2, c1, c2),
-            Atom(self.p2, c2, c3),
-            Atom(self.p2, c3, c4),
-            Atom(self.p2, c4, c5),
-        ])
+        fb = MutableInMemoryFactBase(
+            [
+                Atom(self.p2, c1, c2),
+                Atom(self.p2, c2, c3),
+                Atom(self.p2, c3, c4),
+                Atom(self.p2, c4, c5),
+            ]
+        )
 
         # Build: ∃B.∃C.∃D.(((p(A,B) ∧ p(B,C)) ∧ p(C,D)) ∧ p(D,E))
         conj1 = ConjunctionFormula(Atom(self.p2, va, vb), Atom(self.p2, vb, vc))
         conj2 = ConjunctionFormula(conj1, Atom(self.p2, vc, vd))
         conj3 = ConjunctionFormula(conj2, Atom(self.p2, vd, ve))
-        formula = ExistentialFormula(vb, ExistentialFormula(vc, ExistentialFormula(vd, conj3)))
+        formula = ExistentialFormula(
+            vb, ExistentialFormula(vc, ExistentialFormula(vd, conj3))
+        )
         query = FOQuery(formula, [va, ve])
 
         results = list(self.evaluator.evaluate_and_project(query, fb))
@@ -423,11 +468,13 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         FactBase: {p(a,b), p(b,c), p(d,b)}
         Expected: {X→a, Z→c}, {X→d, Z→c}
         """
-        fb = MutableInMemoryFactBase([
-            Atom(self.p2, self.a, self.b),
-            Atom(self.p2, self.b, self.c),
-            Atom(self.p2, self.d, self.b),
-        ])
+        fb = MutableInMemoryFactBase(
+            [
+                Atom(self.p2, self.a, self.b),
+                Atom(self.p2, self.b, self.c),
+                Atom(self.p2, self.d, self.b),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(self.p2, self.x, self.y),
             Atom(self.p2, self.y, self.z),

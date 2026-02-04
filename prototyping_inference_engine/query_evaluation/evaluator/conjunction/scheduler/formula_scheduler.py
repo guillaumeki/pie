@@ -1,6 +1,7 @@
 """
 Abstract base class for formula schedulers.
 """
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 

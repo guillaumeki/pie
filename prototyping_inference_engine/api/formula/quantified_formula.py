@@ -1,6 +1,7 @@
 """
 Abstract base class for quantified formulas.
 """
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
@@ -50,7 +51,9 @@ class QuantifiedFormula(Formula, ABC):
 
     def apply_substitution(self, substitution: "Substitution") -> "QuantifiedFormula":
         from prototyping_inference_engine.api.atom.term.variable import Variable
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
         # Don't substitute the bound variable
         restricted_sub = Substitution(
@@ -59,15 +62,15 @@ class QuantifiedFormula(Formula, ABC):
 
         # Avoid variable capture: if the bound variable appears in the range of the
         # substitution, rename it to a fresh variable
-        sub_range_vars = {
-            v for v in restricted_sub.values() if isinstance(v, Variable)
-        }
+        sub_range_vars = {v for v in restricted_sub.values() if isinstance(v, Variable)}
         if self._variable in sub_range_vars:
             fresh = Variable.fresh_variable()
             inner_renamed = self._formula.apply_substitution(
                 Substitution({self._variable: fresh})
             )
-            return self.__class__(fresh, inner_renamed.apply_substitution(restricted_sub))
+            return self.__class__(
+                fresh, inner_renamed.apply_substitution(restricted_sub)
+            )
 
         return self.__class__(
             self._variable, self._formula.apply_substitution(restricted_sub)

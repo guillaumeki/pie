@@ -1,14 +1,21 @@
 """
 Fluent builder for constructing first-order formulas.
 """
+
 from typing import TYPE_CHECKING, Union
 
 from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
+from prototyping_inference_engine.api.formula.disjunction_formula import (
+    DisjunctionFormula,
+)
 from prototyping_inference_engine.api.formula.universal_formula import UniversalFormula
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.session.reasoning_session import ReasoningSession
@@ -17,16 +24,19 @@ if TYPE_CHECKING:
 
 class _OperatorMarker:
     """Base class for operator markers in the stack."""
+
     pass
 
 
 class _AndMarker(_OperatorMarker):
     """Marker for pending AND operation."""
+
     pass
 
 
 class _OrMarker(_OperatorMarker):
     """Marker for pending OR operation."""
+
     pass
 
 
@@ -127,7 +137,7 @@ class FormulaBuilder:
             self for chaining
         """
         var = self._session.variable(var_name)
-        self._quantifiers.append(('forall', var))
+        self._quantifiers.append(("forall", var))
         return self
 
     def exists(self, var_name: str) -> "FormulaBuilder":
@@ -141,7 +151,7 @@ class FormulaBuilder:
             self for chaining
         """
         var = self._session.variable(var_name)
-        self._quantifiers.append(('exists', var))
+        self._quantifiers.append(("exists", var))
         return self
 
     def build(self) -> Formula:
@@ -159,7 +169,7 @@ class FormulaBuilder:
 
         # Apply quantifiers (in reverse order)
         for quant_type, var in reversed(self._quantifiers):
-            if quant_type == 'forall':
+            if quant_type == "forall":
                 formula = UniversalFormula(var, formula)
             else:
                 formula = ExistentialFormula(var, formula)
@@ -196,7 +206,9 @@ class FormulaBuilder:
                     result.append(item)
 
         if len(result) != 1:
-            raise ValueError(f"Invalid formula: stack has {len(result)} items after reduction")
+            raise ValueError(
+                f"Invalid formula: stack has {len(result)} items after reduction"
+            )
 
         final = result[0]
         if not isinstance(final, Formula):

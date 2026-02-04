@@ -1,7 +1,9 @@
 from unittest import TestCase
 
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
+from prototyping_inference_engine.api.ontology.constraint.negative_constraint import (
+    NegativeConstraint,
+)
 from prototyping_inference_engine.api.ontology.ontology import Ontology
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
@@ -112,7 +114,7 @@ class TestNegativeConstraint(TestCase):
         nc = NegativeConstraint(body)
         s = str(nc)
         self.assertIn("p(X)", s)
-        self.assertIn("\u22A5", s)  # bottom symbol
+        self.assertIn("\u22a5", s)  # bottom symbol
 
     def test_str_with_label(self):
         """Test string representation with label."""

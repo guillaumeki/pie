@@ -1,19 +1,34 @@
 """
 Readable data source for Python-backed functional predicates.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, datetime, time
 from decimal import Decimal
 import inspect
-from typing import Any, Callable, Iterable, Iterator, Mapping, Optional, Tuple, Union, get_args, get_origin, get_type_hints
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    Mapping,
+    Optional,
+    Tuple,
+    Union,
+    get_args,
+    get_origin,
+    get_type_hints,
+)
 
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.term.term import Term
-from prototyping_inference_engine.api.atom.term.factory.literal_factory import LiteralFactory
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
+    LiteralFactory,
+)
 from prototyping_inference_engine.api.atom.term.literal_xsd import XSD_PREFIX
 from prototyping_inference_engine.api.data.atomic_pattern import SimpleAtomicPattern
 from prototyping_inference_engine.api.data.constraint.position_constraint import GROUND
@@ -78,8 +93,11 @@ class PythonFunctionReadable(ReadableData):
             raise ValueError(f"Unsupported function mode: {mode}")
 
         signature = inspect.signature(func)
-        param_names = [p.name for p in signature.parameters.values()
-                       if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)]
+        param_names = [
+            p.name
+            for p in signature.parameters.values()
+            if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)
+        ]
 
         if input_arity is None:
             input_arity = len(param_names)
@@ -142,7 +160,9 @@ class PythonFunctionReadable(ReadableData):
             return False
 
         bound_positions = set(query.bound_positions.keys())
-        if spec.required_positions and not spec.required_positions.issubset(bound_positions):
+        if spec.required_positions and not spec.required_positions.issubset(
+            bound_positions
+        ):
             return False
         if spec.min_bound is not None and len(bound_positions) < spec.min_bound:
             return False
@@ -170,11 +190,15 @@ class PythonFunctionReadable(ReadableData):
         for assignment in assignments:
             if not self._matches_bound(bound_positions, assignment):
                 continue
-            answer_tuple = tuple(self._to_term(assignment[pos], spec) for pos in answer_positions)
+            answer_tuple = tuple(
+                self._to_term(assignment[pos], spec) for pos in answer_positions
+            )
             results.append(answer_tuple)
         return iter(results)
 
-    def _evaluate_assignments(self, spec: FunctionSpec, values: list[Optional[Any]]) -> Iterable[list[Any]]:
+    def _evaluate_assignments(
+        self, spec: FunctionSpec, values: list[Optional[Any]]
+    ) -> Iterable[list[Any]]:
         if spec.solver is not None:
             prepared_values = self._prepare_solver_values(spec, values)
             if prepared_values is None:
@@ -202,7 +226,9 @@ class PythonFunctionReadable(ReadableData):
             assignments.append(assignment)
         return assignments
 
-    def _prepare_inputs(self, spec: FunctionSpec, inputs: list[Optional[Any]]) -> Optional[list[Any]]:
+    def _prepare_inputs(
+        self, spec: FunctionSpec, inputs: list[Optional[Any]]
+    ) -> Optional[list[Any]]:
         if any(value is None for value in inputs):
             return None
 
@@ -257,7 +283,9 @@ class PythonFunctionReadable(ReadableData):
         hint = spec.type_hints[name]
         return _matches_hint(value, hint)
 
-    def _matches_bound(self, bound_positions: Mapping[int, Term], assignment: list[Any]) -> bool:
+    def _matches_bound(
+        self, bound_positions: Mapping[int, Term], assignment: list[Any]
+    ) -> bool:
         for pos, term in bound_positions.items():
             assigned = assignment[pos]
             if assigned is None:

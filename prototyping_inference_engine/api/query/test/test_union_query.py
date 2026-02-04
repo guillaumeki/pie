@@ -1,6 +1,7 @@
 """
 Tests for UnionQuery.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -8,7 +9,6 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.query.union_query import UnionQuery

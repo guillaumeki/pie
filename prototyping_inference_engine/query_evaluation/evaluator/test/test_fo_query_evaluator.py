@@ -1,17 +1,26 @@
 """
 Tests for FOQueryEvaluator.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+    MutableInMemoryFactBase,
+)
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+    GenericFOQueryEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
+    FormulaEvaluatorRegistry,
+)
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
 
@@ -48,10 +57,12 @@ class TestFOQueryEvaluator(unittest.TestCase):
         # Fact base: {p(a, b), p(a, c)}
         # Query: ?(X) :- p(a, X)
         # Expected: (b,), (c,)
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.p, self.a, self.c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.p, self.a, self.c),
+            ]
+        )
         query = FOQuery(Atom(self.p, self.a, self.x), [self.x])
 
         results = list(self.evaluator.evaluate_and_project(query, fact_base))
@@ -65,10 +76,12 @@ class TestFOQueryEvaluator(unittest.TestCase):
         # Fact base: {p(a, b), p(b, c)}
         # Query: ?(X, Y) :- p(X, Y)
         # Expected: (a, b), (b, c)
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.p, self.b, self.c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.p, self.b, self.c),
+            ]
+        )
         query = FOQuery(Atom(self.p, self.x, self.y), [self.x, self.y])
 
         results = list(self.evaluator.evaluate_and_project(query, fact_base))
@@ -118,10 +131,12 @@ class TestFOQueryEvaluator(unittest.TestCase):
         # Fact base: {p(a, b), p(a, c)}
         # Query: ?(X) :- ∃Y.p(X, Y)  (Y is projected out, so X=a appears twice)
         # Expected: (a,) - deduplicated
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a, self.b),
-            Atom(self.p, self.a, self.c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a, self.b),
+                Atom(self.p, self.a, self.c),
+            ]
+        )
         formula = ExistentialFormula(self.y, Atom(self.p, self.x, self.y))
         query = FOQuery(formula, [self.x])
 
@@ -149,10 +164,9 @@ class TestFOQueryEvaluatorWithSession(unittest.TestCase):
         fb = self.session.create_fact_base(result.facts)
 
         # Create query: ?(X) :- p(a, X)
-        query = (self.session.fo_query().builder()
-            .answer("X")
-            .atom("p", "a", "X")
-            .build())
+        query = (
+            self.session.fo_query().builder().answer("X").atom("p", "a", "X").build()
+        )
 
         # Evaluate
         results = list(self.session.evaluate_query(query, fb))
@@ -173,10 +187,13 @@ class TestFOQueryEvaluatorWithSession(unittest.TestCase):
 
         # Query: Who are Alice's children?
         # ?(X) :- parent(alice, X)
-        query = (self.session.fo_query().builder()
+        query = (
+            self.session.fo_query()
+            .builder()
             .answer("X")
             .atom("parent", "alice", "X")
-            .build())
+            .build()
+        )
 
         results = list(self.session.evaluate_query(query, fb))
 
@@ -189,9 +206,7 @@ class TestFOQueryEvaluatorWithSession(unittest.TestCase):
         fb = self.session.create_fact_base(result.facts)
 
         # Boolean query: ?() :- p(a, b)
-        query = (self.session.fo_query().builder()
-            .atom("p", "a", "b")
-            .build())
+        query = self.session.fo_query().builder().atom("p", "a", "b").build()
 
         results = list(self.session.evaluate_query(query, fb))
 

@@ -3,6 +3,7 @@ Created on 26 déc. 2021
 
 @author: guillaume
 """
+
 from collections.abc import MutableSet
 from typing import Iterable, Optional
 
@@ -25,4 +26,4 @@ class MutableAtomSet(AtomSet, MutableSet):
         self._set.discard(atom)
 
     def __repr__(self) -> str:
-        return "MutableAtomSet: "+str(self)
+        return "MutableAtomSet: " + str(self)

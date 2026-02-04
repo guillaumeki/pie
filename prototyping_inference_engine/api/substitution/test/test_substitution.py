@@ -212,7 +212,7 @@ class TestSubstitution(TestCase):
         s = str(sub)
         self.assertIn("X", s)
         self.assertIn("a", s)
-        self.assertIn("\u21A6", s)  # mapsto arrow
+        self.assertIn("\u21a6", s)  # mapsto arrow
 
     def test_repr(self):
         """Test repr representation."""

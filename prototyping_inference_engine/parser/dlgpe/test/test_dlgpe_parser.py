@@ -1,6 +1,7 @@
 """
 Tests for the DLGPE parser.
 """
+
 import unittest
 
 from prototyping_inference_engine.parser.dlgpe import (
@@ -8,10 +9,6 @@ from prototyping_inference_engine.parser.dlgpe import (
     DlgpeUnsupportedFeatureError,
 )
 from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
-from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
-from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
 
 
 class TestDlgpeParserBasics(unittest.TestCase):

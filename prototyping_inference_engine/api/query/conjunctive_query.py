@@ -3,6 +3,7 @@ Created on 26 déc. 2021
 
 @author: guillaume
 """
+
 import typing
 from functools import cached_property
 from typing import Optional, TYPE_CHECKING
@@ -21,11 +22,13 @@ if TYPE_CHECKING:
 
 
 class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
-    def __init__(self,
-                 atoms: Optional[typing.Iterable[Atom]] = None,
-                 answer_variables: Optional[typing.Iterable[Variable]] = None,
-                 label: typing.Optional[str] = None,
-                 pre_substitution: Optional[Substitution] = None):
+    def __init__(
+        self,
+        atoms: Optional[typing.Iterable[Atom]] = None,
+        answer_variables: Optional[typing.Iterable[Variable]] = None,
+        label: typing.Optional[str] = None,
+        pre_substitution: Optional[Substitution] = None,
+    ):
         Query.__init__(self, answer_variables, label)
         if not atoms:
             self._atoms = FrozenAtomSet()
@@ -34,13 +37,24 @@ class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
         else:
             self._atoms = FrozenAtomSet(a for a in atoms)
 
-        self._pre_substitution = Substitution() if pre_substitution is None else pre_substitution
+        self._pre_substitution = (
+            Substitution() if pre_substitution is None else pre_substitution
+        )
 
         if any(v not in self.answer_variables for v in self._pre_substitution.domain):
-            raise ValueError(f"A pre substitution can only be on answers variables: {self}")
+            raise ValueError(
+                f"A pre substitution can only be on answers variables: {self}"
+            )
 
-        if any(v not in self._atoms.variables for v in self.answer_variables if v not in self.pre_substitution.domain):
-            raise ValueError("All the answer variables of the CQ must appear in its atoms:" + repr(self))
+        if any(
+            v not in self._atoms.variables
+            for v in self.answer_variables
+            if v not in self.pre_substitution.domain
+        ):
+            raise ValueError(
+                "All the answer variables of the CQ must appear in its atoms:"
+                + repr(self)
+            )
 
     @property
     def pre_substitution(self) -> Substitution:
@@ -78,8 +92,12 @@ class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
             CQ: ?(X) :- p(X,Y), q(Y)
             FOQuery: ?(X) :- ∃Y.(p(X,Y) ∧ q(Y))
         """
-        from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-        from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+        from prototyping_inference_engine.api.formula.conjunction_formula import (
+            ConjunctionFormula,
+        )
+        from prototyping_inference_engine.api.formula.existential_formula import (
+            ExistentialFormula,
+        )
         from prototyping_inference_engine.api.formula.formula import Formula
         from prototyping_inference_engine.api.query.fo_query import FOQuery
 
@@ -98,39 +116,53 @@ class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
 
         return FOQuery(formula, self.answer_variables, self.label)
 
-    def query_with_other_answer_variables(self, answers_variables: tuple[Variable, ...]) -> 'ConjunctiveQuery':
+    def query_with_other_answer_variables(
+        self, answers_variables: tuple[Variable, ...]
+    ) -> "ConjunctiveQuery":
         return ConjunctiveQuery(self._atoms, answers_variables)
 
     @property
     def str_without_answer_variables(self) -> str:
-        return f"{self.atoms}" + \
-            (' \u2227 ' + ' \u2227 '.join(f"{v}={t}" for v, t in self.pre_substitution.graph)
-             if self.pre_substitution else '')
+        return f"{self.atoms}" + (
+            " \u2227 "
+            + " \u2227 ".join(f"{v}={t}" for v, t in self.pre_substitution.graph)
+            if self.pre_substitution
+            else ""
+        )
 
     def apply_substitution(self, substitution: Substitution) -> "ConjunctiveQuery":
-        return ConjunctiveQuery(substitution(self._atoms),
-                                [substitution(v) for v in self.answer_variables],
-                                self.label,
-                                substitution(self.pre_substitution).restrict_to(substitution(self.answer_variables)))
+        return ConjunctiveQuery(
+            substitution(self._atoms),
+            [substitution(v) for v in self.answer_variables],
+            self.label,
+            substitution(self.pre_substitution).restrict_to(
+                substitution(self.answer_variables)
+            ),
+        )
 
     def aggregate(self, other: "ConjunctiveQuery") -> "ConjunctiveQuery":
-        return ConjunctiveQuery(self._atoms | other._atoms,
-                                self.answer_variables + other.answer_variables,
-                                self.label,
-                                self.pre_substitution.aggregate(other.pre_substitution))
+        return ConjunctiveQuery(
+            self._atoms | other._atoms,
+            self.answer_variables + other.answer_variables,
+            self.label,
+            self.pre_substitution.aggregate(other.pre_substitution),
+        )
 
     def __eq__(self, other):
         if not isinstance(other, ConjunctiveQuery):
             return False
-        return (self.pre_substitution(self.atoms) == other.pre_substitution(other.atoms)
-                and self.pre_substitution(self.answer_variables) == other.pre_substitution(other.answer_variables)
-                and self.label == other.label)
+        return (
+            self.pre_substitution(self.atoms) == other.pre_substitution(other.atoms)
+            and self.pre_substitution(self.answer_variables)
+            == other.pre_substitution(other.answer_variables)
+            and self.label == other.label
+        )
 
     def __hash__(self):
         return hash((self.atoms, self.answer_variables, self.label))
 
     def __repr__(self):
-        return "ConjunctiveQuery: "+str(self)
+        return "ConjunctiveQuery: " + str(self)
 
     def __str__(self):
         return f"({', '.join(map(str, self.answer_variables))}) :- {self.str_without_answer_variables}"

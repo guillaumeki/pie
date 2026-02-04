@@ -1,8 +1,9 @@
-'''
+"""
 Created on 23 déc. 2021
 
 @author: guillaume
-'''
+"""
+
 from functools import cache
 from typing import TYPE_CHECKING
 

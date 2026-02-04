@@ -1,9 +1,15 @@
 from unittest import TestCase
 
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
-from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.scheduler.backtrack_scheduler import BacktrackScheduler
-from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.scheduler.by_variable_backtrack_scheduler import ByVariableBacktrackScheduler
-from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.scheduler.dynamic_backtrack_scheduler import DynamicBacktrackScheduler
+from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.scheduler.backtrack_scheduler import (
+    BacktrackScheduler,
+)
+from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.scheduler.by_variable_backtrack_scheduler import (
+    ByVariableBacktrackScheduler,
+)
+from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.scheduler.dynamic_backtrack_scheduler import (
+    DynamicBacktrackScheduler,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
@@ -54,6 +60,7 @@ class TestByVariableBacktrackScheduler(TestCase):
         self.assertIn(atom0, atom_set)
 
         atom1 = scheduler.next_atom(sub, 1)
+        self.assertIn(atom1, atom_set)
         self.assertIn(atom1, atom_set)
         self.assertNotEqual(atom0, atom1)
 
@@ -161,6 +168,7 @@ class TestDynamicBacktrackScheduler(TestCase):
         # Get first two atoms
         atom0 = scheduler.next_atom(sub, 0)
         atom1 = scheduler.next_atom(sub, 1)
+        self.assertIn(atom1, atom_set)
 
         # Backtrack to level 0 and get first atom again
         atom0_again = scheduler.next_atom(sub, 0)

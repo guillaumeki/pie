@@ -1,6 +1,7 @@
 """
 Abstract base class for first-order logic formulas.
 """
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 

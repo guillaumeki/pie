@@ -1,8 +1,9 @@
-'''
+"""
 Created on 23 déc. 2021
 
 @author: guillaume
-'''
+"""
+
 from typing import TYPE_CHECKING, Iterable
 
 from prototyping_inference_engine.api.atom.term.term import Term
@@ -32,7 +33,7 @@ class Variable(Term):
         return 1  # Variables have lower priority than constants
 
     def __repr__(self):
-        return "Var:"+str(self)
+        return "Var:" + str(self)
 
     def apply_substitution(self, substitution: "Substitution") -> Term:
         if self in substitution:
@@ -57,7 +58,12 @@ class Variable(Term):
         return cls.fresh_variable()
 
     @classmethod
-    def safe_renaming_substitution(cls, variables: Iterable["Variable"]) -> "Substitution":
+    def safe_renaming_substitution(
+        cls, variables: Iterable["Variable"]
+    ) -> "Substitution":
         """Create a substitution that renames all given variables to fresh ones."""
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
+
         return Substitution({v: cls.safe_renaming(v) for v in variables})

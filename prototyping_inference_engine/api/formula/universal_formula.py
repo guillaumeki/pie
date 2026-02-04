@@ -1,7 +1,10 @@
 """
 Universal quantification formula: ∀x.φ
 """
-from prototyping_inference_engine.api.formula.quantified_formula import QuantifiedFormula
+
+from prototyping_inference_engine.api.formula.quantified_formula import (
+    QuantifiedFormula,
+)
 
 
 class UniversalFormula(QuantifiedFormula):

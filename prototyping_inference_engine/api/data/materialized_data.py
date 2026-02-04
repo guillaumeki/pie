@@ -1,6 +1,7 @@
 """
 MaterializedData interface for fully materialized data sources.
 """
+
 from abc import abstractmethod
 from typing import Iterator, Optional, Set, TYPE_CHECKING
 
@@ -70,13 +71,14 @@ class MaterializedData(ReadableData):
 
         Returns an unconstrained pattern for any predicate.
         """
-        from prototyping_inference_engine.api.data.atomic_pattern import UnconstrainedPattern
+        from prototyping_inference_engine.api.data.atomic_pattern import (
+            UnconstrainedPattern,
+        )
+
         return UnconstrainedPattern(predicate)
 
     def can_evaluate_atom(
-        self,
-        atom: "Atom",
-        substitution: Optional["Substitution"] = None
+        self, atom: "Atom", substitution: Optional["Substitution"] = None
     ) -> bool:
         """Materialized data can always evaluate any atom."""
         return True

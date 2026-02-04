@@ -10,7 +10,10 @@ if TYPE_CHECKING:
 
 class Index(ABC):
     def match(self, atom: Atom, sub: Optional["Substitution"] = None) -> Iterator[Atom]:
-        from prototyping_inference_engine.api.substitution.substitution import Substitution
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
+
         if sub is None:
             sub = Substitution()
 
@@ -25,7 +28,9 @@ class Index(ABC):
     def domain_size(self, atom: Atom, sub: "Substitution") -> int:
         return len(self.domain(atom, sub))
 
-    def extend_substitution(self, atom: Atom, sub: "Substitution") -> Iterator["Substitution"]:
+    def extend_substitution(
+        self, atom: Atom, sub: "Substitution"
+    ) -> Iterator["Substitution"]:
         for a in self.domain(atom, sub):
             spec = specialize(atom, a, sub)
             if spec is not None:

@@ -1,6 +1,7 @@
 """
 Abstract base class for query evaluators.
 """
+
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar, Type, Iterator, Optional, TYPE_CHECKING
 

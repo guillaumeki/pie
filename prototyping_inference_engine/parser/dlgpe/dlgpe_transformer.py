@@ -1,17 +1,23 @@
 """
 DLGPE Transformer - Converts DLGPE parse tree to PIE objects.
 """
-from typing import List, Optional, Tuple, Any
-from lark import Transformer, v_args, Token  # type: ignore[import-not-found]
+
+from typing import List, Optional, Tuple
+from lark import Transformer, Token  # type: ignore[import-not-found]
 
 from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.predicate import Predicate, comparison_predicate
+from prototyping_inference_engine.api.atom.predicate import (
+    Predicate,
+    comparison_predicate,
+)
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
 from prototyping_inference_engine.api.atom.term.term import Term
-from prototyping_inference_engine.api.atom.term.factory.literal_factory import LiteralFactory
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
+    LiteralFactory,
+)
 from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
 from prototyping_inference_engine.api.atom.term.storage.dict_storage import DictStorage
 from prototyping_inference_engine.api.atom.term.literal_xsd import (
@@ -23,23 +29,33 @@ from prototyping_inference_engine.api.atom.term.literal_xsd import (
     XSD_BOOLEAN,
 )
 from prototyping_inference_engine.api.formula.formula import Formula
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
+from prototyping_inference_engine.api.formula.disjunction_formula import (
+    DisjunctionFormula,
+)
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
 from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
-from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
+from prototyping_inference_engine.api.ontology.constraint.negative_constraint import (
+    NegativeConstraint,
+)
 
 
 class DlgpeUnsupportedFeatureError(Exception):
     """Raised when the DLGPE file uses a feature not supported by PIE."""
+
     pass
 
 
 class Label(str):
     """Wrapper for label strings to distinguish them from other strings."""
+
     pass
 
 
@@ -77,9 +93,7 @@ class DlgpeTransformer(Transformer):
     # ==================== Unsupported Features ====================
 
     def unsupported_import(self, items):
-        raise DlgpeUnsupportedFeatureError(
-            "@import directive is not supported by PIE"
-        )
+        raise DlgpeUnsupportedFeatureError("@import directive is not supported by PIE")
 
     def unsupported_computed(self, items):
         raise DlgpeUnsupportedFeatureError(
@@ -87,9 +101,7 @@ class DlgpeTransformer(Transformer):
         )
 
     def unsupported_view(self, items):
-        raise DlgpeUnsupportedFeatureError(
-            "@view directive is not supported by PIE"
-        )
+        raise DlgpeUnsupportedFeatureError("@view directive is not supported by PIE")
 
     def unsupported_patterns(self, items):
         raise DlgpeUnsupportedFeatureError(
@@ -305,7 +317,9 @@ class DlgpeTransformer(Transformer):
             for var in sorted(extra_free_vars, key=str):
                 body_formula = ExistentialFormula(var, body_formula)
 
-        query = FOQuery(formula=body_formula, answer_variables=answer_vars_set, label=label)
+        query = FOQuery(
+            formula=body_formula, answer_variables=answer_vars_set, label=label
+        )
         return ("query", query, label)
 
     # ==================== Formulas ====================
@@ -317,7 +331,11 @@ class DlgpeTransformer(Transformer):
         """Head disjunction: conj | conj | ..."""
         if len(items) == 1:
             return items[0]
-        return DisjunctionFormula(items[0], items[1]) if len(items) == 2 else self._build_disjunction(items)
+        return (
+            DisjunctionFormula(items[0], items[1])
+            if len(items) == 2
+            else self._build_disjunction(items)
+        )
 
     def head_conjunction(self, items) -> Formula:
         """Head conjunction: elem, elem, ..."""
@@ -335,7 +353,11 @@ class DlgpeTransformer(Transformer):
         """Body disjunction: conj | conj | ..."""
         if len(items) == 1:
             return items[0]
-        return DisjunctionFormula(items[0], items[1]) if len(items) == 2 else self._build_disjunction(items)
+        return (
+            DisjunctionFormula(items[0], items[1])
+            if len(items) == 2
+            else self._build_disjunction(items)
+        )
 
     def body_conjunction(self, items) -> Formula:
         """Body conjunction: elem, elem, ..."""
@@ -403,7 +425,7 @@ class DlgpeTransformer(Transformer):
         if not items:
             return frozenset()
         # Check for STAR token (when * is used for all variables)
-        if hasattr(items[0], 'type') and items[0].type == 'STAR':
+        if hasattr(items[0], "type") and items[0].type == "STAR":
             return "*"
         if isinstance(items[0], frozenset):
             return items[0]
@@ -544,7 +566,7 @@ class DlgpeTransformer(Transformer):
 
     def neck(self, items):
         token = items[0] if items else ":-"
-        self._ground_neck = (str(token) == "::-")
+        self._ground_neck = str(token) == "::-"
         return str(token)
 
     # ==================== Helper Methods ====================

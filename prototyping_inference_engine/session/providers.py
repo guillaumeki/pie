@@ -4,18 +4,31 @@ Provider protocols and default implementations for ReasoningSession dependencies
 Providers enable dependency injection following the DIP (Dependency Inversion Principle),
 allowing different implementations to be injected for testing or custom behavior.
 """
+
 from typing import Protocol, runtime_checkable, Iterable, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.atom.atom import Atom
-    from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base import FrozenInMemoryFactBase
-    from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-    from prototyping_inference_engine.backward_chaining.breadth_first_rewriting import BreadthFirstRewriting
+    from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base import (
+        FrozenInMemoryFactBase,
+    )
+    from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+        MutableInMemoryFactBase,
+    )
+    from prototyping_inference_engine.backward_chaining.breadth_first_rewriting import (
+        BreadthFirstRewriting,
+    )
     from prototyping_inference_engine.api.ontology.rule.rule import Rule
-    from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
-    from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
+    from prototyping_inference_engine.api.ontology.constraint.negative_constraint import (
+        NegativeConstraint,
+    )
+    from prototyping_inference_engine.api.query.conjunctive_query import (
+        ConjunctiveQuery,
+    )
     from prototyping_inference_engine.api.query.query import Query
-    from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+    from prototyping_inference_engine.api.query.union_conjunctive_queries import (
+        UnionConjunctiveQueries,
+    )
 
 
 @runtime_checkable
@@ -96,6 +109,7 @@ class DefaultFactBaseFactoryProvider:
             A new mutable fact base instance
         """
         from prototyping_inference_engine.api.fact_base.factory import FactBaseFactory
+
         return FactBaseFactory.create_mutable(atoms)
 
     def create_frozen(
@@ -111,6 +125,7 @@ class DefaultFactBaseFactoryProvider:
             A new frozen fact base instance
         """
         from prototyping_inference_engine.api.fact_base.factory import FactBaseFactory
+
         return FactBaseFactory.create_frozen(atoms)
 
 
@@ -131,6 +146,7 @@ class DefaultRewritingAlgorithmProvider:
         from prototyping_inference_engine.backward_chaining.breadth_first_rewriting import (
             BreadthFirstRewriting,
         )
+
         return BreadthFirstRewriting()
 
 
@@ -193,7 +209,9 @@ class ParserProvider(Protocol):
         """
         ...
 
-    def parse_union_conjunctive_queries(self, text: str) -> Iterable["UnionConjunctiveQueries"]:
+    def parse_union_conjunctive_queries(
+        self, text: str
+    ) -> Iterable["UnionConjunctiveQueries"]:
         """
         Parse union of conjunctive queries from text.
 
@@ -231,7 +249,9 @@ class Dlgp2ParserProvider:
     def _parser(self):
         from prototyping_inference_engine.api.atom.term.literal import Literal
         from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
-        from prototyping_inference_engine.parser.dlgp.dlgp2_transformer import Dlgp2Transformer
+        from prototyping_inference_engine.parser.dlgp.dlgp2_transformer import (
+            Dlgp2Transformer,
+        )
 
         if self._term_factories and Literal in self._term_factories:
             literal_factory = self._term_factories.get(Literal)
@@ -256,7 +276,9 @@ class Dlgp2ParserProvider:
         yield from parser.parse_conjunctive_queries(text)
         yield from parser.parse_union_conjunctive_queries(text)
 
-    def parse_union_conjunctive_queries(self, text: str) -> Iterable["UnionConjunctiveQueries"]:
+    def parse_union_conjunctive_queries(
+        self, text: str
+    ) -> Iterable["UnionConjunctiveQueries"]:
         """Parse union of conjunctive queries from DLGP text."""
         return self._parser().parse_union_conjunctive_queries(text)
 
@@ -277,7 +299,10 @@ class DlgpeParserProvider:
 
     def _transformer(self):
         from prototyping_inference_engine.api.atom.term.literal import Literal
-        from prototyping_inference_engine.parser.dlgpe.dlgpe_transformer import DlgpeTransformer
+        from prototyping_inference_engine.parser.dlgpe.dlgpe_transformer import (
+            DlgpeTransformer,
+        )
+
         if self._term_factories and Literal in self._term_factories:
             literal_factory = self._term_factories.get(Literal)
             return DlgpeTransformer(literal_factory)
@@ -286,18 +311,24 @@ class DlgpeParserProvider:
     def parse_atoms(self, text: str) -> Iterable["Atom"]:
         """Parse atoms from DLGPE text."""
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+
         return DlgpeParser.instance().parse_atoms(text, self._transformer())
 
     def parse_rules(self, text: str) -> Iterable["Rule"]:
         """Parse rules from DLGPE text."""
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+
         return DlgpeParser.instance().parse_rules(text, self._transformer())
 
     def parse_conjunctive_queries(self, text: str) -> Iterable["ConjunctiveQuery"]:
         """Parse conjunctive queries from DLGPE text when possible."""
-        from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
+        from prototyping_inference_engine.api.query.conjunctive_query import (
+            ConjunctiveQuery,
+        )
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
-        from prototyping_inference_engine.parser.dlgpe.conversions import try_convert_fo_query
+        from prototyping_inference_engine.parser.dlgpe.conversions import (
+            try_convert_fo_query,
+        )
 
         for query in DlgpeParser.instance().parse_queries(text, self._transformer()):
             converted = try_convert_fo_query(query)
@@ -307,13 +338,20 @@ class DlgpeParserProvider:
     def parse_queries(self, text: str) -> Iterable["Query"]:
         """Parse queries from DLGPE text."""
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+
         return DlgpeParser.instance().parse_queries(text, self._transformer())
 
-    def parse_union_conjunctive_queries(self, text: str) -> Iterable["UnionConjunctiveQueries"]:
+    def parse_union_conjunctive_queries(
+        self, text: str
+    ) -> Iterable["UnionConjunctiveQueries"]:
         """Parse UCQs from DLGPE text when possible."""
-        from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+        from prototyping_inference_engine.api.query.union_conjunctive_queries import (
+            UnionConjunctiveQueries,
+        )
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
-        from prototyping_inference_engine.parser.dlgpe.conversions import try_convert_fo_query
+        from prototyping_inference_engine.parser.dlgpe.conversions import (
+            try_convert_fo_query,
+        )
 
         for query in DlgpeParser.instance().parse_queries(text, self._transformer()):
             converted = try_convert_fo_query(query)
@@ -323,4 +361,5 @@ class DlgpeParserProvider:
     def parse_negative_constraints(self, text: str) -> Iterable["NegativeConstraint"]:
         """Parse negative constraints from DLGPE text."""
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+
         return DlgpeParser.instance().parse_constraints(text, self._transformer())

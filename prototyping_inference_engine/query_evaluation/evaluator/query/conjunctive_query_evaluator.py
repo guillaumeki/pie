@@ -1,11 +1,14 @@
 """
 Evaluator for ConjunctiveQuery.
 """
+
 from typing import Iterator, Type, Optional, TYPE_CHECKING, cast
 
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import QueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import (
+    QueryEvaluator,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
@@ -39,6 +42,7 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import (
             QueryEvaluatorRegistry,
         )
+
         return QueryEvaluatorRegistry.instance()
 
     @classmethod
@@ -69,9 +73,7 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         evaluator = registry.get_evaluator(fo_query)
 
         if evaluator is None:
-            raise ValueError(
-                f"No evaluator registered for FOQuery"
-            )
+            raise ValueError("No evaluator registered for FOQuery")
 
         yield from evaluator.evaluate(fo_query, data, substitution)
 
@@ -97,11 +99,12 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         evaluator = registry.get_evaluator(fo_query)
 
         if evaluator is None:
-            raise ValueError(
-                f"No evaluator registered for FOQuery"
-            )
+            raise ValueError("No evaluator registered for FOQuery")
 
         from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator import (
             FOQueryEvaluator,
         )
-        yield from cast(FOQueryEvaluator, evaluator).evaluate_and_project(fo_query, data, substitution)
+
+        yield from cast(FOQueryEvaluator, evaluator).evaluate_and_project(
+            fo_query, data, substitution
+        )

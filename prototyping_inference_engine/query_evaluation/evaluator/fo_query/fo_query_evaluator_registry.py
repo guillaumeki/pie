@@ -1,11 +1,14 @@
 """
 Registry for FOQuery evaluators.
 """
+
 from typing import Type, Optional
 
 from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator import FOQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator import (
+    FOQueryEvaluator,
+)
 
 
 class FOQueryEvaluatorRegistry:
@@ -43,6 +46,7 @@ class FOQueryEvaluatorRegistry:
             UniversalFOQueryEvaluator,
             ExistentialFOQueryEvaluator,
         )
+
         self.register(AtomicFOQueryEvaluator())
         self.register(ConjunctiveFOQueryEvaluator(registry=self))
         self.register(DisjunctiveFOQueryEvaluator(registry=self))

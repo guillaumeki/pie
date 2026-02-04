@@ -1,6 +1,7 @@
 """
 In-memory fact base implementation.
 """
+
 from abc import ABC
 from typing import Iterator, Set, Tuple, TYPE_CHECKING
 

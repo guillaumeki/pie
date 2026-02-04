@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from functools import cached_property
 from typing import Optional
 
-from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
@@ -33,13 +32,17 @@ class PieceUnifier:
         return part.is_admissible
 
     def aggregate(self, other: "PieceUnifier") -> "PieceUnifier":
-        unified_query_part = FrozenAtomSet(self.unified_query_part | other.unified_query_part)
+        unified_query_part = FrozenAtomSet(
+            self.unified_query_part | other.unified_query_part
+        )
         partition = TermPartition(self.partition)
         partition.join(other.partition)
-        return PieceUnifier(Rule.aggregate_conjunctive_rules(self.rule, other.rule),
-                            self.query,
-                            unified_query_part,
-                            partition)
+        return PieceUnifier(
+            Rule.aggregate_conjunctive_rules(self.rule, other.rule),
+            self.query,
+            unified_query_part,
+            partition,
+        )
 
     def try_to_merge_with(self, other: "PieceUnifier") -> Optional["PieceUnifier"]:
         """
@@ -52,7 +55,9 @@ class PieceUnifier:
         part.join(other.partition)
 
         if part.is_admissible:
-            unified_query_part = FrozenAtomSet(self.unified_query_part | other.unified_query_part)
+            unified_query_part = FrozenAtomSet(
+                self.unified_query_part | other.unified_query_part
+            )
             return PieceUnifier(self.rule, self.query, unified_query_part, part)
 
         return None
@@ -63,7 +68,11 @@ class PieceUnifier:
 
     @cached_property
     def separating_variables(self) -> frozenset[Variable]:
-        return frozenset(v for v in self.unified_query_part.variables if v in self.not_unified_part.variables)
+        return frozenset(
+            v
+            for v in self.unified_query_part.variables
+            if v in self.not_unified_part.variables
+        )
 
     @cached_property
     def sticky_variables(self) -> frozenset[Variable]:

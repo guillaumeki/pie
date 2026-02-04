@@ -1,10 +1,13 @@
 """
 Registry for formula evaluators.
 """
+
 from typing import Type, Optional
 
 from prototyping_inference_engine.api.formula.formula import Formula
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import FormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
+    FormulaEvaluator,
+)
 
 
 class FormulaEvaluatorRegistry:
@@ -47,7 +50,9 @@ class FormulaEvaluatorRegistry:
 
     def _register_defaults(self) -> None:
         """Register default evaluators."""
-        from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import AtomEvaluator
+        from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import (
+            AtomEvaluator,
+        )
         from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
             BacktrackConjunctionEvaluator,
         )
@@ -63,6 +68,7 @@ class FormulaEvaluatorRegistry:
         from prototyping_inference_engine.query_evaluation.evaluator.disjunction.disjunction_formula_evaluator import (
             DisjunctionFormulaEvaluator,
         )
+
         self.register(AtomEvaluator())
         self.register(BacktrackConjunctionEvaluator(registry=self))
         self.register(NegationFormulaEvaluator(registry=self))

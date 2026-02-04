@@ -3,7 +3,9 @@ import unittest
 from prototyping_inference_engine.api.data.comparison_data import ComparisonDataSource
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
 from prototyping_inference_engine.api.atom.predicate import comparison_predicate
-from prototyping_inference_engine.api.atom.term.factory.literal_factory import LiteralFactory
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
+    LiteralFactory,
+)
 from prototyping_inference_engine.api.atom.term.literal_config import (
     LiteralConfig,
     LiteralComparison,

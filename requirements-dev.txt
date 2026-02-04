@@ -1,0 +1,7 @@
+bandit
+coverage
+hypothesis
+pip-audit
+radon
+ruff
+vulture

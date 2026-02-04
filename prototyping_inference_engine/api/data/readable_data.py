@@ -1,6 +1,7 @@
 """
 ReadableData interface for queryable data sources.
 """
+
 from abc import ABC, abstractmethod
 from typing import Iterator, Tuple, TYPE_CHECKING
 

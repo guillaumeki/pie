@@ -1,6 +1,8 @@
 import unittest
 
-from prototyping_inference_engine.api.atom.term.factory.literal_factory import LiteralFactory
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
+    LiteralFactory,
+)
 from prototyping_inference_engine.api.atom.term.storage.dict_storage import DictStorage
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
 from prototyping_inference_engine.api.data.python_function_data import (

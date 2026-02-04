@@ -6,13 +6,17 @@ from prototyping_inference_engine.api.query.conjunctive_query import Conjunctive
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
-from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
+from prototyping_inference_engine.api.ontology.constraint.negative_constraint import (
+    NegativeConstraint,
+)
 from prototyping_inference_engine.api.atom.predicate import Predicate, SpecialPredicate
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.api.atom.term.factory.literal_factory import LiteralFactory
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
+    LiteralFactory,
+)
 from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
 from prototyping_inference_engine.api.atom.term.storage.dict_storage import DictStorage
 from prototyping_inference_engine.api.atom.term.literal_xsd import (
@@ -53,8 +57,11 @@ class Dlgp2Transformer(Transformer):
 
     @staticmethod
     def rule(c):
-        return Rule(body=ConjunctiveQuery(c[-1]),
-                    head=tuple(ConjunctiveQuery(disjunct) for disjunct in c[1]), label=c[0])
+        return Rule(
+            body=ConjunctiveQuery(c[-1]),
+            head=tuple(ConjunctiveQuery(disjunct) for disjunct in c[1]),
+            label=c[0],
+        )
 
     @staticmethod
     def query(q):
@@ -68,21 +75,26 @@ class Dlgp2Transformer(Transformer):
                     atoms.add(atom)
             for atom in q[2][0]:
                 if atom.predicate == SpecialPredicate.EQUALITY.value:
-                    if (isinstance(atom.terms[0], (Constant, Literal))
-                            or (atom.terms[1] not in atoms.variables and atom.terms[1] in q[1])):
+                    if isinstance(atom.terms[0], (Constant, Literal)) or (
+                        atom.terms[1] not in atoms.variables and atom.terms[1] in q[1]
+                    ):
                         first_term, second_term = atom.terms[1], atom.terms[0]
                     else:
                         first_term, second_term = atom.terms[0], atom.terms[1]
                     pre_substitution[first_term] = second_term
 
-            return ConjunctiveQuery(FrozenAtomSet(atoms),
-                                    answer_variables=q[1],
-                                    label=q[0],
-                                    pre_substitution=pre_substitution)
+            return ConjunctiveQuery(
+                FrozenAtomSet(atoms),
+                answer_variables=q[1],
+                label=q[0],
+                pre_substitution=pre_substitution,
+            )
 
-        return UnionQuery((Dlgp2Transformer.query(q[:2]+[[disjunct]]) for disjunct in q[2]),
-                          answer_variables=q[1],
-                          label=q[0])
+        return UnionQuery(
+            (Dlgp2Transformer.query(q[:2] + [[disjunct]]) for disjunct in q[2]),
+            answer_variables=q[1],
+            label=q[0],
+        )
 
     @staticmethod
     def fact(items):
@@ -186,7 +198,9 @@ class Dlgp2Transformer(Transformer):
         if not isinstance(qualifier, str):
             qualifier = str(qualifier)
         if ":" not in qualifier and "/" not in qualifier and "#" not in qualifier:
-            return self._literal_factory.create(lexical, f"{RDF_PREFIX}{RDF_LANG_STRING}", qualifier)
+            return self._literal_factory.create(
+                lexical, f"{RDF_PREFIX}{RDF_LANG_STRING}", qualifier
+            )
         return self._literal_factory.create(lexical, qualifier)
 
     def numeric_literal(self, items):

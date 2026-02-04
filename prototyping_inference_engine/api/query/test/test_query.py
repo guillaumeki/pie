@@ -1,11 +1,11 @@
 from unittest import TestCase
 
-from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.union_conjunctive_queries import (
+    UnionConjunctiveQueries,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
@@ -350,7 +350,9 @@ class TestCQToFOQueryConversion(TestCase):
 
     def test_cq_to_fo_query_with_existential(self):
         """Test converting a CQ with existentially quantified variable."""
-        from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+        from prototyping_inference_engine.api.formula.existential_formula import (
+            ExistentialFormula,
+        )
         from prototyping_inference_engine.api.query.fo_query import FOQuery
 
         atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y,Z).")
@@ -391,7 +393,9 @@ class TestCQToFOQueryConversion(TestCase):
 
     def test_ucq_to_fo_query_multiple_cqs(self):
         """Test converting a UCQ with multiple CQs to FOQuery."""
-        from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
+        from prototyping_inference_engine.api.formula.disjunction_formula import (
+            DisjunctionFormula,
+        )
         from prototyping_inference_engine.api.query.fo_query import FOQuery
 
         atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")

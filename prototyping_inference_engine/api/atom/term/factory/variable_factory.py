@@ -4,10 +4,13 @@ Factory for creating Variable instances.
 This factory delegates storage to a TermStorageStrategy,
 enabling different caching behaviors (dict, weak references, etc.).
 """
+
 from typing import Set, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from prototyping_inference_engine.api.atom.term.storage.storage_strategy import TermStorageStrategy
+    from prototyping_inference_engine.api.atom.term.storage.storage_strategy import (
+        TermStorageStrategy,
+    )
     from prototyping_inference_engine.api.atom.term.variable import Variable
 
 
@@ -43,6 +46,7 @@ class VariableFactory:
             The Variable instance
         """
         from prototyping_inference_engine.api.atom.term.variable import Variable
+
         return self._storage.get_or_create(identifier, lambda: Variable(identifier))
 
     def fresh(self) -> "Variable":

@@ -1,6 +1,7 @@
 """
 Additional DLGPE unsupported feature tests.
 """
+
 import unittest
 
 from prototyping_inference_engine.parser.dlgpe import (

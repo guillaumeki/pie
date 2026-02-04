@@ -1,6 +1,7 @@
 """
 Tests for FormulaBuilder.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -40,55 +41,29 @@ class TestFormulaBuilder(unittest.TestCase):
         self.assertEqual(str(formula), "¬(p(X))")
 
     def test_build_conjunction(self):
-        formula = (
-            self.session.formula()
-            .atom("p", "X")
-            .and_()
-            .atom("q", "Y")
-            .build()
-        )
+        formula = self.session.formula().atom("p", "X").and_().atom("q", "Y").build()
         self.assertIsInstance(formula, ConjunctionFormula)
         self.assertEqual(str(formula), "(p(X) ∧ q(Y))")
 
     def test_build_disjunction(self):
-        formula = (
-            self.session.formula()
-            .atom("p", "X")
-            .or_()
-            .atom("q", "Y")
-            .build()
-        )
+        formula = self.session.formula().atom("p", "X").or_().atom("q", "Y").build()
         self.assertIsInstance(formula, DisjunctionFormula)
         self.assertEqual(str(formula), "(p(X) ∨ q(Y))")
 
     def test_build_universal(self):
-        formula = (
-            self.session.formula()
-            .forall("X")
-            .atom("p", "X")
-            .build()
-        )
+        formula = self.session.formula().forall("X").atom("p", "X").build()
         self.assertIsInstance(formula, UniversalFormula)
         self.assertEqual(str(formula), "∀X.(p(X))")
 
     def test_build_existential(self):
-        formula = (
-            self.session.formula()
-            .exists("X")
-            .atom("p", "X")
-            .build()
-        )
+        formula = self.session.formula().exists("X").atom("p", "X").build()
         self.assertIsInstance(formula, ExistentialFormula)
         self.assertEqual(str(formula), "∃X.(p(X))")
 
     def test_build_nested_quantifiers(self):
         # ∀X.∃Y.p(X,Y)
         formula = (
-            self.session.formula()
-            .forall("X")
-            .exists("Y")
-            .atom("p", "X", "Y")
-            .build()
+            self.session.formula().forall("X").exists("Y").atom("p", "X", "Y").build()
         )
         self.assertIsInstance(formula, UniversalFormula)
         self.assertIsInstance(formula.inner, ExistentialFormula)
@@ -114,12 +89,7 @@ class TestFormulaBuilder(unittest.TestCase):
     def test_build_conjunction_with_negation(self):
         # p(X) ∧ ¬q(Y)
         formula = (
-            self.session.formula()
-            .atom("p", "X")
-            .and_()
-            .atom("q", "Y")
-            .not_()
-            .build()
+            self.session.formula().atom("p", "X").and_().atom("q", "Y").not_().build()
         )
         self.assertIsInstance(formula, ConjunctionFormula)
         self.assertIsInstance(formula.right, NegationFormula)
@@ -182,35 +152,20 @@ class TestFormulaBuilder(unittest.TestCase):
             builder.build()
 
     def test_formula_free_variables(self):
-        formula = (
-            self.session.formula()
-            .forall("X")
-            .atom("p", "X", "Y")
-            .build()
-        )
+        formula = self.session.formula().forall("X").atom("p", "X", "Y").build()
         self.assertEqual(len(formula.free_variables), 1)
         self.assertIn(self.session.variable("Y"), formula.free_variables)
 
     def test_formula_bound_variables(self):
         formula = (
-            self.session.formula()
-            .forall("X")
-            .exists("Y")
-            .atom("p", "X", "Y")
-            .build()
+            self.session.formula().forall("X").exists("Y").atom("p", "X", "Y").build()
         )
         self.assertEqual(len(formula.bound_variables), 2)
         self.assertIn(self.session.variable("X"), formula.bound_variables)
         self.assertIn(self.session.variable("Y"), formula.bound_variables)
 
     def test_formula_atoms(self):
-        formula = (
-            self.session.formula()
-            .atom("p", "X")
-            .and_()
-            .atom("q", "Y")
-            .build()
-        )
+        formula = self.session.formula().atom("p", "X").and_().atom("q", "Y").build()
         self.assertEqual(len(formula.atoms), 2)
 
 

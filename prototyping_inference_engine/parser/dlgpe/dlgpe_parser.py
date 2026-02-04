@@ -7,9 +7,9 @@ in rule bodies, and more.
 
 This parser implements a subset of DLGPE compatible with PIE's capabilities.
 """
+
 from pathlib import Path
-from typing import List, Iterator, Optional, Union, Any
-from functools import cache
+from typing import List, Iterator, Optional, Union
 import re
 
 from lark import Lark  # type: ignore[import-not-found]
@@ -18,7 +18,9 @@ from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import is_comparison_predicate
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
-from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
+from prototyping_inference_engine.api.ontology.constraint.negative_constraint import (
+    NegativeConstraint,
+)
 from lark.exceptions import VisitError  # type: ignore[import-not-found]
 
 from prototyping_inference_engine.parser.dlgpe.dlgpe_transformer import (
@@ -148,7 +150,9 @@ class DlgpeParser:
         text = path.read_text(encoding="utf-8")
         return self.parse(text)
 
-    def parse_atoms(self, text: str, transformer: Optional[DlgpeTransformer] = None) -> Iterator[Atom]:
+    def parse_atoms(
+        self, text: str, transformer: Optional[DlgpeTransformer] = None
+    ) -> Iterator[Atom]:
         """
         Parse text containing only facts and yield atoms.
 
@@ -161,7 +165,9 @@ class DlgpeParser:
         result = self.parse(text, transformer)
         yield from result["facts"]
 
-    def parse_rules(self, text: str, transformer: Optional[DlgpeTransformer] = None) -> Iterator[Rule]:
+    def parse_rules(
+        self, text: str, transformer: Optional[DlgpeTransformer] = None
+    ) -> Iterator[Rule]:
         """
         Parse text and yield rules.
 
@@ -174,7 +180,9 @@ class DlgpeParser:
         result = self.parse(text, transformer)
         yield from result["rules"]
 
-    def parse_queries(self, text: str, transformer: Optional[DlgpeTransformer] = None) -> Iterator[FOQuery]:
+    def parse_queries(
+        self, text: str, transformer: Optional[DlgpeTransformer] = None
+    ) -> Iterator[FOQuery]:
         """
         Parse text and yield queries.
 
@@ -187,7 +195,9 @@ class DlgpeParser:
         result = self.parse(text, transformer)
         yield from result["queries"]
 
-    def parse_constraints(self, text: str, transformer: Optional[DlgpeTransformer] = None) -> Iterator[NegativeConstraint]:
+    def parse_constraints(
+        self, text: str, transformer: Optional[DlgpeTransformer] = None
+    ) -> Iterator[NegativeConstraint]:
         """
         Parse text and yield constraints.
 

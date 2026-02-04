@@ -1,6 +1,7 @@
 """
 ReadableDataCollection for aggregating multiple queryable data sources.
 """
+
 from typing import Dict, Iterator, List, Optional, Tuple, TYPE_CHECKING
 
 from prototyping_inference_engine.api.data.readable_data import ReadableData
@@ -47,7 +48,9 @@ class ReadableDataCollection(ReadableData):
                            in the static mapping.
         """
         self._sources: Dict["Predicate", Queryable] = dict(sources)
-        self._dynamic_sources: List[Queryable] = list(dynamic_sources) if dynamic_sources else []
+        self._dynamic_sources: List[Queryable] = (
+            list(dynamic_sources) if dynamic_sources else []
+        )
         self._all_sources: List[Queryable] = list(set(sources.values()))
         if dynamic_sources:
             for ds in dynamic_sources:

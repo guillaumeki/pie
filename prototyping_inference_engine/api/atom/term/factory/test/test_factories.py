@@ -1,6 +1,7 @@
 """
 Unit tests for term factories.
 """
+
 import gc
 import unittest
 from unittest import TestCase

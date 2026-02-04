@@ -1,13 +1,16 @@
 """
 ParseResult dataclass for structured DLGP parsing results.
 """
+
 from dataclasses import dataclass
 from typing import FrozenSet, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
     from prototyping_inference_engine.api.ontology.rule.rule import Rule
-    from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
+    from prototyping_inference_engine.api.ontology.constraint.negative_constraint import (
+        NegativeConstraint,
+    )
     from prototyping_inference_engine.api.query.query import Query
     from prototyping_inference_engine.api.data.readable_data import ReadableData
 

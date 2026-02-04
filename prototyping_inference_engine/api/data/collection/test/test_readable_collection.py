@@ -1,17 +1,13 @@
 """Tests for ReadableDataCollection."""
+
 import unittest
 
-from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
 from prototyping_inference_engine.api.data.collection.readable_collection import (
     ReadableDataCollection,
-)
-from prototyping_inference_engine.api.data.collection.protocols import (
-    Queryable,
-    DynamicPredicates,
 )
 from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base import (
     FrozenInMemoryFactBase,
@@ -29,12 +25,8 @@ class TestReadableDataCollection(unittest.TestCase):
         self.r = Predicate("r", 2)
 
         # Create two fact bases with different predicates
-        self.fb1 = FrozenInMemoryFactBase(
-            self.parser.parse_atoms("p(a,b), p(c,d).")
-        )
-        self.fb2 = FrozenInMemoryFactBase(
-            self.parser.parse_atoms("q(x), q(y).")
-        )
+        self.fb1 = FrozenInMemoryFactBase(self.parser.parse_atoms("p(a,b), p(c,d)."))
+        self.fb2 = FrozenInMemoryFactBase(self.parser.parse_atoms("q(x), q(y)."))
 
     def test_empty_collection(self):
         """Test empty collection."""
@@ -49,20 +41,24 @@ class TestReadableDataCollection(unittest.TestCase):
 
     def test_multiple_sources(self):
         """Test collection with multiple sources."""
-        collection = ReadableDataCollection({
-            self.p: self.fb1,
-            self.q: self.fb2,
-        })
+        collection = ReadableDataCollection(
+            {
+                self.p: self.fb1,
+                self.q: self.fb2,
+            }
+        )
         self.assertTrue(collection.has_predicate(self.p))
         self.assertTrue(collection.has_predicate(self.q))
         self.assertFalse(collection.has_predicate(self.r))
 
     def test_get_predicates(self):
         """Test get_predicates returns all predicates."""
-        collection = ReadableDataCollection({
-            self.p: self.fb1,
-            self.q: self.fb2,
-        })
+        collection = ReadableDataCollection(
+            {
+                self.p: self.fb1,
+                self.q: self.fb2,
+            }
+        )
         predicates = set(collection.get_predicates())
         self.assertEqual(predicates, {self.p, self.q})
 
@@ -80,10 +76,12 @@ class TestReadableDataCollection(unittest.TestCase):
 
     def test_evaluate_routes_to_correct_source(self):
         """Test evaluate routes query to the correct source."""
-        collection = ReadableDataCollection({
-            self.p: self.fb1,
-            self.q: self.fb2,
-        })
+        collection = ReadableDataCollection(
+            {
+                self.p: self.fb1,
+                self.q: self.fb2,
+            }
+        )
 
         # Query p predicate - should route to fb1
         query = BasicQuery(
@@ -150,10 +148,12 @@ class TestReadableDataCollection(unittest.TestCase):
 
     def test_get_source_for_predicate(self):
         """Test get_source_for_predicate returns correct source."""
-        collection = ReadableDataCollection({
-            self.p: self.fb1,
-            self.q: self.fb2,
-        })
+        collection = ReadableDataCollection(
+            {
+                self.p: self.fb1,
+                self.q: self.fb2,
+            }
+        )
         self.assertIs(collection.get_source_for_predicate(self.p), self.fb1)
         self.assertIs(collection.get_source_for_predicate(self.q), self.fb2)
         self.assertIsNone(collection.get_source_for_predicate(self.r))

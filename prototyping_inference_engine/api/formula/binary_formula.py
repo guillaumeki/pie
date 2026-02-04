@@ -1,6 +1,7 @@
 """
 Abstract base class for binary connective formulas.
 """
+
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
@@ -9,7 +10,6 @@ from prototyping_inference_engine.api.formula.formula import Formula
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.atom.atom import Atom
     from prototyping_inference_engine.api.atom.term.variable import Variable
-    from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
 class BinaryFormula(Formula, ABC):

@@ -1,13 +1,16 @@
 """
 Evaluator for atomic formulas.
 """
+
 from typing import Type, Iterator, Optional, TYPE_CHECKING, cast
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import FormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
+    FormulaEvaluator,
+)
 from prototyping_inference_engine.query_evaluation.evaluator.rewriting.function_term_rewriter import (
     formula_contains_function,
     rewrite_atom_function_terms,
@@ -16,7 +19,9 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
-    from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+    from prototyping_inference_engine.api.formula.conjunction_formula import (
+        ConjunctionFormula,
+    )
 
 
 class AtomEvaluator(FormulaEvaluator[Atom]):
@@ -64,7 +69,6 @@ class AtomEvaluator(FormulaEvaluator[Atom]):
         if formula_contains_function(formula):
             atoms = rewrite_atom_function_terms(formula)
             if len(atoms) > 1:
-                from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
                 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
                     BacktrackConjunctionEvaluator,
                 )
@@ -110,7 +114,9 @@ class AtomEvaluator(FormulaEvaluator[Atom]):
 
 
 def _build_conjunction(formulas: list[Atom]) -> "ConjunctionFormula":
-    from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+    from prototyping_inference_engine.api.formula.conjunction_formula import (
+        ConjunctionFormula,
+    )
     from prototyping_inference_engine.api.formula.formula import Formula
 
     if not formulas:

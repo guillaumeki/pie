@@ -1,9 +1,9 @@
 """
 Helpers to rewrite functional terms into computed atoms.
 """
+
 from __future__ import annotations
 
-from typing import Iterable
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
@@ -18,7 +18,9 @@ def expand_function_terms(formulas: list[Formula]) -> list[Formula]:
     for formula in formulas:
         if isinstance(formula, Atom):
             expanded.extend(rewrite_atom_function_terms(formula))
-        elif isinstance(formula, NegationFormula) and formula_contains_function(formula):
+        elif isinstance(formula, NegationFormula) and formula_contains_function(
+            formula
+        ):
             raise ValueError("Functional terms are not supported under negation.")
         else:
             expanded.append(formula)
@@ -58,7 +60,9 @@ def term_contains_function(term: Term) -> bool:
 
 
 def _rewrite_term(term: Term) -> tuple[Term, list[Atom]]:
-    from prototyping_inference_engine.api.data.python_function_data import function_predicate
+    from prototyping_inference_engine.api.data.python_function_data import (
+        function_predicate,
+    )
 
     if isinstance(term, FunctionTerm):
         rewritten_args: list[Term] = []

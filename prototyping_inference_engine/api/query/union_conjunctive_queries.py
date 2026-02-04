@@ -44,9 +44,15 @@ class UnionConjunctiveQueries(UnionQuery[ConjunctiveQuery]):
             UCQ: ?(X) :- p(X,Y) | q(X,Z)
             FOQuery: ?(X) :- (∃Y.p(X,Y)) ∨ (∃Z.q(X,Z))
         """
-        from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
-        from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
-        from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
+        from prototyping_inference_engine.api.formula.conjunction_formula import (
+            ConjunctionFormula,
+        )
+        from prototyping_inference_engine.api.formula.disjunction_formula import (
+            DisjunctionFormula,
+        )
+        from prototyping_inference_engine.api.formula.existential_formula import (
+            ExistentialFormula,
+        )
         from prototyping_inference_engine.api.formula.formula import Formula
         from prototyping_inference_engine.api.query.fo_query import FOQuery
 
@@ -80,29 +86,43 @@ class UnionConjunctiveQueries(UnionQuery[ConjunctiveQuery]):
 
         return FOQuery(combined, self.answer_variables, self.label)
 
-    def apply_substitution(self, substitution: Substitution) -> "UnionConjunctiveQueries":
-        return UnionConjunctiveQueries((substitution(cq) for cq in self.conjunctive_queries),
-                                       [substitution(v) for v in self.answer_variables],
-                                       self.label)
+    def apply_substitution(
+        self, substitution: Substitution
+    ) -> "UnionConjunctiveQueries":
+        return UnionConjunctiveQueries(
+            (substitution(cq) for cq in self.conjunctive_queries),
+            [substitution(v) for v in self.answer_variables],
+            self.label,
+        )
 
     @property
     def str_without_answer_variables(self) -> str:
-        return " \u2228 ".join("(" + cq.str_without_answer_variables + ")"
-                               if len(cq.atoms) != 1 or len(cq.pre_substitution) != 0
-                               else cq.str_without_answer_variables
-                               for cq in self.conjunctive_queries)
+        return " \u2228 ".join(
+            "(" + cq.str_without_answer_variables + ")"
+            if len(cq.atoms) != 1 or len(cq.pre_substitution) != 0
+            else cq.str_without_answer_variables
+            for cq in self.conjunctive_queries
+        )
 
-    def __or__(self, other: "UnionQuery[ConjunctiveQuery]") -> "UnionConjunctiveQueries":
+    def __or__(
+        self, other: "UnionQuery[ConjunctiveQuery]"
+    ) -> "UnionConjunctiveQueries":
         if self.answer_variables != other.answer_variables:
-            raise ValueError(f"You can't do the union of two ucqs with distinct answer variables: {self} and {other}")
-        return UnionConjunctiveQueries(self.conjunctive_queries | other.queries, self.answer_variables)
+            raise ValueError(
+                f"You can't do the union of two ucqs with distinct answer variables: {self} and {other}"
+            )
+        return UnionConjunctiveQueries(
+            self.conjunctive_queries | other.queries, self.answer_variables
+        )
 
     def __eq__(self, other):
         if not isinstance(other, UnionConjunctiveQueries):
             return False
-        return (self.conjunctive_queries == other.conjunctive_queries
-                and self.answer_variables == other.answer_variables
-                and self.label == other.label)
+        return (
+            self.conjunctive_queries == other.conjunctive_queries
+            and self.answer_variables == other.answer_variables
+            and self.label == other.label
+        )
 
     def __hash__(self):
         return hash((self.conjunctive_queries, self.answer_variables, self.label))
@@ -113,7 +133,8 @@ class UnionConjunctiveQueries(UnionQuery[ConjunctiveQuery]):
     def __str__(self):
         return "({}) :- {}".format(
             ", ".join(map(str, self.answer_variables)),
-            self.str_without_answer_variables)
+            self.str_without_answer_variables,
+        )
 
     def __iter__(self) -> Iterator[ConjunctiveQuery]:
         return iter(self.conjunctive_queries)

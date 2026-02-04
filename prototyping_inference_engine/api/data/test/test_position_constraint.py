@@ -1,13 +1,10 @@
 """Tests for position constraints."""
+
 import unittest
 
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.data.constraint import (
-    PositionConstraint,
-    GroundConstraint,
-    ConstantConstraint,
-    VariableConstraint,
     PredicateConstraint,
     AnyOfConstraint,
     AllOfConstraint,
@@ -73,7 +70,7 @@ class TestPredicateConstraint(unittest.TestCase):
         # Constraint: constant must start with 'a'
         constraint = PredicateConstraint(
             lambda t: isinstance(t, Constant) and t.identifier.startswith("a"),
-            "starts with 'a'"
+            "starts with 'a'",
         )
         self.assertTrue(constraint.is_satisfied_by(Constant("abc")))
         self.assertFalse(constraint.is_satisfied_by(Constant("xyz")))

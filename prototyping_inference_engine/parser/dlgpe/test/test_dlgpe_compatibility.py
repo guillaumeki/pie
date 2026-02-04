@@ -1,6 +1,7 @@
 """
 DLGPE compatibility tests inspired by Integraal DLGP tests.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.query.fo_query import FOQuery

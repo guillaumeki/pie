@@ -1,9 +1,9 @@
 """
 Unit tests for term storage strategies.
 """
+
 import gc
 import unittest
-from typing import runtime_checkable
 from unittest import TestCase
 
 from prototyping_inference_engine.api.atom.term.storage import (
@@ -122,7 +122,7 @@ class TestWeakRefStorage(TestCase):
         storage: WeakRefStorage[str, DummyObject] = WeakRefStorage()
 
         def create_and_forget():
-            obj = storage.get_or_create("temp", lambda: DummyObject("temporary"))
+            _ = storage.get_or_create("temp", lambda: DummyObject("temporary"))
             return None  # Don't return the reference
 
         create_and_forget()

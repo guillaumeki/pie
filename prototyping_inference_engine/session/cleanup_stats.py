@@ -1,6 +1,7 @@
 """
 SessionCleanupStats dataclass for tracking cleanup operations.
 """
+
 from dataclasses import dataclass
 
 

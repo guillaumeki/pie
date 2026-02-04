@@ -1,4 +1,5 @@
 """Tests for collection builders."""
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -45,11 +46,7 @@ class TestReadableCollectionBuilder(unittest.TestCase):
 
     def test_add_predicate(self):
         """Test add_predicate method."""
-        collection = (
-            ReadableCollectionBuilder()
-            .add_predicate(self.p, self.fb1)
-            .build()
-        )
+        collection = ReadableCollectionBuilder().add_predicate(self.p, self.fb1).build()
         self.assertTrue(collection.has_predicate(self.p))
         self.assertFalse(collection.has_predicate(self.q))
 
@@ -125,18 +122,14 @@ class TestMaterializedCollectionBuilder(unittest.TestCase):
     def test_build_returns_materialized_collection(self):
         """Test build returns MaterializedDataCollection."""
         collection = (
-            MaterializedCollectionBuilder()
-            .add_all_predicates_from(self.fb1)
-            .build()
+            MaterializedCollectionBuilder().add_all_predicates_from(self.fb1).build()
         )
         self.assertIsInstance(collection, MaterializedDataCollection)
 
     def test_add_predicate(self):
         """Test add_predicate method."""
         collection = (
-            MaterializedCollectionBuilder()
-            .add_predicate(self.p, self.fb1)
-            .build()
+            MaterializedCollectionBuilder().add_predicate(self.p, self.fb1).build()
         )
         self.assertTrue(collection.has_predicate(self.p))
         self.assertEqual(len(collection), 1)
@@ -163,6 +156,7 @@ class TestMaterializedCollectionBuilder(unittest.TestCase):
 
     def test_non_materializable_raises(self):
         """Test non-Materializable source raises TypeError."""
+
         class NonMaterializableSource:
             def get_predicates(self):
                 return iter([])
@@ -204,18 +198,14 @@ class TestWritableCollectionBuilder(unittest.TestCase):
     def test_build_returns_writable_collection(self):
         """Test build returns WritableDataCollection."""
         collection = (
-            WritableCollectionBuilder()
-            .add_all_predicates_from(self.fb_frozen)
-            .build()
+            WritableCollectionBuilder().add_all_predicates_from(self.fb_frozen).build()
         )
         self.assertIsInstance(collection, WritableDataCollection)
 
     def test_add_predicate(self):
         """Test add_predicate method."""
         collection = (
-            WritableCollectionBuilder()
-            .add_predicate(self.p, self.fb_frozen)
-            .build()
+            WritableCollectionBuilder().add_predicate(self.p, self.fb_frozen).build()
         )
         self.assertTrue(collection.has_predicate(self.p))
 
@@ -238,6 +228,7 @@ class TestWritableCollectionBuilder(unittest.TestCase):
 
     def test_non_materializable_raises(self):
         """Test non-Materializable source raises TypeError."""
+
         class NonMaterializableSource:
             def get_predicates(self):
                 return iter([])
@@ -276,7 +267,9 @@ class TestIntegration(unittest.TestCase):
         parser = Dlgp2Parser.instance()
 
         fb1 = FrozenInMemoryFactBase(parser.parse_atoms("person(alice), person(bob)."))
-        fb2 = FrozenInMemoryFactBase(parser.parse_atoms("knows(alice, bob), knows(bob, carol)."))
+        fb2 = FrozenInMemoryFactBase(
+            parser.parse_atoms("knows(alice, bob), knows(bob, carol).")
+        )
 
         collection = (
             ReadableCollectionBuilder()

@@ -1,6 +1,7 @@
 """
 Unit tests for session support classes (ParseResult, SessionCleanupStats).
 """
+
 import unittest
 from unittest import TestCase
 
@@ -55,7 +56,9 @@ class TestParseResult(TestCase):
 
     def test_create_result_with_queries(self):
         """Test creating a ParseResult with queries."""
-        queries = set(Dlgp2Parser.instance().parse_conjunctive_queries("?(X) :- p(X,Y)."))
+        queries = set(
+            Dlgp2Parser.instance().parse_conjunctive_queries("?(X) :- p(X,Y).")
+        )
         result = ParseResult(
             facts=FrozenAtomSet([]),
             rules=frozenset(),

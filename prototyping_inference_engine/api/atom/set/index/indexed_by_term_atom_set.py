@@ -8,5 +8,4 @@ class IndexedByTermAtomSet(Protocol):
     """Protocol for atom sets that provide an index by term."""
 
     @property
-    def index_by_term(self) -> IndexByTerm:
-        ...
+    def index_by_term(self) -> IndexByTerm: ...

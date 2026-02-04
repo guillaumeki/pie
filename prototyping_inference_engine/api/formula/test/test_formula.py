@@ -1,6 +1,7 @@
 """
 Tests for Formula classes.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom

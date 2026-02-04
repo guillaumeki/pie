@@ -4,6 +4,7 @@ Term factories for creating Variables, Constants, and Predicates.
 Each factory uses a TermStorageStrategy to determine caching behavior,
 enabling different memory management strategies per session.
 """
+
 from prototyping_inference_engine.api.atom.term.factory.variable_factory import (
     VariableFactory,
 )

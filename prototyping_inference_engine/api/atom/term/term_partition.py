@@ -25,7 +25,7 @@ class TermPartition(Partition[Term]):
         context: Optional[ConjunctiveQuery] = None,
     ) -> bool:
         for cls in self.classes:
-            has_ground, has_head_exist, has_fr, has_ans_var = (False,)*4
+            has_ground, has_head_exist, has_fr, has_ans_var = (False,) * 4
             for t in cls:
                 if t.is_ground:
                     if has_ground or has_head_exist:
@@ -45,7 +45,9 @@ class TermPartition(Partition[Term]):
                     has_ans_var = True
         return True
 
-    def associated_substitution(self, context: Optional[Query] = None) -> Optional[Substitution]:
+    def associated_substitution(
+        self, context: Optional[Query] = None
+    ) -> Optional[Substitution]:
         sub = Substitution()
 
         context_answer_variables: set["Variable"] = set()
@@ -63,15 +65,20 @@ class TermPartition(Partition[Term]):
                 if t.is_ground and representative != t:
                     return None
 
-                if (not representative.is_ground
-                        and representative not in context_answer_variables
-                        and t in context_variables):
+                if (
+                    not representative.is_ground
+                    and representative not in context_answer_variables
+                    and t in context_variables
+                ):
                     representative = t
             for t in cls:
                 if representative is None:
                     continue
                 if not t.is_ground and t != representative:
-                    from prototyping_inference_engine.api.atom.term.variable import Variable
+                    from prototyping_inference_engine.api.atom.term.variable import (
+                        Variable,
+                    )
+
                     if isinstance(t, Variable):
                         sub[t] = cast(Term, representative)
 

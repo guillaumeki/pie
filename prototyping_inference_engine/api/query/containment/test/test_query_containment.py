@@ -3,10 +3,15 @@ from unittest import TestCase
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.containment.conjunctive_query_containment import (
-    ConjunctiveQueryContainment, HomomorphismBasedCQContainment
+    ConjunctiveQueryContainment,
+    HomomorphismBasedCQContainment,
 )
-from prototyping_inference_engine.api.query.containment.union_conjunctive_queries_containment import UnionConjunctiveQueriesContainment
-from prototyping_inference_engine.api.query.union_conjunctive_queries import UnionConjunctiveQueries
+from prototyping_inference_engine.api.query.containment.union_conjunctive_queries_containment import (
+    UnionConjunctiveQueriesContainment,
+)
+from prototyping_inference_engine.api.query.union_conjunctive_queries import (
+    UnionConjunctiveQueries,
+)
 from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 

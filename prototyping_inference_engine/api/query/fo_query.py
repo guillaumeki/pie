@@ -1,11 +1,11 @@
 """
 First-Order Query: a query based on a first-order logic formula.
 """
+
 from functools import cached_property
 from typing import Optional, Iterable, Generic, TypeVar, TYPE_CHECKING, cast
 
 from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable

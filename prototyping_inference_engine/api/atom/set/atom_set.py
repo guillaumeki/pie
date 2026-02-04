@@ -3,6 +3,7 @@ Created on 26 déc. 2021
 
 @author: guillaume
 """
+
 from collections.abc import Set as AbcSet
 from typing import Optional, Set, Iterator, Type, TypeVar, TYPE_CHECKING
 
@@ -43,11 +44,13 @@ class AtomSet(AbcSet[Atom], Substitutable["AtomSet"]):
     @property
     def variables(self) -> Set["Variable"]:
         from prototyping_inference_engine.api.atom.term.variable import Variable
+
         return self.terms_of_type(Variable)
 
     @property
     def constants(self) -> Set["Constant"]:
         from prototyping_inference_engine.api.atom.term.constant import Constant
+
         return self.terms_of_type(Constant)
 
     @property
@@ -59,6 +62,7 @@ class AtomSet(AbcSet[Atom], Substitutable["AtomSet"]):
 
     def match(self, atom: Atom, sub: Optional["Substitution"] = None) -> Iterator[Atom]:
         from prototyping_inference_engine.api.atom.atom_operations import specialize
+
         for a in filter(lambda x: specialize(atom, x, sub) is not None, self._set):
             yield a
 
@@ -66,4 +70,4 @@ class AtomSet(AbcSet[Atom], Substitutable["AtomSet"]):
         return " \u2227 ".join(map(str, self._set))
 
     def __repr__(self):
-        return "<AtomSet: "+(" \u2227 ".join(map(str, self._set)))+">"
+        return "<AtomSet: " + (" \u2227 ".join(map(str, self._set))) + ">"

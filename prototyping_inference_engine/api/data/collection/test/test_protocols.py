@@ -1,16 +1,12 @@
 """Tests for collection protocols."""
+
 import unittest
 
-from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.predicate import Predicate
-from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.data.collection.protocols import (
     Queryable,
     Materializable,
     DynamicPredicates,
 )
-from prototyping_inference_engine.api.data.readable_data import ReadableData
-from prototyping_inference_engine.api.data.materialized_data import MaterializedData
 from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base import (
     FrozenInMemoryFactBase,
 )
@@ -42,6 +38,7 @@ class TestQueryableProtocol(unittest.TestCase):
 
     def test_non_queryable_class(self):
         """Test that arbitrary classes are not Queryable."""
+
         class NotQueryable:
             pass
 
@@ -49,6 +46,7 @@ class TestQueryableProtocol(unittest.TestCase):
 
     def test_partial_implementation_not_queryable(self):
         """Test that partial implementations are not Queryable."""
+
         class PartialQueryable:
             def get_predicates(self):
                 return iter([])
@@ -73,6 +71,7 @@ class TestMaterializableProtocol(unittest.TestCase):
 
     def test_non_materializable_class(self):
         """Test that arbitrary classes are not Materializable."""
+
         class NotMaterializable:
             pass
 
@@ -80,6 +79,7 @@ class TestMaterializableProtocol(unittest.TestCase):
 
     def test_partial_implementation_not_materializable(self):
         """Test that partial implementations are not Materializable."""
+
         class PartialMaterializable:
             def __iter__(self):
                 return iter([])
@@ -102,6 +102,7 @@ class TestDynamicPredicatesProtocol(unittest.TestCase):
 
     def test_custom_dynamic_source(self):
         """Test custom class implementing DynamicPredicates."""
+
         class DynamicSource:
             def __init__(self):
                 self._predicates = []
@@ -117,6 +118,7 @@ class TestDynamicPredicatesProtocol(unittest.TestCase):
 
     def test_non_dynamic_class(self):
         """Test that classes without get_predicates are not DynamicPredicates."""
+
         class NotDynamic:
             pass
 
@@ -135,6 +137,7 @@ class TestProtocolCombinations(unittest.TestCase):
 
     def test_queryable_only_source(self):
         """Test a source that is Queryable but not Materializable."""
+
         class QueryableOnly:
             def get_predicates(self):
                 return iter([])

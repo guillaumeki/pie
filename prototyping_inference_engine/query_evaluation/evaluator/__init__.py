@@ -6,10 +6,18 @@ from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_ev
     FormulaEvaluator,
     RegistryMixin,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import AtomEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
-from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import QueryEvaluator
-from prototyping_inference_engine.query_evaluation.evaluator.errors import UnsupportedFormulaError
+from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import (
+    AtomEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
+    FormulaEvaluatorRegistry,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import (
+    QueryEvaluator,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.errors import (
+    UnsupportedFormulaError,
+)
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator import (
     FOQueryEvaluator,
 )

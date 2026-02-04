@@ -1,20 +1,29 @@
 """
 Tests for ExistentialFormulaEvaluator.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.api.formula.existential_formula import ExistentialFormula
-from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+    MutableInMemoryFactBase,
+)
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.existential_formula_evaluator import (
     ExistentialFormulaEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import FormulaEvaluatorRegistry
+from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
+    FormulaEvaluatorRegistry,
+)
 
 
 class TestExistentialFormulaEvaluator(unittest.TestCase):
@@ -45,9 +54,11 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         ∃x.p(x) where p = {a}.
         There exists x (namely a) such that p(x) holds.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+            ]
+        )
         formula = ExistentialFormula(self.x, Atom(self.p, self.x))
 
         results = list(self.evaluator.evaluate(formula, fact_base))
@@ -61,11 +72,13 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         ∃x.p(x) where p = {a, b, c}.
         Multiple witnesses, but result is deduplicated to one.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.p, self.b),
-            Atom(self.p, self.c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.p, self.b),
+                Atom(self.p, self.c),
+            ]
+        )
         formula = ExistentialFormula(self.x, Atom(self.p, self.x))
 
         results = list(self.evaluator.evaluate(formula, fact_base))
@@ -79,9 +92,11 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         ∃x.p(x) where p = {}.
         No witness exists.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.q, self.a),  # Only q, not p
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.q, self.a),  # Only q, not p
+            ]
+        )
         formula = ExistentialFormula(self.x, Atom(self.p, self.x))
 
         results = list(self.evaluator.evaluate(formula, fact_base))
@@ -95,11 +110,13 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         Y=b: x=a or x=b works → Y=b in result
         Y=c: x=a works → Y=c in result
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.r, self.a, self.b),
-            Atom(self.r, self.a, self.c),
-            Atom(self.r, self.b, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.r, self.a, self.b),
+                Atom(self.r, self.a, self.c),
+                Atom(self.r, self.b, self.b),
+            ]
+        )
         formula = ExistentialFormula(self.x, Atom(self.r, self.x, self.y))
 
         results = list(self.evaluator.evaluate(formula, fact_base))
@@ -113,10 +130,12 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         ∃x.r(x, Y) where r = {(a, b), (c, b)}.
         Both witnesses give Y=b, should be deduplicated.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.r, self.a, self.b),
-            Atom(self.r, self.c, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.r, self.a, self.b),
+                Atom(self.r, self.c, self.b),
+            ]
+        )
         formula = ExistentialFormula(self.x, Atom(self.r, self.x, self.y))
 
         results = list(self.evaluator.evaluate(formula, fact_base))
@@ -143,10 +162,12 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         r = {(a, b), (a, c)}.
         Should find x=a as witness for Y=b.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.r, self.a, self.b),
-            Atom(self.r, self.a, self.c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.r, self.a, self.b),
+                Atom(self.r, self.a, self.c),
+            ]
+        )
         formula = ExistentialFormula(self.x, Atom(self.r, self.x, self.y))
         initial_sub = Substitution({self.y: self.b})
 
@@ -161,9 +182,11 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         r = {(a, b)}.
         No r(_, c), so no witness.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.r, self.a, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.r, self.a, self.b),
+            ]
+        )
         formula = ExistentialFormula(self.x, Atom(self.r, self.x, self.y))
         initial_sub = Substitution({self.y: self.c})
 
@@ -176,9 +199,11 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         ∃x.∃y.r(x, y) where r = {(a, b)}.
         Both x and y are bound and projected out.
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.r, self.a, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.r, self.a, self.b),
+            ]
+        )
         inner = ExistentialFormula(self.y, Atom(self.r, self.x, self.y))
         formula = ExistentialFormula(self.x, inner)
 
@@ -217,13 +242,15 @@ class TestExistentialInConjunction(unittest.TestCase):
         c = Constant("c")
         d = Constant("d")
 
-        fact_base = MutableInMemoryFactBase([
-            Atom(p, a),
-            Atom(p, b),
-            Atom(p, c),
-            Atom(r, d, a),
-            Atom(r, d, b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(p, a),
+                Atom(p, b),
+                Atom(p, c),
+                Atom(r, d, a),
+                Atom(r, d, b),
+            ]
+        )
         formula = ConjunctionFormula(
             Atom(p, y),
             ExistentialFormula(x, Atom(r, x, y)),
@@ -232,6 +259,7 @@ class TestExistentialInConjunction(unittest.TestCase):
         from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
             BacktrackConjunctionEvaluator,
         )
+
         evaluator = BacktrackConjunctionEvaluator()
 
         results = list(evaluator.evaluate(formula, fact_base))
@@ -253,12 +281,14 @@ class TestExistentialInConjunction(unittest.TestCase):
         b = Constant("b")
         c = Constant("c")
 
-        fact_base = MutableInMemoryFactBase([
-            Atom(p, a),
-            Atom(p, b),
-            Atom(q, b),
-            Atom(q, c),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(p, a),
+                Atom(p, b),
+                Atom(q, b),
+                Atom(q, c),
+            ]
+        )
         inner = ConjunctionFormula(Atom(p, x), Atom(q, x))
         formula = ExistentialFormula(x, inner)
 

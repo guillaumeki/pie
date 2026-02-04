@@ -1,6 +1,7 @@
 """
 Configuration for literal parsing, normalization, and comparison.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -45,8 +46,12 @@ class LiteralConfig:
     numeric_normalization: NumericNormalization = NumericNormalization.FLOAT
     type_parsers: Optional[Mapping[str, Callable[[str], object]]] = None
     type_unparsers: Optional[Mapping[str, Callable[[object], str]]] = None
-    comparison_key_builder: Optional[Callable[[object, Optional[str], Optional[str]], object]] = None
-    custom_normalizer: Optional[Callable[[str, Optional[str], Optional[str]], object]] = None
+    comparison_key_builder: Optional[
+        Callable[[object, Optional[str], Optional[str]], object]
+    ] = None
+    custom_normalizer: Optional[
+        Callable[[str, Optional[str], Optional[str]], object]
+    ] = None
 
     @classmethod
     def default(cls) -> "LiteralConfig":

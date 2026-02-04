@@ -2,7 +2,9 @@ from typing import Iterable, Optional
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.set.mutable_atom_set import MutableAtomSet
-from prototyping_inference_engine.api.fact_base.in_memory_fact_base import InMemoryFactBase
+from prototyping_inference_engine.api.fact_base.in_memory_fact_base import (
+    InMemoryFactBase,
+)
 
 
 class MutableInMemoryFactBase(InMemoryFactBase):

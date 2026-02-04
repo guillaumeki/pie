@@ -1,14 +1,16 @@
 """
 Abstract base class for first-order query evaluators.
 """
+
 from abc import abstractmethod
 from typing import Iterator, Tuple, Type, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.errors import UnsupportedFormulaError
-from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import QueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import (
+    QueryEvaluator,
+)
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
@@ -80,9 +82,7 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
         seen: set[Tuple[Term, ...]] = set()
 
         for result_sub in self.evaluate(query, data, substitution):
-            answer = tuple(
-                result_sub.apply(v) for v in query.answer_variables
-            )
+            answer = tuple(result_sub.apply(v) for v in query.answer_variables)
             if answer not in seen:
                 seen.add(answer)
                 yield answer

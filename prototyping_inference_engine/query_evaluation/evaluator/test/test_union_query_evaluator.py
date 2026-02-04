@@ -1,6 +1,7 @@
 """
 Tests for UnionQueryEvaluator.
 """
+
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -8,12 +9,18 @@ from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
+    MutableInMemoryFactBase,
+)
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.query.union_query import UnionQuery
-from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import QueryEvaluatorRegistry
-from prototyping_inference_engine.query_evaluation.evaluator.query.union_query_evaluator import UnionQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import (
+    QueryEvaluatorRegistry,
+)
+from prototyping_inference_engine.query_evaluation.evaluator.query.union_query_evaluator import (
+    UnionQueryEvaluator,
+)
 
 
 class TestUnionQueryEvaluator(unittest.TestCase):
@@ -48,10 +55,12 @@ class TestUnionQueryEvaluator(unittest.TestCase):
         FactBase: {p(a), p(b)}
         Expected: {X→a}, {X→b}
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.p, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.p, self.b),
+            ]
+        )
 
         foq = FOQuery(Atom(self.p, self.x), [self.x])
         uq = UnionQuery([foq], [self.x])
@@ -69,10 +78,12 @@ class TestUnionQueryEvaluator(unittest.TestCase):
         FactBase: {p(a), q(b)}
         Expected: {X→a}, {X→b}
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.q, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.q, self.b),
+            ]
+        )
 
         foq1 = FOQuery(Atom(self.p, self.x), [self.x])
         foq2 = FOQuery(Atom(self.q, self.x), [self.x])
@@ -91,10 +102,12 @@ class TestUnionQueryEvaluator(unittest.TestCase):
         FactBase: {p(a), q(a)}
         Expected: {X→a} (deduplicated)
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.q, self.a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.q, self.a),
+            ]
+        )
 
         foq1 = FOQuery(Atom(self.p, self.x), [self.x])
         foq2 = FOQuery(Atom(self.q, self.x), [self.x])
@@ -113,9 +126,11 @@ class TestUnionQueryEvaluator(unittest.TestCase):
         FactBase: {r(a, b)}
         Expected: empty
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.r, self.a, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.r, self.a, self.b),
+            ]
+        )
 
         foq1 = FOQuery(Atom(self.p, self.x), [self.x])
         foq2 = FOQuery(Atom(self.q, self.x), [self.x])
@@ -132,10 +147,12 @@ class TestUnionQueryEvaluator(unittest.TestCase):
         FactBase: {p(a), q(b)}
         Expected: (a,), (b,)
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.q, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.q, self.b),
+            ]
+        )
 
         foq1 = FOQuery(Atom(self.p, self.x), [self.x])
         foq2 = FOQuery(Atom(self.q, self.x), [self.x])
@@ -155,9 +172,11 @@ class TestUnionQueryEvaluator(unittest.TestCase):
         FactBase: {p(a)}
         Expected: one result (true)
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+            ]
+        )
 
         foq1 = FOQuery(Atom(self.p, self.a), [])
         foq2 = FOQuery(Atom(self.q, self.b), [])
@@ -173,9 +192,11 @@ class TestUnionQueryEvaluator(unittest.TestCase):
         Empty UnionQuery (no disjuncts).
         Expected: no results
         """
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+            ]
+        )
 
         uq = UnionQuery([], [self.x])
 
@@ -211,10 +232,12 @@ class TestUnionQueryViaRegistry(unittest.TestCase):
 
     def test_evaluate_via_registry(self):
         """Test evaluating UnionQuery via the registry."""
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.p, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.p, self.b),
+            ]
+        )
 
         foq = FOQuery(Atom(self.p, self.x), [self.x])
         uq = UnionQuery([foq], [self.x])
@@ -261,10 +284,12 @@ class TestUnionConjunctiveQueriesViaRegistry(unittest.TestCase):
             UnionConjunctiveQueries,
         )
 
-        fact_base = MutableInMemoryFactBase([
-            Atom(self.p, self.a),
-            Atom(self.q, self.b),
-        ])
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p, self.a),
+                Atom(self.q, self.b),
+            ]
+        )
 
         cq1 = ConjunctiveQuery(FrozenAtomSet([Atom(self.p, self.x)]), [self.x])
         cq2 = ConjunctiveQuery(FrozenAtomSet([Atom(self.q, self.x)]), [self.x])

@@ -1,10 +1,13 @@
 """
 Protocol and providers for formula schedulers.
 """
+
 from typing import Protocol, runtime_checkable
 
 from prototyping_inference_engine.api.formula.formula import Formula
-from prototyping_inference_engine.query_evaluation.evaluator.conjunction.scheduler.formula_scheduler import FormulaScheduler
+from prototyping_inference_engine.query_evaluation.evaluator.conjunction.scheduler.formula_scheduler import (
+    FormulaScheduler,
+)
 
 
 @runtime_checkable
@@ -31,4 +34,5 @@ class SequentialSchedulerProvider:
         from prototyping_inference_engine.query_evaluation.evaluator.conjunction.scheduler.sequential_formula_scheduler import (
             SequentialFormulaScheduler,
         )
+
         return SequentialFormulaScheduler(formulas)

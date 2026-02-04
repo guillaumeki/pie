@@ -1,6 +1,7 @@
 """
 Literal term with optional datatype and language.
 """
+
 from __future__ import annotations
 
 from typing import Optional, Any
@@ -73,19 +74,25 @@ class Literal(Term):
             lexical = self._lexical
 
         if self._lang:
-            return f"\"{lexical}\"@{self._lang}"
+            return f'"{lexical}"@{self._lang}'
 
         if self._datatype is None:
-            return f"\"{lexical}\""
+            return f'"{lexical}"'
 
         local_name = datatype_local_name(self._datatype)
         if is_xsd_datatype(self._datatype):
-            if local_name in {XSD_BOOLEAN, XSD_INTEGER, XSD_DECIMAL, XSD_DOUBLE, XSD_FLOAT}:
+            if local_name in {
+                XSD_BOOLEAN,
+                XSD_INTEGER,
+                XSD_DECIMAL,
+                XSD_DOUBLE,
+                XSD_FLOAT,
+            }:
                 return lexical
             if local_name == XSD_STRING:
-                return f"\"{lexical}\""
+                return f'"{lexical}"'
 
-        return f"\"{lexical}\"^^{self._datatype}"
+        return f'"{lexical}"^^{self._datatype}'
 
     def __repr__(self) -> str:
         return f"Lit:{self.__str__()}"

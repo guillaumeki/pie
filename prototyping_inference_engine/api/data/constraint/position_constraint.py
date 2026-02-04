@@ -1,8 +1,9 @@
 """
 Position constraint base class and common constraints.
 """
+
 from abc import ABC, abstractmethod
-from typing import Callable, Optional, Type, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.atom.term.term import Term
@@ -39,6 +40,7 @@ class GroundConstraint(PositionConstraint):
 
     def is_satisfied_by(self, term: "Term") -> bool:
         from prototyping_inference_engine.api.atom.term.variable import Variable
+
         return not isinstance(term, Variable)
 
     @property
@@ -51,6 +53,7 @@ class ConstantConstraint(PositionConstraint):
 
     def is_satisfied_by(self, term: "Term") -> bool:
         from prototyping_inference_engine.api.atom.term.constant import Constant
+
         return isinstance(term, Constant)
 
     @property
@@ -63,6 +66,7 @@ class VariableConstraint(PositionConstraint):
 
     def is_satisfied_by(self, term: "Term") -> bool:
         from prototyping_inference_engine.api.atom.term.variable import Variable
+
         return isinstance(term, Variable)
 
     @property
@@ -73,7 +77,9 @@ class VariableConstraint(PositionConstraint):
 class PredicateConstraint(PositionConstraint):
     """Custom constraint using a predicate function."""
 
-    def __init__(self, predicate: Callable[["Term"], bool], description: str = "custom"):
+    def __init__(
+        self, predicate: Callable[["Term"], bool], description: str = "custom"
+    ):
         self._predicate = predicate
         self._description = description
 

@@ -4,11 +4,12 @@ Weak reference-based storage strategy.
 This storage uses WeakValueDictionary to allow automatic garbage
 collection of items that are no longer referenced elsewhere.
 """
+
 from typing import TypeVar, Generic, Callable, Set, Optional
 from weakref import WeakValueDictionary
 
-K = TypeVar('K')
-V = TypeVar('V')
+K = TypeVar("K")
+V = TypeVar("V")
 
 
 class WeakRefStorage(Generic[K, V]):

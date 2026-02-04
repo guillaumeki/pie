@@ -17,9 +17,10 @@ class NegativeConstraint:
         return self._body
 
     def __repr__(self):
-        return "Constraint: "+str(self)
+        return "Constraint: " + str(self)
 
     def __str__(self):
-        return "{}{} -> \u22A5".format(
-            "" if not self.label else "["+str(self.label)+"] ",
-            str(self.body.str_without_answer_variables))
+        return "{}{} -> \u22a5".format(
+            "" if not self.label else "[" + str(self.label) + "] ",
+            str(self.body.str_without_answer_variables),
+        )

@@ -5,10 +5,11 @@ This module defines the interface for term storage strategies,
 enabling different caching behaviors (dict, weak references, etc.)
 to be injected into term factories.
 """
+
 from typing import Protocol, TypeVar, Callable, Set, Optional, runtime_checkable
 
-K = TypeVar('K', contravariant=True)
-V = TypeVar('V')
+K = TypeVar("K", contravariant=True)
+V = TypeVar("V")
 
 
 @runtime_checkable

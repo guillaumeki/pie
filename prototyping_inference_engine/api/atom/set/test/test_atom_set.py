@@ -249,5 +249,6 @@ class TestMutableAtomSet(TestCase):
     def test_is_mutable_set(self):
         """Test that MutableAtomSet is a MutableSet."""
         from collections.abc import MutableSet
+
         s = MutableAtomSet()
         self.assertIsInstance(s, MutableSet)
