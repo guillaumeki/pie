@@ -2,7 +2,7 @@
 Abstract base class for query evaluators.
 """
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Type, Iterator, TYPE_CHECKING
+from typing import Generic, TypeVar, Type, Iterator, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.query.query import Query
 
@@ -32,7 +32,7 @@ class QueryEvaluator(ABC, Generic[Q]):
         self,
         query: Q,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
         """
         Evaluate a query against a data source.

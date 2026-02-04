@@ -58,7 +58,7 @@ class PieceUnifierAlgorithm:
 
     @staticmethod
     def _compute_var_to_query_atoms(query: ConjunctiveQuery) -> dict[Variable, MutableAtomSet]:
-        v_to_qa = defaultdict(MutableAtomSet)
+        v_to_qa: defaultdict[Variable, MutableAtomSet] = defaultdict(MutableAtomSet)
         for atom in query.atoms:
             for v in atom.variables:
                 v_to_qa[v].add(atom)

@@ -58,7 +58,7 @@ class FormulaEvaluator(ABC, Generic[F]):
         self,
         formula: F,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
         """
         Evaluate a formula against a data source.

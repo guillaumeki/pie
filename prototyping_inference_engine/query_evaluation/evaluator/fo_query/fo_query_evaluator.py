@@ -2,7 +2,7 @@
 Abstract base class for first-order query evaluators.
 """
 from abc import abstractmethod
-from typing import Iterator, Tuple, Type, TYPE_CHECKING
+from typing import Iterator, Tuple, Type, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.formula.formula import Formula
@@ -42,7 +42,7 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
         self,
         query: FOQuery,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
         """
         Evaluate a query against a data source.
@@ -61,7 +61,7 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
         self,
         query: FOQuery,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator[Tuple[Term, ...]]:
         """
         Evaluate a query and project results onto answer variables.

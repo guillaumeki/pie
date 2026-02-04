@@ -4,7 +4,7 @@ Created on 23 déc. 2021
 @author: guillaume
 """
 from functools import cached_property
-from typing import Optional, Iterable, TypeVar, Generic
+from typing import Optional, Iterable, TypeVar, Generic, cast
 
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.query import Query
@@ -17,8 +17,11 @@ HeadQueryType = TypeVar("HeadQueryType", bound=Query)
 class Rule(Generic[BodyQueryType, HeadQueryType]):
     def __init__(self, body: BodyQueryType, head: Iterable[HeadQueryType], label: Optional[str] = None):
         self._frontier = body.variables & frozenset(v for h in head for v in h.variables)
-        self._body = body.query_with_other_answer_variables(tuple(self._frontier))
-        self._head = tuple(h.query_with_other_answer_variables(tuple(self._frontier & h.variables)) for h in head)
+        self._body = cast(BodyQueryType, body.query_with_other_answer_variables(tuple(self._frontier)))
+        self._head = tuple(
+            cast(HeadQueryType, h.query_with_other_answer_variables(tuple(self._frontier & h.variables)))
+            for h in head
+        )
         self._label = label
 
     @property
@@ -26,7 +29,7 @@ class Rule(Generic[BodyQueryType, HeadQueryType]):
         return self._frontier
 
     def head_frontier(self, num_head: int) -> set[Variable]:
-        return self.head[num_head].answer_variables
+        return set(self.head[num_head].answer_variables)
 
     @cached_property
     def existential_variables(self) -> set[Variable]:

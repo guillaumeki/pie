@@ -23,7 +23,7 @@ class IndexByTerm(Index):
         return self._term_index[t]
 
     def domain(self, atom: Atom, sub: Substitution) -> frozenset[Atom]:
-        smallest_domain = None
+        smallest_domain: frozenset[Atom] | None = None
         for t in atom.terms:
             if ((t.is_ground
                  and (smallest_domain is None or len(self.atoms_by_term(t)) < len(smallest_domain)))
@@ -31,4 +31,4 @@ class IndexByTerm(Index):
                     and (smallest_domain is None or len(self.atoms_by_term(sub(t))) < len(smallest_domain)))):
                 smallest_domain = self.atoms_by_term(sub(t))
 
-        return smallest_domain if smallest_domain is not None else self._atom_set
+        return smallest_domain if smallest_domain is not None else frozenset(self._atom_set)

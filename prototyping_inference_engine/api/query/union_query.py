@@ -1,8 +1,8 @@
 """
 UnionQuery: A union (disjunction) of queries of the same type.
 """
-from functools import cached_property, reduce
-from typing import Generic, Iterable, Iterator, Optional, TypeVar, TYPE_CHECKING
+from functools import cached_property
+from typing import Generic, Iterable, Iterator, Optional, TypeVar, TYPE_CHECKING, cast
 
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term import Term
@@ -41,8 +41,8 @@ class UnionQuery(Query, Substitutable["UnionQuery[Q]"], Generic[Q]):
 
     def __init__(
         self,
-        queries: Iterable[Q] = None,
-        answer_variables: Iterable[Variable] = None,
+        queries: Optional[Iterable[Q]] = None,
+        answer_variables: Optional[Iterable[Variable]] = None,
         label: Optional[str] = None,
     ):
         """
@@ -162,7 +162,7 @@ class UnionQuery(Query, Substitutable["UnionQuery[Q]"], Generic[Q]):
         This property provides backward compatibility with code that used
         UnionConjunctiveQueries.conjunctive_queries.
         """
-        return self._queries
+        return cast("frozenset[ConjunctiveQuery]", self._queries)
 
     def to_fo_query(self) -> "FOQuery":
         """
@@ -195,11 +195,9 @@ class UnionQuery(Query, Substitutable["UnionQuery[Q]"], Generic[Q]):
                 raise ValueError("Cannot convert empty conjunctive query")
 
             # Build conjunction from atoms
-            formula: Formula = reduce(
-                lambda acc, atom: ConjunctionFormula(acc, atom),
-                atoms_list[1:],
-                atoms_list[0]
-            )
+            formula: Formula = atoms_list[0]
+            for atom in atoms_list[1:]:
+                formula = ConjunctionFormula(formula, atom)
 
             # Wrap in existential quantifiers for non-answer variables
             for var in cq.existential_variables:
@@ -217,11 +215,9 @@ class UnionQuery(Query, Substitutable["UnionQuery[Q]"], Generic[Q]):
             formulas.append(cq_to_formula(q))
 
         # Combine with disjunctions
-        combined: Formula = reduce(
-            lambda acc, f: DisjunctionFormula(acc, f),
-            formulas[1:],
-            formulas[0]
-        )
+        combined: Formula = formulas[0]
+        for formula in formulas[1:]:
+            combined = DisjunctionFormula(combined, formula)
 
         return FOQuery(combined, self.answer_variables, self._label)
 

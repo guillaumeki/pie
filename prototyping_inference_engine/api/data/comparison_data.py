@@ -3,7 +3,7 @@ Readable data source for comparison operators.
 """
 from __future__ import annotations
 
-from typing import Iterator, Tuple, Optional, Iterable
+from typing import Any, Iterator, Tuple, Optional, Iterable
 
 from prototyping_inference_engine.api.atom.predicate import (
     Predicate,
@@ -70,8 +70,8 @@ class ComparisonDataSource(ReadableData):
 
     def _compare(self, predicate: Predicate, left: Term, right: Term) -> bool:
         op = predicate.name
-        left_value = self._extract_value(left)
-        right_value = self._extract_value(right)
+        left_value: Any = self._extract_value(left)
+        right_value: Any = self._extract_value(right)
 
         try:
             if op == "<":
@@ -88,7 +88,7 @@ class ComparisonDataSource(ReadableData):
             return False
         return False
 
-    def _extract_value(self, term: Term) -> object:
+    def _extract_value(self, term: Term) -> Any:
         if isinstance(term, Literal):
             if self._comparison_mode == LiteralComparison.BY_LEXICAL:
                 return term.lexical if term.lexical is not None else str(term.value)

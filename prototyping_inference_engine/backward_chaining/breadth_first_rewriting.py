@@ -49,9 +49,10 @@ class BreadthFirstRewriting(UcqRewritingAlgorithm):
 
     def rewrite(self, ucq: UnionQuery[ConjunctiveQuery],
                 rule_set: set[Rule[ConjunctiveQuery, ConjunctiveQuery]],
-                step_limit: int = inf,
+                step_limit: float = inf,
                 verbose: bool = False,
-                printer: "Callable[[UnionQuery[ConjunctiveQuery], int], None]" = None) -> UnionQuery[ConjunctiveQuery]:
+                printer: Optional["Callable[[UnionQuery[ConjunctiveQuery], int], None]"] = None
+                ) -> UnionQuery[ConjunctiveQuery]:
         ucq = self._safe_renaming(ucq, rule_set)
         ucq_new = self._ucq_redundancies_cleaner.compute_cover(ucq)
         ucq_result = ucq_new

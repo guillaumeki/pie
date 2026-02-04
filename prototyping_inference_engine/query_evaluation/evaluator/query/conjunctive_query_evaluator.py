@@ -1,7 +1,7 @@
 """
 Evaluator for ConjunctiveQuery.
 """
-from typing import Iterator, Type, Optional, TYPE_CHECKING
+from typing import Iterator, Type, Optional, TYPE_CHECKING, cast
 
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
@@ -49,7 +49,7 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         self,
         query: ConjunctiveQuery,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
         """
         Evaluate a ConjunctiveQuery against a data source.
@@ -79,7 +79,7 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         self,
         query: ConjunctiveQuery,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator[tuple[Term, ...]]:
         """
         Evaluate a ConjunctiveQuery and project results onto answer variables.
@@ -101,4 +101,7 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
                 f"No evaluator registered for FOQuery"
             )
 
-        yield from evaluator.evaluate_and_project(fo_query, data, substitution)
+        from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator import (
+            FOQueryEvaluator,
+        )
+        yield from cast(FOQueryEvaluator, evaluator).evaluate_and_project(fo_query, data, substitution)

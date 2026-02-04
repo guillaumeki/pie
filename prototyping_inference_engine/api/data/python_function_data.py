@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, time
 from decimal import Decimal
 import inspect
-from typing import Any, Callable, Iterable, Iterator, Optional, Tuple, Union, get_args, get_origin, get_type_hints
+from typing import Any, Callable, Iterable, Iterator, Mapping, Optional, Tuple, Union, get_args, get_origin, get_type_hints
 
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
@@ -257,7 +257,7 @@ class PythonFunctionReadable(ReadableData):
         hint = spec.type_hints[name]
         return _matches_hint(value, hint)
 
-    def _matches_bound(self, bound_positions: dict[int, Term], assignment: list[Any]) -> bool:
+    def _matches_bound(self, bound_positions: Mapping[int, Term], assignment: list[Any]) -> bool:
         for pos, term in bound_positions.items():
             assigned = assignment[pos]
             if assigned is None:

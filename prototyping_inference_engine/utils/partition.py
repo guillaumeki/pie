@@ -1,4 +1,6 @@
-from typing import Generic, TypeVar, Callable, Iterable, Iterator, Type, Union
+from __future__ import annotations
+
+from typing import Any, Generic, TypeVar, Callable, Iterable, Iterator, Optional, Union, cast
 from collections.abc import Set
 
 T = TypeVar('T')
@@ -12,16 +14,16 @@ class Partition(Generic[T]):
     complexity for this problem
     """
     def __init__(self,
-                 other_partition: Union["Partition", Iterable[Set[T]]] = None,
-                 initial_elements: Iterable[T] = None,
-                 comparator: Callable[[T, T], int] = None):
+                 other_partition: Optional[Union["Partition[T]", Iterable[Set[T]]]] = None,
+                 initial_elements: Optional[Iterable[T]] = None,
+                 comparator: Optional[Callable[[T, T], int]] = None):
         """
         @param other_partition: the partition to copy
         @param initial_elements: the initial elements of this partition
         @param comparator: the comparator to choose the representative of a class
         """
-        self._nodes: dict[T, _Node] = {}
-        self._representatives: set[_Node] = set()
+        self._nodes: dict[T, Partition._Node] = {}
+        self._representatives: set[Partition._Node] = set()
         self._comparator = comparator
         if initial_elements is not None:
             for ie in initial_elements:
@@ -34,22 +36,22 @@ class Partition(Generic[T]):
                     self.add_class(c)
 
     @property
-    def representatives(self) -> Iterable[T]:
+    def representatives(self) -> Iterator[T]:
         """
         All the representatives of all the classes of the partition
         @return: an iterable of representatives
         """
         for n in self._representatives:
-            yield n.value
+            yield cast(T, n.value)
 
-    def add_class(self, c: set[T]):
+    def add_class(self, c: Set[T]) -> None:
         """
         Add a class to the partition
         If there are some common elements with existing classes,
         @param c : the class to add
         """
         if c:
-            i = iter(c)
+            i: Iterator[T] = iter(c)
             root = self._get_node(next(i))
             for e in i:
                 self._union(self._get_node(e), root)
@@ -62,7 +64,7 @@ class Partition(Generic[T]):
         @param x : the element from which we want the class' representative
         @return a class' representative of x
         """
-        return self._find(self._get_node(x)).value
+        return cast(T, self._find(self._get_node(x)).value)
 
     def get_class(self, x: T) -> Set[T]:
         """
@@ -72,7 +74,7 @@ class Partition(Generic[T]):
         """
         return self._ClassView(x, self)
 
-    def union(self, x: T, y: T):
+    def union(self, x: T, y: T) -> None:
         """
         Merge the classes of x and y
         If x or y are not yet in the partition, they are be added to it
@@ -81,7 +83,7 @@ class Partition(Generic[T]):
         """
         self._union(self._get_node(x), self._get_node(y))
 
-    def join(self, other: "Partition[T]"):
+    def join(self, other: "Partition[T]") -> None:
         """
         Join the class of another partition
         This operation consists of merge the classes of this partition and the other one when they share a common
@@ -92,7 +94,7 @@ class Partition(Generic[T]):
             self.union(e, other.get_representative(e))
 
     @property
-    def classes(self) -> Iterable[Set[T]]:
+    def classes(self) -> Iterator[Set[T]]:
         """
         Return all the classes of the partition
         @return an iterable of immutable sets that is the list of all classes
@@ -109,13 +111,13 @@ class Partition(Generic[T]):
         for e in self._nodes:
             yield e
 
-    def __iter__(self):
-        return self.classes
+    def __iter__(self) -> Iterator[Set[T]]:
+        return iter(self.classes)
 
-    def __contains__(self, item: T):
+    def __contains__(self, item: object) -> bool:
         return item in self._nodes
     
-    def __hash__(self):
+    def __hash__(self) -> int:
         return sum(hash(c) * len(c) for c in self)
 
     def __eq__(self, other) -> bool:
@@ -130,25 +132,25 @@ class Partition(Generic[T]):
         other_classes = set(c for c in other)
         return all(c in other_classes for c in self)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "<Partition: {" + ", ".join(str(c) for c in self) + "}>"
 
-    def _add_node(self, x: T):
+    def _add_node(self, x: T) -> None:
         if x not in self._nodes:
             n = self._Node(x)
             self._nodes[x] = n
             self._representatives.add(n)
 
-    def _get_node(self, x: T):
+    def _get_node(self, x: T) -> Partition._Node:
         if x not in self._nodes:
             self._add_node(x)
         return self._nodes[x]
 
-    def _order(self, x: "_Node", y: "_Node"):
-        if self._comparator is not None and self._comparator(x.value, y.value) > 0:
+    def _order(self, x: Partition._Node, y: Partition._Node) -> None:
+        if self._comparator is not None and self._comparator(cast(T, x.value), cast(T, y.value)) > 0:
             x.value, y.value = y.value, x.value
 
-    def _link(self, x: "_Node", y: "_Node"):
+    def _link(self, x: Partition._Node, y: Partition._Node) -> None:
         if x is not y:
             if x.size <= y.size:
                 x, y = y, x
@@ -158,7 +160,7 @@ class Partition(Generic[T]):
             x.children.add(y)
             x.size += y.size
 
-    def _find(self, x: "_Node") -> "_Node":
+    def _find(self, x: Partition._Node) -> Partition._Node:
         if x is not x.parent:
             x.parent.children.remove(x)
             x.parent.size -= 1
@@ -167,11 +169,11 @@ class Partition(Generic[T]):
             x.parent.size += 1
         return x.parent
 
-    def _union(self, x: "_Node", y: "_Node"):
+    def _union(self, x: Partition._Node, y: Partition._Node) -> None:
         self._link(self._find(x), self._find(y))
 
-    class _ClassView(Set):
-        def __init__(self, x: T, partition):
+    class _ClassView(Set[T]):
+        def __init__(self, x: T, partition: "Partition[T]"):
             self.x = x
             self.partition = partition
 
@@ -179,41 +181,43 @@ class Partition(Generic[T]):
             if o not in self.partition._nodes:
                 return False
             return (self.partition._find(self.partition._get_node(self.x))
-                    is self.partition._find(self.partition._get_node(o)))
+                    is self.partition._find(self.partition._get_node(cast(T, o))))
 
         def __len__(self) -> int:
             return self.partition._find(self.partition._get_node(self.x)).size
 
         def __iter__(self) -> Iterator[T]:
-            queue = [self.partition._find(self.partition._get_node(self.x))]
+            queue: list[Partition._Node] = [self.partition._find(self.partition._get_node(self.x))]
             while queue:
                 n = queue.pop()
                 queue += list(n.children)
-                yield n.value
+                yield cast(T, n.value)
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return "{" + ", ".join(str(e) for e in self) + "}"
 
-        def __hash__(self):
+        def __hash__(self) -> int:
             result = 0
             for elt in self:
-                result ^= hash(elt)
+                result ^= hash(cast(Any, elt))
             return result
 
-        def __eq__(self, other):
+        def __eq__(self, other: object) -> bool:
+            if not isinstance(other, Set):
+                return False
             return len(other) == len(self) and all(e in other for e in self)
 
     class _Node:
         def __init__(self, value: T):
             self.size: int = 1
-            self.parent: "_Node" = self
-            self.children: set[_Node] = set()
+            self.parent: Partition._Node = self
+            self.children: set[Partition._Node] = set()
             self.value: T = value
 
-        def __len__(self):
+        def __len__(self) -> int:
             return self.size
 
-        def __repr__(self):
+        def __repr__(self) -> str:
             return ("<_Node: {size : " + str(self.size)
                     + ", parent: " + str(self.parent.value)
                     + ", children: " + str([c.value for c in self.children])

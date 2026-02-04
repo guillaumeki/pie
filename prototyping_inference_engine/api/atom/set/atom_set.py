@@ -4,7 +4,7 @@ Created on 26 déc. 2021
 @author: guillaume
 """
 from collections.abc import Set as AbcSet
-from typing import Set, Iterator, Type, TypeVar, TYPE_CHECKING
+from typing import Optional, Set, Iterator, Type, TypeVar, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
@@ -20,10 +20,10 @@ if TYPE_CHECKING:
 
 
 class AtomSet(AbcSet[Atom], Substitutable["AtomSet"]):
-    def __init__(self, s):
+    def __init__(self, s: AbcSet[Atom]):
         self._set = s
 
-    def __contains__(self, atom: Atom) -> bool:
+    def __contains__(self, atom: object) -> bool:
         return atom in self._set
 
     def __iter__(self) -> Iterator[Atom]:
@@ -57,7 +57,7 @@ class AtomSet(AbcSet[Atom], Substitutable["AtomSet"]):
     def apply_substitution(self, substitution: "Substitution") -> "AtomSet":
         return self.__class__({a.apply_substitution(substitution) for a in self})
 
-    def match(self, atom: Atom, sub: "Substitution" = None) -> Iterator[Atom]:
+    def match(self, atom: Atom, sub: Optional["Substitution"] = None) -> Iterator[Atom]:
         from prototyping_inference_engine.api.atom.atom_operations import specialize
         for a in filter(lambda x: specialize(atom, x, sub) is not None, self._set):
             yield a

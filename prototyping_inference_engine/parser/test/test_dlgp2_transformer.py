@@ -1,5 +1,5 @@
 from unittest import TestCase
-from lark import Lark, Tree, Token
+from lark import Lark, Tree, Token  # type: ignore[import-not-found]
 
 from prototyping_inference_engine.parser.dlgp.dlgp2_transformer import Dlgp2Transformer
 
@@ -29,7 +29,7 @@ class TestDlgp2Transformer(TestCase):
         ? :- p(X); q(Y).
         ? (X) :- p(X); q(X).
         ?() :- .""",)
-    parsing_results = []
+    parsing_results: list[object] = []
     parser = Lark.open("../dlgp/dlgp2.lark", rel_to=__file__, parser="lalr", transformer=Dlgp2Transformer())
 
     def setUp(self) -> None:

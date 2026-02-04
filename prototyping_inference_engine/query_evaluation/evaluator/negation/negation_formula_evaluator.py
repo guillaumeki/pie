@@ -15,6 +15,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.errors import Unsup
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
+    from prototyping_inference_engine.api.atom.term.variable import Variable
     from prototyping_inference_engine.api.substitution.substitution import Substitution
     from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
         FormulaEvaluatorRegistry,
@@ -48,7 +49,7 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
         self,
         formula: NegationFormula,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
         from prototyping_inference_engine.api.substitution.substitution import Substitution
 
@@ -58,7 +59,7 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
         inner = formula.inner
         inner_free_vars = inner.free_variables
         bound_vars = set(substitution.domain)
-        unbound_vars = inner_free_vars - bound_vars
+        unbound_vars: set["Variable"] = set(inner_free_vars - bound_vars)
 
         if not unbound_vars:
             # Safe negation: all variables are bound
@@ -96,7 +97,7 @@ class NegationFormulaEvaluator(RegistryMixin, FormulaEvaluator[NegationFormula])
         inner_formula,
         data: "ReadableData",
         substitution: "Substitution",
-        unbound_vars: set,
+        unbound_vars: set["Variable"],
     ) -> Iterator["Substitution"]:
         """Evaluate unsafe negation by iterating over the domain."""
         from prototyping_inference_engine.api.substitution.substitution import Substitution

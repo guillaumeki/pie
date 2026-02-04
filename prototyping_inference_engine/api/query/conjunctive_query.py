@@ -4,8 +4,8 @@ Created on 26 déc. 2021
 @author: guillaume
 """
 import typing
-from functools import cached_property, reduce
-from typing import TYPE_CHECKING
+from functools import cached_property
+from typing import Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.term.constant import Constant
@@ -22,10 +22,10 @@ if TYPE_CHECKING:
 
 class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
     def __init__(self,
-                 atoms: typing.Iterable[Atom] = None,
-                 answer_variables: typing.Iterable[Variable] = None,
+                 atoms: Optional[typing.Iterable[Atom]] = None,
+                 answer_variables: Optional[typing.Iterable[Variable]] = None,
                  label: typing.Optional[str] = None,
-                 pre_substitution: Substitution = None):
+                 pre_substitution: Optional[Substitution] = None):
         Query.__init__(self, answer_variables, label)
         if not atoms:
             self._atoms = FrozenAtomSet()
@@ -36,7 +36,7 @@ class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
 
         self._pre_substitution = Substitution() if pre_substitution is None else pre_substitution
 
-        if any(v not in answer_variables for v in self._pre_substitution.domain):
+        if any(v not in self.answer_variables for v in self._pre_substitution.domain):
             raise ValueError(f"A pre substitution can only be on answers variables: {self}")
 
         if any(v not in self._atoms.variables for v in self.answer_variables if v not in self.pre_substitution.domain):
@@ -63,9 +63,9 @@ class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
         return self.atoms.terms
 
     @cached_property
-    def existential_variables(self) -> frozenset[Variable]:
+    def existential_variables(self) -> set[Variable]:
         """Variables in the atoms that are not answer variables (implicitly ∃-quantified)."""
-        return frozenset(self.atoms.variables - set(self.answer_variables))
+        return set(self.atoms.variables - set(self.answer_variables))
 
     def to_fo_query(self) -> "FOQuery":
         """
@@ -88,11 +88,9 @@ class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
             raise ValueError("Cannot convert empty conjunctive query to FOQuery")
 
         # Build conjunction from atoms
-        formula: Formula = reduce(
-            lambda acc, atom: ConjunctionFormula(acc, atom),
-            atoms_list[1:],
-            atoms_list[0]
-        )
+        formula: Formula = atoms_list[0]
+        for atom in atoms_list[1:]:
+            formula = ConjunctionFormula(formula, atom)
 
         # Wrap in existential quantifiers for non-answer variables
         for var in self.existential_variables:
@@ -100,7 +98,7 @@ class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
 
         return FOQuery(formula, self.answer_variables, self.label)
 
-    def query_with_other_answer_variables(self, answers_variables: tuple[Variable]) -> 'ConjunctiveQuery':
+    def query_with_other_answer_variables(self, answers_variables: tuple[Variable, ...]) -> 'ConjunctiveQuery':
         return ConjunctiveQuery(self._atoms, answers_variables)
 
     @property

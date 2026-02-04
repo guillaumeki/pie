@@ -1,5 +1,4 @@
-from functools import reduce
-from typing import Iterable, Iterator, Optional, TYPE_CHECKING
+from typing import Iterable, Iterator, Optional, TYPE_CHECKING, cast
 
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
@@ -23,8 +22,8 @@ class UnionConjunctiveQueries(UnionQuery[ConjunctiveQuery]):
 
     def __init__(
         self,
-        cqs: Iterable[ConjunctiveQuery] = None,
-        answer_variables: Iterable[Variable] = None,
+        cqs: Optional[Iterable[ConjunctiveQuery]] = None,
+        answer_variables: Optional[Iterable[Variable]] = None,
         label: Optional[str] = None,
     ):
         super().__init__(cqs, answer_variables, label)
@@ -32,7 +31,7 @@ class UnionConjunctiveQueries(UnionQuery[ConjunctiveQuery]):
     @property
     def conjunctive_queries(self) -> frozenset[ConjunctiveQuery]:
         """Alias for queries property for backward compatibility."""
-        return self._queries
+        return cast(frozenset[ConjunctiveQuery], self._queries)
 
     def to_fo_query(self) -> "FOQuery":
         """
@@ -61,11 +60,9 @@ class UnionConjunctiveQueries(UnionQuery[ConjunctiveQuery]):
                 raise ValueError("Cannot convert empty conjunctive query")
 
             # Build conjunction from atoms
-            formula: Formula = reduce(
-                lambda acc, atom: ConjunctionFormula(acc, atom),
-                atoms_list[1:],
-                atoms_list[0]
-            )
+            formula: Formula = atoms_list[0]
+            for atom in atoms_list[1:]:
+                formula = ConjunctionFormula(formula, atom)
 
             # Wrap in existential quantifiers for non-answer variables
             for var in cq.existential_variables:
@@ -77,11 +74,9 @@ class UnionConjunctiveQueries(UnionQuery[ConjunctiveQuery]):
         formulas = [cq_to_formula(cq) for cq in self._queries]
 
         # Combine with disjunctions
-        combined: Formula = reduce(
-            lambda acc, f: DisjunctionFormula(acc, f),
-            formulas[1:],
-            formulas[0]
-        )
+        combined: Formula = formulas[0]
+        for formula in formulas[1:]:
+            combined = DisjunctionFormula(combined, formula)
 
         return FOQuery(combined, self.answer_variables, self.label)
 
@@ -97,10 +92,10 @@ class UnionConjunctiveQueries(UnionQuery[ConjunctiveQuery]):
                                else cq.str_without_answer_variables
                                for cq in self.conjunctive_queries)
 
-    def __or__(self, other: "UnionConjunctiveQueries") -> "UnionConjunctiveQueries":
+    def __or__(self, other: "UnionQuery[ConjunctiveQuery]") -> "UnionConjunctiveQueries":
         if self.answer_variables != other.answer_variables:
             raise ValueError(f"You can't do the union of two ucqs with distinct answer variables: {self} and {other}")
-        return UnionConjunctiveQueries(self.conjunctive_queries | other.conjunctive_queries, self.answer_variables)
+        return UnionConjunctiveQueries(self.conjunctive_queries | other.queries, self.answer_variables)
 
     def __eq__(self, other):
         if not isinstance(other, UnionConjunctiveQueries):

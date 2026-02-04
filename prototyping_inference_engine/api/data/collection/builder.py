@@ -131,7 +131,7 @@ class MaterializedCollectionBuilder:
         self._sources: Dict["Predicate", Queryable] = {}
         self._dynamic_sources: List[Queryable] = []
 
-    def _validate_materializable(self, source: Queryable) -> None:
+    def _validate_materializable(self, source: object) -> None:
         """Validate that a source implements Materializable."""
         if not isinstance(source, Materializable):
             raise TypeError(
@@ -242,7 +242,7 @@ class WritableCollectionBuilder:
         self._dynamic_sources: List[Queryable] = []
         self._default_writable: Optional[Writable] = None
 
-    def _validate_materializable(self, source: Queryable) -> None:
+    def _validate_materializable(self, source: object) -> None:
         """Validate that a source implements Materializable."""
         if not isinstance(source, Materializable):
             raise TypeError(

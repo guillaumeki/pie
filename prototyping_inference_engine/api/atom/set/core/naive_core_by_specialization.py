@@ -24,7 +24,7 @@ class NaiveCoreBySpecialization(CoreAlgorithm):
     def instance() -> "NaiveCoreBySpecialization":
         return NaiveCoreBySpecialization()
 
-    def compute_core(self, atom_set: AS, freeze: tuple[Variable] = None) -> AS:
+    def compute_core(self, atom_set: AS, freeze: Optional[tuple[Variable, ...]] = None) -> AS:
         if freeze is None:
             freeze = tuple()
         new_atom_set = atom_set

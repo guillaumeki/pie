@@ -64,7 +64,7 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
         self,
         formula: ConjunctionFormula,
         data: "ReadableData",
-        substitution: Substitution = None,
+        substitution: Optional[Substitution] = None,
     ) -> Iterator[Substitution]:
         """
         Evaluate a conjunction formula against a data source.

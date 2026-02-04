@@ -1,7 +1,7 @@
 """
 WritableDataCollection for aggregating multiple writable data sources.
 """
-from typing import Dict, Iterable, Iterator, List, Optional, TYPE_CHECKING
+from typing import Dict, Iterable, Iterator, List, Optional, TYPE_CHECKING, cast
 
 from prototyping_inference_engine.api.data.collection.materialized_collection import (
     MaterializedDataCollection,
@@ -49,7 +49,7 @@ class WritableDataCollection(MaterializedDataCollection):
         super().__init__(sources, dynamic_sources)
         self._default_writable = default_writable
         if default_writable is not None and default_writable not in self._all_sources:
-            self._all_sources.append(default_writable)
+            self._all_sources.append(cast(Queryable, default_writable))
 
     def _get_writable_source(self, predicate: "Predicate") -> Optional[Writable]:
         """Get a writable source for a predicate."""
@@ -88,7 +88,7 @@ class WritableDataCollection(MaterializedDataCollection):
         elif self._default_writable is not None:
             self._default_writable.add(atom)
             # Register new predicate mapping to default writable
-            self._sources[predicate] = self._default_writable
+            self._sources[predicate] = cast(Queryable, self._default_writable)
         else:
             raise KeyError(
                 f"No writable source for predicate {predicate} "

@@ -2,7 +2,7 @@
 First-Order Query: a query based on a first-order logic formula.
 """
 from functools import cached_property
-from typing import Optional, Iterable, Generic, TypeVar, TYPE_CHECKING
+from typing import Optional, Iterable, Generic, TypeVar, TYPE_CHECKING, cast
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
@@ -137,7 +137,7 @@ class FOQuery(Query, Substitutable["FOQuery[F]"], Generic[F]):
         The substitution is applied to both the formula and answer variables.
         Only free variables are substituted in the formula.
         """
-        new_formula = self._formula.apply_substitution(substitution)
+        new_formula = cast(F, self._formula.apply_substitution(substitution))
         new_answer_vars = [
             substitution.apply(v) if isinstance(substitution.apply(v), Variable) else v
             for v in self._answer_variables

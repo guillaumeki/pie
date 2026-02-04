@@ -14,7 +14,7 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 class ByVariableAndDomainBacktrackScheduler(BacktrackScheduler):
     def __init__(self, from_atom_set: AtomSet, to_atom_set_index_by_predicate: IndexByPredicate):
         BacktrackScheduler.__init__(self, from_atom_set)
-        self._order = []
+        self._order: list[Atom] = []
 
         if isinstance(from_atom_set, IndexedByTermAtomSet):
             index = from_atom_set.index_by_term
@@ -37,7 +37,9 @@ class ByVariableAndDomainBacktrackScheduler(BacktrackScheduler):
                 v = variable_counter.most_common(1)[0][0]
                 del variable_counter[v]
                 used_variables.add(v)
-                for a in filter(lambda x: x not in already_treated_atoms, index.atoms_by_term(v)):
+                for a in index.atoms_by_term(v):
+                    if a in already_treated_atoms:
+                        continue
                     self._add_atom_to_order(variable_counter, used_variables, a)
                     as_copy.remove(a)
                     already_treated_atoms.add(a)

@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 
 class Variable(Term):
-    fresh_counter = 0
-    variables = {}
+    fresh_counter: int = 0
+    variables: dict[object, "Variable"] = {}
 
     def __new__(cls, identifier):
         if identifier not in cls.variables:

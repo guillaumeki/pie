@@ -45,7 +45,7 @@ class RedundanciesCleanerUnionConjunctiveQueries:
     def compute_cover(self, ucq: UnionQuery[ConjunctiveQuery], del_redundancies_in_cqs: bool = True) \
             -> UnionQuery[ConjunctiveQuery]:
         return UnionQuery(
-            self._cq_redundancies_cleaner.compute_cover(ucq.conjunctive_queries, del_redundancies_in_cqs),
+            self._cq_redundancies_cleaner.compute_cover(set(ucq.conjunctive_queries), del_redundancies_in_cqs),
             ucq.answer_variables,
             ucq.label)
 
@@ -53,6 +53,9 @@ class RedundanciesCleanerUnionConjunctiveQueries:
                                   ucq1: UnionQuery[ConjunctiveQuery],
                                   ucq2: UnionQuery[ConjunctiveQuery]) -> UnionQuery[ConjunctiveQuery]:
         return UnionQuery(
-            self._cq_redundancies_cleaner.remove_more_specific_than(ucq1.conjunctive_queries, ucq2.conjunctive_queries),
+            self._cq_redundancies_cleaner.remove_more_specific_than(
+                set(ucq1.conjunctive_queries),
+                set(ucq2.conjunctive_queries),
+            ),
             ucq1.answer_variables,
             ucq1.label)

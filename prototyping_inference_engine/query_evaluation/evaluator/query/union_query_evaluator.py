@@ -52,7 +52,7 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         self,
         query: UnionQuery,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
         """
         Evaluate a UnionQuery against a data source.
@@ -96,7 +96,7 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         self,
         query: UnionQuery,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator[tuple[Term, ...]]:
         """
         Evaluate a UnionQuery and project results onto answer variables.

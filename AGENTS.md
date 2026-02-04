@@ -30,6 +30,8 @@ For any important change:
 1) Propose a plan first, including:
    - Design choices + justification
    - List of files to be modified
+   - Type checking with Mypy
+   - Fix Mypy errors
 2) Wait for user feedback/approval.
 3) Once approved, record the plan in `plans/` and reference it in this file.
 4) Execute the plan and amend it per user requests.
@@ -46,6 +48,7 @@ For any important change:
 - `design/commit-process.md`
 - `design/functional-terms.md`
 - `design/query-evaluation-structure.md`
+- `design/mypy-fixes-2026-02-04.md`
 
 ### Process Artifacts
 - `plans/PLAN_TEMPLATE.md`

@@ -11,7 +11,7 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 class DynamicBacktrackScheduler(BacktrackScheduler):
     def __init__(self, from_atom_set: AtomSet, index_provider: Optional[IndexProvider] = None):
         BacktrackScheduler.__init__(self, from_atom_set)
-        self._order = []
+        self._order: list[Atom] = []
         self._not_ordered = set(from_atom_set)
 
         if index_provider is None:
@@ -28,7 +28,7 @@ class DynamicBacktrackScheduler(BacktrackScheduler):
         if level+1 == len(self._order):
             return self._order[level]
 
-        next_a = None
+        next_a: Optional[Atom] = None
         smallest = inf
         for a in self._not_ordered:
             size = self._index.domain_size(a, sub)
@@ -36,6 +36,8 @@ class DynamicBacktrackScheduler(BacktrackScheduler):
                 next_a = a
                 smallest = size
 
+        if next_a is None:
+            raise ValueError("No atom available for scheduling.")
         self._order.append(next_a)
         self._not_ordered.remove(next_a)
 

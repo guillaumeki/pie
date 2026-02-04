@@ -2,7 +2,7 @@
 DLGPE Transformer - Converts DLGPE parse tree to PIE objects.
 """
 from typing import List, Optional, Tuple, Any
-from lark import Transformer, v_args, Token
+from lark import Transformer, v_args, Token  # type: ignore[import-not-found]
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate, comparison_predicate
@@ -206,7 +206,7 @@ class DlgpeTransformer(Transformer):
 
     # ==================== Sentences ====================
 
-    def dlgpe_fact(self, items) -> Tuple[str, List[Atom]]:
+    def dlgpe_fact(self, items) -> Tuple[str, List[Atom], Optional[str]]:
         """Process a fact: [label] head."""
         label = None
         head_formula = None
@@ -279,8 +279,8 @@ class DlgpeTransformer(Transformer):
     def dlgpe_query(self, items) -> Tuple[str, FOQuery, Optional[str]]:
         """Process a query: [label] ?(vars) :- body."""
         label = None
-        answer_vars = frozenset()
-        body_formula = None
+        answer_vars: Optional[frozenset[Variable]] = frozenset()
+        body_formula: Optional[Formula] = None
 
         for item in items:
             if isinstance(item, Label):
@@ -294,17 +294,18 @@ class DlgpeTransformer(Transformer):
                 answer_vars = None  # Will be computed later
 
         if body_formula is None:
-            body_formula = ConjunctionFormula(())
+            raise ValueError("Query body is missing.")
 
         # If answer_vars is None (*), compute from body
         if answer_vars is None:
-            answer_vars = body_formula.free_variables
+            answer_vars_set = body_formula.free_variables
         else:
-            extra_free_vars = body_formula.free_variables - set(answer_vars)
+            answer_vars_set = answer_vars
+            extra_free_vars = body_formula.free_variables - set(answer_vars_set)
             for var in sorted(extra_free_vars, key=str):
                 body_formula = ExistentialFormula(var, body_formula)
 
-        query = FOQuery(formula=body_formula, answer_variables=answer_vars, label=label)
+        query = FOQuery(formula=body_formula, answer_variables=answer_vars_set, label=label)
         return ("query", query, label)
 
     # ==================== Formulas ====================
@@ -423,7 +424,7 @@ class DlgpeTransformer(Transformer):
 
     def anonymous_variable(self, items) -> Variable:
         # Generate a unique anonymous variable
-        return Variable.anonymous()
+        return Variable.fresh_variable()
 
     def constant(self, items) -> Term:
         value = items[0]

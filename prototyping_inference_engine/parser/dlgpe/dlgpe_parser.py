@@ -12,14 +12,14 @@ from typing import List, Iterator, Optional, Union, Any
 from functools import cache
 import re
 
-from lark import Lark
+from lark import Lark  # type: ignore[import-not-found]
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import is_comparison_predicate
 from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
-from lark.exceptions import VisitError
+from lark.exceptions import VisitError  # type: ignore[import-not-found]
 
 from prototyping_inference_engine.parser.dlgpe.dlgpe_transformer import (
     DlgpeTransformer,
@@ -261,7 +261,7 @@ class DlgpeParser:
             atoms.extend(query.formula.atoms)
 
         for constraint in constraints:
-            atoms.extend(constraint.body.atoms)
+            atoms.extend(getattr(constraint.body, "atoms", ()))
 
         if any(is_comparison_predicate(atom.predicate) for atom in atoms):
             return [ComparisonDataSource()]

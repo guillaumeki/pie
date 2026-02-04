@@ -16,11 +16,11 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 class PieceUnifier:
     rule: Rule[ConjunctiveQuery, ConjunctiveQuery]
     query: ConjunctiveQuery
-    unified_query_part: FrozenAtomSet[Atom]
+    unified_query_part: FrozenAtomSet
     partition: TermPartition
 
     @cached_property
-    def associated_substitution(self) -> Substitution:
+    def associated_substitution(self) -> Optional[Substitution]:
         return self.partition.associated_substitution(self.query)
 
     def is_compatible_with(self, other: "PieceUnifier"):
@@ -33,7 +33,7 @@ class PieceUnifier:
         return part.is_admissible
 
     def aggregate(self, other: "PieceUnifier") -> "PieceUnifier":
-        unified_query_part = self.unified_query_part | other.unified_query_part
+        unified_query_part = FrozenAtomSet(self.unified_query_part | other.unified_query_part)
         partition = TermPartition(self.partition)
         partition.join(other.partition)
         return PieceUnifier(Rule.aggregate_conjunctive_rules(self.rule, other.rule),
@@ -52,7 +52,8 @@ class PieceUnifier:
         part.join(other.partition)
 
         if part.is_admissible:
-            return PieceUnifier(self.rule, self.query, self.unified_query_part | other.unified_query_part, part)
+            unified_query_part = FrozenAtomSet(self.unified_query_part | other.unified_query_part)
+            return PieceUnifier(self.rule, self.query, unified_query_part, part)
 
         return None
 
@@ -66,12 +67,17 @@ class PieceUnifier:
 
     @cached_property
     def sticky_variables(self) -> frozenset[Variable]:
-        return frozenset(v for cls in self.partition if any(t in self.rule.existential_variables for t in cls)
-                         for v in cls if v in self.unified_query_part.variables)
+        return frozenset(
+            v
+            for cls in self.partition
+            if any(t in self.rule.existential_variables for t in cls)
+            for v in cls
+            if isinstance(v, Variable) and v in self.unified_query_part.variables
+        )
 
     @cached_property
     def frontier_instantiation(self) -> tuple[Optional[Term], ...]:
-        instantiation = []
+        instantiation: list[Optional[Term]] = []
         for v in self.rule.frontier:
             representative = self.partition.get_representative(v)
             if representative.is_ground:

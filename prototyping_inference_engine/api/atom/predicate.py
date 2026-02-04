@@ -6,12 +6,13 @@ Created on 23 déc. 2021
 from builtins import property
 from enum import Enum
 from functools import cache
+from typing import Optional
 
 COMPARISON_OPERATORS = frozenset({"<", ">", "<=", ">=", "!="})
 
 
 class Predicate:
-    @cache
+    @cache  # type: ignore[misc]
     def __new__(cls, name: str, arity: int):
         return super(Predicate, cls).__new__(cls)
 
@@ -21,9 +22,9 @@ class Predicate:
         if not hasattr(self, "_arity"):
             self._arity = arity
         if not hasattr(self, "_display_mode"):
-            self._display_mode = "functional"
+            self._display_mode: str = "functional"
         if not hasattr(self, "_display_symbol"):
-            self._display_symbol = None
+            self._display_symbol: Optional[str] = None
 
     @property
     def arity(self):
@@ -38,10 +39,10 @@ class Predicate:
         return self._display_mode
 
     @property
-    def display_symbol(self) -> str | None:
+    def display_symbol(self) -> Optional[str]:
         return self._display_symbol
 
-    def set_display_mode(self, mode: str, symbol: str | None = None) -> None:
+    def set_display_mode(self, mode: str, symbol: Optional[str] = None) -> None:
         if mode not in {"functional", "infix", "infix_no_spaces"}:
             raise ValueError(f"Unknown display mode: {mode}")
         self._display_mode = mode

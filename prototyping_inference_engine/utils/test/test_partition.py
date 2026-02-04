@@ -1,21 +1,32 @@
-from typing import Callable
+from typing import Callable, TypedDict
 from unittest import TestCase
 
 from prototyping_inference_engine.utils.partition import Partition
 
 
+class PartitionData(TypedDict):
+    elements: set[int]
+    partition: tuple[set[int], ...]
+    unions: tuple[tuple[int, int], ...]
+
+
+class NotEqualData(TypedDict):
+    partition1: tuple[set[int], ...]
+    partition2: tuple[set[int], ...]
+
+
 class TestPartition(TestCase):
-    data = (
+    data: tuple[PartitionData, ...] = (
         {"elements": {1, 2}, "partition": ({1, 2},), "unions": ((1, 2),)},
         {"elements": {1, 2, 3, 4, 5, 6, 7, 8},
          "partition": ({1, 2, 5, 6, 8}, {3, 4}, {7}),
          "unions": ((1, 2), (3, 4), (2, 5), (1, 6), (2, 8))},
         {"elements": {1, 2, 3, 4, 5, 6},
-         "partition": [{1, 2, 3, 4, 5}, {6}],
+         "partition": ({1, 2, 3, 4, 5}, {6}),
          "unions": ((1, 2), (3, 4), (1, 3), (2, 5))}
     )
 
-    not_equal_data = (
+    not_equal_data: tuple[NotEqualData, ...] = (
         {"partition1": ({1, 2},), "partition2": ({1, 2, 5, 6, 8}, {3, 4}, {7})},
         {"partition1": ({1, 2, 5, 6, 8}, {3, 4}, {7}), "partition2": ({1, 2, 3, 4, 5}, {6})},
         {"partition1": ({1, 2, 3, 4, 5}, {6}), "partition2": ()},
@@ -24,12 +35,12 @@ class TestPartition(TestCase):
     )
 
     @classmethod
-    def check_on_data(cls, fun: Callable[[set[int], tuple[set[int]], tuple[tuple[int, int]]], None]):
+    def check_on_data(cls, fun: Callable[[set[int], tuple[set[int], ...], tuple[tuple[int, int], ...]], None]):
         for d in cls.data:
             fun(d["elements"], d["partition"], d["unions"])
 
     @classmethod
-    def check_on_not_equal_data(cls, fun: Callable[[tuple[set[int]], tuple[set[int]]], None]):
+    def check_on_not_equal_data(cls, fun: Callable[[tuple[set[int], ...], tuple[set[int], ...]], None]):
         for d in cls.not_equal_data:
             fun(d["partition1"], d["partition2"])
 

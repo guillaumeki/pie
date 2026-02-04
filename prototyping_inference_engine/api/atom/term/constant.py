@@ -13,11 +13,11 @@ if TYPE_CHECKING:
 
 
 class Constant(Term):
-    @cache
-    def __new__(cls, identifier):
+    @cache  # type: ignore[misc]
+    def __new__(cls, identifier: object):
         return Term.__new__(cls)
 
-    def __init__(self, identifier):
+    def __init__(self, identifier: object):
         Term.__init__(self, identifier)
 
     @property

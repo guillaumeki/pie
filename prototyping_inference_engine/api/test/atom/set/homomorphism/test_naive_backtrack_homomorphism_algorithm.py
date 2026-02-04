@@ -8,7 +8,7 @@ from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestNaiveBacktrackHomomorphismAlgorithm(TestCase):
-    data = (
+    data: tuple[dict[str, object], ...] = (
         {
             "from": "p(X,Y).",
             "to": "p(a,b).",

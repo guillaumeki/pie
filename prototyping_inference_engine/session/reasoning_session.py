@@ -24,6 +24,7 @@ from prototyping_inference_engine.api.atom.term.storage import (
     DictStorage,
     WeakRefStorage,
 )
+from prototyping_inference_engine.api.atom.term.storage.storage_strategy import TermStorageStrategy
 from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
 from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
 from prototyping_inference_engine.api.ontology.ontology import Ontology
@@ -44,6 +45,7 @@ from prototyping_inference_engine.session.providers import (
 )
 
 if TYPE_CHECKING:
+    from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.fact_base.fact_base import FactBase
     from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
     from prototyping_inference_engine.api.formula.formula_builder import FormulaBuilder
@@ -140,6 +142,10 @@ class ReasoningSession:
             A new ReasoningSession with standard term factories configured
         """
         # Choose storage strategy based on auto_cleanup
+        var_storage: TermStorageStrategy[str, Variable]
+        const_storage: TermStorageStrategy[object, Constant]
+        pred_storage: TermStorageStrategy[tuple[str, int], Predicate]
+        lit_storage: TermStorageStrategy[object, Literal]
         if auto_cleanup:
             var_storage = WeakRefStorage()
             const_storage = WeakRefStorage()
@@ -411,7 +417,7 @@ class ReasoningSession:
             A new Ontology instance
         """
         self._check_not_closed()
-        onto = Ontology(rules, constraints)
+        onto = Ontology(rules or set(), constraints or set())
         self._ontologies.append(onto)
         return onto
 
@@ -481,7 +487,7 @@ class ReasoningSession:
             atoms.extend(self._extract_query_atoms(query))
 
         for constraint in constraints:
-            atoms.extend(constraint.body.atoms)
+            atoms.extend(self._extract_query_atoms(constraint.body))
 
         sources: list[ReadableData] = []
         if any(is_comparison_predicate(atom.predicate) for atom in atoms):

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Iterator, TYPE_CHECKING
+from typing import Iterator, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.atom_operations import specialize
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class Index(ABC):
-    def match(self, atom: Atom, sub: "Substitution" = None) -> Iterator[Atom]:
+    def match(self, atom: Atom, sub: Optional["Substitution"] = None) -> Iterator[Atom]:
         from prototyping_inference_engine.api.substitution.substitution import Substitution
         if sub is None:
             sub = Substitution()

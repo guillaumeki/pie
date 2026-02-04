@@ -1,9 +1,11 @@
 """
 Evaluator for atomic formulas.
 """
-from typing import Type, Iterator, TYPE_CHECKING
+from typing import Type, Iterator, Optional, TYPE_CHECKING, cast
 
 from prototyping_inference_engine.api.atom.atom import Atom
+from prototyping_inference_engine.api.atom.term.term import Term
+from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
 from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import FormulaEvaluator
 from prototyping_inference_engine.query_evaluation.evaluator.rewriting.function_term_rewriter import (
@@ -14,6 +16,7 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
+    from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
 
 
 class AtomEvaluator(FormulaEvaluator[Atom]):
@@ -37,7 +40,7 @@ class AtomEvaluator(FormulaEvaluator[Atom]):
         self,
         formula: Atom,
         data: "ReadableData",
-        substitution: Substitution = None,
+        substitution: Optional[Substitution] = None,
     ) -> Iterator[Substitution]:
         """
         Evaluate an atomic formula against a data source.
@@ -89,7 +92,7 @@ class AtomEvaluator(FormulaEvaluator[Atom]):
         # Evaluate and map results to substitutions
         for term_tuple in data.evaluate(query):
             # Map tuple values to variables
-            result = {}
+            result: dict[Variable, Term] = {}
             consistent = True
 
             for pos, term in zip(answer_positions, term_tuple):
@@ -108,11 +111,12 @@ class AtomEvaluator(FormulaEvaluator[Atom]):
 
 def _build_conjunction(formulas: list[Atom]) -> "ConjunctionFormula":
     from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+    from prototyping_inference_engine.api.formula.formula import Formula
 
     if not formulas:
         raise ValueError("Cannot build conjunction from empty formula list.")
 
-    current = formulas[0]
+    current: Formula = formulas[0]
     for next_formula in formulas[1:]:
         current = ConjunctionFormula(current, next_formula)
-    return current
+    return cast(ConjunctionFormula, current)

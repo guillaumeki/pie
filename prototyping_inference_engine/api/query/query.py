@@ -16,7 +16,7 @@ from prototyping_inference_engine.api.atom.term.variable import Variable
 
 class Query(ABC):
     def __init__(self,
-                 answer_variables: typing.Iterable[Variable] = None,
+                 answer_variables: typing.Optional[typing.Iterable[Variable]] = None,
                  label: typing.Optional[str] = None):
         if not answer_variables:
             answer_variables = ()
@@ -47,7 +47,7 @@ class Query(ABC):
         return self.variables - set(self.answer_variables)
 
     @property
-    def answer_variables(self) -> tuple[Variable]:
+    def answer_variables(self) -> tuple[Variable, ...]:
         return self._answer_variables
 
     @property
@@ -58,3 +58,11 @@ class Query(ABC):
     @abstractmethod
     def str_without_answer_variables(self) -> str:
         pass
+
+    def query_with_other_answer_variables(self, answers_variables: tuple[Variable, ...]) -> "Query":
+        """
+        Return a query with the given answer variables.
+
+        Subclasses supporting answer-variable changes should override this.
+        """
+        raise NotImplementedError("query_with_other_answer_variables is not implemented for this query type.")

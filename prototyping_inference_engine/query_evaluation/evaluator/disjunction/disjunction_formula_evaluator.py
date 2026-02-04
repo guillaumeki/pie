@@ -38,7 +38,7 @@ class DisjunctionFormulaEvaluator(RegistryMixin, FormulaEvaluator[DisjunctionFor
         self,
         formula: DisjunctionFormula,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
         from prototyping_inference_engine.api.substitution.substitution import Substitution
 

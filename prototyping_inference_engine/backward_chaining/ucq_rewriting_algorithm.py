@@ -1,19 +1,19 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar
+from math import inf
+from typing import Callable, Optional
 
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.api.query.query import Query
 from prototyping_inference_engine.api.query.union_query import UnionQuery
-
-
-BodyQueryType = TypeVar("BodyQueryType", bound=Query)
-HeadQueryType = TypeVar("HeadQueryType", bound=Query)
 
 
 class UcqRewritingAlgorithm(ABC):
     @abstractmethod
     def rewrite(self,
                 ucq: UnionQuery[ConjunctiveQuery],
-                rule_set: set[Rule[BodyQueryType, HeadQueryType]]) -> UnionQuery[ConjunctiveQuery]:
+                rule_set: set[Rule[ConjunctiveQuery, ConjunctiveQuery]],
+                step_limit: float = inf,
+                verbose: bool = False,
+                printer: Optional[Callable[[UnionQuery[ConjunctiveQuery], int], None]] = None
+                ) -> UnionQuery[ConjunctiveQuery]:
         pass

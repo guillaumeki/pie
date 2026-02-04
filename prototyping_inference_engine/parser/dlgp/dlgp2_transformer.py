@@ -1,4 +1,4 @@
-from lark import Transformer, v_args
+from lark import Transformer, v_args  # type: ignore[import-not-found]
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.set.mutable_atom_set import MutableAtomSet

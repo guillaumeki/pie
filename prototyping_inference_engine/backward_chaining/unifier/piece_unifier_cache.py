@@ -7,7 +7,7 @@ incremental computation of disjunctive unifiers.
 from collections import defaultdict
 from typing import Optional, Iterable
 
-from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import PieceUnifier
@@ -28,7 +28,7 @@ class PieceUnifierCache:
         # Cache structure: CQ -> Rule -> head_number -> instantiation -> list[PieceUnifier]
         self._unifiers: \
             defaultdict[ConjunctiveQuery, defaultdict[Rule[ConjunctiveQuery, ConjunctiveQuery],
-                defaultdict[int, defaultdict[tuple[Optional[Constant], ...], list[PieceUnifier]]]]] \
+                defaultdict[int, defaultdict[tuple[Optional[Term], ...], list[PieceUnifier]]]]] \
             = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: defaultdict(list))))
 
         # Track which rules have unifiers for each head
@@ -39,7 +39,7 @@ class PieceUnifierCache:
         self._unifiers[cq][rule][head_number][unifier.frontier_instantiation].append(unifier)
 
     def get_by_instantiation(self, rule: Rule, head_number: int,
-                              instantiation: tuple[Optional[Constant], ...]) -> Iterable[PieceUnifier]:
+                              instantiation: tuple[Optional[Term], ...]) -> Iterable[PieceUnifier]:
         """Get all unifiers matching the given instantiation."""
         for cq in self._unifiers:
             for inst, unifiers in self._unifiers[cq][rule][head_number].items():
@@ -47,7 +47,7 @@ class PieceUnifierCache:
                     yield from unifiers
 
     def get_compatible_unifiers(self, rule: Rule, head_number: int,
-                                 reference_instantiation: tuple[Optional[Constant], ...]) -> Iterable[PieceUnifier]:
+                                 reference_instantiation: tuple[Optional[Term], ...]) -> Iterable[PieceUnifier]:
         """Get all unifiers with instantiation more specific than reference."""
         for cq in self._unifiers:
             for inst, unifiers in self._unifiers[cq][rule][head_number].items():
@@ -84,13 +84,13 @@ class PieceUnifierCache:
             self._has_unifiers[rule] = [False] * len(rule.head)
 
     @staticmethod
-    def _is_instantiation_more_general_than(i1: tuple[Optional[Constant], ...],
-                                             i2: tuple[Optional[Constant], ...]) -> bool:
+    def _is_instantiation_more_general_than(i1: tuple[Optional[Term], ...],
+                                             i2: tuple[Optional[Term], ...]) -> bool:
         """Check if i1 is more general than i2 (i1 has None where i2 has values)."""
         return all(c1 is None or c1 == c2 for c1, c2 in zip(i1, i2))
 
     @staticmethod
-    def _is_instantiation_compatible(i1: tuple[Optional[Constant], ...],
-                                      i2: tuple[Optional[Constant], ...]) -> bool:
+    def _is_instantiation_compatible(i1: tuple[Optional[Term], ...],
+                                      i2: tuple[Optional[Term], ...]) -> bool:
         """Check if two instantiations are compatible (no conflicts)."""
         return all(c1 is None or c2 is None or c1 == c2 for c1, c2 in zip(i1, i2))

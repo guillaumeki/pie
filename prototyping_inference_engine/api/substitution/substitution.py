@@ -2,7 +2,7 @@
 A substitution mapping variables to terms.
 """
 from collections.abc import Iterable
-from typing import Union, TypeVar
+from typing import Optional, Union, TypeVar
 
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
@@ -14,7 +14,7 @@ S = TypeVar("S", bound=Substitutable)
 class Substitution(dict[Variable, Term]):
     """A mapping from variables to terms, representing a substitution."""
 
-    def __init__(self, initial: Union["Substitution", dict[Variable, Term]] = None):
+    def __init__(self, initial: Optional[Union["Substitution", dict[Variable, Term]]] = None):
         super().__init__(initial or {})
 
     @property

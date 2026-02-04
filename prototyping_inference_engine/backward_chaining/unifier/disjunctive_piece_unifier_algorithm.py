@@ -4,7 +4,7 @@ Algorithm for computing disjunctive piece unifiers.
 from dataclasses import dataclass
 from typing import Optional
 
-from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
@@ -22,7 +22,7 @@ class _PartialDisjunctivePieceUnifier:
     rule: Rule[ConjunctiveQuery, ConjunctiveQuery]
     piece_unifiers: list[Optional[PieceUnifier]]
     cqs: list[Optional[ConjunctiveQuery]]
-    answer_variables: tuple[Variable]
+    answer_variables: tuple[Variable, ...]
 
     def to_disjunctive_piece_unifier(self):
         """Convert to a complete DisjunctivePieceUnifier."""
@@ -45,9 +45,9 @@ class _PartialDisjunctivePieceUnifier:
 
         return part
 
-    def partial_frontier_instantiation(self, head_number: int) -> tuple[Optional[Constant], ...]:
+    def partial_frontier_instantiation(self, head_number: int) -> tuple[Optional[Term], ...]:
         """Get the frontier instantiation for a specific head."""
-        instantiation = []
+        instantiation: list[Optional[Term]] = []
         for v in self.rule.head_frontier(head_number):
             representative = self.partial_associated_partition.get_representative(v)
             if representative.is_ground:
@@ -85,7 +85,7 @@ class DisjunctivePieceUnifierAlgorithm:
         self._cache.cleanup(set(all_cqs))
         self._cache.initialize_rule(rule)
 
-        result = set()
+        result: set[DisjunctivePieceUnifier] = set()
 
         for head_number, head in enumerate(rule.head):
             full_unifiers = self._compute_full_unifiers_of_a_ucq(rule, head_number, new_cqs)
@@ -106,10 +106,10 @@ class DisjunctivePieceUnifierAlgorithm:
 
     def _create_partial_unifier(self, rule: Rule, head_number: int,
                                  unifier: PieceUnifier,
-                                 answer_variables: tuple[Variable]) -> _PartialDisjunctivePieceUnifier:
+                                 answer_variables: tuple[Variable, ...]) -> _PartialDisjunctivePieceUnifier:
         """Create a partial disjunctive piece unifier with one head filled in."""
-        piece_unifiers = [None] * len(rule.head)
-        cqs = [None] * len(rule.head)
+        piece_unifiers: list[Optional[PieceUnifier]] = [None] * len(rule.head)
+        cqs: list[Optional[ConjunctiveQuery]] = [None] * len(rule.head)
         piece_unifiers[head_number] = unifier
         cqs[head_number] = unifier.query
         return _PartialDisjunctivePieceUnifier(rule, piece_unifiers, cqs, answer_variables)

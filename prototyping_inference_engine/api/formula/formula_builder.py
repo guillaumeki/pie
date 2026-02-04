@@ -65,7 +65,9 @@ class FormulaBuilder:
         Returns:
             self for chaining
         """
-        terms = []
+        from prototyping_inference_engine.api.atom.term.term import Term
+
+        terms: list[Term] = []
         for name in term_names:
             if name[0].isupper():
                 terms.append(self._session.variable(name))

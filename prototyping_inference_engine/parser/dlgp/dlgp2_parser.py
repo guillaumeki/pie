@@ -1,6 +1,6 @@
-from typing import Iterable, Callable
+from typing import Iterable, Callable, Optional, Set, TYPE_CHECKING, cast
 
-from lark import Lark
+from lark import Lark  # type: ignore[import-not-found]
 
 from prototyping_inference_engine.api.atom.set.atom_set import AtomSet
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
@@ -9,6 +9,9 @@ from prototyping_inference_engine.api.ontology.constraint.negative_constraint im
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.parser.dlgp.dlgp2_transformer import Dlgp2Transformer
+
+if TYPE_CHECKING:
+    from prototyping_inference_engine.api.atom.atom import Atom
 
 
 class Dlgp2Parser:
@@ -28,19 +31,19 @@ class Dlgp2Parser:
     def create(cls, transformer: Dlgp2Transformer) -> "Dlgp2Parser":
         return cls(transformer)
 
-    def parse_all(self, to_parse: str, filter_fun: Callable[[object], bool] = None) -> Iterable[object]:
+    def parse_all(self, to_parse: str, filter_fun: Optional[Callable[[object], bool]] = None) -> Iterable[object]:
         return self._parse_all(self._parser.parse(to_parse)["body"], filter_fun)  # type: ignore
 
-    def parse_all_from_file(self, file_path: str, filter_fun: Callable[[object], bool] = None) -> Iterable[object]:
+    def parse_all_from_file(self, file_path: str, filter_fun: Optional[Callable[[object], bool]] = None) -> Iterable[object]:
         with open(file_path, "r") as file:
             return self.parse_all(file.read(), filter_fun)
 
     @staticmethod
-    def _parse_all(parsing_result: dict, filter_fun: Callable[[object], bool] = None) -> Iterable[object]:
-        objects = set()
+    def _parse_all(parsing_result: dict, filter_fun: Optional[Callable[[object], bool]] = None) -> Iterable[object]:
+        objects: Set[object] = set()
 
         for e in parsing_result:
-            if not filter_fun or filter_fun(e):
+            if filter_fun is None or filter_fun(e):
                 if isinstance(e, AtomSet):
                     objects.update(e)
                 else:
@@ -50,35 +53,48 @@ class Dlgp2Parser:
 
     def parse_atoms(self, to_parse: str) -> MutableAtomSet:
         return MutableAtomSet(
-            [atom for atom in self.parse_all(to_parse, lambda x: isinstance(x, AtomSet))])  # type: ignore
+            cast(Iterable["Atom"], self.parse_all(to_parse, lambda x: isinstance(x, AtomSet)))
+        )
 
     def parse_atoms_from_file(self, file_path: str) -> MutableAtomSet:
         return MutableAtomSet(
-            [atom for atom in self.parse_all_from_file(file_path, lambda x: isinstance(x, AtomSet))])  # type: ignore
+            cast(Iterable["Atom"], self.parse_all_from_file(file_path, lambda x: isinstance(x, AtomSet)))
+        )
 
     def parse_negative_constraints(self, to_parse: str) -> Iterable[NegativeConstraint]:
-        return set([nc for nc in self.parse_all(to_parse, lambda x: isinstance(x, NegativeConstraint))])  # type: ignore
+        return set(
+            cast(Iterable[NegativeConstraint],
+                 self.parse_all(to_parse, lambda x: isinstance(x, NegativeConstraint)))
+        )
 
     def parse_negative_constraints_from_file(self, file_path: str) -> Iterable[NegativeConstraint]:
-        return set(  # type: ignore
-            [nc for nc in self.parse_all_from_file(file_path,
-                                                   lambda x: isinstance(x, NegativeConstraint))])
+        return set(
+            cast(Iterable[NegativeConstraint],
+                 self.parse_all_from_file(file_path, lambda x: isinstance(x, NegativeConstraint)))
+        )
 
     def parse_rules(self, to_parse: str) -> Iterable[Rule]:
-        return set([nc for nc in self.parse_all(to_parse, lambda x: isinstance(x, Rule))])  # type: ignore
+        return set(
+            cast(Iterable[Rule], self.parse_all(to_parse, lambda x: isinstance(x, Rule)))
+        )
 
     def parse_rules_from_file(self, file_path: str) -> Iterable[Rule]:
-        return set([nc for nc in self.parse_all_from_file(file_path, lambda x: isinstance(x, Rule))])  # type: ignore
+        return set(
+            cast(Iterable[Rule], self.parse_all_from_file(file_path, lambda x: isinstance(x, Rule)))
+        )
 
     def parse_conjunctive_queries(self, to_parse: str) -> Iterable[ConjunctiveQuery]:
-        return set(nc for nc in self.parse_all(to_parse, lambda x: isinstance(x, ConjunctiveQuery)))  # type: ignore
+        return set(
+            cast(Iterable[ConjunctiveQuery],
+                 self.parse_all(to_parse, lambda x: isinstance(x, ConjunctiveQuery)))
+        )
 
     def parse_union_conjunctive_queries(self, to_parse: str) -> Iterable[UnionQuery[ConjunctiveQuery]]:
         for query in self.parse_all(to_parse, lambda x: isinstance(x, UnionQuery)
                                                         or isinstance(x, ConjunctiveQuery)):
             if isinstance(query, UnionQuery):
                 yield query
-            else:
+            elif isinstance(query, ConjunctiveQuery):
                 yield UnionQuery([query], query.answer_variables, query.label)
 
     def parse_union_conjunctive_queries_from_file(self, file_path: str) -> Iterable[UnionQuery[ConjunctiveQuery]]:
@@ -86,10 +102,11 @@ class Dlgp2Parser:
                                                         or isinstance(x, ConjunctiveQuery)):
             if isinstance(query, UnionQuery):
                 yield query
-            else:
+            elif isinstance(query, ConjunctiveQuery):
                 yield UnionQuery([query], query.answer_variables, query.label)
 
     def parse_conjunctive_queries_from_file(self, file_path: str) -> Iterable[ConjunctiveQuery]:
-        return set(  # type: ignore
-            [nc for nc in self.parse_all_from_file(file_path,
-                                                   lambda x: isinstance(x, ConjunctiveQuery))])
+        return set(
+            cast(Iterable[ConjunctiveQuery],
+                 self.parse_all_from_file(file_path, lambda x: isinstance(x, ConjunctiveQuery)))
+        )

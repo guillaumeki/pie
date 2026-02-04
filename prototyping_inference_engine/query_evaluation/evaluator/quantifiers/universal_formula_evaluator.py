@@ -14,6 +14,8 @@ from prototyping_inference_engine.query_evaluation.evaluator.errors import Unsup
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
+    from prototyping_inference_engine.api.atom.term.term import Term
+    from prototyping_inference_engine.api.atom.term.variable import Variable
     from prototyping_inference_engine.api.substitution.substitution import Substitution
     from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
         FormulaEvaluatorRegistry,
@@ -47,7 +49,7 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
         self,
         formula: UniversalFormula,
         data: "ReadableData",
-        substitution: "Substitution" = None,
+        substitution: Optional["Substitution"] = None,
     ) -> Iterator["Substitution"]:
         from prototyping_inference_engine.api.substitution.substitution import Substitution
 
@@ -141,7 +143,7 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
 
         # For the first term, get all possible results
         first_term = True
-        valid_subs = None  # Will hold set of valid substitution tuples
+        valid_subs: Optional[set[tuple[tuple["Variable", "Term"], ...]]] = None
 
         for term in domain:
             extended_sub = substitution.compose(Substitution({bound_var: term}))
@@ -161,6 +163,7 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
                 first_term = False
             else:
                 # Intersection: keep only results that appear for ALL terms
+                assert valid_subs is not None
                 valid_subs = valid_subs & results
 
             # Early termination if intersection is empty

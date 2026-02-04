@@ -10,7 +10,7 @@ from datetime import date, datetime, time, timezone
 from decimal import Decimal
 import base64
 import re
-from typing import Callable, Optional
+from typing import Callable, Optional, Iterable, cast
 
 
 XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema#"
@@ -434,7 +434,7 @@ def default_type_parsers(numeric_mode: str) -> dict[str, Callable[[str], object]
 
 
 def default_type_unparsers(numeric_mode: str) -> dict[str, Callable[[object], str]]:
-    return {
+    return cast(dict[str, Callable[[object], str]], {
         XSD_BOOLEAN: unparse_boolean,
         XSD_STRING: lambda v: str(v),
         RDF_LANG_STRING: lambda v: str(v),
@@ -466,12 +466,12 @@ def default_type_unparsers(numeric_mode: str) -> dict[str, Callable[[object], st
         "gDay": unparse_g_day,
         "gMonth": unparse_g_month,
         "dateTimeStamp": unparse_datetime,
-        "hexBinary": lambda v: unparse_binary(v, True),
-        "base64Binary": lambda v: unparse_binary(v, False),
+        "hexBinary": lambda v: unparse_binary(cast(bytes, v), True),
+        "base64Binary": lambda v: unparse_binary(cast(bytes, v), False),
         "anyURI": lambda v: str(v),
         "QName": unparse_qname,
         "NOTATION": unparse_qname,
-        "NMTOKENS": lambda v: " ".join(v),
-        "IDREFS": lambda v: " ".join(v),
-        "ENTITIES": lambda v: " ".join(v),
-    }
+        "NMTOKENS": lambda v: " ".join(cast(Iterable[str], v)),
+        "IDREFS": lambda v: " ".join(cast(Iterable[str], v)),
+        "ENTITIES": lambda v: " ".join(cast(Iterable[str], v)),
+    })
