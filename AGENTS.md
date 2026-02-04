@@ -49,6 +49,7 @@ For any important change:
 - `design/functional-terms.md`
 - `design/query-evaluation-structure.md`
 - `design/mypy-fixes-2026-02-04.md`
+- `design/github-ci.md`
 
 ### Process Artifacts
 - `plans/PLAN_TEMPLATE.md`
