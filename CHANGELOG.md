@@ -17,6 +17,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: enforce mypy + full test suite passing before commit/push.
 - Added: code quality tooling (Ruff, Coverage, Bandit, pip-audit, Vulture, Radon, Hypothesis) with CI integration.
 - Changed: applied Ruff formatting baseline across the codebase.
+- Changed: documented before-push quality checklist in AGENTS.
+- Added: README badges for license and Python version.
 
 ## [2026-02-03]
 - Added: DLGPE comparison operators support (<, >, <=, >=, !=) with infix display and evaluation via readable data sources.

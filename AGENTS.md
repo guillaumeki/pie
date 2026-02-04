@@ -19,11 +19,36 @@ Push to both remotes each time:
 - `bitbucket` (Bitbucket)
 - `origin` (GitHub, with Bitbucket as an additional push URL)
 
+### Quality Commands
+```bash
+ruff check .
+ruff format --check .
+python3 -m coverage run -m unittest discover -s prototyping_inference_engine -v
+python3 -m coverage report -m
+bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test" -ll
+pip-audit
+vulture prototyping_inference_engine
+radon cc -a -s prototyping_inference_engine
+```
+
 ### Python Execution (Always)
 Before running any Python code or unit tests:
 1) Create a virtual environment if it does not exist and install dependencies.
 2) Activate the virtual environment.
 3) Run the Python command/tests.
+
+### Before Push (Always)
+Run the following in order before any commit/push:
+1) `mypy prototyping_inference_engine`
+2) `python3 -m unittest discover -s prototyping_inference_engine -v`
+3) `ruff check .`
+4) `ruff format --check .`
+5) `python3 -m coverage run -m unittest discover -s prototyping_inference_engine -v`
+6) `python3 -m coverage report -m`
+7) `bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test" -ll`
+8) `pip-audit`
+9) `vulture prototyping_inference_engine` (informational)
+10) `radon cc -a -s prototyping_inference_engine` (informational)
 
 ## Change Process (Always)
 For any important change:
@@ -54,6 +79,7 @@ For any important change:
 - `design/ci-badge.md`
 - `design/mypy-test-gate.md`
 - `design/code-quality-tooling.md`
+- `design/readme-badges.md`
 
 ### Process Artifacts
 - `plans/PLAN_TEMPLATE.md`

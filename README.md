@@ -1,6 +1,8 @@
 # Pie : Prototyping Inference Engine
 
 [![CI](https://github.com/guillaumeki/pie/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/guillaumeki/pie/actions/workflows/ci.yml?query=branch%3Amaster)
+![License: GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)
+![Python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 
 Pie is a Python library for building [inference engines](https://en.wikipedia.org/wiki/Inference_engine). It allows rapid prototyping of software that requires logical reasoning capabilities.
 
