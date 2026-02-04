@@ -50,6 +50,7 @@ For any important change:
 - `design/query-evaluation-structure.md`
 - `design/mypy-fixes-2026-02-04.md`
 - `design/github-ci.md`
+- `design/ci-badge.md`
 
 ### Process Artifacts
 - `plans/PLAN_TEMPLATE.md`
