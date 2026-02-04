@@ -39,6 +39,7 @@ For any important change:
 6) Record design decisions in `design/<feature_name>.md` with a date and list the file here.
 7) Commit and push changes to both `bitbucket` and `origin`.
 8) Delete the plan file after changelog and design docs are written.
+9) Do not commit or push unless `mypy prototyping_inference_engine` and the full unit test suite have passed.
 
 ### Tracked Plans
 - None
@@ -51,6 +52,7 @@ For any important change:
 - `design/mypy-fixes-2026-02-04.md`
 - `design/github-ci.md`
 - `design/ci-badge.md`
+- `design/mypy-test-gate.md`
 
 ### Process Artifacts
 - `plans/PLAN_TEMPLATE.md`

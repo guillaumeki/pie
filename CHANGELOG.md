@@ -14,6 +14,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: GitHub Actions CI running mypy and full unit tests on push/PR.
 - Added: GitHub Actions CI badge in README.
 - Fixed: CI now installs mypy and runtime requirements explicitly.
+- Changed: enforce mypy + full test suite passing before commit/push.
 
 ## [2026-02-03]
 - Added: DLGPE comparison operators support (<, >, <=, >=, !=) with infix display and evaluation via readable data sources.

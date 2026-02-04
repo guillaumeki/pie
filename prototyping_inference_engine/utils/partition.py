@@ -172,8 +172,8 @@ class Partition(Generic[T]):
     def _union(self, x: Partition._Node, y: Partition._Node) -> None:
         self._link(self._find(x), self._find(y))
 
-    class _ClassView(Set[T]):
-        def __init__(self, x: T, partition: "Partition[T]"):
+    class _ClassView(Set):
+        def __init__(self, x, partition):
             self.x = x
             self.partition = partition
 
@@ -181,17 +181,17 @@ class Partition(Generic[T]):
             if o not in self.partition._nodes:
                 return False
             return (self.partition._find(self.partition._get_node(self.x))
-                    is self.partition._find(self.partition._get_node(cast(T, o))))
+                    is self.partition._find(self.partition._get_node(cast(Any, o))))
 
         def __len__(self) -> int:
             return self.partition._find(self.partition._get_node(self.x)).size
 
-        def __iter__(self) -> Iterator[T]:
+        def __iter__(self) -> Iterator[object]:
             queue: list[Partition._Node] = [self.partition._find(self.partition._get_node(self.x))]
             while queue:
                 n = queue.pop()
                 queue += list(n.children)
-                yield cast(T, n.value)
+                yield n.value
 
         def __repr__(self) -> str:
             return "{" + ", ".join(str(e) for e in self) + "}"
