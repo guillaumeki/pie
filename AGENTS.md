@@ -39,11 +39,12 @@ For any important change:
 8) Delete the plan file after changelog and design docs are written.
 
 ### Tracked Plans
-- (none)
+- None
 
 ### Design Docs
 - `design/process-templates.md`
 - `design/commit-process.md`
+- `design/functional-terms.md`
 
 ### Process Artifacts
 - `plans/PLAN_TEMPLATE.md`

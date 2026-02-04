@@ -25,6 +25,7 @@ from prototyping_inference_engine.api.atom.term.storage import (
     WeakRefStorage,
 )
 from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
+from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
 from prototyping_inference_engine.api.ontology.ontology import Ontology
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.ontology.constraint.negative_constraint import NegativeConstraint
@@ -104,6 +105,12 @@ class ReasoningSession:
         self._parser_provider = parser_provider or DlgpeParserProvider(self._term_factories)
         self._fact_base_provider = fact_base_provider or DefaultFactBaseFactoryProvider()
         self._rewriting_provider = rewriting_provider or DefaultRewritingAlgorithmProvider()
+        self._python_function_source = None
+
+        if Literal in self._term_factories:
+            from prototyping_inference_engine.api.data.python_function_data import PythonFunctionReadable
+            literal_factory = self._term_factories.get(Literal)
+            self._python_function_source = PythonFunctionReadable(literal_factory)
 
         # Session-owned resources
         self._fact_bases: list["FactBase"] = []
@@ -174,6 +181,11 @@ class ReasoningSession:
         return self._literal_config
 
     @property
+    def python_function_source(self):
+        """Access the Python function readable data source."""
+        return self._python_function_source
+
+    @property
     def fact_bases(self) -> list["FactBase"]:
         """Return a copy of the list of fact bases created in this session."""
         return list(self._fact_bases)
@@ -237,6 +249,47 @@ class ReasoningSession:
         """
         self._check_not_closed()
         return self._term_factories.get(Literal).create(lexical, datatype, lang)
+
+    def register_python_function(
+        self,
+        name: str,
+        func,
+        *,
+        mode: str = "terms",
+        input_arity: Optional[int] = None,
+        output_position: Optional[int] = None,
+        required_positions: Optional[Iterable[int]] = None,
+        min_bound: Optional[int] = None,
+        solver=None,
+        returns_multiple: bool = False,
+    ):
+        """
+        Register a Python function for computed evaluation.
+
+        Args:
+            name: Function name
+            func: Callable to execute
+            mode: \"terms\" or \"python\"
+            input_arity: Number of input arguments
+            output_position: Result position (default: last)
+            required_positions: Positions that must be bound to evaluate
+            min_bound: Minimum number of bound positions
+            solver: Optional solver for reversible functions
+            returns_multiple: True if func returns an iterable of results
+        """
+        if self._python_function_source is None:
+            raise RuntimeError("Python function source is not available")
+        return self._python_function_source.register_function(
+            name,
+            func,
+            mode=mode,
+            input_arity=input_arity,
+            output_position=output_position,
+            required_positions=required_positions,
+            min_bound=min_bound,
+            solver=solver,
+            returns_multiple=returns_multiple,
+        )
 
     def predicate(self, name: str, arity: int) -> Predicate:
         """
@@ -433,6 +486,8 @@ class ReasoningSession:
         sources: list[ReadableData] = []
         if any(is_comparison_predicate(atom.predicate) for atom in atoms):
             sources.append(ComparisonDataSource(self._literal_config.comparison))
+        if self._python_function_source is not None and _contains_function_term(atoms):
+            sources.append(self._python_function_source)
         return sources
 
     @staticmethod
@@ -686,3 +741,22 @@ class ReasoningSession:
 
         for atom in atoms:
             self._track_atom(atom)
+
+
+def _contains_function_term(atoms: Iterable[Atom]) -> bool:
+    for atom in atoms:
+        for term in atom.terms:
+            if _term_contains_function(term):
+                return True
+    return False
+
+
+def _term_contains_function(term: Term) -> bool:
+    if isinstance(term, FunctionTerm):
+        return True
+    args = getattr(term, "args", None)
+    if args:
+        for arg in args:
+            if _term_contains_function(arg):
+                return True
+    return False

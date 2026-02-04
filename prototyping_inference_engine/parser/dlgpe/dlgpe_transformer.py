@@ -9,6 +9,7 @@ from prototyping_inference_engine.api.atom.predicate import Predicate, compariso
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.term.variable import Variable
+from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.factory.literal_factory import LiteralFactory
 from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
@@ -54,7 +55,6 @@ class DlgpeTransformer(Transformer):
     - @base, @prefix, @top, @una directives
 
     Unsupported features (will raise DlgpeUnsupportedFeatureError):
-    - Functional terms
     - Arithmetic expressions
     - Subqueries (Var := body)
     - Macro predicates ($predicate)
@@ -432,6 +432,17 @@ class DlgpeTransformer(Transformer):
         if isinstance(value, Literal):
             return value
         return Constant(str(value))
+
+    def functional_term(self, items) -> FunctionTerm:
+        name = str(items[0])
+        args = items[1] if len(items) > 1 else ()
+        return FunctionTerm(name, args)
+
+    def function_symbol(self, items) -> str:
+        return str(items[0])
+
+    def non_constant_term_list(self, items) -> tuple[Term, ...]:
+        return tuple(items)
 
     def predicate(self, items) -> Predicate:
         # Predicate arity will be determined when creating the atom

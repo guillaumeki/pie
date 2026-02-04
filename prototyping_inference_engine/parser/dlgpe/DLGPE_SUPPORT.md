@@ -66,6 +66,7 @@ DLGPE grammar is based on: https://gitlab.inria.fr/jfbaget/dlgpe
 | Named variables | ✅ Supported | `X`, `Var1`, `_x` |
 | Anonymous variable | ✅ Supported | `_` |
 | Constants | ✅ Supported | `a`, `const1` |
+| Functional terms | ✅ Supported | `f(X, Y)` (Python-backed functions only) |
 | IRI references | ✅ Supported | `<http://example.org/p>` |
 | Prefixed names | ✅ Supported | `ex:predicate` |
 | String literals | ✅ Supported | `"hello"`, `'world'` |
@@ -81,7 +82,6 @@ The following features will raise `DlgpeUnsupportedFeatureError` when encountere
 
 | Feature | Reason |
 |---------|--------|
-| Functional terms | PIE does not support function symbols: `f(X, Y)` |
 | Arithmetic expressions | Not implemented: `X + 1`, `X * Y`, `X - 1`, `X / 2`, `X ** 2` |
 
 ### Atoms

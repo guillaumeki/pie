@@ -7,6 +7,7 @@ from prototyping_inference_engine.parser.dlgpe import (
     DlgpeParser,
     DlgpeUnsupportedFeatureError,
 )
+from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
 from prototyping_inference_engine.api.formula.disjunction_formula import DisjunctionFormula
@@ -276,6 +277,18 @@ class TestDlgpeParserEquality(unittest.TestCase):
         """Test parsing equality in rule body."""
         result = self.parser.parse("h(X) :- p(X, Y), X = Y.")
         self.assertEqual(len(result["rules"]), 1)
+
+
+class TestDlgpeParserFunctionalTerms(unittest.TestCase):
+    """Test parsing functional terms."""
+
+    def setUp(self):
+        self.parser = DlgpeParser.instance()
+
+    def test_function_term_in_fact(self):
+        result = self.parser.parse("p(f(a)).")
+        atom = result["facts"][0]
+        self.assertIsInstance(atom.terms[0], FunctionTerm)
 
 
 class TestDlgpeParserComparison(unittest.TestCase):

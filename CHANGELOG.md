@@ -5,6 +5,11 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [2026-02-04]
+- Added: functional terms support via Python-backed readable data sources and computed predicates.
+- Added: function-term rewrite helper shared by atom and conjunction evaluators.
+- Changed: function evaluation now supports partial bindings via `min_bound` + solver in Python mode.
+
 ## [2026-02-03]
 - Added: DLGPE comparison operators support (<, >, <=, >=, !=) with infix display and evaluation via readable data sources.
 - Added: comparison data source and helper to evaluate queries with extra sources.

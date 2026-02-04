@@ -39,7 +39,6 @@ class DlgpeParser:
     - Extended directives
 
     Features NOT supported by PIE (will raise DlgpeUnsupportedFeatureError):
-    - Functional terms
     - Arithmetic expressions
     - Subqueries
     - Macro predicates
@@ -129,9 +128,7 @@ class DlgpeParser:
             r"\b(?!not\b)[a-z][A-Za-z0-9_]*\s*\(\s*[a-z][A-Za-z0-9_]*\s*\(",
             stripped,
         ):
-            raise DlgpeUnsupportedFeatureError(
-                "Functional terms (f(X, Y)) are not supported by PIE"
-            )
+            return
 
     def parse_file(self, path: Union[str, Path]) -> dict:
         """

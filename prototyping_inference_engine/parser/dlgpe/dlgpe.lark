@@ -199,10 +199,12 @@ variable_list: (named_variable ("," named_variable)*)?
 
 // Terms
 head_term: additive_term      -> unsupported_arithmetic
+         | functional_term
          | constant
          | named_variable
 
 body_term: additive_term      -> unsupported_arithmetic
+         | functional_term
          | constant
          | anonymous_variable
          | named_variable
@@ -217,9 +219,9 @@ elementary_term: "(" additive_term ")" | functional_term | named_variable | lite
 ADDOP: "+" | "-"
 MULTOP: "*" | "/"
 
-functional_term: function_symbol "(" non_constant_term_list ")"  -> unsupported_functional
+functional_term: function_symbol "(" non_constant_term_list ")"
 function_symbol: identifier
-non_constant_term_list: (additive_term ("," additive_term)*)?
+non_constant_term_list: (term ("," term)*)?
 
 // Basic terms
 term: named_variable | constant | anonymous_variable

@@ -25,9 +25,8 @@ class TestDlgpeUnsupportedFeaturesExtra(unittest.TestCase):
         self.assertIn("Arithmetic expressions", str(ctx.exception))
 
     def test_unsupported_functional_term(self):
-        with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:
-            self.parser.parse("p(f(X)).")
-        self.assertIn("Functional terms", str(ctx.exception))
+        result = self.parser.parse("p(f(X)).")
+        self.assertEqual(len(result["facts"]), 1)
 
     def test_unsupported_subquery(self):
         with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:

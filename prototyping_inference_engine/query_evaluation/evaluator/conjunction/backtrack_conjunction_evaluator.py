@@ -6,6 +6,7 @@ from typing import Iterator, Optional, TYPE_CHECKING
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import SpecialPredicate
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
+from prototyping_inference_engine.api.data.basic_query import BasicQuery
 from prototyping_inference_engine.api.formula.formula import Formula
 from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
 from prototyping_inference_engine.query_evaluation.evaluator.conjunction.conjunction_evaluator import ConjunctionEvaluator
@@ -15,6 +16,10 @@ from prototyping_inference_engine.query_evaluation.evaluator.conjunction.schedul
     SequentialSchedulerProvider,
 )
 from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import RegistryMixin
+from prototyping_inference_engine.query_evaluation.evaluator.function_term_rewriter import (
+    expand_function_terms,
+    formula_contains_function,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 if TYPE_CHECKING:
@@ -81,6 +86,7 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
 
         # Flatten the conjunction into a list of sub-formulas
         sub_formulas = self._flatten_conjunction(formula)
+        sub_formulas = expand_function_terms(sub_formulas)
 
         # Separate equality atoms from other formulas
         equality_atoms, other_formulas = self._separate_equalities(sub_formulas)
@@ -110,9 +116,10 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
 
         # Create a scheduler for non-equality formulas
         scheduler = self._scheduler_provider.create_scheduler(other_formulas)
+        ordered_formulas = list(scheduler.formulas)
 
         # Run backtracking
-        yield from self._backtrack(data, substitution, scheduler, level=0)
+        yield from self._backtrack(data, substitution, ordered_formulas)
 
     def _separate_equalities(
         self, formulas: list[Formula]
@@ -192,38 +199,55 @@ class BacktrackConjunctionEvaluator(RegistryMixin, ConjunctionEvaluator):
         self,
         data: "ReadableData",
         substitution: Substitution,
-        scheduler: FormulaScheduler,
-        level: int,
+        remaining_formulas: list[Formula],
     ) -> Iterator[Substitution]:
         """
-        Recursive backtracking algorithm.
-
-        Args:
-            data: The data source to query
-            substitution: The current substitution
-            scheduler: The formula scheduler
-            level: The current backtracking level
-
-        Yields:
-            All substitutions that satisfy all remaining formulas
+        Recursive backtracking algorithm with constraint-aware ordering.
         """
-        if not scheduler.has_next(level):
-            # All sub-formulas have been satisfied
-            # Normalize to resolve any variable chains (e.g., X→Y, Y→a becomes X→a, Y→a)
+        if not remaining_formulas:
             yield substitution.normalize()
-        else:
-            # Get the next formula to evaluate
-            next_formula = scheduler.next_formula(substitution, level)
+            return
 
-            # Get the appropriate evaluator for this formula type
-            evaluator = self._get_registry().get_evaluator(next_formula)
+        next_formula, next_remaining = self._select_next_formula(
+            remaining_formulas, data, substitution
+        )
 
-            if evaluator is None:
-                from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
-                    UnsupportedFormulaError,
-                )
-                raise UnsupportedFormulaError(type(next_formula))
+        evaluator = self._get_registry().get_evaluator(next_formula)
 
-            # Evaluate the formula and recurse for each result
-            for extended_sub in evaluator.evaluate(next_formula, data, substitution):
-                yield from self._backtrack(data, extended_sub, scheduler, level + 1)
+        if evaluator is None:
+            from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluator import (
+                UnsupportedFormulaError,
+            )
+            raise UnsupportedFormulaError(type(next_formula))
+
+        for extended_sub in evaluator.evaluate(next_formula, data, substitution):
+            yield from self._backtrack(data, extended_sub, next_remaining)
+
+    def _select_next_formula(
+        self,
+        formulas: list[Formula],
+        data: "ReadableData",
+        substitution: Substitution,
+    ) -> tuple[Formula, list[Formula]]:
+        for index, formula in enumerate(formulas):
+            if self._is_evaluable(formula, data, substitution):
+                remaining = list(formulas)
+                remaining.pop(index)
+                return formula, remaining
+        remaining = list(formulas)
+        formula = remaining.pop(0)
+        return formula, remaining
+
+    def _is_evaluable(
+        self,
+        formula: Formula,
+        data: "ReadableData",
+        substitution: Substitution,
+    ) -> bool:
+        if isinstance(formula, Atom):
+            query = BasicQuery.from_atom(formula, substitution)
+            return data.can_evaluate(query)
+        return True
+
+    def _formula_contains_function(self, formula: Formula) -> bool:
+        return formula_contains_function(formula)

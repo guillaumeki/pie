@@ -6,6 +6,10 @@ from typing import Type, Iterator, TYPE_CHECKING
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
 from prototyping_inference_engine.query_evaluation.evaluator.formula_evaluator import FormulaEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.function_term_rewriter import (
+    formula_contains_function,
+    rewrite_atom_function_terms,
+)
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 if TYPE_CHECKING:
@@ -54,6 +58,19 @@ class AtomEvaluator(FormulaEvaluator[Atom]):
         """
         initial_sub = substitution if substitution is not None else Substitution()
 
+        if formula_contains_function(formula):
+            atoms = rewrite_atom_function_terms(formula)
+            if len(atoms) > 1:
+                from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+                from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
+                    BacktrackConjunctionEvaluator,
+                )
+
+                conjunction = _build_conjunction(atoms)
+                evaluator = BacktrackConjunctionEvaluator()
+                yield from evaluator.evaluate(conjunction, data, initial_sub)
+                return
+
         # Create a BasicQuery from the atom
         query = BasicQuery.from_atom(formula, initial_sub)
 
@@ -87,3 +104,15 @@ class AtomEvaluator(FormulaEvaluator[Atom]):
 
             if consistent:
                 yield initial_sub.compose(Substitution(result))
+
+
+def _build_conjunction(formulas: list[Atom]) -> "ConjunctionFormula":
+    from prototyping_inference_engine.api.formula.conjunction_formula import ConjunctionFormula
+
+    if not formulas:
+        raise ValueError("Cannot build conjunction from empty formula list.")
+
+    current = formulas[0]
+    for next_formula in formulas[1:]:
+        current = ConjunctionFormula(current, next_formula)
+    return current

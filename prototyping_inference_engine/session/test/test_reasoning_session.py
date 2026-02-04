@@ -20,6 +20,7 @@ from prototyping_inference_engine.api.atom.term.storage import DictStorage
 from prototyping_inference_engine.api.atom.predicate import comparison_predicate
 from prototyping_inference_engine.api.data.comparison_data import ComparisonDataSource
 from prototyping_inference_engine.api.query.fo_query import FOQuery
+from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.session import (
     ParseResult,
     SessionCleanupStats,
@@ -264,6 +265,20 @@ class TestReasoningSessionEvaluationWithSources(TestCase):
         fact_base = self.session.create_fact_base([])
         results = list(self.session.evaluate_query_with_sources(query, fact_base, [data_source]))
         self.assertEqual(results, [tuple()])
+
+    def test_evaluate_query_with_function_term(self):
+        def add(a: int, b: int) -> int:
+            return a + b
+
+        self.session.register_python_function("add", add, mode="python")
+        p = self.session.predicate("p", 1)
+        lit_two = self.session.literal("2", "xsd:integer")
+        fact_base = self.session.create_fact_base([Atom(p, lit_two)])
+
+        result = self.session.parse("?( ) :- p(add(1,1)).")
+        query = next(iter(result.queries))
+        answers = list(self.session.evaluate_query_with_sources(query, fact_base, result.sources))
+        self.assertEqual(answers, [tuple()])
 
 
 class TestReasoningSessionFactBase(TestCase):
