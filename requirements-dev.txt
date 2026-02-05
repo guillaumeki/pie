@@ -1,6 +1,7 @@
 bandit
 coverage
 hypothesis
+mypy
 pip-audit
 radon
 ruff

@@ -5,6 +5,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [2026-02-05]
+- Fixed: add mypy to dev requirements so CI can run type checks.
+
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.
 - Added: function-term rewrite helper shared by atom and conjunction evaluators.

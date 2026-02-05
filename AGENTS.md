@@ -80,6 +80,7 @@ For any important change:
 - `design/mypy-test-gate.md`
 - `design/code-quality-tooling.md`
 - `design/readme-badges.md`
+- `design/ci-mypy-install.md`
 
 ### Process Artifacts
 - `plans/PLAN_TEMPLATE.md`
