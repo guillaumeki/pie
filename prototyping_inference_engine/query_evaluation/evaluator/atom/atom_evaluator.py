@@ -10,6 +10,7 @@ from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
 from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
     FormulaEvaluator,
+    RegistryMixin,
 )
 from prototyping_inference_engine.query_evaluation.evaluator.rewriting.function_term_rewriter import (
     formula_contains_function,
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
     )
 
 
-class AtomEvaluator(FormulaEvaluator[Atom]):
+class AtomEvaluator(RegistryMixin, FormulaEvaluator[Atom]):
     """
     Evaluates atomic formulas against a readable data source.
 
@@ -69,12 +70,14 @@ class AtomEvaluator(FormulaEvaluator[Atom]):
         if formula_contains_function(formula):
             atoms = rewrite_atom_function_terms(formula)
             if len(atoms) > 1:
-                from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
-                    BacktrackConjunctionEvaluator,
-                )
-
                 conjunction = _build_conjunction(atoms)
-                evaluator = BacktrackConjunctionEvaluator()
+                evaluator = self._get_registry().get_evaluator(conjunction)
+                if evaluator is None:
+                    from prototyping_inference_engine.query_evaluation.evaluator.errors import (
+                        UnsupportedFormulaError,
+                    )
+
+                    raise UnsupportedFormulaError(type(conjunction))
                 yield from evaluator.evaluate(conjunction, data, initial_sub)
                 return
 

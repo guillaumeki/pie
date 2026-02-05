@@ -9,6 +9,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Fixed: add mypy to dev requirements so CI can run type checks.
 - Changed: reorganized agent artifacts under `agents/` and added MkDocs docs with GitHub Pages publishing.
 - Changed: expanded documentation content with standalone guides and examples.
+- Changed: AtomEvaluator now delegates function-term conjunction evaluation via the registry to reduce coupling.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.

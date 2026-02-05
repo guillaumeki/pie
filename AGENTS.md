@@ -103,6 +103,7 @@ For any important change:
 - None
 
 ### Design Docs
+- `agents/design/atom-evaluator-dip.md`
 - `agents/design/docs-content.md`
 - `agents/design/agent-artifacts-docs.md`
 - `agents/design/process-templates.md`
