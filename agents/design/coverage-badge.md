@@ -10,6 +10,7 @@ Generate a local SVG coverage badge in CI using `tj-actions/coverage-badge-py` a
 
 ## Rationale
 The action can read the local `.coverage` file produced by the test run and emit an SVG badge, keeping everything self-contained. Tracking a placeholder ensures the first badge update is detected and committed.
+Restricting badge updates to a single matrix entry avoids race conditions and prevents concurrent pushes from multiple CI jobs.
 
 ## Alternatives Considered
 - Codecov or Coveralls — rejected to avoid external services.
