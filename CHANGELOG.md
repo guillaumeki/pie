@@ -29,6 +29,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: extra IRI relativization regression cases for trailing-slash base paths.
 - Added: more explicit IRI relativization expected-output test cases.
 - Added: edge-case IRI relativization expected-output cases for queries, fragments, and opaque schemes.
+- Added: broader IRI relativization coverage for params, ports, IPv6/IPvFuture, and network-path rejection.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.

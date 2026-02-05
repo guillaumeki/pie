@@ -270,6 +270,66 @@ class TestIRIRef(unittest.TestCase):
             ("http://example.org/base/", "http://example.org/base/sub/rel"),
             ("http://example.org/base/dir/", "http://example.org/base/dir/rel"),
             ("http://example.org/base/dir/", "http://example.org/base/dir/sub/rel"),
+            ("http://example.org/base/", "http://example.org/base/"),
+            ("http://example.org/base", "http://example.org/base"),
+            ("http://example.org/base", "http://example.org/base/rel"),
+            ("http://example.org/base/", "http://example.org/"),
+            ("http://example.org/base/", "http://example.org/?q=1"),
+            ("http://example.org/base/", "http://example.org/#frag"),
+            ("http://example.org/base/", "http://example.org/?#frag"),
+            ("http://example.org/base/", "http://example.org?#frag"),
+            ("http://example.org/base/", "http://example.org?x=1"),
+            ("http://example.org/base/", "http://example.org?x=1#frag"),
+            ("http://example.org/base/", "http://example.org#"),
+            ("http://example.org/base/", "http://example.org?"),
+            ("http://example.org/base/", "http://example.org/?"),
+            ("http://example.org/base/", "http://example.org/#"),
+            ("http://example.org/base/", "http://example.org/base//rel"),
+            ("http://example.org/base/", "http://example.org//"),
+            ("http://example.org/base/", "http://example.org//?q=1"),
+            ("http://example.org/base/", "http://example.org//#frag"),
+            ("http://example.org/base/", "http://example.org//?#frag"),
+            ("http://example.org/base/", "http://other.example.org/base/rel"),
+            ("http://example.org/base/", "https://example.org/base/rel"),
+            ("http://example.org/base/", "http://example.org:80/base/rel"),
+            ("http://example.org/base/", "http://example.org:8080/base/rel"),
+            ("http://example.org/base/", "http://example.org/base/rel?x=1"),
+            ("http://example.org/base/", "http://example.org/base/rel#frag"),
+            ("http://example.org/base/", "http://example.org/base/rel?x=1#frag"),
+            ("http://example.org/base/", "http://example.org/base/rel;param"),
+            ("http://example.org/base/", "http://example.org/base/rel;param?x=1"),
+            ("http://example.org/base/", "http://example.org/base/rel;param#frag"),
+            ("http://example.org/base/", "http://example.org/base/rel;param?x=1#frag"),
+            ("http://example.org/base/", "http://example.org/base;param"),
+            ("http://example.org/base/", "http://example.org/base;param?x=1"),
+            ("http://example.org/base/", "http://example.org/base;param#frag"),
+            ("http://example.org/base/", "http://example.org/base;param?x=1#frag"),
+            ("http://example.org/base/", "http://example.org/a//b"),
+            ("http://example.org/base/", "http://example.org/a///b"),
+            ("http://example.org/base/", "ftp://example.org/resource"),
+            ("http://example.org/base/", "news:comp.infosystems.www.servers.unix"),
+            ("http://example.org/base/", "tel:+1-816-555-1212"),
+            ("http://example.org/base/", "mailto:user@example.com"),
+            ("http://example.org/base/", "mailto:user@example.com?subject=Hi"),
+            ("http://example.org/base/", "urn:isbn:0451450523"),
+            ("http://example.org/base/", "urn:isbn:0451450523?query"),
+            ("http://example.org/base/", "urn:isbn:0451450523#frag"),
+            ("http://example.org/base/", "urn:isbn:0451450523?query#frag"),
+            ("urn:isbn:0451450523", "urn:isbn:0451450523"),
+            ("urn:isbn:0451450523", "urn:isbn:0451450523:part"),
+            ("urn:isbn:0451450523", "urn:isbn:0451450523?query"),
+            ("urn:isbn:0451450523", "urn:isbn:0451450523#frag"),
+            ("urn:isbn:0451450523", "urn:isbn:0451450523?query#frag"),
+            ("mailto:user@example.com", "mailto:user@example.com"),
+            ("mailto:user@example.com", "mailto:user@example.com?subject=Hi"),
+            ("mailto:user@example.com", "mailto:other@example.com"),
+            ("mailto:user@example.com", "mailto:other@example.com?subject=Hi"),
+            ("http://example.org/base/", "http://[2001:db8::1]/"),
+            ("http://example.org/base/", "http://[2001:db8::1]/path"),
+            ("http://example.org/base/", "http://[2001:db8::1]?q=1"),
+            ("http://example.org/base/", "http://[2001:db8::1]#frag"),
+            ("http://example.org/base/", "http://[v7.fe80::abcd]/"),
+            ("http://example.org/base/", "http://[v7.fe80::abcd]/path?query#frag"),
             ("http:", "http:"),
             ("http:/", "http:/"),
             ("http:a", "http:a"),
@@ -437,6 +497,27 @@ class TestIRIRef(unittest.TestCase):
                 self.assertEqual(
                     target.recompose(), relativized.resolve(base).recompose()
                 )
+
+    def test_relativization_rejects_network_path_targets(self) -> None:
+        base = IRIRef("http://example.org/base/")
+        targets = [
+            "//example.org/base/rel",
+            "//example.org/base/rel?x=1",
+            "//example.org/base/rel#frag",
+            "//example.org/base/rel?x=1#frag",
+            "//other.example.org/base/rel",
+            "//other.example.org",
+            "//other.example.org/",
+            "//other.example.org?x=1",
+            "//other.example.org#frag",
+            "//other.example.org?x=1#frag",
+        ]
+
+        for target_value in targets:
+            with self.subTest(target=target_value):
+                target = IRIRef(target_value)
+                with self.assertRaises(ValueError):
+                    target.relativize(base)
 
     def test_normalization(self) -> None:
         data = [
