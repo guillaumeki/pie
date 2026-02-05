@@ -59,6 +59,7 @@ For any important change:
    - List of files to be modified
    - Type checking with Mypy
    - Fix Mypy errors
+   - Unit tests to add (when relevant)
 2) Wait for user feedback/approval.
 3) Once approved, record the plan in `agents/plans/` and reference it in this file.
 4) Execute the plan and amend it per user requests.
@@ -66,9 +67,10 @@ For any important change:
 6) Record design decisions in `agents/design/<feature_name>.md` with a date and list the file here.
 7) Update documentation (README and `docs/`) after the design docs so docs stay current.
 8) Build docs locally with `mkdocs build --clean` to verify documentation changes will not break CI.
-9) Commit and push changes to both `bitbucket` and `origin`.
-10) Delete the plan file after changelog, design docs, and documentation updates are written.
-11) Do not commit or push unless `mypy prototyping_inference_engine` and the full unit test suite have passed.
+9) Write unit tests when relevant.
+10) Commit and push changes to both `bitbucket` and `origin`.
+11) Delete the plan file after changelog, design docs, and documentation updates are written.
+12) Do not commit or push unless `mypy prototyping_inference_engine` and the full unit test suite have passed.
 
 ## Python Module Hierarchy Standards
 - This project uses a flat layout (importable packages at repo root). Do not introduce a `src/` layout unless the plan explicitly justifies it and includes required packaging changes. (https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/)
@@ -103,6 +105,7 @@ For any important change:
 - None
 
 ### Design Docs
+- `agents/design/tests-when-pertinent.md`
 - `agents/design/atom-evaluator-dip.md`
 - `agents/design/docs-content.md`
 - `agents/design/agent-artifacts-docs.md`

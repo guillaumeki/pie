@@ -4,6 +4,7 @@ Date: 2026-02-03
 ## Required
 - Plan approved and saved in `agents/plans/` (when the change is important).
 - Code changes completed and aligned with the approved plan.
+- Unit tests added when behavior changes or when new functionality is introduced.
 - All relevant tests executed and passing.
 - `CHANGELOG.md` updated with the date (and version if changed).
 - Design decisions recorded in `agents/design/<feature>.md` when applicable.
