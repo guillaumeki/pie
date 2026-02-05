@@ -68,6 +68,7 @@ jobs:
             echo "Missing .coverage file; cannot generate coverage badge."
             exit 1
           fi
+          rm -f .github/badges/coverage.svg
           coverage-badge -o .github/badges/coverage.svg
 
       - name: Commit coverage badge
