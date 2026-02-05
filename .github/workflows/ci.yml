@@ -70,8 +70,8 @@ jobs:
       - name: Commit coverage badge
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
-          if git diff --quiet -- .github/badges/coverage.svg; then
-            echo "Coverage badge unchanged."
+          if [ -z \"$(git status --porcelain -- .github/badges/coverage.svg)\" ]; then
+            echo \"Coverage badge unchanged.\"
             exit 0
           fi
           git config user.name "github-actions[bot]"
