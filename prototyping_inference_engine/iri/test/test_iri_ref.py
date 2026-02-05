@@ -266,6 +266,10 @@ class TestIRIRef(unittest.TestCase):
 
     def test_relativization(self) -> None:
         data = [
+            ("http://example.org/base/", "http://example.org/base/rel"),
+            ("http://example.org/base/", "http://example.org/base/sub/rel"),
+            ("http://example.org/base/dir/", "http://example.org/base/dir/rel"),
+            ("http://example.org/base/dir/", "http://example.org/base/dir/sub/rel"),
             ("http:", "http:"),
             ("http:/", "http:/"),
             ("http:a", "http:a"),

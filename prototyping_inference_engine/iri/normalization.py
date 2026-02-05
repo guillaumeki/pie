@@ -61,6 +61,8 @@ def _is_iunreserved(char: str) -> bool:
         return True
     if char in _RESERVED:
         return False
+    if ord(char) < 0x80:
+        return False
     # Approximate RFC 3987 ucschar/iprivate: allow any non-control Unicode char
     codepoint = ord(char)
     if codepoint <= 0x20 or codepoint == 0x7F:
@@ -255,6 +257,8 @@ class StandardComposableNormalizer(IRINormalizer):
 
     def normalize_path(self, path: str, scheme: str | None, has_authority: bool) -> str:
         result = path
+        if has_authority and result == "":
+            result = "/"
         if self.has(RFCNormalizationScheme.PCT):
             result = _normalize_pct_standard(
                 result, uppercase=self.has(RFCNormalizationScheme.CASE)
@@ -327,6 +331,8 @@ class ExtendedComposableNormalizer(StandardComposableNormalizer):
 
     def normalize_path(self, path: str, scheme: str | None, has_authority: bool) -> str:
         result = path
+        if has_authority and result == "":
+            result = "/"
         if self.has(RFCNormalizationScheme.PCT):
             result = _normalize_pct_extended(
                 result, uppercase=self.has(RFCNormalizationScheme.CASE)

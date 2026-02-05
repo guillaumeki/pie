@@ -22,6 +22,11 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: IO package with parser and writer entry points, plus DLGPE writer export support.
 - Changed: DLGPE/DLGP2 parsing now rejects relative @prefix before @base by default (configurable).
 - Fixed: IRI relativization now treats trailing-slash base paths correctly (prevents extra `..` segments).
+- Fixed: IRI parsing now preserves scheme-specific paths (e.g. `urn:isbn:...`) during recomposition.
+- Fixed: IRI normalization keeps non-unreserved ASCII (like backslash) percent-encoded in extended mode.
+- Fixed: IRI normalization now inserts `/` when authority is present with an empty path.
+- Fixed: IRI relativization falls back to absolute IRIs when a relative candidate would resolve incorrectly.
+- Added: extra IRI relativization regression cases for trailing-slash base paths.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.

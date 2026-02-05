@@ -105,7 +105,7 @@ class IRIRef:
             scheme = candidate
             rest = value[first_colon + 1 :]
 
-        parts = parse_iri_reference(rest)
+        parts = parse_iri_reference(rest, allow_scheme=scheme is None)
 
         if scheme is None and parts.scheme is not None:
             scheme = parts.scheme
@@ -287,6 +287,9 @@ class IRIRef:
             has_authority=False,
         )
 
+        if candidate.resolve(base).recompose() != self.recompose():
+            return self.copy()
+
         if (
             candidate.recompose() == ""
             and self.query is not None
@@ -402,4 +405,6 @@ def _split_path_segments(path: str) -> list[str]:
     if path.startswith("/"):
         path = path[1:]
     segments = path.split("/")
+    if segments == [""]:
+        return []
     return segments

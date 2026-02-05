@@ -28,7 +28,7 @@ class IriReferenceParts:
     has_authority: bool
 
 
-def parse_iri_reference(value: str) -> IriReferenceParts:
+def parse_iri_reference(value: str, *, allow_scheme: bool = True) -> IriReferenceParts:
     match = _IRI_REFERENCE_RE.match(value)
     if not match:
         return IriReferenceParts(None, None, value, None, None, False)
@@ -36,12 +36,19 @@ def parse_iri_reference(value: str) -> IriReferenceParts:
     has_authority = authority is not None
     if authority is not None and authority.startswith("//"):
         authority = authority[2:]
+    scheme = match.group("scheme")
+    path = match.group("path") or ""
+    query = match.group("query")
+    fragment = match.group("fragment")
+    if not allow_scheme and scheme is not None and authority is None:
+        path = f"{scheme}:{path}"
+        scheme = None
     return IriReferenceParts(
-        scheme=match.group("scheme"),
+        scheme=scheme,
         authority=authority,
-        path=match.group("path") or "",
-        query=match.group("query"),
-        fragment=match.group("fragment"),
+        path=path,
+        query=query,
+        fragment=fragment,
         has_authority=has_authority,
     )
 
