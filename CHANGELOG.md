@@ -16,6 +16,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Fixed: CI badge commit step now handles untracked detection and rebases before pushing.
 - Fixed: coverage badge generation now runs only once per CI matrix and fails if coverage is missing.
 - Fixed: coverage badge generation now removes the existing file before regenerating.
+- Changed: removed Vulture from CI; keep it for local checks only.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.

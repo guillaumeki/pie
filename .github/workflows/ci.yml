@@ -85,11 +85,6 @@ jobs:
           git pull --rebase origin master
           git push
 
-      - name: Dead code scan (vulture)
-        continue-on-error: true
-        run: |
-          vulture prototyping_inference_engine
-
       - name: Complexity metrics (radon)
         continue-on-error: true
         run: |
