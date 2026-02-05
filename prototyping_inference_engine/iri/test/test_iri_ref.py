@@ -378,6 +378,54 @@ class TestIRIRef(unittest.TestCase):
             ("http://example.org/base/", "http://example.org/", "../"),
             ("http://example.org/base/", "http://example.org/?q=1", "../?q=1"),
             ("http://example.org/base/", "http://example.org/#frag", "../#frag"),
+            (
+                "http://example.org/base/",
+                "http://example.org?#frag",
+                "http://example.org?#frag",
+            ),
+            (
+                "http://example.org/base/",
+                "http://example.org?x=1",
+                "http://example.org?x=1",
+            ),
+            (
+                "http://example.org/base/",
+                "http://example.org?x=1#frag",
+                "http://example.org?x=1#frag",
+            ),
+            ("http://example.org/base/", "http://example.org#", "http://example.org#"),
+            ("http://example.org/base/", "http://example.org?", "http://example.org?"),
+            ("http://example.org/base/", "http://example.org/?", "../?"),
+            ("http://example.org/base/", "http://example.org/#", "../#"),
+            ("http://example.org/base/", "http://example.org/?#frag", "../?#frag"),
+            ("http://example.org/base/", "http://example.org//", "..//"),
+            ("http://example.org/base/", "http://example.org//?q=1", "..//?q=1"),
+            ("http://example.org/base/", "http://example.org//#frag", "..//#frag"),
+            ("http://example.org/base/", "http://example.org//?#frag", "..//?#frag"),
+            ("urn:isbn:0451450523", "urn:isbn:0451450523", "isbn:0451450523"),
+            ("urn:isbn:0451450523", "urn:isbn:0451450523#frag", "isbn:0451450523#frag"),
+            (
+                "urn:isbn:0451450523",
+                "urn:isbn:0451450523?query",
+                "isbn:0451450523?query",
+            ),
+            (
+                "urn:isbn:0451450523",
+                "urn:isbn:0451450523?query#frag",
+                "isbn:0451450523?query#frag",
+            ),
+            ("urn:isbn:0451450523", "urn:isbn:0451450523:part", "isbn:0451450523:part"),
+            ("mailto:user@example.com", "mailto:user@example.com", "user@example.com"),
+            (
+                "mailto:user@example.com",
+                "mailto:user@example.com?subject=Hi",
+                "user@example.com?subject=Hi",
+            ),
+            (
+                "mailto:user@example.com",
+                "mailto:other@example.com",
+                "other@example.com",
+            ),
         ]
 
         for base_value, target_value, expected in cases:

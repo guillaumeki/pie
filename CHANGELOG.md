@@ -28,6 +28,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Fixed: IRI relativization falls back to absolute IRIs when a relative candidate would resolve incorrectly.
 - Added: extra IRI relativization regression cases for trailing-slash base paths.
 - Added: more explicit IRI relativization expected-output test cases.
+- Added: edge-case IRI relativization expected-output cases for queries, fragments, and opaque schemes.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.
