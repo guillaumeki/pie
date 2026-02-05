@@ -13,6 +13,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: change process now explicitly requires adding unit tests when relevant.
 - Added: CI-generated coverage badge committed to the repository and displayed in README.
 - Fixed: CI now commits the coverage badge when it is first created.
+- Fixed: CI badge commit step now handles untracked detection and rebases before pushing.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.
