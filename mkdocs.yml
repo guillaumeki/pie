@@ -1,0 +1,18 @@
+site_name: Pie
+site_description: Prototyping Inference Engine documentation
+site_url: https://guillaumeki.github.io/pie/
+repo_url: https://github.com/guillaumeki/pie
+repo_name: guillaumeki/pie
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: mkdocs
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Usage: usage.md
+  - API: api.md
+  - Contributing: contributing.md

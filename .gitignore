@@ -64,6 +64,7 @@ build/
 dist/
 wheels/
 .eggs/
+site/
 
 # IDE files
 
