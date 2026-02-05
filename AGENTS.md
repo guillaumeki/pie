@@ -111,6 +111,7 @@ For any important change:
 - `agents/design/docs-content.md`
 - `agents/design/agent-artifacts-docs.md`
 - `agents/design/iri-resolution.md`
+- `agents/design/iri-manager.md`
 - `agents/design/process-templates.md`
 - `agents/design/commit-process.md`
 - `agents/design/functional-terms.md`

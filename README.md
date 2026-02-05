@@ -13,6 +13,7 @@ The library supports:
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
 - **DLGPE parser** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
 - **Extended DLGP 2.1 format** parser with disjunction support (compatibility)
+- **IRI utilities** for parsing, normalization, and base/prefix management
 
 ## Installation
 
@@ -93,6 +94,25 @@ with ReasoningSession() as session:
     fb = session.create_fact_base(result["facts"])
     for answer in session.evaluate_query(result["queries"][0], fb):
         print(answer)  # (b,)
+```
+
+### IRI Utilities
+
+```python
+from prototyping_inference_engine.iri import (
+    IRIManager,
+    StandardComposableNormalizer,
+    RFCNormalizationScheme,
+)
+
+manager = IRIManager(
+    normalizer=StandardComposableNormalizer(RFCNormalizationScheme.STRING),
+    iri_base="http://example.org/base/",
+)
+manager.set_prefix("ex", "http://example.org/ns/")
+
+iri = manager.create_iri("ex:resource")
+print(iri.recompose())  # http://example.org/ns/resource
 ```
 
 ## Architecture

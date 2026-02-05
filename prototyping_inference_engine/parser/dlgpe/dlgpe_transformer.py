@@ -46,8 +46,10 @@ from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.ontology.constraint.negative_constraint import (
     NegativeConstraint,
 )
-from prototyping_inference_engine.parser.iri_resolution import (
-    resolve_iri_reference,
+from prototyping_inference_engine.iri.manager import IRIManager
+from prototyping_inference_engine.iri.normalization import (
+    RFCNormalizationScheme,
+    StandardComposableNormalizer,
 )
 
 
@@ -83,10 +85,15 @@ class DlgpeTransformer(Transformer):
     - JSON metadata
     """
 
-    def __init__(self, literal_factory: Optional[LiteralFactory] = None):
+    def __init__(
+        self,
+        literal_factory: Optional[LiteralFactory] = None,
+        iri_manager: Optional[IRIManager] = None,
+    ):
         super().__init__()
         self._base_iri: Optional[str] = None
         self._prefixes: dict[str, str] = {}
+        self._prefixes_raw: dict[str, str] = {}
         self._builtin_prefixes: dict[str, str] = {
             "xsd": XSD_PREFIX,
             "rdf": RDF_PREFIX,
@@ -96,6 +103,10 @@ class DlgpeTransformer(Transformer):
         self._ground_neck: bool = False  # Track if ::- was used
         self._literal_factory = literal_factory or LiteralFactory(
             DictStorage(), LiteralConfig.default()
+        )
+        self._iri_manager = iri_manager or IRIManager(
+            normalizer=StandardComposableNormalizer(RFCNormalizationScheme.STRING),
+            use_default_base=False,
         )
 
     # ==================== Unsupported Features ====================
@@ -185,14 +196,20 @@ class DlgpeTransformer(Transformer):
 
     def base_directive(self, items):
         # items[0] = BASE_KWD, items[1] = identifier
-        self._base_iri = str(items[1])
+        self._iri_manager.set_base(str(items[1]))
+        self._base_iri = self._iri_manager.get_base()
         return None
 
     def prefix_directive(self, items):
         # items[0] = PREFIX_KWD, items[1] = prefix, items[2] = identifier
         prefix = str(items[1])
         iri = str(items[2])
-        self._prefixes[prefix] = iri
+        if self._iri_manager.get_base() is None:
+            self._prefixes_raw[prefix] = iri
+            self._prefixes[prefix] = iri
+        else:
+            self._iri_manager.set_prefix(prefix, iri)
+            self._prefixes[prefix] = self._iri_manager.get_prefix(prefix)
         return None
 
     def top_directive(self, items):
@@ -548,16 +565,20 @@ class DlgpeTransformer(Transformer):
     def _resolve_iri_reference(self, value: str) -> str:
         if self._base_iri is None:
             return value
-        return resolve_iri_reference(value, self._base_iri)
+        return self._iri_manager.create_iri(value).recompose()
 
     def _resolve_prefixed_name(self, value: str) -> str:
         prefix, local = self._split_prefixed_name(value)
-        if prefix in self._prefixes:
+        if prefix in self._prefixes_raw:
+            base = self._prefixes_raw[prefix]
+        elif prefix in self._prefixes:
             base = self._prefixes[prefix]
         elif prefix in self._builtin_prefixes:
             base = self._builtin_prefixes[prefix]
         else:
             raise ValueError(f"Unknown prefix: {prefix or '<default>'}")
+        if prefix in self._prefixes and prefix not in self._prefixes_raw:
+            return self._iri_manager.create_iri_with_prefix(prefix, local).recompose()
         return f"{base}{local}"
 
     @staticmethod

@@ -29,14 +29,23 @@ from prototyping_inference_engine.api.atom.term.literal_xsd import (
     RDF_LANG_STRING,
     XSD_STRING,
 )
-from prototyping_inference_engine.parser.iri_resolution import resolve_iri_reference
+from prototyping_inference_engine.iri.manager import IRIManager
+from prototyping_inference_engine.iri.normalization import (
+    RFCNormalizationScheme,
+    StandardComposableNormalizer,
+)
 
 
 class Dlgp2Transformer(Transformer):
-    def __init__(self, literal_factory: LiteralFactory | None = None):
+    def __init__(
+        self,
+        literal_factory: LiteralFactory | None = None,
+        iri_manager: IRIManager | None = None,
+    ):
         super().__init__()
         self._base_iri: str | None = None
         self._prefixes: dict[str, str] = {}
+        self._prefixes_raw: dict[str, str] = {}
         self._builtin_prefixes: dict[str, str] = {
             "xsd": XSD_PREFIX,
             "rdf": RDF_PREFIX,
@@ -45,6 +54,10 @@ class Dlgp2Transformer(Transformer):
         self._una: bool = False
         self._literal_factory = literal_factory or LiteralFactory(
             DictStorage(), LiteralConfig.default()
+        )
+        self._iri_manager = iri_manager or IRIManager(
+            normalizer=StandardComposableNormalizer(RFCNormalizationScheme.STRING),
+            use_default_base=False,
         )
 
     @staticmethod
@@ -222,13 +235,19 @@ class Dlgp2Transformer(Transformer):
         return XSD_DOUBLE, str(token)
 
     def base(self, items):
-        self._base_iri = str(items[0])
+        self._iri_manager.set_base(str(items[0]))
+        self._base_iri = self._iri_manager.get_base()
         return None
 
     def prefix(self, items):
         prefix = self._prefix_name(str(items[0]))
         iri = str(items[1])
-        self._prefixes[prefix] = iri
+        if self._iri_manager.get_base() is None:
+            self._prefixes_raw[prefix] = iri
+            self._prefixes[prefix] = iri
+        else:
+            self._iri_manager.set_prefix(prefix, iri)
+            self._prefixes[prefix] = self._iri_manager.get_prefix(prefix)
         return None
 
     def top(self, items):
@@ -255,16 +274,20 @@ class Dlgp2Transformer(Transformer):
     def _resolve_iri_reference(self, value: str) -> str:
         if self._base_iri is None:
             return value
-        return resolve_iri_reference(value, self._base_iri)
+        return self._iri_manager.create_iri(value).recompose()
 
     def _resolve_prefixed_name(self, value: str) -> str:
         prefix, local = self._split_prefixed_name(str(value))
-        if prefix in self._prefixes:
+        if prefix in self._prefixes_raw:
+            base = self._prefixes_raw[prefix]
+        elif prefix in self._prefixes:
             base = self._prefixes[prefix]
         elif prefix in self._builtin_prefixes:
             base = self._builtin_prefixes[prefix]
         else:
             raise ValueError(f"Unknown prefix: {prefix or '<default>'}")
+        if prefix in self._prefixes and prefix not in self._prefixes_raw:
+            return self._iri_manager.create_iri_with_prefix(prefix, local).recompose()
         return f"{base}{local}"
 
     @staticmethod

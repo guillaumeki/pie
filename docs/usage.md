@@ -56,6 +56,27 @@ with ReasoningSession() as session:
         print(answer)
 ```
 
+## Working with IRIs
+```python
+from prototyping_inference_engine.iri import (
+    IRIManager,
+    StandardComposableNormalizer,
+    RFCNormalizationScheme,
+)
+
+manager = IRIManager(
+    normalizer=StandardComposableNormalizer(RFCNormalizationScheme.STRING),
+    iri_base="http://example.org/base/",
+)
+manager.set_prefix("ex", "http://example.org/ns/")
+
+iri = manager.create_iri("ex:resource")
+print(iri.recompose())  # http://example.org/ns/resource
+```
+
+Parsing with DLGPE/DLGP2 stores the last `@base` and `@prefix` directives in the
+`ParseResult` and `ReasoningSession` so you can reuse them when exporting.
+
 ## DLGPE Features (Supported)
 - Disjunction in head and body.
 - Negation in body.

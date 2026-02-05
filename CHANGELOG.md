@@ -18,6 +18,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Fixed: coverage badge generation now removes the existing file before regenerating.
 - Changed: removed Vulture from CI; keep it for local checks only.
 - Added: IRI resolution for DLGPE/DLGP2 parsing with base/prefix context captured in parse results and sessions.
+- Added: full IRI manager stack with parsing, resolution, normalization, preparators, and extensive tests.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.
