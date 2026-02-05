@@ -12,8 +12,8 @@ DLGPE grammar is based on: https://gitlab.inria.fr/jfbaget/dlgpe
 
 | Directive | Status | Notes |
 |-----------|--------|-------|
-| `@base` | ✅ Supported | Parsed but IRI resolution not implemented |
-| `@prefix` | ✅ Supported | Parsed but IRI resolution not implemented |
+| `@base` | ✅ Supported | IRI resolution implemented |
+| `@prefix` | ✅ Supported | IRI resolution implemented |
 | `@top` | ✅ Supported | Parsed, stored in header |
 | `@una` | ✅ Supported | Parsed, stored in header |
 | `@import` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
@@ -157,7 +157,7 @@ for rule in parser.parse_rules("h(X) :- b(X). g(X) | f(X) :- p(X)."):
 
 Features that could be implemented in future versions:
 
-1. **IRI resolution**: Properly resolve `@base` and `@prefix` directives
+1. **IRI resolution**: Completed (base and prefix directives now resolve IRIs)
 2. **Arithmetic expressions**: Add support for basic arithmetic
 3. **Subqueries**: Implement subquery evaluation
 4. **`@import` directive**: Support modular knowledge bases

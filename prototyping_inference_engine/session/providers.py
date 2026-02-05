@@ -286,6 +286,10 @@ class Dlgp2ParserProvider:
         """Parse negative constraints from DLGP text."""
         return self._parser().parse_negative_constraints(text)
 
+    def parse_document(self, text: str) -> dict:
+        """Parse a full DLGP document and return header + body."""
+        return self._parser().parse(text)
+
 
 class DlgpeParserProvider:
     """
@@ -363,3 +367,9 @@ class DlgpeParserProvider:
         from prototyping_inference_engine.parser.dlgpe import DlgpeParser
 
         return DlgpeParser.instance().parse_constraints(text, self._transformer())
+
+    def parse_document(self, text: str) -> dict:
+        """Parse a full DLGPE document and return header + statements."""
+        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+
+        return DlgpeParser.instance().parse(text, self._transformer())

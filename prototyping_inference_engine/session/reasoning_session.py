@@ -136,6 +136,8 @@ class ReasoningSession:
         self._fact_bases: list["FactBase"] = []
         self._ontologies: list[Ontology] = []
         self._closed = False
+        self._iri_base: str | None = None
+        self._iri_prefixes: dict[str, str] = {}
 
     @classmethod
     def create(
@@ -216,6 +218,16 @@ class ReasoningSession:
     def fact_bases(self) -> list["FactBase"]:
         """Return a copy of the list of fact bases created in this session."""
         return list(self._fact_bases)
+
+    @property
+    def iri_base(self) -> str | None:
+        """Return the last parsed base IRI (if any)."""
+        return self._iri_base
+
+    @property
+    def iri_prefixes(self) -> dict[str, str]:
+        """Return the last parsed prefix map."""
+        return dict(self._iri_prefixes)
 
     @property
     def ontologies(self) -> list[Ontology]:
@@ -467,6 +479,22 @@ class ReasoningSession:
         """
         self._check_not_closed()
 
+        self._iri_base = None
+        self._iri_prefixes = {}
+
+        parse_document = getattr(self._parser_provider, "parse_document", None)
+        if callable(parse_document):
+            parsed = parse_document(text)
+            if isinstance(parsed, dict):
+                header = parsed.get("header", {}) or {}
+                if isinstance(header, dict):
+                    base = header.get("base")
+                    prefixes = header.get("prefixes", {})
+                    if isinstance(base, str) or base is None:
+                        self._iri_base = base
+                    if isinstance(prefixes, dict):
+                        self._iri_prefixes = dict(prefixes)
+
         # Parse different types using the configured parser provider
         facts = list(self._parser_provider.parse_atoms(text))
         rules = set(self._parser_provider.parse_rules(text))
@@ -490,6 +518,8 @@ class ReasoningSession:
             queries=frozenset(queries),
             constraints=frozenset(constraints),
             sources=tuple(sources),
+            base_iri=self._iri_base,
+            prefixes=tuple(self._iri_prefixes.items()),
         )
 
     def _build_parse_sources(

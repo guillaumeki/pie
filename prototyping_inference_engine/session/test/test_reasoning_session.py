@@ -244,6 +244,16 @@ class TestReasoningSessionParsing(TestCase):
         result = self.session.parse("")
         self.assertTrue(result.is_empty)
 
+    def test_parse_iri_context(self):
+        """Test that base and prefixes are captured in parse results and session."""
+        result = self.session.parse(
+            "@base <http://example.org/base/>. @prefix ex: <http://example.org/ns/>. ex:pred(<rel>)."
+        )
+        self.assertEqual(result.base_iri, "http://example.org/base/")
+        self.assertIn(("ex", "http://example.org/ns/"), result.prefixes)
+        self.assertEqual(self.session.iri_base, "http://example.org/base/")
+        self.assertEqual(self.session.iri_prefixes.get("ex"), "http://example.org/ns/")
+
 
 class TestReasoningSessionEvaluationWithSources(TestCase):
     """Tests for query evaluation with extra sources."""

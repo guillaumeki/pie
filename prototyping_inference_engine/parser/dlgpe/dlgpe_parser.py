@@ -110,6 +110,7 @@ class DlgpeParser:
     def _raise_for_unsupported_text(self, text: str) -> None:
         """Pre-scan for unsupported constructs that may fail in the parser."""
         stripped = re.sub(r"%[^\r\n]*", "", text)
+        stripped = re.sub(r"<[^>]*>", "", stripped)
 
         if re.search(r"\b[A-Za-z_][A-Za-z0-9_]*\s*\*\s*\(", stripped):
             return

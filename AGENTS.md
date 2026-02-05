@@ -8,7 +8,7 @@ Pie (Prototyping Inference Engine) is a Python library for building inference en
 - Query evaluation against fact bases - ~85% complete
 - Data abstraction for heterogeneous sources and multi-source collections
 - Forward chaining - not yet implemented
-- DLGPE parser with negation, equality, and sections support (IRI resolution not implemented)
+- DLGPE parser with negation, equality, sections support, and IRI resolution
 - Extended DLGP 2.1 format parser with disjunction support (compatibility)
 
 Requires Python 3.10+ (uses match/case syntax).
@@ -110,6 +110,7 @@ For any important change:
 - `agents/design/atom-evaluator-dip.md`
 - `agents/design/docs-content.md`
 - `agents/design/agent-artifacts-docs.md`
+- `agents/design/iri-resolution.md`
 - `agents/design/process-templates.md`
 - `agents/design/commit-process.md`
 - `agents/design/functional-terms.md`

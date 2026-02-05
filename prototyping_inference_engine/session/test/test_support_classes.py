@@ -88,12 +88,16 @@ class TestParseResult(TestCase):
             rules=frozenset(),
             queries=frozenset(),
             constraints=frozenset(),
+            base_iri="http://example.org/base/",
+            prefixes=(("ex", "http://example.org/ns/"),),
         )
         result2 = ParseResult(
             facts=FrozenAtomSet(atoms),
             rules=frozenset(),
             queries=frozenset(),
             constraints=frozenset(),
+            base_iri="http://example.org/base/",
+            prefixes=(("ex", "http://example.org/ns/"),),
         )
         self.assertEqual(result1, result2)
 

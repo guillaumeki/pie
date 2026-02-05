@@ -38,13 +38,16 @@ class Dlgp2Parser:
     def parse_all(
         self, to_parse: str, filter_fun: Optional[Callable[[object], bool]] = None
     ) -> Iterable[object]:
-        return self._parse_all(self._parser.parse(to_parse)["body"], filter_fun)  # type: ignore
+        return self._parse_all(self.parse(to_parse)["body"], filter_fun)
 
     def parse_all_from_file(
         self, file_path: str, filter_fun: Optional[Callable[[object], bool]] = None
     ) -> Iterable[object]:
         with open(file_path, "r") as file:
             return self.parse_all(file.read(), filter_fun)
+
+    def parse(self, to_parse: str) -> dict:
+        return cast(dict, self._parser.parse(to_parse))
 
     @staticmethod
     def _parse_all(

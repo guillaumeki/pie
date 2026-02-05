@@ -29,11 +29,20 @@ from prototyping_inference_engine.api.atom.term.literal_xsd import (
     RDF_LANG_STRING,
     XSD_STRING,
 )
+from prototyping_inference_engine.parser.iri_resolution import resolve_iri_reference
 
 
 class Dlgp2Transformer(Transformer):
     def __init__(self, literal_factory: LiteralFactory | None = None):
         super().__init__()
+        self._base_iri: str | None = None
+        self._prefixes: dict[str, str] = {}
+        self._builtin_prefixes: dict[str, str] = {
+            "xsd": XSD_PREFIX,
+            "rdf": RDF_PREFIX,
+        }
+        self._top: str | None = None
+        self._una: bool = False
         self._literal_factory = literal_factory or LiteralFactory(
             DictStorage(), LiteralConfig.default()
         )
@@ -111,14 +120,6 @@ class Dlgp2Transformer(Transformer):
         return {"body": body}
 
     @staticmethod
-    def header(items):
-        return {"header": items}
-
-    @staticmethod
-    def document(*x):
-        return {k: v for e in x[0] for k, v in e.items()}
-
-    @staticmethod
     def __identity(x):
         return x
 
@@ -169,7 +170,7 @@ class Dlgp2Transformer(Transformer):
 
     def IRIREF(self, token) -> str:
         value = str(token)
-        return value[1:-1]
+        return self._resolve_iri_reference(value[1:-1])
 
     def LANGTAG(self, token) -> str:
         value = str(token)
@@ -182,7 +183,7 @@ class Dlgp2Transformer(Transformer):
         return str(token)
 
     def prefixed_name(self, items):
-        return items[0]
+        return self._resolve_prefixed_name(items[0])
 
     def iri(self, items):
         return items[0]
@@ -219,3 +220,62 @@ class Dlgp2Transformer(Transformer):
 
     def DOUBLE(self, token) -> tuple[str, str]:
         return XSD_DOUBLE, str(token)
+
+    def base(self, items):
+        self._base_iri = str(items[0])
+        return None
+
+    def prefix(self, items):
+        prefix = self._prefix_name(str(items[0]))
+        iri = str(items[1])
+        self._prefixes[prefix] = iri
+        return None
+
+    def top(self, items):
+        self._top = str(items[0])
+        return None
+
+    def una(self, items):
+        self._una = True
+        return None
+
+    def header(self, items):
+        return {
+            "header": {
+                "base": self._base_iri,
+                "prefixes": dict(self._prefixes),
+                "top": self._top,
+                "una": self._una,
+            }
+        }
+
+    def document(self, items):
+        return {k: v for e in items for k, v in e.items()}
+
+    def _resolve_iri_reference(self, value: str) -> str:
+        if self._base_iri is None:
+            return value
+        return resolve_iri_reference(value, self._base_iri)
+
+    def _resolve_prefixed_name(self, value: str) -> str:
+        prefix, local = self._split_prefixed_name(str(value))
+        if prefix in self._prefixes:
+            base = self._prefixes[prefix]
+        elif prefix in self._builtin_prefixes:
+            base = self._builtin_prefixes[prefix]
+        else:
+            raise ValueError(f"Unknown prefix: {prefix or '<default>'}")
+        return f"{base}{local}"
+
+    @staticmethod
+    def _split_prefixed_name(value: str) -> tuple[str, str]:
+        if ":" not in value:
+            return value, ""
+        prefix, local = value.split(":", 1)
+        return prefix, local
+
+    @staticmethod
+    def _prefix_name(value: str) -> str:
+        if value.endswith(":"):
+            return value[:-1]
+        return value

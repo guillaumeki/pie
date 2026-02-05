@@ -61,6 +61,7 @@ with ReasoningSession() as session:
 - Negation in body.
 - Equality in queries.
 - Sections: `@facts`, `@rules`, `@queries`, `@constraints`.
+- `@base` and `@prefix` directives with IRI resolution.
 
 ## DLGPE Features (Not Supported)
 - Functional terms.

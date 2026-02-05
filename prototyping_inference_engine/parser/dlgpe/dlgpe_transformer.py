@@ -21,6 +21,7 @@ from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
 from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
 from prototyping_inference_engine.api.atom.term.storage.dict_storage import DictStorage
 from prototyping_inference_engine.api.atom.term.literal_xsd import (
+    RDF_PREFIX,
     XSD_PREFIX,
     XSD_STRING,
     XSD_INTEGER,
@@ -44,6 +45,9 @@ from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.ontology.constraint.negative_constraint import (
     NegativeConstraint,
+)
+from prototyping_inference_engine.parser.iri_resolution import (
+    resolve_iri_reference,
 )
 
 
@@ -83,6 +87,10 @@ class DlgpeTransformer(Transformer):
         super().__init__()
         self._base_iri: Optional[str] = None
         self._prefixes: dict[str, str] = {}
+        self._builtin_prefixes: dict[str, str] = {
+            "xsd": XSD_PREFIX,
+            "rdf": RDF_PREFIX,
+        }
         self._top: Optional[str] = None
         self._una: bool = False
         self._ground_neck: bool = False  # Track if ::- was used
@@ -508,9 +516,6 @@ class DlgpeTransformer(Transformer):
         token = items[0]
         if isinstance(token, Token):
             value = str(token)
-            # Handle IRI references
-            if value.startswith("<") and value.endswith(">"):
-                return value[1:-1]
             return value
         return str(token)
 
@@ -519,13 +524,14 @@ class DlgpeTransformer(Transformer):
 
     def IRIREF(self, token) -> str:
         # Remove < and >
-        return str(token)[1:-1]
+        value = str(token)[1:-1]
+        return self._resolve_iri_reference(value)
 
     def PNAME_LN(self, token) -> str:
-        return str(token)
+        return self._resolve_prefixed_name(str(token))
 
     def PNAME_NS(self, token) -> str:
-        return str(token)
+        return self._resolve_prefixed_name(str(token))
 
     def SIMPLE_IDENTIFIER(self, token) -> str:
         return str(token)
@@ -538,6 +544,28 @@ class DlgpeTransformer(Transformer):
 
     def UPPERCASE_PREFIX(self, token) -> str:
         return str(token)
+
+    def _resolve_iri_reference(self, value: str) -> str:
+        if self._base_iri is None:
+            return value
+        return resolve_iri_reference(value, self._base_iri)
+
+    def _resolve_prefixed_name(self, value: str) -> str:
+        prefix, local = self._split_prefixed_name(value)
+        if prefix in self._prefixes:
+            base = self._prefixes[prefix]
+        elif prefix in self._builtin_prefixes:
+            base = self._builtin_prefixes[prefix]
+        else:
+            raise ValueError(f"Unknown prefix: {prefix or '<default>'}")
+        return f"{base}{local}"
+
+    @staticmethod
+    def _split_prefixed_name(value: str) -> tuple[str, str]:
+        if ":" not in value:
+            return value, ""
+        prefix, local = value.split(":", 1)
+        return prefix, local
 
     def INTEGER(self, token) -> tuple[str, str]:
         return XSD_INTEGER, str(token)

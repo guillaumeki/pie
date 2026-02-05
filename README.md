@@ -11,7 +11,7 @@ The library supports:
 - **Existential disjunctive rules** ([Disjunctive Datalog](https://en.wikipedia.org/wiki/Disjunctive_Datalog) with existentially quantified variables)
 - **First-order queries** with conjunction, disjunction, negation, and quantifiers
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
-- **DLGPE parser** with disjunction, negation, equality, and sections support (default for examples)
+- **DLGPE parser** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
 - **Extended DLGP 2.1 format** parser with disjunction support (compatibility)
 
 ## Installation
@@ -29,7 +29,7 @@ Requires Python 3.10+ (uses match/case syntax).
 | **API** | 90% | Core classes: terms, atoms, formulas, queries, fact bases, ontologies |
 | **Data Abstraction** | 80% | ReadableData interface for heterogeneous data sources |
 | **Query Evaluation** | 85% | Evaluating first-order queries against data sources |
-| **DLGPE Parser** | 70% | Extended Datalog+- with negation, sections (IRI resolution not implemented) |
+| **DLGPE Parser** | 75% | Extended Datalog+- with negation, sections, and IRI resolution |
 | **DLGP Parser** | 80% | Extended DLGP 2.1 with disjunction support |
 | **Homomorphism** | 70% | Pattern matching with backtracking and indexing |
 | **Backward Chaining** | 90% | UCQ rewriting with disjunctive existential rules |
@@ -162,6 +162,7 @@ Extended Datalog+- format with additional features beyond DLGP 2.1 (recommended)
 | Equality | `=` | `?(X,Y) :- p(X,Y), X = Y.` |
 | Sections | `@facts`, `@rules`, `@queries`, `@constraints` | Organize knowledge base |
 | Labels | `[name]` | `[rule1] h(X) :- b(X).` |
+| IRI directives | `@base`, `@prefix` | `@base <http://example.org/>.` |
 
 **Usage:**
 
@@ -193,8 +194,6 @@ queries = result["queries"]
 atoms = list(parser.parse_atoms("p(a). q(b)."))
 rules = list(parser.parse_rules("h(X) :- b(X). p(X) | q(X) :- r(X)."))
 ```
-
-**Parsed but not used:** `@prefix`, `@base` (IRI resolution not implemented), typed literals.
 
 **Not supported:** functional terms, arithmetic expressions, comparison operators (`<`, `>`, etc.), `@import`, `@computed`, `@view` directives.
 
