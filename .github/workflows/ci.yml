@@ -7,6 +7,8 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     strategy:
       matrix:
         python-version: ["3.10", "3.12"]
@@ -52,6 +54,31 @@ jobs:
         run: |
           python3 -m coverage run -m unittest discover -s prototyping_inference_engine -v
           python3 -m coverage report -m
+
+      - name: Prepare coverage badge directory
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          mkdir -p .github/badges
+
+      - name: Generate coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: tj-actions/coverage-badge-py@v2
+        with:
+          output: .github/badges/coverage.svg
+          working-directory: .
+
+      - name: Commit coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          if git diff --quiet -- .github/badges/coverage.svg; then
+            echo "Coverage badge unchanged."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/badges/coverage.svg
+          git commit -m "chore: update coverage badge"
+          git push
 
       - name: Dead code scan (vulture)
         continue-on-error: true

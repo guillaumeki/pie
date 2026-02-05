@@ -105,6 +105,7 @@ For any important change:
 - None
 
 ### Design Docs
+- `agents/design/coverage-badge.md`
 - `agents/design/tests-when-pertinent.md`
 - `agents/design/atom-evaluator-dip.md`
 - `agents/design/docs-content.md`

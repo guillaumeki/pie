@@ -1,6 +1,7 @@
 # Pie : Prototyping Inference Engine
 
 [![CI](https://github.com/guillaumeki/pie/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/guillaumeki/pie/actions/workflows/ci.yml?query=branch%3Amaster)
+![Coverage](.github/badges/coverage.svg)
 ![License: GPLv3](https://img.shields.io/badge/license-GPLv3-blue.svg)
 ![Python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 

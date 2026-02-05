@@ -11,6 +11,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: expanded documentation content with standalone guides and examples.
 - Changed: AtomEvaluator now delegates function-term conjunction evaluation via the registry to reduce coupling.
 - Changed: change process now explicitly requires adding unit tests when relevant.
+- Added: CI-generated coverage badge committed to the repository and displayed in README.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.
