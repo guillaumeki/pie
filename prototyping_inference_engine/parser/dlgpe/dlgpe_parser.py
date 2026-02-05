@@ -58,7 +58,7 @@ class DlgpeParser:
     _instance: Optional["DlgpeParser"] = None
     _grammar_path = Path(__file__).parent / "dlgpe.lark"
 
-    def __init__(self):
+    def __init__(self, strict_prefix_base: bool = True):
         """Initialize the parser with the DLGPE grammar."""
         self._lark = Lark(
             self._grammar_path.read_text(),
@@ -66,7 +66,7 @@ class DlgpeParser:
             parser="lalr",
             transformer=None,  # We'll transform manually
         )
-        self._transformer = DlgpeTransformer()
+        self._transformer = DlgpeTransformer(strict_prefix_base=strict_prefix_base)
 
     @classmethod
     def instance(cls) -> "DlgpeParser":
@@ -74,6 +74,11 @@ class DlgpeParser:
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
+
+    @classmethod
+    def create(cls, strict_prefix_base: bool = True) -> "DlgpeParser":
+        """Create a non-singleton parser with custom options."""
+        return cls(strict_prefix_base=strict_prefix_base)
 
     def parse(self, text: str, transformer: Optional[DlgpeTransformer] = None) -> dict:
         """

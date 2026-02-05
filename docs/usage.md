@@ -77,6 +77,22 @@ print(iri.recompose())  # http://example.org/ns/resource
 Parsing with DLGPE/DLGP2 stores the last `@base` and `@prefix` directives in the
 `ParseResult` and `ReasoningSession` so you can reuse them when exporting.
 
+## Exporting DLGPE
+```python
+from prototyping_inference_engine.io import DlgpeWriter
+from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+
+parser = DlgpeParser.instance()
+result = parser.parse("""
+    @base <http://example.org/base/>.
+    @prefix ex: <http://example.org/ns/>.
+    <rel>(ex:obj).
+""")
+
+writer = DlgpeWriter()
+print(writer.write(result))
+```
+
 ## DLGPE Features (Supported)
 - Disjunction in head and body.
 - Negation in body.

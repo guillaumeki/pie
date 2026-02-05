@@ -14,6 +14,7 @@ The library supports:
 - **DLGPE parser** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
 - **Extended DLGP 2.1 format** parser with disjunction support (compatibility)
 - **IRI utilities** for parsing, normalization, and base/prefix management
+- **IO helpers** with parsers and writers (DLGPE export)
 
 ## Installation
 
@@ -113,6 +114,23 @@ manager.set_prefix("ex", "http://example.org/ns/")
 
 iri = manager.create_iri("ex:resource")
 print(iri.recompose())  # http://example.org/ns/resource
+```
+
+### Exporting DLGPE
+
+```python
+from prototyping_inference_engine.io import DlgpeWriter
+from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+
+parser = DlgpeParser.instance()
+result = parser.parse("""
+    @base <http://example.org/base/>.
+    @prefix ex: <http://example.org/ns/>.
+    <rel>(ex:obj).
+""")
+
+writer = DlgpeWriter()
+print(writer.write(result))
 ```
 
 ## Architecture

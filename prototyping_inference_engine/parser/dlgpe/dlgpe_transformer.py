@@ -51,6 +51,7 @@ from prototyping_inference_engine.iri.normalization import (
     RFCNormalizationScheme,
     StandardComposableNormalizer,
 )
+from prototyping_inference_engine.iri.iri import IRIRef
 
 
 class DlgpeUnsupportedFeatureError(Exception):
@@ -89,6 +90,7 @@ class DlgpeTransformer(Transformer):
         self,
         literal_factory: Optional[LiteralFactory] = None,
         iri_manager: Optional[IRIManager] = None,
+        strict_prefix_base: bool = True,
     ):
         super().__init__()
         self._base_iri: Optional[str] = None
@@ -108,6 +110,7 @@ class DlgpeTransformer(Transformer):
             normalizer=StandardComposableNormalizer(RFCNormalizationScheme.STRING),
             use_default_base=False,
         )
+        self._strict_prefix_base = strict_prefix_base
 
     # ==================== Unsupported Features ====================
 
@@ -198,6 +201,12 @@ class DlgpeTransformer(Transformer):
         # items[0] = BASE_KWD, items[1] = identifier
         self._iri_manager.set_base(str(items[1]))
         self._base_iri = self._iri_manager.get_base()
+        if self._prefixes_raw:
+            unresolved = dict(self._prefixes_raw)
+            self._prefixes_raw.clear()
+            for prefix, iri in unresolved.items():
+                self._iri_manager.set_prefix(prefix, iri)
+                self._prefixes[prefix] = self._iri_manager.get_prefix(prefix)
         return None
 
     def prefix_directive(self, items):
@@ -205,8 +214,14 @@ class DlgpeTransformer(Transformer):
         prefix = str(items[1])
         iri = str(items[2])
         if self._iri_manager.get_base() is None:
-            self._prefixes_raw[prefix] = iri
-            self._prefixes[prefix] = iri
+            if not IRIRef(iri).is_absolute():
+                if self._strict_prefix_base:
+                    raise DlgpeUnsupportedFeatureError(
+                        "Relative @prefix declared before @base is not supported."
+                    )
+                self._prefixes_raw[prefix] = iri
+                self._prefixes[prefix] = iri
+                return None
         else:
             self._iri_manager.set_prefix(prefix, iri)
             self._prefixes[prefix] = self._iri_manager.get_prefix(prefix)

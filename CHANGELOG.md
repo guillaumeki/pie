@@ -19,6 +19,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: removed Vulture from CI; keep it for local checks only.
 - Added: IRI resolution for DLGPE/DLGP2 parsing with base/prefix context captured in parse results and sessions.
 - Added: full IRI manager stack with parsing, resolution, normalization, preparators, and extensive tests.
+- Added: IO package with parser and writer entry points, plus DLGPE writer export support.
+- Changed: DLGPE/DLGP2 parsing now rejects relative @prefix before @base by default (configurable).
+- Fixed: IRI relativization now treats trailing-slash base paths correctly (prevents extra `..` segments).
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.

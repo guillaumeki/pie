@@ -5,6 +5,7 @@
 - Query evaluators under `prototyping_inference_engine.query_evaluation`.
 - Parsers under `prototyping_inference_engine.parser`.
 - IRI utilities under `prototyping_inference_engine.iri`.
+- IO helpers under `prototyping_inference_engine.io` (module exposing parsers/writers).
 - Session API under `prototyping_inference_engine.session`.
 
 ## Key Classes
@@ -13,6 +14,7 @@
 - `GenericFOQueryEvaluator`: evaluator dispatching by formula type.
 - `ReasoningSession`: high-level evaluation workflow.
 - `IRIRef` / `IRIManager`: parse and resolve IRIs with base/prefix state.
+- `DlgpeWriter`: write DLGPE documents from parse results.
 
 ## API Notes
 - Docstrings are the authoritative source for method-level behavior and edge cases.

@@ -369,6 +369,9 @@ def _relativize_path(
     base_segments = _split_path_segments(base_path)
     target_segments = _split_path_segments(target_path)
 
+    if base_path.endswith("/") and base_segments and base_segments[-1] == "":
+        base_segments = base_segments[:-1]
+
     if not base_path.endswith("/") and base_segments:
         base_segments = base_segments[:-1]
 
