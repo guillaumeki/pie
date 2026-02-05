@@ -338,6 +338,58 @@ class TestIRIRef(unittest.TestCase):
                     len(relativized.recompose()), len(target.recompose())
                 )
 
+    def test_relativization_expected_outputs(self) -> None:
+        cases = [
+            ("http://example.org/base/", "http://example.org/base/rel", "rel"),
+            ("http://example.org/base/dir/", "http://example.org/base/dir/", ""),
+            ("http://example.org/base/dir/", "http://example.org/base/dir/sub", "sub"),
+            (
+                "http://example.org/base/dir/",
+                "http://example.org/base/other",
+                "../other",
+            ),
+            ("http://example.org/base/", "http://example.org/other", "../other"),
+            ("http://example.org/base/", "http://example.org/base/rel?x=1", "rel?x=1"),
+            (
+                "http://example.org/base/",
+                "http://example.org/base/rel#frag",
+                "rel#frag",
+            ),
+            ("http://example.org/base/?q=1", "http://example.org/base/rel", "rel"),
+            ("http://example.org/base/", "http://example.org/base/", ""),
+            ("http://example.org/base", "http://example.org/base", "base"),
+            ("http://example.org/base", "http://example.org/base/rel", "base/rel"),
+            (
+                "http://example.org/base/",
+                "http://example.org/base//rel",
+                "http://example.org/base//rel",
+            ),
+            (
+                "http://example.org/base/",
+                "http://other.example.org/base/rel",
+                "//other.example.org/base/rel",
+            ),
+            (
+                "http://example.org/base/",
+                "https://example.org/base/rel",
+                "https://example.org/base/rel",
+            ),
+            ("http://example.org/base/", "http://example.org", "http://example.org"),
+            ("http://example.org/base/", "http://example.org/", "../"),
+            ("http://example.org/base/", "http://example.org/?q=1", "../?q=1"),
+            ("http://example.org/base/", "http://example.org/#frag", "../#frag"),
+        ]
+
+        for base_value, target_value, expected in cases:
+            with self.subTest(base=base_value, target=target_value):
+                base = IRIRef(base_value)
+                target = IRIRef(target_value)
+                relativized = target.relativize(base)
+                self.assertEqual(expected, relativized.recompose())
+                self.assertEqual(
+                    target.recompose(), relativized.resolve(base).recompose()
+                )
+
     def test_normalization(self) -> None:
         data = [
             (

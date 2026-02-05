@@ -27,6 +27,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Fixed: IRI normalization now inserts `/` when authority is present with an empty path.
 - Fixed: IRI relativization falls back to absolute IRIs when a relative candidate would resolve incorrectly.
 - Added: extra IRI relativization regression cases for trailing-slash base paths.
+- Added: more explicit IRI relativization expected-output test cases.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.
