@@ -47,6 +47,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: DLGPE computed directives now only accept Integraal standard functions via `@computed ig:<stdfct>`.
 - Added: documentation updates clarifying Integraal standard function loading in DLGPE.
 - Changed: tuned local quality tooling to reduce Bandit/Vulture noise and use a project-local pip-audit cache.
+- Fixed: DLGPE parser now supports nested functional terms (required for standard function examples).
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.

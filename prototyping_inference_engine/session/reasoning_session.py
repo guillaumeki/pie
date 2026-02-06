@@ -876,4 +876,18 @@ def _extract_computed_predicates(
         name = atom.predicate.name
         if any(name.startswith(base) for base in base_iris):
             predicates.add(atom.predicate)
+        for term in atom.terms:
+            _collect_computed_predicates_from_term(term, base_iris, predicates)
     return predicates
+
+
+def _collect_computed_predicates_from_term(
+    term: Term, base_iris: list[str], predicates: set[Predicate]
+) -> None:
+    from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
+
+    if isinstance(term, FunctionTerm):
+        if any(term.name.startswith(base) for base in base_iris):
+            predicates.add(Predicate(term.name, len(term.args) + 1))
+        for arg in term.args:
+            _collect_computed_predicates_from_term(arg, base_iris, predicates)

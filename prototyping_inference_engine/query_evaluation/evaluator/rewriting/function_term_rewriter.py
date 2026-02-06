@@ -60,6 +60,7 @@ def term_contains_function(term: Term) -> bool:
 
 
 def _rewrite_term(term: Term) -> tuple[Term, list[Atom]]:
+    from prototyping_inference_engine.api.atom.predicate import Predicate
     from prototyping_inference_engine.api.data.python_function_data import (
         function_predicate,
     )
@@ -72,7 +73,10 @@ def _rewrite_term(term: Term) -> tuple[Term, list[Atom]]:
             extra_atoms.extend(nested_atoms)
             rewritten_args.append(rewritten_arg)
         result_var = Variable.fresh_variable()
-        func_predicate = function_predicate(term.name, len(rewritten_args))
+        if term.name.startswith("stdfct:"):
+            func_predicate = Predicate(term.name, len(rewritten_args) + 1)
+        else:
+            func_predicate = function_predicate(term.name, len(rewritten_args))
         extra_atoms.append(Atom(func_predicate, *rewritten_args, result_var))
         return result_var, extra_atoms
     return term, []

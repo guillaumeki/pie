@@ -510,8 +510,8 @@ class DlgpeTransformer(Transformer):
     def body_term(self, items):
         return items[0] if items else None
 
-    def term(self, items):
-        return items[0] if items else None
+    def term(self, items) -> Term:
+        return items[0]
 
     def named_variable(self, items) -> Variable:
         name = str(items[0])
@@ -537,8 +537,11 @@ class DlgpeTransformer(Transformer):
     def function_symbol(self, items) -> str:
         return str(items[0])
 
-    def non_constant_term_list(self, items) -> tuple[Term, ...]:
+    def argument_term_list(self, items) -> tuple[Term, ...]:
         return tuple(items)
+
+    def argument_term(self, items) -> Term:
+        return items[0]
 
     def predicate(self, items) -> Predicate:
         # Predicate arity will be determined when creating the atom

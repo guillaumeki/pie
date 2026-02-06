@@ -8,6 +8,7 @@ from unittest import TestCase
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.atom.term.factory import (
     VariableFactory,
@@ -346,6 +347,62 @@ class TestReasoningSessionEvaluationWithSources(TestCase):
             self.session.evaluate_query_with_sources(query, fact_base, result.sources)
         )
         self.assertEqual(answers, [(self.session.literal("3", "xsd:double"),)])
+
+    def test_evaluate_query_with_nested_computed_terms(self):
+        text = (
+            "@computed ig: <stdfct>. "
+            "@queries "
+            "?(T) :- ig:tuple(a, b, c, T). "
+            "?(D) :- ig:dict(ig:tuple(a, b), ig:tuple(b, c), D). "
+            "?(K) :- ig:dictKeys(ig:dict(ig:tuple(a, b), ig:tuple(b, c)), K). "
+            "?(V) :- ig:get(ig:tuple(a, b, c), 1, V). "
+            "?(U) :- ig:union(ig:set(a, b), ig:set(b, c), U)."
+        )
+        result = self.session.parse(text)
+        fact_base = self.session.create_fact_base([])
+
+        def term_id(value):
+            return value.identifier if hasattr(value, "identifier") else value
+
+        def signature(term):
+            if isinstance(term, Literal):
+                value = term.value
+                if isinstance(value, list):
+                    return ("list", tuple(term_id(item) for item in value))
+                if isinstance(value, dict):
+                    items = tuple(
+                        sorted(
+                            ((term_id(k), term_id(v)) for k, v in value.items()),
+                            key=lambda item: item[0],
+                        )
+                    )
+                    return ("dict", items)
+                if isinstance(value, set):
+                    items = tuple(sorted(term_id(item) for item in value))
+                    return ("set", items)
+                return ("literal", term_id(value))
+            return ("term", term_id(term))
+
+        signatures = set()
+        for query in result.queries:
+            answers = list(
+                self.session.evaluate_query_with_sources(
+                    query, fact_base, result.sources
+                )
+            )
+            self.assertEqual(len(answers), 1)
+            signatures.add(signature(answers[0][0]))
+
+        self.assertEqual(
+            signatures,
+            {
+                ("list", ("a", "b", "c")),
+                ("dict", (("a", "b"), ("b", "c"))),
+                ("set", ("a", "b")),
+                ("term", "b"),
+                ("set", ("a", "b", "c")),
+            },
+        )
 
 
 class TestReasoningSessionFactBase(TestCase):

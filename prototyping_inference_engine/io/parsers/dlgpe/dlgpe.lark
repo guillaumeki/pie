@@ -179,12 +179,12 @@ body_elementary: sub_query                           -> unsupported_subquery
 head_atom: predicate ( "(" head_terms_list ")" )?
          | pattern_predicate ( "(" head_terms_list ")" )?  -> unsupported_pattern_atom
 
-body_atom: predicate ( "(" body_terms_list ")" )?
-         | pattern_predicate ( "(" body_terms_list ")" )?  -> unsupported_pattern_atom
+body_atom.2: predicate ( "(" body_terms_list ")" )?
+           | pattern_predicate ( "(" body_terms_list ")" )?  -> unsupported_pattern_atom
 
-equal_atom: term "=" term
+equal_atom.1: term "=" term
 
-operator_atom: term PREDICATE_OPERATOR term
+operator_atom.1: term PREDICATE_OPERATOR term
 PREDICATE_OPERATOR: "<" | ">" | "<=" | ">=" | "!="
 
 repeated_atom: predicate REPEAT_SYMBOL "(" term "," term ")"
@@ -219,11 +219,11 @@ elementary_term: "(" additive_term ")" | functional_term | named_variable | lite
 ADDOP: "+" | "-"
 MULTOP: "*" | "/"
 
-functional_term: function_symbol "(" non_constant_term_list ")"
-function_symbol: identifier
-non_constant_term_list: (term ("," term)*)?
+functional_term: identifier "(" argument_term_list ")"
+argument_term_list: (argument_term ("," argument_term)*)?
 
 // Basic terms
+argument_term: functional_term | named_variable | constant | anonymous_variable
 term: named_variable | constant | anonymous_variable
 
 predicate: identifier
