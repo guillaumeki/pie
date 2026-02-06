@@ -2,7 +2,7 @@ from typing import Callable
 from unittest import TestCase
 
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
-from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestRule(TestCase):

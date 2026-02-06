@@ -16,7 +16,7 @@ from prototyping_inference_engine.api.fact_base.protocols import (
     Writable,
     Enumerable,
 )
-from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestFrozenInMemoryFactBase(TestCase):

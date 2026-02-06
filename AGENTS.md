@@ -23,7 +23,7 @@ Push to both remotes each time:
 ```bash
 ruff check .
 ruff format --check .
-python3 -m coverage run -m unittest discover -s prototyping_inference_engine -v
+python3 -m coverage run -m unittest discover -s prototyping_inference_engine -t . -v
 python3 -m coverage report -m
 bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test" -ll
 pip-audit
@@ -40,10 +40,10 @@ Before running any Python code or unit tests:
 ### Before Push (Always)
 Run the following in order before any commit/push:
 1) `mypy prototyping_inference_engine`
-2) `python3 -m unittest discover -s prototyping_inference_engine -v`
+2) `python3 -m unittest discover -s prototyping_inference_engine -t . -v`
 3) `ruff check .`
 4) `ruff format --check .`
-5) `python3 -m coverage run -m unittest discover -s prototyping_inference_engine -v`
+5) `python3 -m coverage run -m unittest discover -s prototyping_inference_engine -t . -v`
 6) `python3 -m coverage report -m`
 7) `bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test" -ll`
 8) `pip-audit`
@@ -95,6 +95,14 @@ For any important change:
 - If the project includes executable scripts, put them in `bin/` (or `scripts/`) and avoid the `.py` suffix for user-facing executables. (https://wiki.python.org/moin/ProjectFileAndDirectoryLayout) (https://realpython.com/ref/best-practices/project-layout/)
 - If the project has documentation, place it under `docs/`. (https://wiki.python.org/moin/ProjectFileAndDirectoryLayout) (https://realpython.com/ref/best-practices/project-layout/)
 
+## Module Classification Rules (Imposed)
+- Put all parsers and writers under `prototyping_inference_engine/io/` with subpackages `parsers/` and `writers/`.
+- Treat reusable primitives (IRI utilities, terms, atoms, substitutions) as API modules under `prototyping_inference_engine/api/`.
+- Keep `api/data/` for abstractions and protocols; move concrete data sources into named subpackages (e.g., `api/data/functions/`, `api/data/collection/`).
+- Mirror the code hierarchy in tests (tests live in the corresponding package subtree).
+- Avoid catch-all modules: if a module grows beyond a single responsibility, carve out a dedicated subpackage with explicit naming.
+- Keep package `__init__.py` minimal and only re-export stable public entry points.
+
 ## Documentation Practices (Imposed)
 - Keep documentation in `docs/` at the repository root, written in Markdown, and keep `README.md` as the entry point. (https://docs.python-guide.org/writing/structure/)
 - Use MkDocs (`mkdocs.yml`) to build the documentation site from `docs/` when publishing to GitHub Pages. (https://www.mkdocs.org/user-guide/configuration/)
@@ -105,6 +113,7 @@ For any important change:
 - None
 
 ### Design Docs
+- `agents/design/io-api-restructure.md`
 - `agents/design/coverage-badge.md`
 - `agents/design/tests-when-pertinent.md`
 - `agents/design/atom-evaluator-dip.md`
@@ -156,7 +165,7 @@ pip install -r requirements-dev.txt
 ### Tests
 ```bash
 # Run all tests
-python3 -m unittest discover -s prototyping_inference_engine -v
+python3 -m unittest discover -s prototyping_inference_engine -t . -v
 
 # Run a single test file
 python3 -m unittest prototyping_inference_engine.api.fact_base.test.test_fact_base -v
@@ -169,7 +178,7 @@ python3 -m unittest prototyping_inference_engine.backward_chaining.test.test_bre
 ```bash
 ruff check .
 ruff format --check .
-python3 -m coverage run -m unittest discover -s prototyping_inference_engine -v
+python3 -m coverage run -m unittest discover -s prototyping_inference_engine -t . -v
 python3 -m coverage report -m
 bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test" -ll
 pip-audit

@@ -17,7 +17,7 @@ from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base impo
     MutableInMemoryFactBase,
 )
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
 from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import (
     AtomEvaluator,
 )

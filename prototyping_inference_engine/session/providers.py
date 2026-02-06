@@ -248,8 +248,10 @@ class Dlgp2ParserProvider:
 
     def _parser(self):
         from prototyping_inference_engine.api.atom.term.literal import Literal
-        from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
-        from prototyping_inference_engine.parser.dlgp.dlgp2_transformer import (
+        from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import (
+            Dlgp2Parser,
+        )
+        from prototyping_inference_engine.io.parsers.dlgp.dlgp2_transformer import (
             Dlgp2Transformer,
         )
 
@@ -303,7 +305,7 @@ class DlgpeParserProvider:
 
     def _transformer(self):
         from prototyping_inference_engine.api.atom.term.literal import Literal
-        from prototyping_inference_engine.parser.dlgpe.dlgpe_transformer import (
+        from prototyping_inference_engine.io.parsers.dlgpe.dlgpe_transformer import (
             DlgpeTransformer,
         )
 
@@ -314,13 +316,13 @@ class DlgpeParserProvider:
 
     def parse_atoms(self, text: str) -> Iterable["Atom"]:
         """Parse atoms from DLGPE text."""
-        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
         return DlgpeParser.instance().parse_atoms(text, self._transformer())
 
     def parse_rules(self, text: str) -> Iterable["Rule"]:
         """Parse rules from DLGPE text."""
-        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
         return DlgpeParser.instance().parse_rules(text, self._transformer())
 
@@ -329,8 +331,8 @@ class DlgpeParserProvider:
         from prototyping_inference_engine.api.query.conjunctive_query import (
             ConjunctiveQuery,
         )
-        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
-        from prototyping_inference_engine.parser.dlgpe.conversions import (
+        from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+        from prototyping_inference_engine.io.parsers.dlgpe.conversions import (
             try_convert_fo_query,
         )
 
@@ -341,7 +343,7 @@ class DlgpeParserProvider:
 
     def parse_queries(self, text: str) -> Iterable["Query"]:
         """Parse queries from DLGPE text."""
-        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
         return DlgpeParser.instance().parse_queries(text, self._transformer())
 
@@ -352,8 +354,8 @@ class DlgpeParserProvider:
         from prototyping_inference_engine.api.query.union_conjunctive_queries import (
             UnionConjunctiveQueries,
         )
-        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
-        from prototyping_inference_engine.parser.dlgpe.conversions import (
+        from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+        from prototyping_inference_engine.io.parsers.dlgpe.conversions import (
             try_convert_fo_query,
         )
 
@@ -364,12 +366,12 @@ class DlgpeParserProvider:
 
     def parse_negative_constraints(self, text: str) -> Iterable["NegativeConstraint"]:
         """Parse negative constraints from DLGPE text."""
-        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
         return DlgpeParser.instance().parse_constraints(text, self._transformer())
 
     def parse_document(self, text: str) -> dict:
         """Parse a full DLGPE document and return header + statements."""
-        from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+        from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
         return DlgpeParser.instance().parse(text, self._transformer())
