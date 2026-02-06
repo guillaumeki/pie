@@ -123,6 +123,19 @@ Available Integraal standard functions:
 `dict`, `mergeDicts`, `dictKeys`, `dictValues`, `get`, `tuple`, `containsKey`,
 `containsValue`.
 
+Example with collection functions:
+
+```prolog
+@computed ig: <http://example.org/functions#>.
+
+@queries
+?(T) :- ig:tuple(a, b, c, T).
+?(D) :- ig:dict(ig:tuple(a, b), ig:tuple(b, c), D).
+?(K) :- ig:dictKeys(ig:dict(ig:tuple(a, b), ig:tuple(b, c)), K).
+?(V) :- ig:get(ig:tuple(a, b, c), 1, V).
+?(U) :- ig:union(ig:set(a, b), ig:set(b, c), U).
+```
+
 ## DLGPE Features (Supported)
 - Disjunction in head and body.
 - Negation in body.
