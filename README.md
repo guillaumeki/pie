@@ -136,15 +136,18 @@ print(writer.write(result))
 
 ### Computed Predicates (`@computed`)
 
+To load Integraal standard functions, use `@computed <prefix>: <stdfct>.`.
+Other computed libraries are not supported by the DLGPE parser.
+
 ```prolog
-@computed ig: <http://example.org/functions#>.
+@computed ig: <stdfct>.
 
 @queries
 ?(X) :- ig:sum(1, X, 3).
 ```
 
 ```prolog
-@computed ig: <http://example.org/functions#>.
+@computed ig: <stdfct>.
 
 @queries
 ?(X) :- ig:get(ig:tuple(a, b, c), 1, X).

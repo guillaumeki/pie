@@ -570,14 +570,20 @@ class ReasoningSession:
         if self._python_function_source is not None and _contains_function_term(atoms):
             sources.append(self._python_function_source)
         if self._computed_prefixes:
-            computed_predicates = _extract_computed_predicates(
-                atoms, self._computed_prefixes
-            )
+            if any(value != "stdfct" for value in self._computed_prefixes.values()):
+                raise ValueError(
+                    "Unsupported computed library. "
+                    "Use @computed <stdfct> to load Integraal standard functions."
+                )
+            resolved_prefixes = {
+                prefix: "stdfct:" for prefix in self._computed_prefixes
+            }
+            computed_predicates = _extract_computed_predicates(atoms, resolved_prefixes)
             if computed_predicates:
                 literal_factory = self._term_factories.get(Literal)
                 sources.append(
                     IntegraalStandardFunctionSource(
-                        literal_factory, self._computed_prefixes, computed_predicates
+                        literal_factory, resolved_prefixes, computed_predicates
                     )
                 )
         return sources

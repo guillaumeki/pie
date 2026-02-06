@@ -210,10 +210,10 @@ class TestDlgpeParserUnsupportedFeatures(unittest.TestCase):
 
     def test_computed_directive_is_supported(self):
         """Test that @computed is parsed into the header."""
-        result = self.parser.parse("@computed ig: <http://example.org/functions#>.")
+        result = self.parser.parse("@computed ig: <stdfct>.")
         header = result.get("header", {})
         self.assertIn("computed", header)
-        self.assertEqual(header["computed"].get("ig"), "http://example.org/functions#")
+        self.assertEqual(header["computed"].get("ig"), "stdfct")
 
     def test_view_directive_raises_error(self):
         """Test that @view raises an error."""

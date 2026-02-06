@@ -98,6 +98,7 @@ class DlgpeTransformer(Transformer):
         self._prefixes_raw: dict[str, str] = {}
         self._computed_prefixes: dict[str, str] = {}
         self._computed_prefixes_raw: dict[str, str] = {}
+        self._computed_prefixes_display: dict[str, str] = {}
         self._builtin_prefixes: dict[str, str] = {
             "xsd": XSD_PREFIX,
             "rdf": RDF_PREFIX,
@@ -180,10 +181,15 @@ class DlgpeTransformer(Transformer):
 
     def header(self, items):
         """Collect header directives."""
+        computed = (
+            self._computed_prefixes_display
+            if self._computed_prefixes_display
+            else self._computed_prefixes
+        )
         return {
             "base": self._base_iri,
             "prefixes": self._prefixes.copy(),
-            "computed": self._computed_prefixes.copy(),
+            "computed": computed.copy(),
             "top": self._top,
             "una": self._una,
         }
@@ -240,16 +246,18 @@ class DlgpeTransformer(Transformer):
         # items[0] = COMPUTED_KWD, items[1] = prefix, items[2] = identifier
         prefix = str(items[1])
         iri = str(items[2])
-        if self._iri_manager.get_base() is None:
-            if not IRIRef(iri).is_absolute():
-                if self._strict_prefix_base:
-                    raise DlgpeUnsupportedFeatureError(
-                        "Relative @computed declared before @base is not supported."
-                    )
-                self._computed_prefixes_raw[prefix] = iri
-                return None
-        self._iri_manager.set_prefix(prefix, iri)
-        self._computed_prefixes[prefix] = self._iri_manager.get_prefix(prefix)
+        if iri.startswith("<") and iri.endswith(">"):
+            iri = iri[1:-1]
+        is_stdfct = (
+            iri == "stdfct" or iri.endswith("/stdfct") or iri.endswith("#stdfct")
+        )
+        if not is_stdfct:
+            raise DlgpeUnsupportedFeatureError(
+                "Only @computed <stdfct> is supported by PIE. "
+                "Use @computed prefix: <stdfct> to load Integraal standard functions."
+            )
+        self._computed_prefixes_display[prefix] = "stdfct"
+        self._computed_prefixes[prefix] = "stdfct:"
         return None
 
     def top_directive(self, items):

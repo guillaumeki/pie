@@ -249,18 +249,15 @@ class TestReasoningSessionParsing(TestCase):
         result = self.session.parse(
             "@base <http://example.org/base/>. "
             "@prefix ex: <http://example.org/ns/>. "
-            "@computed ig: <http://example.org/functions#>. "
+            "@computed ig: <stdfct>. "
             "ex:pred(<rel>)."
         )
         self.assertEqual(result.base_iri, "http://example.org/base/")
         self.assertIn(("ex", "http://example.org/ns/"), result.prefixes)
-        self.assertIn(("ig", "http://example.org/functions#"), result.computed_prefixes)
+        self.assertIn(("ig", "stdfct"), result.computed_prefixes)
         self.assertEqual(self.session.iri_base, "http://example.org/base/")
         self.assertEqual(self.session.iri_prefixes.get("ex"), "http://example.org/ns/")
-        self.assertEqual(
-            self.session.computed_prefixes.get("ig"),
-            "http://example.org/functions#",
-        )
+        self.assertEqual(self.session.computed_prefixes.get("ig"), "stdfct")
 
 
 class TestReasoningSessionEvaluationWithSources(TestCase):
@@ -301,7 +298,7 @@ class TestReasoningSessionEvaluationWithSources(TestCase):
         self.assertEqual(answers, [tuple()])
 
     def test_evaluate_query_with_computed_sum(self):
-        text = "@computed ig: <http://example.org/functions#>. ?(X) :- ig:sum(1, X, 3)."
+        text = "@computed ig: <stdfct>. ?(X) :- ig:sum(1, X, 3)."
         result = self.session.parse(text)
         query = next(iter(result.queries))
         fact_base = self.session.create_fact_base([])
@@ -311,10 +308,7 @@ class TestReasoningSessionEvaluationWithSources(TestCase):
         self.assertEqual(answers, [(self.session.literal("2", "xsd:integer"),)])
 
     def test_evaluate_query_with_computed_minus(self):
-        text = (
-            "@computed ig: <http://example.org/functions#>. "
-            "?(X) :- ig:minus(X, 2, 3, 1)."
-        )
+        text = "@computed ig: <stdfct>. ?(X) :- ig:minus(X, 2, 3, 1)."
         result = self.session.parse(text)
         query = next(iter(result.queries))
         fact_base = self.session.create_fact_base([])
@@ -324,10 +318,7 @@ class TestReasoningSessionEvaluationWithSources(TestCase):
         self.assertEqual(answers, [(self.session.literal("6", "xsd:integer"),)])
 
     def test_evaluate_query_with_computed_product(self):
-        text = (
-            "@computed ig: <http://example.org/functions#>. "
-            "?(X) :- ig:product(2, X, 8)."
-        )
+        text = "@computed ig: <stdfct>. ?(X) :- ig:product(2, X, 8)."
         result = self.session.parse(text)
         query = next(iter(result.queries))
         fact_base = self.session.create_fact_base([])
@@ -337,7 +328,7 @@ class TestReasoningSessionEvaluationWithSources(TestCase):
         self.assertEqual(answers, [(self.session.literal("4", "xsd:integer"),)])
 
     def test_evaluate_query_with_computed_divide(self):
-        text = "@computed ig: <http://example.org/functions#>. ?(X) :- ig:divide(8, X, 2e0)."
+        text = "@computed ig: <stdfct>. ?(X) :- ig:divide(8, X, 2e0)."
         result = self.session.parse(text)
         query = next(iter(result.queries))
         fact_base = self.session.create_fact_base([])
@@ -347,10 +338,7 @@ class TestReasoningSessionEvaluationWithSources(TestCase):
         self.assertEqual(answers, [(self.session.literal("4", "xsd:double"),)])
 
     def test_evaluate_query_with_computed_average(self):
-        text = (
-            "@computed ig: <http://example.org/functions#>. "
-            "?(X) :- ig:average(2, X, 4, 3e0)."
-        )
+        text = "@computed ig: <stdfct>. ?(X) :- ig:average(2, X, 4, 3e0)."
         result = self.session.parse(text)
         query = next(iter(result.queries))
         fact_base = self.session.create_fact_base([])

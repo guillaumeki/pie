@@ -304,7 +304,18 @@ class DlgpeParser:
                 IntegraalStandardFunctionSource,
             )
 
-            base_iris = list(computed_prefixes.values())
+            std_prefixes = {
+                prefix: value
+                for prefix, value in computed_prefixes.items()
+                if value == "stdfct"
+            }
+            if len(std_prefixes) != len(computed_prefixes):
+                raise DlgpeUnsupportedFeatureError(
+                    "Unsupported computed library. "
+                    "Use @computed <stdfct> to load Integraal standard functions."
+                )
+            resolved_prefixes = {prefix: "stdfct:" for prefix in std_prefixes}
+            base_iris = list(resolved_prefixes.values())
             computed_predicates = {
                 atom.predicate
                 for atom in atoms
@@ -314,7 +325,7 @@ class DlgpeParser:
                 literal_factory = LiteralFactory(DictStorage(), LiteralConfig.default())
                 sources.append(
                     IntegraalStandardFunctionSource(
-                        literal_factory, computed_prefixes, computed_predicates
+                        literal_factory, resolved_prefixes, computed_predicates
                     )
                 )
 

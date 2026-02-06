@@ -96,12 +96,13 @@ print(writer.write(result))
 
 ## Computed Predicates (`@computed`)
 
-PIE supports Integraal standard functions via `@computed` prefixes. Declare a
-computed prefix and use the functions as predicates where the **last argument**
-is the result.
+PIE supports Integraal standard functions via `@computed` prefixes. To load the
+standard library, declare `@computed <prefix>: <stdfct>.` and use the functions
+as predicates where the **last argument** is the result. Any other computed
+library will raise an error.
 
 ```prolog
-@computed ig: <http://example.org/functions#>.
+@computed ig: <stdfct>.
 
 @queries
 ?(X) :- ig:sum(1, X, 3).
@@ -126,7 +127,7 @@ Available Integraal standard functions:
 Example with collection functions:
 
 ```prolog
-@computed ig: <http://example.org/functions#>.
+@computed ig: <stdfct>.
 
 @queries
 ?(T) :- ig:tuple(a, b, c, T).
