@@ -139,6 +139,7 @@ For any important change:
 - `agents/design/readme-badges.md`
 - `agents/design/ci-mypy-install.md`
 - `agents/design/doc-examples-tests.md`
+- `agents/design/computed-functions-docs.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`

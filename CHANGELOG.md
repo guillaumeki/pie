@@ -18,6 +18,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Updated: documentation to describe computed predicates and supported Integraal functions.
 - Updated: computed predicate examples to include collection and dictionary functions.
 - Added: documentation example tests that execute runnable snippets and require coverage for all doc code blocks.
+- Updated: computed predicate documentation with signatures, usage modes, and functional-term example.
 
 ## [2026-02-05]
 - Fixed: add mypy to dev requirements so CI can run type checks.

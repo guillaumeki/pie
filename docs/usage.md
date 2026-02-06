@@ -114,6 +114,20 @@ standard library, declare `@computed <prefix>: <stdfct>.` and use the functions
 as predicates where the **last argument** is the result. Any other computed
 library will raise an error.
 
+### Usage Modes
+- Predicate form: `ig:sum(t1, ..., tn, Result)` where the **last argument** is
+  the computed result.
+- Functional term form: `ig:sum(t1, ..., tn)` used as a term. PIE rewrites it
+  into an extra computed atom plus a fresh result variable, so it works
+  anywhere a term is allowed. Functional terms are **not supported under
+  negation**.
+
+### Evaluation Rules
+- `sum`, `minus`, `product`, `divide`, and `average` can infer **one missing
+  term** (any single unbound argument, including the result).
+- All other functions require **all input terms** to be bound; the result can
+  be unbound (to compute) or bound (to check).
+
 Example: `ig:sum(1, X, 3)` yields `X = 2`.
 
 ```prolog
@@ -123,21 +137,81 @@ Example: `ig:sum(1, X, 3)` yields `X = 2`.
 ?(X) :- ig:sum(1, X, 3).
 ```
 
+Example: functional term usage (expanded to computed atoms internally).
+
+```prolog
+@computed ig: <stdfct>.
+
+@facts
+p(3).
+
+@queries
+?() :- p(ig:sum(1, 2)).
+```
+
 Functions that can infer a single missing term (one unbound argument) include:
 `sum`, `minus`, `product`, `divide`, and `average`.
 
-Available Integraal standard functions:
-`sum`, `min`, `max`, `minus`, `product`, `divide`, `average`, `median`, `isEven`,
-`isOdd`, `isGreaterThan`, `isGreaterOrEqualsTo`, `isSmallerThan`,
-`isSmallerOrEqualsTo`, `isLexicographicallyGreaterThan`,
-`isLexicographicallyGreaterOrEqualsTo`, `isLexicographicallySmallerThan`,
-`isLexicographicallySmallerOrEqualsTo`, `isPrime`, `equals`, `concat`,
-`toLowerCase`, `toUpperCase`, `replace`, `length`, `weightedAverage`,
-`weightedMedian`, `set`, `isSubset`, `isStrictSubset`, `union`, `size`,
-`intersection`, `contains`, `isEmpty`, `isBlank`, `isNumeric`, `toString`,
-`toStringWithDatatype`, `toInt`, `toFloat`, `toBoolean`, `toSet`, `toTuple`,
-`dict`, `mergeDicts`, `dictKeys`, `dictValues`, `get`, `tuple`, `containsKey`,
-`containsValue`.
+### Signatures and Behavior
+Arithmetic:
+- `sum(t1, ..., tn, Result)` (n >= 1)
+- `min(t1, ..., tn, Result)` (n >= 1)
+- `max(t1, ..., tn, Result)` (n >= 1)
+- `minus(t1, ..., tn, Result)` (n >= 1, left fold)
+- `product(t1, ..., tn, Result)` (n >= 1)
+- `divide(t1, t2, ..., tn, Result)` (n >= 2, left fold)
+- `average(t1, ..., tn, Result)` (n >= 1)
+- `median(t1, ..., tn, Result)` (n >= 1)
+- `weightedAverage(pair1, ..., pairN, Result)` where `pair = ig:tuple(value, weight)`
+- `weightedMedian(pair1, ..., pairN, Result)` where `pair = ig:tuple(value, weight)`
+
+Comparisons and predicates (result is boolean literal):
+- `isEven(value, Result)`
+- `isOdd(value, Result)`
+- `isPrime(value, Result)`
+- `isGreaterThan(left, right, Result)`
+- `isGreaterOrEqualsTo(left, right, Result)`
+- `isSmallerThan(left, right, Result)`
+- `isSmallerOrEqualsTo(left, right, Result)`
+- `isLexicographicallyGreaterThan(left, right, Result)`
+- `isLexicographicallyGreaterOrEqualsTo(left, right, Result)`
+- `isLexicographicallySmallerThan(left, right, Result)`
+- `isLexicographicallySmallerOrEqualsTo(left, right, Result)`
+- `equals(t1, t2, ..., Result)` (n >= 2, true if all equal)
+- `contains(container, value, Result)` (container can be collection or string)
+- `isEmpty(collectionOrString, Result)`
+- `isBlank(string, Result)`
+- `isNumeric(value, Result)`
+
+Strings and conversions:
+- `concat(left, right, Result)` (strings or lists)
+- `toLowerCase(string, Result)`
+- `toUpperCase(string, Result)`
+- `replace(string, target, replacement, Result)`
+- `length(stringOrCollectionOrDict, Result)`
+- `toString(term, Result)`
+- `toStringWithDatatype(term, Result)`
+- `toInt(term, Result)`
+- `toFloat(term, Result)`
+- `toBoolean(term, Result)`
+
+Collections and dictionaries:
+- `set(e1, ..., en, Result)` (n >= 0)
+- `tuple(e1, ..., en, Result)` (n >= 0)
+- `union(c1, ..., cn, Result)` (n >= 1)
+- `intersection(c1, ..., cn, Result)` (n >= 1)
+- `size(collectionOrDict, Result)`
+- `isSubset(set1, set2, Result)`
+- `isStrictSubset(set1, set2, Result)`
+- `dict(pair1, ..., pairN, Result)` where `pair = ig:tuple(key, value)`
+- `mergeDicts(left, right, Result)`
+- `dictKeys(dict, Result)`
+- `dictValues(dict, Result)`
+- `get(container, indexOrKey, Result)` (index for tuples/lists, key for dicts)
+- `containsKey(dict, key, Result)`
+- `containsValue(dict, value, Result)`
+- `toSet(collection, Result)`
+- `toTuple(collection, Result)`
 
 Example with collection functions:
 The queries below yield:

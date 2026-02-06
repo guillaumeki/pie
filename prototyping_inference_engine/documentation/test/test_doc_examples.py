@@ -148,6 +148,12 @@ def _run_computed_sum_example(source: str) -> None:
         raise AssertionError(f"Unexpected sum answers: {normalized}")
 
 
+def _run_function_term_example(source: str) -> None:
+    _, answers = _evaluate_dlgpe_queries(source)[0]
+    if answers != [tuple()]:
+        raise AssertionError(f"Unexpected functional-term answers: {answers}")
+
+
 def _run_collection_functions_example(source: str) -> None:
     results = _evaluate_dlgpe_queries(source)
     if len(results) != 5:
@@ -349,6 +355,21 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 """
             ).strip("\n"),
             runner=_run_computed_sum_example,
+        ),
+        DocExample(
+            "prolog",
+            textwrap.dedent(
+                """
+                @computed ig: <stdfct>.
+
+                @facts
+                p(3).
+
+                @queries
+                ?() :- p(ig:sum(1, 2)).
+                """
+            ).strip("\n"),
+            runner=_run_function_term_example,
         ),
         DocExample(
             "prolog",
