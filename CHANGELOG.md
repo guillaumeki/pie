@@ -46,6 +46,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: IRI resolution and normalization edge-case coverage for dot segments, empty query/fragment, and invalid percent sequences.
 - Changed: DLGPE computed directives now only accept Integraal standard functions via `@computed ig:<stdfct>`.
 - Added: documentation updates clarifying Integraal standard function loading in DLGPE.
+- Changed: tuned local quality tooling to reduce Bandit/Vulture noise and use a project-local pip-audit cache.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.

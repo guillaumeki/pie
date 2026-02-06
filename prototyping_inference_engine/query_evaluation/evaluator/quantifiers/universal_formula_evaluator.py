@@ -175,8 +175,10 @@ class UniversalFormulaEvaluator(RegistryMixin, FormulaEvaluator[UniversalFormula
                 first_term = False
             else:
                 # Intersection: keep only results that appear for ALL terms
-                assert valid_subs is not None
-                valid_subs = valid_subs & results
+                if valid_subs is None:
+                    valid_subs = results
+                else:
+                    valid_subs = valid_subs & results
 
             # Early termination if intersection is empty
             if not valid_subs:

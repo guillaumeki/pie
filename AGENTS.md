@@ -25,9 +25,9 @@ ruff check .
 ruff format --check .
 python3 -m coverage run -m unittest discover -s prototyping_inference_engine -t . -v
 python3 -m coverage report -m
-bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test" -ll
-pip-audit
-vulture prototyping_inference_engine
+bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test,__pycache__" -ll
+pip-audit --cache-dir .cache/pip-audit
+vulture --config pyproject.toml prototyping_inference_engine
 radon cc -a -s prototyping_inference_engine
 ```
 
@@ -45,9 +45,9 @@ Run the following in order before any commit/push:
 4) `ruff format --check .`
 5) `python3 -m coverage run -m unittest discover -s prototyping_inference_engine -t . -v`
 6) `python3 -m coverage report -m`
-7) `bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test" -ll`
-8) `pip-audit`
-9) `vulture prototyping_inference_engine` (informational)
+7) `bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test,__pycache__" -ll`
+8) `pip-audit --cache-dir .cache/pip-audit`
+9) `vulture --config pyproject.toml prototyping_inference_engine` (informational)
 10) `radon cc -a -s prototyping_inference_engine` (informational)
 
 ## Change Process (Always)
@@ -114,6 +114,7 @@ For any important change:
 
 ### Design Docs
 - `agents/design/io-api-restructure.md`
+- `agents/design/execution-notes-hygiene.md`
 - `agents/design/coverage-badge.md`
 - `agents/design/tests-when-pertinent.md`
 - `agents/design/atom-evaluator-dip.md`
@@ -180,9 +181,9 @@ ruff check .
 ruff format --check .
 python3 -m coverage run -m unittest discover -s prototyping_inference_engine -t . -v
 python3 -m coverage report -m
-bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test" -ll
-pip-audit
-vulture prototyping_inference_engine
+bandit -r prototyping_inference_engine -x "prototyping_inference_engine/**/test,__pycache__" -ll
+pip-audit --cache-dir .cache/pip-audit
+vulture --config pyproject.toml prototyping_inference_engine
 radon cc -a -s prototyping_inference_engine
 ```
 
