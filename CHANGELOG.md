@@ -11,6 +11,10 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: collection-valued literal creation via `LiteralFactory.create_from_value` for computed functions returning tuples, sets, and dicts.
 - Added: tests for computed function evaluation with missing-argument inference.
 - Added: broader standard-function tests covering collections, dictionaries, conversions, and edge cases.
+- Changed: consolidated parsers/writers under `io/` and removed the `io.py` wrapper module.
+- Changed: moved IRI utilities under `api/iri/`.
+- Changed: moved Integraal standard functions under `api/data/functions/`.
+- Changed: unittest discovery now runs with `-t .` to avoid stdlib `io` conflicts.
 - Updated: documentation to describe computed predicates and supported Integraal functions.
 - Updated: computed predicate examples to include collection and dictionary functions.
 

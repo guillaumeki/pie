@@ -7,7 +7,7 @@ pip install -e .
 
 ## Parsing and Querying (DLGPE)
 ```python
-from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+from prototyping_inference_engine.io import DlgpeParser
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
 
@@ -38,7 +38,7 @@ for answer in evaluator.evaluate_and_project(query, fact_base):
 ## Using the Session API
 ```python
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
-from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+from prototyping_inference_engine.io import DlgpeParser
 
 with ReasoningSession() as session:
     parser = DlgpeParser.instance()
@@ -58,7 +58,7 @@ with ReasoningSession() as session:
 
 ## Working with IRIs
 ```python
-from prototyping_inference_engine.iri import (
+from prototyping_inference_engine.api.iri import (
     IRIManager,
     StandardComposableNormalizer,
     RFCNormalizationScheme,
@@ -81,7 +81,7 @@ Computed prefix directives (`@computed`) are stored as well.
 ## Exporting DLGPE
 ```python
 from prototyping_inference_engine.io import DlgpeWriter
-from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+from prototyping_inference_engine.io import DlgpeParser
 
 parser = DlgpeParser.instance()
 result = parser.parse("""

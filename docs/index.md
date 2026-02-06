@@ -21,7 +21,7 @@ Requires Python 3.10+ (uses match/case syntax).
 
 ## Quick Start
 ```python
-from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+from prototyping_inference_engine.io import DlgpeParser
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
 

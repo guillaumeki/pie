@@ -7,7 +7,7 @@ from prototyping_inference_engine.api.ontology.constraint.negative_constraint im
 from prototyping_inference_engine.api.ontology.ontology import Ontology
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestOntology(TestCase):

@@ -7,7 +7,7 @@ from prototyping_inference_engine.api.atom.set.core.naive_core_by_specialization
 from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.naive_backtrack_homomorphism_algorithm import (
     NaiveBacktrackHomomorphismAlgorithm,
 )
-from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestNaiveCoreBySpecialization(TestCase):

@@ -11,9 +11,9 @@ from prototyping_inference_engine.api.query.union_conjunctive_queries import (
 from prototyping_inference_engine.backward_chaining.breadth_first_rewriting import (
     BreadthFirstRewriting,
 )
-from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
-from prototyping_inference_engine.parser.dlgpe import DlgpeParser
-from prototyping_inference_engine.parser.dlgpe.conversions import fo_query_to_ucq
+from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+from prototyping_inference_engine.io.parsers.dlgpe.conversions import fo_query_to_ucq
 
 
 def main():

@@ -3,9 +3,9 @@
 ## Public Interfaces
 - Terms, atoms, queries, and fact bases under `prototyping_inference_engine.api`.
 - Query evaluators under `prototyping_inference_engine.query_evaluation`.
-- Parsers under `prototyping_inference_engine.parser`.
-- IRI utilities under `prototyping_inference_engine.iri`.
-- IO helpers under `prototyping_inference_engine.io` (module exposing parsers/writers).
+- Parsers under `prototyping_inference_engine.io.parsers`.
+- IRI utilities under `prototyping_inference_engine.api.iri`.
+- IO helpers under `prototyping_inference_engine.io`.
 - Session API under `prototyping_inference_engine.session`.
 
 ## Key Classes

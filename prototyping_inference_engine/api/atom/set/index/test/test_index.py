@@ -13,7 +13,7 @@ from prototyping_inference_engine.api.atom.set.index.index_by_term_and_predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestIndexByPredicate(TestCase):

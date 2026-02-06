@@ -43,7 +43,7 @@ Requires Python 3.10+ (uses match/case syntax).
 ### Parsing and Querying
 
 ```python
-from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+from prototyping_inference_engine.io import DlgpeParser
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
 
@@ -78,7 +78,7 @@ for answer in evaluator.evaluate_and_project(query, fact_base):
 
 ```python
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
-from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+from prototyping_inference_engine.io import DlgpeParser
 
 with ReasoningSession() as session:
     # Parse DLGPE content
@@ -101,7 +101,7 @@ with ReasoningSession() as session:
 ### IRI Utilities
 
 ```python
-from prototyping_inference_engine.iri import (
+from prototyping_inference_engine.api.iri import (
     IRIManager,
     StandardComposableNormalizer,
     RFCNormalizationScheme,
@@ -121,7 +121,7 @@ print(iri.recompose())  # http://example.org/ns/resource
 
 ```python
 from prototyping_inference_engine.io import DlgpeWriter
-from prototyping_inference_engine.parser.dlgpe import DlgpeParser
+from prototyping_inference_engine.io import DlgpeParser
 
 parser = DlgpeParser.instance()
 result = parser.parse("""
@@ -224,7 +224,8 @@ Extended Datalog+- format with additional features beyond DLGP 2.1 (recommended)
 **Usage:**
 
 ```python
-from prototyping_inference_engine.parser.dlgpe import DlgpeParser, DlgpeUnsupportedFeatureError
+from prototyping_inference_engine.io import DlgpeParser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeUnsupportedFeatureError
 
 parser = DlgpeParser.instance()
 

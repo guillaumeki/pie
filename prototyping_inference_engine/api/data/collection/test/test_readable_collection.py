@@ -12,7 +12,7 @@ from prototyping_inference_engine.api.data.collection.readable_collection import
 from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base import (
     FrozenInMemoryFactBase,
 )
-from prototyping_inference_engine.parser.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
 
 
 class TestReadableDataCollection(unittest.TestCase):

@@ -36,14 +36,13 @@ Each evaluator can return substitutions or projected tuples.
 - `BreadthFirstRewriting` UCQ rewriting algorithm.
 - Piece unifiers and rewriting operators.
 
-## Parsers (`prototyping_inference_engine.parser`)
+## IO (`prototyping_inference_engine.io`)
+- Parsers under `prototyping_inference_engine.io.parsers`.
+- Writers under `prototyping_inference_engine.io.writers`.
 - DLGPE parser for extended Datalog+- with disjunction, negation, equality, and sections.
 - Extended DLGP 2.1 parser with disjunction support.
 
-## IO (`prototyping_inference_engine.io`)
-- Module exposing parser and writer entry points (implemented in `io_tools/` to avoid stdlib `io` conflicts).
-
-## IRI Utilities (`prototyping_inference_engine.iri`)
+## IRI Utilities (`prototyping_inference_engine.api.iri`)
 - `IRIRef` for parsing, resolution, normalization, and relativization.
 - `IRIManager` for base/prefix state and best-effort relativization.
 - Optional normalizers and preparators for consistent IRI processing.
