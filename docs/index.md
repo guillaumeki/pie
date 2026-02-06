@@ -20,10 +20,12 @@ pip install -e .
 Requires Python 3.10+ (uses match/case syntax).
 
 ## Quick Start
+Parse a DLGPE document, build a fact base, and evaluate the query.
 ```python
 from prototyping_inference_engine.io import DlgpeParser
+from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
 
 parser = DlgpeParser.instance()
 result = parser.parse("""
@@ -42,8 +44,14 @@ query = result["queries"][0]
 fact_base = MutableInMemoryFactBase(facts)
 evaluator = GenericFOQueryEvaluator()
 
-for answer in evaluator.evaluate_and_project(query, fact_base):
-    print(answer)  # (a, c), (b, d)
+variables = [Variable("X"), Variable("Z")]
+answers = list(evaluator.evaluate(query, fact_base))
+answers = [
+    tuple(sub.apply(var) for var in variables)
+    for sub in answers
+]
+answers = sorted(answers, key=lambda row: tuple(str(term) for term in row))
+print(answers)  # (a, c), (b, d)
 ```
 
 ## Modules and Status

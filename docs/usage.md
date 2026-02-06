@@ -6,10 +6,13 @@ pip install -e .
 ```
 
 ## Parsing and Querying (DLGPE)
+This example parses a DLGPE document, builds a fact base, and returns both
+substitutions and projected answers.
 ```python
 from prototyping_inference_engine.io import DlgpeParser
+from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
 
 parser = DlgpeParser.instance()
 result = parser.parse("""
@@ -28,19 +31,25 @@ query = result["queries"][0]
 fact_base = MutableInMemoryFactBase(facts)
 evaluator = GenericFOQueryEvaluator()
 
-for sub in evaluator.evaluate(query, fact_base):
-    print(sub)
+variables = [Variable("X"), Variable("Z")]
+answers = list(evaluator.evaluate(query, fact_base))
+projected = [
+    tuple(sub.apply(var) for var in variables)
+    for sub in answers
+]
+projected = sorted(projected, key=lambda row: tuple(str(term) for term in row))
 
-for answer in evaluator.evaluate_and_project(query, fact_base):
-    print(answer)
+print(answers)
+print(projected)
 ```
 
 ## Using the Session API
+This example uses the `ReasoningSession` helper and returns query answers.
 ```python
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 from prototyping_inference_engine.io import DlgpeParser
 
-with ReasoningSession() as session:
+with ReasoningSession.create() as session:
     parser = DlgpeParser.instance()
     result = parser.parse("""
         @facts
@@ -52,11 +61,12 @@ with ReasoningSession() as session:
     """)
 
     fb = session.create_fact_base(result["facts"])
-    for answer in session.evaluate_query(result["queries"][0], fb):
-        print(answer)
+    answers = list(session.evaluate_query(result["queries"][0], fb))
+    print(answers)
 ```
 
 ## Working with IRIs
+This example shows how to resolve a prefixed name into an absolute IRI.
 ```python
 from prototyping_inference_engine.api.iri import (
     IRIManager,
@@ -70,8 +80,9 @@ manager = IRIManager(
 )
 manager.set_prefix("ex", "http://example.org/ns/")
 
-iri = manager.create_iri("ex:resource")
-print(iri.recompose())  # http://example.org/ns/resource
+iri = manager.create_iri_with_prefix("ex", "resource")
+value = iri.recompose()
+print(value)  # http://example.org/ns/resource
 ```
 
 Parsing with DLGPE/DLGP2 stores the last `@base` and `@prefix` directives in the
@@ -79,19 +90,21 @@ Parsing with DLGPE/DLGP2 stores the last `@base` and `@prefix` directives in the
 Computed prefix directives (`@computed`) are stored as well.
 
 ## Exporting DLGPE
+This example parses a document and exports it back to DLGPE with a writer.
 ```python
 from prototyping_inference_engine.io import DlgpeWriter
-from prototyping_inference_engine.io import DlgpeParser
+from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-parser = DlgpeParser.instance()
-result = parser.parse("""
-    @base <http://example.org/base/>.
-    @prefix ex: <http://example.org/ns/>.
-    <rel>(ex:obj).
-""")
+with ReasoningSession.create() as session:
+    result = session.parse("""
+        @base <http://example.org/base/>.
+        @prefix ex: <http://example.org/ns/>.
+        <rel>(ex:obj).
+    """)
 
-writer = DlgpeWriter()
-print(writer.write(result))
+    writer = DlgpeWriter()
+    output = writer.write(result)
+    print(output)
 ```
 
 ## Computed Predicates (`@computed`)
@@ -100,6 +113,8 @@ PIE supports Integraal standard functions via `@computed` prefixes. To load the
 standard library, declare `@computed <prefix>: <stdfct>.` and use the functions
 as predicates where the **last argument** is the result. Any other computed
 library will raise an error.
+
+Example: `ig:sum(1, X, 3)` yields `X = 2`.
 
 ```prolog
 @computed ig: <stdfct>.
@@ -125,6 +140,12 @@ Available Integraal standard functions:
 `containsValue`.
 
 Example with collection functions:
+The queries below yield:
+- `T = (a, b, c)`
+- `D = {a: b, b: c}`
+- `K = {a, b}`
+- `V = b`
+- `U = {a, b, c}`
 
 ```prolog
 @computed ig: <stdfct>.

@@ -17,6 +17,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: unittest discovery now runs with `-t .` to avoid stdlib `io` conflicts.
 - Updated: documentation to describe computed predicates and supported Integraal functions.
 - Updated: computed predicate examples to include collection and dictionary functions.
+- Added: documentation example tests that execute runnable snippets and require coverage for all doc code blocks.
 
 ## [2026-02-05]
 - Fixed: add mypy to dev requirements so CI can run type checks.
