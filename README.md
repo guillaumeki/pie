@@ -143,6 +143,15 @@ print(writer.write(result))
 ?(X) :- ig:sum(1, X, 3).
 ```
 
+```prolog
+@computed ig: <http://example.org/functions#>.
+
+@queries
+?(X) :- ig:get(ig:tuple(a, b, c), 1, X).
+?(U) :- ig:union(ig:set(a, b), ig:set(b, c), U).
+?(D) :- ig:dict(ig:tuple(a, b), ig:tuple(b, c), D).
+```
+
 ## Architecture
 
 ### Core API (`api/`)

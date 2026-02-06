@@ -10,7 +10,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: Integraal standard functions as computed predicates, including reversible evaluation for sum/minus/product/divide/average.
 - Added: collection-valued literal creation via `LiteralFactory.create_from_value` for computed functions returning tuples, sets, and dicts.
 - Added: tests for computed function evaluation with missing-argument inference.
+- Added: broader standard-function tests covering collections, dictionaries, conversions, and edge cases.
 - Updated: documentation to describe computed predicates and supported Integraal functions.
+- Updated: computed predicate examples to include collection and dictionary functions.
 
 ## [2026-02-05]
 - Fixed: add mypy to dev requirements so CI can run type checks.
