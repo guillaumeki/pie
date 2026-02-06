@@ -208,11 +208,12 @@ class TestDlgpeParserUnsupportedFeatures(unittest.TestCase):
             self.parser.parse("@import <file.dlgpe>.")
         self.assertIn("@import", str(ctx.exception))
 
-    def test_computed_directive_raises_error(self):
-        """Test that @computed raises an error."""
-        with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:
-            self.parser.parse("@computed ex: <http://example.org/>.")
-        self.assertIn("@computed", str(ctx.exception))
+    def test_computed_directive_is_supported(self):
+        """Test that @computed is parsed into the header."""
+        result = self.parser.parse("@computed ig: <http://example.org/functions#>.")
+        header = result.get("header", {})
+        self.assertIn("computed", header)
+        self.assertEqual(header["computed"].get("ig"), "http://example.org/functions#")
 
     def test_view_directive_raises_error(self):
         """Test that @view raises an error."""

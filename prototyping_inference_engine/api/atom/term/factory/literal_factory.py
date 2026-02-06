@@ -40,7 +40,11 @@ def _make_hashable(value: object) -> object:
     if isinstance(value, set):
         return frozenset(_make_hashable(v) for v in value)
     if isinstance(value, dict):
-        return tuple(sorted((k, _make_hashable(v)) for k, v in value.items()))
+        items = [(k, _make_hashable(v)) for k, v in value.items()]
+        try:
+            return tuple(sorted(items))
+        except TypeError:
+            return tuple(sorted(((repr(k), v) for k, v in items)))
     return repr(value)
 
 
@@ -119,6 +123,39 @@ class LiteralFactory:
                 stored_lexical = normalized_lexical
 
         comparison_key = self._build_comparison_key(value, raw_lexical, datatype, lang)
+        return self._storage.get_or_create(
+            comparison_key,
+            lambda: Literal(value, datatype, stored_lexical, lang, comparison_key),
+        )
+
+    def create_from_value(
+        self,
+        value: object,
+        datatype: Optional[str] = None,
+        lang: Optional[str] = None,
+    ) -> Literal:
+        """
+        Create a Literal from an already-normalized Python value.
+
+        This is useful for collections (list, set, dict, tuple) that should
+        be preserved as structured values rather than parsed from lexical form.
+        """
+        if datatype is None and lang is None:
+            datatype = None
+        else:
+            datatype = self._normalize_datatype(datatype, lang)
+        normalized_lexical = self._unparse(value, datatype)
+
+        stored_lexical = None
+        if self._config.keep_lexical:
+            if self._config.comparison == LiteralComparison.BY_LEXICAL:
+                stored_lexical = normalized_lexical
+            else:
+                stored_lexical = normalized_lexical
+
+        comparison_key = self._build_comparison_key(
+            value, normalized_lexical, datatype, lang
+        )
         return self._storage.get_or_create(
             comparison_key,
             lambda: Literal(value, datatype, stored_lexical, lang, comparison_key),

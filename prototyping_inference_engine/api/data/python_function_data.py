@@ -344,4 +344,6 @@ def _python_value_to_term(value: Any, literal_factory: LiteralFactory) -> Term:
         return literal_factory.create(value.isoformat(), f"{XSD_PREFIX}time")
     if isinstance(value, str):
         return literal_factory.create(value, f"{XSD_PREFIX}string")
+    if isinstance(value, (list, tuple, set, dict)):
+        return literal_factory.create_from_value(value)
     return Constant(str(value))

@@ -17,7 +17,7 @@ DLGPE grammar is based on: https://gitlab.inria.fr/jfbaget/dlgpe
 | `@top` | ✅ Supported | Parsed, stored in header |
 | `@una` | ✅ Supported | Parsed, stored in header |
 | `@import` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
-| `@computed` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
+| `@computed` | ✅ Supported | Stored in header and used for computed sources |
 | `@view` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
 | `@patterns` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
 
@@ -98,7 +98,6 @@ The following features will raise `DlgpeUnsupportedFeatureError` when encountere
 | Subqueries | Not implemented: `Result(X) := p(X, Y)` |
 | JSON metadata | Not implemented: `{"name": "rule1"} p(X) :- q(X).` |
 | `@import` directive | Module system not implemented |
-| `@computed` directive | Computed predicates not implemented |
 | `@view` directive | Views not implemented |
 | `@patterns` directive | Pattern system not implemented |
 

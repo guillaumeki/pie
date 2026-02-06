@@ -76,6 +76,7 @@ print(iri.recompose())  # http://example.org/ns/resource
 
 Parsing with DLGPE/DLGP2 stores the last `@base` and `@prefix` directives in the
 `ParseResult` and `ReasoningSession` so you can reuse them when exporting.
+Computed prefix directives (`@computed`) are stored as well.
 
 ## Exporting DLGPE
 ```python
@@ -93,18 +94,46 @@ writer = DlgpeWriter()
 print(writer.write(result))
 ```
 
+## Computed Predicates (`@computed`)
+
+PIE supports Integraal standard functions via `@computed` prefixes. Declare a
+computed prefix and use the functions as predicates where the **last argument**
+is the result.
+
+```prolog
+@computed ig: <http://example.org/functions#>.
+
+@queries
+?(X) :- ig:sum(1, X, 3).
+```
+
+Functions that can infer a single missing term (one unbound argument) include:
+`sum`, `minus`, `product`, `divide`, and `average`.
+
+Available Integraal standard functions:
+`sum`, `min`, `max`, `minus`, `product`, `divide`, `average`, `median`, `isEven`,
+`isOdd`, `isGreaterThan`, `isGreaterOrEqualsTo`, `isSmallerThan`,
+`isSmallerOrEqualsTo`, `isLexicographicallyGreaterThan`,
+`isLexicographicallyGreaterOrEqualsTo`, `isLexicographicallySmallerThan`,
+`isLexicographicallySmallerOrEqualsTo`, `isPrime`, `equals`, `concat`,
+`toLowerCase`, `toUpperCase`, `replace`, `length`, `weightedAverage`,
+`weightedMedian`, `set`, `isSubset`, `isStrictSubset`, `union`, `size`,
+`intersection`, `contains`, `isEmpty`, `isBlank`, `isNumeric`, `toString`,
+`toStringWithDatatype`, `toInt`, `toFloat`, `toBoolean`, `toSet`, `toTuple`,
+`dict`, `mergeDicts`, `dictKeys`, `dictValues`, `get`, `tuple`, `containsKey`,
+`containsValue`.
+
 ## DLGPE Features (Supported)
 - Disjunction in head and body.
 - Negation in body.
 - Equality in queries.
 - Sections: `@facts`, `@rules`, `@queries`, `@constraints`.
-- `@base` and `@prefix` directives with IRI resolution.
+- `@base`, `@prefix`, and `@computed` directives with IRI resolution.
 
 ## DLGPE Features (Not Supported)
-- Functional terms.
 - Arithmetic expressions.
 - Comparison operators (`<`, `>`, `<=`, `>=`, `!=`).
-- `@import`, `@computed`, `@view` directives.
+- `@import`, `@view` directives.
 
 ## DLGP 2.1 (Extended) Example
 ```prolog

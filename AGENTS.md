@@ -114,6 +114,7 @@ For any important change:
 - `agents/design/iri-manager.md`
 - `agents/design/io-parsers-writers.md`
 - `agents/design/iri-relativization-fixes.md`
+- `agents/design/integraal-standard-functions.md`
 - `agents/design/process-templates.md`
 - `agents/design/commit-process.md`
 - `agents/design/functional-terms.md`

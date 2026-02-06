@@ -12,6 +12,7 @@ The library supports:
 - **First-order queries** with conjunction, disjunction, negation, and quantifiers
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
 - **DLGPE parser** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
+- **Computed predicates** with Integraal standard functions via `@computed`
 - **Extended DLGP 2.1 format** parser with disjunction support (compatibility)
 - **IRI utilities** for parsing, normalization, and base/prefix management
 - **IO helpers** with parsers and writers (DLGPE export)
@@ -131,6 +132,15 @@ result = parser.parse("""
 
 writer = DlgpeWriter()
 print(writer.write(result))
+```
+
+### Computed Predicates (`@computed`)
+
+```prolog
+@computed ig: <http://example.org/functions#>.
+
+@queries
+?(X) :- ig:sum(1, X, 3).
 ```
 
 ## Architecture

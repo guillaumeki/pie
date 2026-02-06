@@ -245,14 +245,22 @@ class TestReasoningSessionParsing(TestCase):
         self.assertTrue(result.is_empty)
 
     def test_parse_iri_context(self):
-        """Test that base and prefixes are captured in parse results and session."""
+        """Test that base, prefixes, and computed prefixes are captured."""
         result = self.session.parse(
-            "@base <http://example.org/base/>. @prefix ex: <http://example.org/ns/>. ex:pred(<rel>)."
+            "@base <http://example.org/base/>. "
+            "@prefix ex: <http://example.org/ns/>. "
+            "@computed ig: <http://example.org/functions#>. "
+            "ex:pred(<rel>)."
         )
         self.assertEqual(result.base_iri, "http://example.org/base/")
         self.assertIn(("ex", "http://example.org/ns/"), result.prefixes)
+        self.assertIn(("ig", "http://example.org/functions#"), result.computed_prefixes)
         self.assertEqual(self.session.iri_base, "http://example.org/base/")
         self.assertEqual(self.session.iri_prefixes.get("ex"), "http://example.org/ns/")
+        self.assertEqual(
+            self.session.computed_prefixes.get("ig"),
+            "http://example.org/functions#",
+        )
 
 
 class TestReasoningSessionEvaluationWithSources(TestCase):
@@ -291,6 +299,65 @@ class TestReasoningSessionEvaluationWithSources(TestCase):
             self.session.evaluate_query_with_sources(query, fact_base, result.sources)
         )
         self.assertEqual(answers, [tuple()])
+
+    def test_evaluate_query_with_computed_sum(self):
+        text = "@computed ig: <http://example.org/functions#>. ?(X) :- ig:sum(1, X, 3)."
+        result = self.session.parse(text)
+        query = next(iter(result.queries))
+        fact_base = self.session.create_fact_base([])
+        answers = list(
+            self.session.evaluate_query_with_sources(query, fact_base, result.sources)
+        )
+        self.assertEqual(answers, [(self.session.literal("2", "xsd:integer"),)])
+
+    def test_evaluate_query_with_computed_minus(self):
+        text = (
+            "@computed ig: <http://example.org/functions#>. "
+            "?(X) :- ig:minus(X, 2, 3, 1)."
+        )
+        result = self.session.parse(text)
+        query = next(iter(result.queries))
+        fact_base = self.session.create_fact_base([])
+        answers = list(
+            self.session.evaluate_query_with_sources(query, fact_base, result.sources)
+        )
+        self.assertEqual(answers, [(self.session.literal("6", "xsd:integer"),)])
+
+    def test_evaluate_query_with_computed_product(self):
+        text = (
+            "@computed ig: <http://example.org/functions#>. "
+            "?(X) :- ig:product(2, X, 8)."
+        )
+        result = self.session.parse(text)
+        query = next(iter(result.queries))
+        fact_base = self.session.create_fact_base([])
+        answers = list(
+            self.session.evaluate_query_with_sources(query, fact_base, result.sources)
+        )
+        self.assertEqual(answers, [(self.session.literal("4", "xsd:integer"),)])
+
+    def test_evaluate_query_with_computed_divide(self):
+        text = "@computed ig: <http://example.org/functions#>. ?(X) :- ig:divide(8, X, 2e0)."
+        result = self.session.parse(text)
+        query = next(iter(result.queries))
+        fact_base = self.session.create_fact_base([])
+        answers = list(
+            self.session.evaluate_query_with_sources(query, fact_base, result.sources)
+        )
+        self.assertEqual(answers, [(self.session.literal("4", "xsd:double"),)])
+
+    def test_evaluate_query_with_computed_average(self):
+        text = (
+            "@computed ig: <http://example.org/functions#>. "
+            "?(X) :- ig:average(2, X, 4, 3e0)."
+        )
+        result = self.session.parse(text)
+        query = next(iter(result.queries))
+        fact_base = self.session.create_fact_base([])
+        answers = list(
+            self.session.evaluate_query_with_sources(query, fact_base, result.sources)
+        )
+        self.assertEqual(answers, [(self.session.literal("3", "xsd:double"),)])
 
 
 class TestReasoningSessionFactBase(TestCase):

@@ -5,6 +5,13 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [2026-02-06]
+- Added: `@computed` directive support in DLGPE parsing with computed prefixes stored in parse results and sessions.
+- Added: Integraal standard functions as computed predicates, including reversible evaluation for sum/minus/product/divide/average.
+- Added: collection-valued literal creation via `LiteralFactory.create_from_value` for computed functions returning tuples, sets, and dicts.
+- Added: tests for computed function evaluation with missing-argument inference.
+- Updated: documentation to describe computed predicates and supported Integraal functions.
+
 ## [2026-02-05]
 - Fixed: add mypy to dev requirements so CI can run type checks.
 - Changed: reorganized agent artifacts under `agents/` and added MkDocs docs with GitHub Pages publishing.

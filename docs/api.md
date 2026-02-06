@@ -15,6 +15,7 @@
 - `ReasoningSession`: high-level evaluation workflow.
 - `IRIRef` / `IRIManager`: parse and resolve IRIs with base/prefix state.
 - `DlgpeWriter`: write DLGPE documents from parse results.
+- `IntegraalStandardFunctionSource`: computed predicates for Integraal standard functions.
 
 ## API Notes
 - Docstrings are the authoritative source for method-level behavior and edge cases.

@@ -75,14 +75,14 @@ class DlgpeTransformer(Transformer):
     - Disjunction in heads and bodies
     - Negation (not)
     - Labels on statements
-    - @base, @prefix, @top, @una directives
+    - @base, @prefix, @computed, @top, @una directives
 
     Unsupported features (will raise DlgpeUnsupportedFeatureError):
     - Arithmetic expressions
     - Subqueries (Var := body)
     - Macro predicates ($predicate)
     - Repeated atoms (predicate+ or predicate*)
-    - @import, @computed, @view, @patterns directives
+    - @import, @view, @patterns directives
     - JSON metadata
     """
 
@@ -96,6 +96,8 @@ class DlgpeTransformer(Transformer):
         self._base_iri: Optional[str] = None
         self._prefixes: dict[str, str] = {}
         self._prefixes_raw: dict[str, str] = {}
+        self._computed_prefixes: dict[str, str] = {}
+        self._computed_prefixes_raw: dict[str, str] = {}
         self._builtin_prefixes: dict[str, str] = {
             "xsd": XSD_PREFIX,
             "rdf": RDF_PREFIX,
@@ -181,6 +183,7 @@ class DlgpeTransformer(Transformer):
         return {
             "base": self._base_iri,
             "prefixes": self._prefixes.copy(),
+            "computed": self._computed_prefixes.copy(),
             "top": self._top,
             "una": self._una,
         }
@@ -207,6 +210,12 @@ class DlgpeTransformer(Transformer):
             for prefix, iri in unresolved.items():
                 self._iri_manager.set_prefix(prefix, iri)
                 self._prefixes[prefix] = self._iri_manager.get_prefix(prefix)
+        if self._computed_prefixes_raw:
+            unresolved = dict(self._computed_prefixes_raw)
+            self._computed_prefixes_raw.clear()
+            for prefix, iri in unresolved.items():
+                self._iri_manager.set_prefix(prefix, iri)
+                self._computed_prefixes[prefix] = self._iri_manager.get_prefix(prefix)
         return None
 
     def prefix_directive(self, items):
@@ -225,6 +234,22 @@ class DlgpeTransformer(Transformer):
         else:
             self._iri_manager.set_prefix(prefix, iri)
             self._prefixes[prefix] = self._iri_manager.get_prefix(prefix)
+        return None
+
+    def computed_directive(self, items):
+        # items[0] = COMPUTED_KWD, items[1] = prefix, items[2] = identifier
+        prefix = str(items[1])
+        iri = str(items[2])
+        if self._iri_manager.get_base() is None:
+            if not IRIRef(iri).is_absolute():
+                if self._strict_prefix_base:
+                    raise DlgpeUnsupportedFeatureError(
+                        "Relative @computed declared before @base is not supported."
+                    )
+                self._computed_prefixes_raw[prefix] = iri
+                return None
+        self._iri_manager.set_prefix(prefix, iri)
+        self._computed_prefixes[prefix] = self._iri_manager.get_prefix(prefix)
         return None
 
     def top_directive(self, items):
@@ -588,6 +613,10 @@ class DlgpeTransformer(Transformer):
             base = self._prefixes_raw[prefix]
         elif prefix in self._prefixes:
             base = self._prefixes[prefix]
+        elif prefix in self._computed_prefixes_raw:
+            base = self._computed_prefixes_raw[prefix]
+        elif prefix in self._computed_prefixes:
+            base = self._computed_prefixes[prefix]
         elif prefix in self._builtin_prefixes:
             base = self._builtin_prefixes[prefix]
         else:

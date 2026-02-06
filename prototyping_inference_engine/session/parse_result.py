@@ -28,6 +28,7 @@ class ParseResult:
     - sources: Extra readable data sources needed for evaluation
     - base_iri: Parsed @base value (if any)
     - prefixes: Parsed @prefix mappings (if any)
+    - computed_prefixes: Parsed @computed mappings (if any)
 
     This class is immutable (frozen dataclass).
     """
@@ -39,6 +40,7 @@ class ParseResult:
     sources: tuple["ReadableData", ...] = ()
     base_iri: str | None = None
     prefixes: tuple[tuple[str, str], ...] = ()
+    computed_prefixes: tuple[tuple[str, str], ...] = ()
 
     @property
     def is_empty(self) -> bool:

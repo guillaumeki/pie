@@ -138,6 +138,7 @@ class ReasoningSession:
         self._closed = False
         self._iri_base: str | None = None
         self._iri_prefixes: dict[str, str] = {}
+        self._computed_prefixes: dict[str, str] = {}
 
     @classmethod
     def create(
@@ -228,6 +229,11 @@ class ReasoningSession:
     def iri_prefixes(self) -> dict[str, str]:
         """Return the last parsed prefix map."""
         return dict(self._iri_prefixes)
+
+    @property
+    def computed_prefixes(self) -> dict[str, str]:
+        """Return the last parsed computed prefix map."""
+        return dict(self._computed_prefixes)
 
     @property
     def ontologies(self) -> list[Ontology]:
@@ -481,6 +487,7 @@ class ReasoningSession:
 
         self._iri_base = None
         self._iri_prefixes = {}
+        self._computed_prefixes = {}
 
         parse_document = getattr(self._parser_provider, "parse_document", None)
         if callable(parse_document):
@@ -490,10 +497,13 @@ class ReasoningSession:
                 if isinstance(header, dict):
                     base = header.get("base")
                     prefixes = header.get("prefixes", {})
+                    computed = header.get("computed", {})
                     if isinstance(base, str) or base is None:
                         self._iri_base = base
                     if isinstance(prefixes, dict):
                         self._iri_prefixes = dict(prefixes)
+                    if isinstance(computed, dict):
+                        self._computed_prefixes = dict(computed)
 
         # Parse different types using the configured parser provider
         facts = list(self._parser_provider.parse_atoms(text))
@@ -520,6 +530,7 @@ class ReasoningSession:
             sources=tuple(sources),
             base_iri=self._iri_base,
             prefixes=tuple(self._iri_prefixes.items()),
+            computed_prefixes=tuple(self._computed_prefixes.items()),
         )
 
     def _build_parse_sources(
@@ -534,6 +545,9 @@ class ReasoningSession:
         )
         from prototyping_inference_engine.api.data.comparison_data import (
             ComparisonDataSource,
+        )
+        from prototyping_inference_engine.api.data.integraal_standard_functions import (
+            IntegraalStandardFunctionSource,
         )
         from prototyping_inference_engine.api.data.readable_data import ReadableData
 
@@ -555,6 +569,17 @@ class ReasoningSession:
             sources.append(ComparisonDataSource(self._literal_config.comparison))
         if self._python_function_source is not None and _contains_function_term(atoms):
             sources.append(self._python_function_source)
+        if self._computed_prefixes:
+            computed_predicates = _extract_computed_predicates(
+                atoms, self._computed_prefixes
+            )
+            if computed_predicates:
+                literal_factory = self._term_factories.get(Literal)
+                sources.append(
+                    IntegraalStandardFunctionSource(
+                        literal_factory, self._computed_prefixes, computed_predicates
+                    )
+                )
         return sources
 
     @staticmethod
@@ -832,3 +857,17 @@ def _term_contains_function(term: Term) -> bool:
             if _term_contains_function(arg):
                 return True
     return False
+
+
+def _extract_computed_predicates(
+    atoms: Iterable[Atom], computed_prefixes: dict[str, str]
+) -> set[Predicate]:
+    base_iris = list(computed_prefixes.values())
+    if not base_iris:
+        return set()
+    predicates: set[Predicate] = set()
+    for atom in atoms:
+        name = atom.predicate.name
+        if any(name.startswith(base) for base in base_iris):
+            predicates.add(atom.predicate)
+    return predicates

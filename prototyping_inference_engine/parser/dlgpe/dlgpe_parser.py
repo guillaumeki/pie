@@ -44,7 +44,7 @@ class DlgpeParser:
     - Arithmetic expressions
     - Subqueries
     - Macro predicates
-    - @import, @computed, @view, @patterns directives
+    - @import, @view, @patterns directives
     - JSON metadata
 
     Usage:
@@ -222,6 +222,7 @@ class DlgpeParser:
         rules: List[Rule] = []
         constraints: List[NegativeConstraint] = []
         queries: List[FOQuery] = []
+        header = raw_result.get("header", {}) or {}
 
         statements = raw_result.get("statements", [])
 
@@ -249,9 +250,9 @@ class DlgpeParser:
             elif isinstance(stmt, FOQuery):
                 queries.append(stmt)
 
-        sources = self._build_sources(facts, rules, queries, constraints)
+        sources = self._build_sources(facts, rules, queries, constraints, header)
         return {
-            "header": raw_result.get("header", {}),
+            "header": header,
             "facts": facts,
             "rules": rules,
             "constraints": constraints,
@@ -265,6 +266,7 @@ class DlgpeParser:
         rules: List[Rule],
         queries: List[FOQuery],
         constraints: List[NegativeConstraint],
+        header: dict,
     ) -> list:
         atoms: list[Atom] = list(facts)
 
@@ -279,9 +281,44 @@ class DlgpeParser:
         for constraint in constraints:
             atoms.extend(getattr(constraint.body, "atoms", ()))
 
+        from prototyping_inference_engine.api.data.readable_data import ReadableData
+
+        sources: list[ReadableData] = []
         if any(is_comparison_predicate(atom.predicate) for atom in atoms):
-            return [ComparisonDataSource()]
-        return []
+            sources.append(ComparisonDataSource())
+
+        computed_prefixes = (
+            header.get("computed", {}) if isinstance(header, dict) else {}
+        )
+        if computed_prefixes:
+            from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
+                LiteralFactory,
+            )
+            from prototyping_inference_engine.api.atom.term.literal_config import (
+                LiteralConfig,
+            )
+            from prototyping_inference_engine.api.atom.term.storage.dict_storage import (
+                DictStorage,
+            )
+            from prototyping_inference_engine.api.data.integraal_standard_functions import (
+                IntegraalStandardFunctionSource,
+            )
+
+            base_iris = list(computed_prefixes.values())
+            computed_predicates = {
+                atom.predicate
+                for atom in atoms
+                if any(atom.predicate.name.startswith(base) for base in base_iris)
+            }
+            if computed_predicates:
+                literal_factory = LiteralFactory(DictStorage(), LiteralConfig.default())
+                sources.append(
+                    IntegraalStandardFunctionSource(
+                        literal_factory, computed_prefixes, computed_predicates
+                    )
+                )
+
+        return sources
 
 
 # Re-export the exception for convenience

@@ -6,7 +6,8 @@ Pie (Prototyping Inference Engine) is a Python library for building inference en
 - Existential disjunctive rules (Disjunctive Datalog with existentially quantified variables).
 - First-order queries with conjunction, disjunction, negation, and quantifiers.
 - Backward chaining (query rewriting).
-- DLGPE parser with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix`.
+- DLGPE parser with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix`/`@computed`.
+- Computed predicates via Integraal standard functions.
 - Extended DLGP 2.1 parser with disjunction support.
 - IRI utilities (parsing, resolution, normalization, and base/prefix management).
 - IO helpers (parsers and writers, including DLGPE export).
