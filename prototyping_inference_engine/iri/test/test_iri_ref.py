@@ -175,6 +175,57 @@ class TestIRIRef(unittest.TestCase):
                 result = iri.resolve_in_place(base).recompose()
                 self.assertEqual(expected, result)
 
+    def test_recomposition_edge_cases(self) -> None:
+        inputs = [
+            "a+1.-:path",
+            "HTTP:example.com",
+            "http://user@host",
+            "http://user:pass@host",
+            "http://user@@host",
+            "http://host:",
+            "http://host:0000",
+            "http://host:65535",
+            "http:///path",
+            "http:////path",
+            "http://host/path;params",
+            "http://host/path;params?query#frag",
+            "http://host?query",
+            "http://host#frag",
+            "http://host?#",
+            "http://host?",
+            "http://host#",
+            "http://host/#",
+            "http://host/?",
+            "http://host/?#",
+            "http://host//path",
+            "http://host///path",
+            "http://host/./path",
+            "http://host/../path",
+            "http://host/path/.",
+            "http://host/path/..",
+            "http://host/path/./",
+            "http://host/path/../",
+            "http://[::1]",
+            "http://[::1]:8080/",
+            "http://[v7.fe80::abcd]/",
+            "urn:example:animal:ferret:nose",
+            "urn:example:animal:ferret:nose?query",
+            "urn:example:animal:ferret:nose#frag",
+            "news:comp.infosystems.www.servers.unix",
+            "tel:+1-816-555-1212",
+            "mailto:user@example.com",
+            "mailto:user@example.com?subject=Hi",
+            "http://example.com/%",
+            "http://example.com/%G0",
+            "http://example.com/%0G",
+            "http://example.com/%2",
+            "http://example.com/%zz",
+        ]
+        for input_value in inputs:
+            with self.subTest(value=input_value):
+                iri = IRIRef(input_value)
+                self.assertEqual(input_value, iri.recompose())
+
     def test_resolution(self) -> None:
         inputs = [
             (
@@ -192,6 +243,85 @@ class TestIRIRef(unittest.TestCase):
             with self.subTest(base=base_value, relative=relative_value):
                 base = IRIRef(base_value)
                 relative = IRIRef(relative_value)
+                result = relative.resolve_in_place(base).recompose()
+                self.assertEqual(expected, result)
+
+    def test_resolution_network_path(self) -> None:
+        cases = [
+            (
+                "http://example.org/base/",
+                "//other.example.org/path",
+                "http://other.example.org/path",
+            ),
+            (
+                "http://example.org/base/",
+                "//other.example.org/path?x=1",
+                "http://other.example.org/path?x=1",
+            ),
+            (
+                "http://example.org/base/",
+                "//other.example.org/path#frag",
+                "http://other.example.org/path#frag",
+            ),
+            (
+                "http://example.org/base/",
+                "//other.example.org/path?x=1#frag",
+                "http://other.example.org/path?x=1#frag",
+            ),
+            (
+                "https://example.org/base/",
+                "//other.example.org",
+                "https://other.example.org",
+            ),
+            (
+                "https://example.org/base/",
+                "//other.example.org?x=1",
+                "https://other.example.org?x=1",
+            ),
+        ]
+        for base_value, reference, expected in cases:
+            with self.subTest(base=base_value, reference=reference):
+                base = IRIRef(base_value)
+                ref = IRIRef(reference)
+                result = ref.resolve_in_place(base).recompose()
+                self.assertEqual(expected, result)
+
+    def test_resolution_dot_segments_variants(self) -> None:
+        base = IRIRef("http://example.org/a/b/c")
+        cases = [
+            ("./d", "http://example.org/a/b/d"),
+            ("../d", "http://example.org/a/d"),
+            ("../../d", "http://example.org/d"),
+            ("a/./b", "http://example.org/a/b/a/b"),
+            ("a/../b", "http://example.org/a/b/b"),
+            ("a/b/..", "http://example.org/a/b/a/"),
+            ("a/b/../", "http://example.org/a/b/a/"),
+            ("a/b/./", "http://example.org/a/b/a/b/"),
+            ("a/b/./c", "http://example.org/a/b/a/b/c"),
+            ("a/b/../c", "http://example.org/a/b/a/c"),
+            ("a/b/../c/", "http://example.org/a/b/a/c/"),
+            ("/./", "http://example.org/"),
+            ("/../", "http://example.org/"),
+            ("/a/./b", "http://example.org/a/b"),
+            ("/a/../b", "http://example.org/b"),
+        ]
+        for reference, expected in cases:
+            with self.subTest(reference=reference):
+                relative = IRIRef(reference)
+                result = relative.resolve_in_place(base).recompose()
+                self.assertEqual(expected, result)
+
+    def test_resolution_query_fragment_empty(self) -> None:
+        base = IRIRef("http://example.org/base?x=1#frag")
+        cases = [
+            ("", "http://example.org/base?x=1"),
+            ("?", "http://example.org/base?"),
+            ("#", "http://example.org/base?x=1#"),
+            ("?#", "http://example.org/base?#"),
+        ]
+        for reference, expected in cases:
+            with self.subTest(reference=reference):
+                relative = IRIRef(reference)
                 result = relative.resolve_in_place(base).recompose()
                 self.assertEqual(expected, result)
 
@@ -263,6 +393,21 @@ class TestIRIRef(unittest.TestCase):
         relative = IRIRef("http:g")
         result = relative.resolve_in_place(base, strict=False).recompose()
         self.assertEqual("http://a/b/c/g", result)
+
+    def test_normalization_invalid_percent_sequences(self) -> None:
+        normalizer = ExtendedComposableNormalizer(RFCNormalizationScheme.PCT)
+        inputs = [
+            "http://example.com/%",
+            "http://example.com/%G0",
+            "http://example.com/%0G",
+            "http://example.com/%2",
+            "http://example.com/%zz",
+        ]
+        for input_value in inputs:
+            with self.subTest(value=input_value):
+                iri = IRIRef(input_value)
+                normalized = iri.normalize(normalizer)
+                self.assertEqual(input_value, normalized.recompose())
 
     def test_relativization(self) -> None:
         data = [

@@ -30,6 +30,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: more explicit IRI relativization expected-output test cases.
 - Added: edge-case IRI relativization expected-output cases for queries, fragments, and opaque schemes.
 - Added: broader IRI relativization coverage for params, ports, IPv6/IPvFuture, and network-path rejection.
+- Added: IRI resolution and normalization edge-case coverage for dot segments, empty query/fragment, and invalid percent sequences.
 
 ## [2026-02-04]
 - Added: functional terms support via Python-backed readable data sources and computed predicates.
