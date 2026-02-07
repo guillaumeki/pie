@@ -12,6 +12,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: removed the DLGP2 parser and standardized on DLGPE (including `.dlgp` examples using `|`).
 - Changed: normalized equality atoms in CQ containment to keep equivalence checks consistent.
 - Updated: documentation now treats DLGPE as the DLGP version and uses `.dlgp` as the extension.
+- Changed: removed `CLAUDE.md` as requested.
 
 ## [2026-02-06]
 - Added: `@computed` directive support in DLGPE parsing with computed prefixes stored in parse results and sessions.
