@@ -72,6 +72,7 @@ For any important change:
 11) Delete the plan file after changelog, design docs, and documentation updates are written.
 12) Do not commit or push unless `mypy prototyping_inference_engine` and the full unit test suite have passed.
 13) Every documentation example must be covered by a unit test.
+14) Every documentation code block must be surrounded by explanatory text.
 
 ## Python Module Hierarchy Standards
 - This project uses a flat layout (importable packages at repo root). Do not introduce a `src/` layout unless the plan explicitly justifies it and includes required packaging changes. (https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/)

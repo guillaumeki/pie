@@ -45,6 +45,47 @@ def _extract_code_blocks(text: str) -> list[tuple[str, str]]:
     return blocks
 
 
+def _find_neighbor_text_line(lines: list[str], start: int, step: int) -> str:
+    index = start
+    while 0 <= index < len(lines):
+        line = lines[index].strip()
+        if line and not line.startswith("```"):
+            return line
+        index += step
+    return ""
+
+
+def _extract_code_blocks_with_context(
+    text: str,
+) -> list[tuple[str, str, str, str]]:
+    blocks: list[tuple[str, str, str, str]] = []
+    lines = text.splitlines()
+    in_block = False
+    language = ""
+    buffer: list[str] = []
+    start_index = -1
+    for index, line in enumerate(lines):
+        if line.startswith("```"):
+            if in_block:
+                before = _find_neighbor_text_line(lines, start_index - 1, -1)
+                after = _find_neighbor_text_line(lines, index + 1, 1)
+                blocks.append((language, "\n".join(buffer).strip("\n"), before, after))
+                in_block = False
+                language = ""
+                buffer = []
+                start_index = -1
+            else:
+                in_block = True
+                language = line[3:].strip()
+                start_index = index
+            continue
+        if in_block:
+            buffer.append(line)
+    if in_block:
+        raise AssertionError("Unclosed code block in documentation.")
+    return blocks
+
+
 def _normalize_term(term: object) -> object:
     if isinstance(term, Literal):
         return _normalize_value(term.value)
@@ -438,6 +479,19 @@ class TestDocumentationExamples(unittest.TestCase):
             for example in examples:
                 if example.runner is not None:
                     example.runner(example.content)
+
+    def test_doc_examples_have_explanations(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+        for path in DOC_EXAMPLES:
+            doc_path = repo_root / path
+            text = doc_path.read_text(encoding="utf-8")
+            blocks = _extract_code_blocks_with_context(text)
+            for language, content, before, after in blocks:
+                if not before and not after:
+                    raise AssertionError(
+                        f"Code block in {path} lacks explanatory text. "
+                        f"Language='{language}' Content='{content[:30]}...'"
+                    )
 
 
 if __name__ == "__main__":
