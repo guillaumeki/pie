@@ -8,9 +8,21 @@ import warnings
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
 from prototyping_inference_engine.api.atom.term.variable import Variable
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
+    LiteralFactory,
+)
+from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
+from prototyping_inference_engine.api.atom.term.storage.dict_storage import DictStorage
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
     MutableInMemoryFactBase,
+)
+from prototyping_inference_engine.api.data.collection.readable_collection import (
+    ReadableDataCollection,
+)
+from prototyping_inference_engine.api.data.functions.integraal_standard_functions import (
+    IntegraalStandardFunctionSource,
 )
 from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
 from prototyping_inference_engine.api.formula.conjunction_formula import (
@@ -45,9 +57,20 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
     def setUp(self):
         FormulaEvaluatorRegistry.reset()
         self.evaluator = NegationFormulaEvaluator()
+        self._literal_factory = LiteralFactory(DictStorage(), LiteralConfig.default())
 
     def tearDown(self):
         FormulaEvaluatorRegistry.reset()
+
+    def _literal(self, lexical: str, datatype: str):
+        return self._literal_factory.create(lexical, datatype)
+
+    def _stdfct_source(
+        self, predicates: list[Predicate]
+    ) -> IntegraalStandardFunctionSource:
+        return IntegraalStandardFunctionSource(
+            self._literal_factory, {"ig": "stdfct:"}, predicates
+        )
 
     def test_safe_negation_ground_true(self):
         """
@@ -82,6 +105,74 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         results = list(self.evaluator.evaluate(formula, fact_base))
 
         self.assertEqual(len(results), 0)
+
+    def test_safe_negation_function_term_false(self):
+        """
+        ¬p(sum(1,2)) where p(3) is a fact.
+        Negation fails after function-term rewriting.
+        """
+        p = Predicate("p", 1)
+        sum_pred = Predicate("stdfct:sum", 3)
+        one = self._literal("1", "xsd:integer")
+        two = self._literal("2", "xsd:integer")
+        three = self._literal("3", "xsd:integer")
+
+        fact_base = MutableInMemoryFactBase([Atom(p, three)])
+        func_source = self._stdfct_source([sum_pred])
+        data = ReadableDataCollection({p: fact_base, sum_pred: func_source})
+
+        formula = NegationFormula(Atom(p, FunctionTerm("stdfct:sum", [one, two])))
+
+        results = list(self.evaluator.evaluate(formula, data))
+
+        self.assertEqual(results, [])
+
+    def test_safe_negation_function_term_true(self):
+        """
+        ¬p(sum(1,2)) where p(4) is a fact.
+        Negation succeeds after function-term rewriting.
+        """
+        p = Predicate("p", 1)
+        sum_pred = Predicate("stdfct:sum", 3)
+        one = self._literal("1", "xsd:integer")
+        two = self._literal("2", "xsd:integer")
+        four = self._literal("4", "xsd:integer")
+
+        fact_base = MutableInMemoryFactBase([Atom(p, four)])
+        func_source = self._stdfct_source([sum_pred])
+        data = ReadableDataCollection({p: fact_base, sum_pred: func_source})
+
+        formula = NegationFormula(Atom(p, FunctionTerm("stdfct:sum", [one, two])))
+
+        results = list(self.evaluator.evaluate(formula, data))
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0], Substitution())
+
+    def test_safe_negation_nested_function_terms(self):
+        """
+        ¬p(sum(1, product(2,2))) where p(5) is a fact.
+        Negation fails with nested functional terms.
+        """
+        p = Predicate("p", 1)
+        sum_pred = Predicate("stdfct:sum", 3)
+        product_pred = Predicate("stdfct:product", 3)
+        one = self._literal("1", "xsd:integer")
+        two = self._literal("2", "xsd:integer")
+        five = self._literal("5", "xsd:integer")
+
+        fact_base = MutableInMemoryFactBase([Atom(p, five)])
+        func_source = self._stdfct_source([sum_pred, product_pred])
+        data = ReadableDataCollection(
+            {p: fact_base, sum_pred: func_source, product_pred: func_source}
+        )
+
+        nested = FunctionTerm("stdfct:product", [two, two])
+        formula = NegationFormula(Atom(p, FunctionTerm("stdfct:sum", [one, nested])))
+
+        results = list(self.evaluator.evaluate(formula, data))
+
+        self.assertEqual(results, [])
 
     def test_safe_negation_with_bound_variable_true(self):
         """

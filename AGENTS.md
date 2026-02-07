@@ -141,6 +141,7 @@ For any important change:
 - `agents/design/ci-mypy-install.md`
 - `agents/design/doc-examples-tests.md`
 - `agents/design/computed-functions-docs.md`
+- `agents/design/negation-function-terms.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`

@@ -18,10 +18,6 @@ def expand_function_terms(formulas: list[Formula]) -> list[Formula]:
     for formula in formulas:
         if isinstance(formula, Atom):
             expanded.extend(rewrite_atom_function_terms(formula))
-        elif isinstance(formula, NegationFormula) and formula_contains_function(
-            formula
-        ):
-            raise ValueError("Functional terms are not supported under negation.")
         else:
             expanded.append(formula)
     return expanded

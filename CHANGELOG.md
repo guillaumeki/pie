@@ -5,6 +5,11 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [2026-02-07]
+- Changed: allow functional terms under negation by delegating to inner evaluators.
+- Added: negation evaluator tests for functional terms (including nested terms).
+- Updated: documentation example for functional terms under negation.
+
 ## [2026-02-06]
 - Added: `@computed` directive support in DLGPE parsing with computed prefixes stored in parse results and sessions.
 - Added: Integraal standard functions as computed predicates, including reversible evaluation for sum/minus/product/divide/average.

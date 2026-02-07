@@ -119,8 +119,7 @@ library will raise an error.
   the computed result.
 - Functional term form: `ig:sum(t1, ..., tn)` used as a term. PIE rewrites it
   into an extra computed atom plus a fresh result variable, so it works
-  anywhere a term is allowed. Functional terms are **not supported under
-  negation**.
+  anywhere a term is allowed, including under negation.
 
 ### Evaluation Rules
 - `sum`, `minus`, `product`, `divide`, and `average` can infer **one missing
@@ -147,6 +146,18 @@ p(3).
 
 @queries
 ?() :- p(ig:sum(1, 2)).
+```
+
+Example: functional term under negation.
+
+```prolog
+@computed ig: <stdfct>.
+
+@facts
+p(4).
+
+@queries
+?() :- not p(ig:sum(1, 2)).
 ```
 
 Functions that can infer a single missing term (one unbound argument) include:
