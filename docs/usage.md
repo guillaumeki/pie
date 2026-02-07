@@ -5,8 +5,8 @@
 pip install -e .
 ```
 
-## Parsing and Querying (DLGPE)
-This example parses a DLGPE document, builds a fact base, and returns both
+## Parsing and Querying (DLGP)
+This example parses a DLGP document, builds a fact base, and returns both
 substitutions and projected answers.
 ```python
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
@@ -85,12 +85,12 @@ value = iri.recompose()
 print(value)  # http://example.org/ns/resource
 ```
 
-Parsing with DLGPE stores the last `@base` and `@prefix` directives in the
+Parsing with DLGP stores the last `@base` and `@prefix` directives in the
 `ParseResult` and `ReasoningSession` so you can reuse them when exporting.
 Computed prefix directives (`@computed`) are stored as well.
 
-## Exporting DLGPE
-This example parses a document and exports it back to DLGPE with a writer.
+## Exporting DLGP
+This example parses a document and exports it back to DLGP with a writer.
 ```python
 from prototyping_inference_engine.io.writers.dlgpe_writer import DlgpeWriter
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
@@ -243,21 +243,20 @@ The queries below yield:
 ?(U) :- ig:union(ig:set(a, b), ig:set(b, c), U).
 ```
 
-## DLGPE Features (Supported)
+## DLGP Features (Supported)
 - Disjunction in head and body.
 - Negation in body.
 - Equality in queries.
 - Sections: `@facts`, `@rules`, `@queries`, `@constraints`.
 - `@base`, `@prefix`, and `@computed` directives with IRI resolution.
 
-## DLGPE Features (Not Supported)
+## DLGP Features (Not Supported)
 - Arithmetic expressions.
 - Comparison operators (`<`, `>`, `<=`, `>=`, `!=`).
 - `@import`, `@view` directives.
 
-## DLGP-Compatible Example (.dlgp)
-DLGP files in this project are parsed with the DLGPE parser. Keep the `.dlgp`
-extension, but use `|` for disjunction so the syntax is DLGPE-compatible.
+## DLGP Example (.dlgp)
+DLGP files use the `.dlgp` extension. This version uses `|` for disjunction.
 
 ```prolog
 q(X) | r(Y) :- p(X,Y).

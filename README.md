@@ -11,10 +11,10 @@ The library supports:
 - **Existential disjunctive rules** ([Disjunctive Datalog](https://en.wikipedia.org/wiki/Disjunctive_Datalog) with existentially quantified variables)
 - **First-order queries** with conjunction, disjunction, negation, and quantifiers
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
-- **DLGPE parser** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
+- **DLGP parser (DLGPE version)** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
 - **Computed predicates** with Integraal standard functions via `@computed`
 - **IRI utilities** for parsing, normalization, and base/prefix management
-- **IO helpers** with parsers and writers (DLGPE export)
+- **IO helpers** with parsers and writers (DLGP export)
 
 ## Installation
 
@@ -31,7 +31,7 @@ Requires Python 3.10+ (uses match/case syntax).
 | **API** | 90% | Core classes: terms, atoms, formulas, queries, fact bases, ontologies |
 | **Data Abstraction** | 80% | ReadableData interface for heterogeneous data sources |
 | **Query Evaluation** | 85% | Evaluating first-order queries against data sources |
-| **DLGPE Parser** | 75% | Extended Datalog+- with negation, sections, and IRI resolution |
+| **DLGP Parser (DLGPE)** | 75% | Extended Datalog+- with negation, sections, and IRI resolution |
 | **Homomorphism** | 70% | Pattern matching with backtracking and indexing |
 | **Backward Chaining** | 90% | UCQ rewriting with disjunctive existential rules |
 | **Forward Chaining** | 0% | Not yet implemented |
@@ -45,7 +45,7 @@ from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
 
-# Parse facts and query (DLGPE)
+# Parse facts and query (DLGP)
 parser = DlgpeParser.instance()
 result = parser.parse("""
     @facts
@@ -79,7 +79,7 @@ from prototyping_inference_engine.session.reasoning_session import ReasoningSess
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 with ReasoningSession() as session:
-    # Parse DLGPE content
+    # Parse DLGP content
     parser = DlgpeParser.instance()
     result = parser.parse("""
         @facts
@@ -115,7 +115,7 @@ iri = manager.create_iri("ex:resource")
 print(iri.recompose())  # http://example.org/ns/resource
 ```
 
-### Exporting DLGPE
+### Exporting DLGP
 
 ```python
 from prototyping_inference_engine.io.writers.dlgpe_writer import DlgpeWriter
@@ -135,7 +135,7 @@ print(writer.write(result))
 ### Computed Predicates (`@computed`)
 
 To load Integraal standard functions, use `@computed <prefix>: <stdfct>.`.
-Other computed libraries are not supported by the DLGPE parser.
+Other computed libraries are not supported by the DLGP parser.
 
 ```prolog
 @computed ig: <stdfct>.
@@ -206,7 +206,7 @@ Evaluators work with any `ReadableData` source, not just in-memory fact bases.
 
 ### Parser (`parser/`)
 
-#### DLGPE (`parser/dlgpe/`)
+#### DLGP (`parser/dlgpe/`)
 
 Extended Datalog+- format with disjunction, negation, and sections (recommended).
 
@@ -230,7 +230,7 @@ from prototyping_inference_engine.io.parsers.dlgpe import DlgpeUnsupportedFeatur
 
 parser = DlgpeParser.instance()
 
-# Parse DLGPE content
+# Parse DLGP content
 result = parser.parse("""
     @facts
     person(alice).
@@ -256,10 +256,9 @@ rules = list(parser.parse_rules("h(X) :- b(X). p(X) | q(X) :- r(X)."))
 
 **Not supported:** arithmetic expressions, comparison operators (`<`, `>`, etc.), `@import`, `@view` directives.
 
-#### DLGP-Compatible (`.dlgp`)
+#### DLGP Files (`.dlgp`)
 
-DLGP files in this project are parsed with the DLGPE parser. Keep the `.dlgp`
-extension, but use `|` for disjunction so the syntax is DLGPE-compatible.
+DLGP files use the `.dlgp` extension. This version uses `|` for disjunction.
 
 ```prolog
 % Facts
@@ -278,7 +277,7 @@ q(X) | r(Y) :- p(X,Y).
 ## CLI Tools
 
 ```bash
-# Query rewriter (DLGPE syntax; .dlgp supported)
+# Query rewriter (DLGP syntax)
 disjunctive-rewriter [file.dlgp] [-l LIMIT] [-v] [-m]
 ```
 

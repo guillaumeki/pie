@@ -14,7 +14,7 @@
 - `GenericFOQueryEvaluator`: evaluator dispatching by formula type.
 - `ReasoningSession`: high-level evaluation workflow.
 - `IRIRef` / `IRIManager`: parse and resolve IRIs with base/prefix state.
-- `DlgpeWriter`: write DLGPE documents from parse results.
+- `DlgpeWriter`: write DLGP (DLGPE version) documents from parse results.
 - `IntegraalStandardFunctionSource`: computed predicates for Integraal standard functions.
 
 ## API Notes

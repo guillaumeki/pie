@@ -1,7 +1,7 @@
 # Architecture
 
 ## Overview
-Pie is organized around core API types (terms, atoms, queries), evaluator stacks for first-order queries, and a DLGPE parser.
+Pie is organized around core API types (terms, atoms, queries), evaluator stacks for first-order queries, and a DLGP (DLGPE version) parser.
 
 ## Core API (`prototyping_inference_engine.api`)
 - Terms: `Variable`, `Constant` with flyweight caching.
@@ -39,7 +39,7 @@ Each evaluator can return substitutions or projected tuples.
 ## IO (`prototyping_inference_engine.io`)
 - Parsers under `prototyping_inference_engine.io.parsers`.
 - Writers under `prototyping_inference_engine.io.writers`.
-- DLGPE parser for extended Datalog+- with disjunction, negation, equality, and sections.
+- DLGP parser (DLGPE version) for extended Datalog+- with disjunction, negation, equality, and sections.
 
 ## IRI Utilities (`prototyping_inference_engine.api.iri`)
 - `IRIRef` for parsing, resolution, normalization, and relativization.
