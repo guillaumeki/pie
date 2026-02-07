@@ -3,10 +3,11 @@ from unittest import TestCase
 from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.naive_backtrack_homomorphism_algorithm import (
     NaiveBacktrackHomomorphismAlgorithm,
 )
+from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestNaiveBacktrackHomomorphismAlgorithm(TestCase):
@@ -139,8 +140,8 @@ class TestNaiveBacktrackHomomorphismAlgorithm(TestCase):
     def test_compute_homomorphisms(self):
         nbha = NaiveBacktrackHomomorphismAlgorithm()
         for d in self.data:
-            from_ = Dlgp2Parser.instance().parse_atoms(d["from"])
-            to = Dlgp2Parser.instance().parse_atoms(d["to"])
+            from_ = FrozenAtomSet(DlgpeParser.instance().parse_atoms(d["from"]))
+            to = FrozenAtomSet(DlgpeParser.instance().parse_atoms(d["to"]))
 
             homomorphisms = tuple(nbha.compute_homomorphisms(from_, to, d["pre_sub"]))
             # print(homomorphisms)
@@ -157,8 +158,8 @@ class TestNaiveBacktrackHomomorphismAlgorithm(TestCase):
     def test_exist_homomorphisms(self):
         nbha = NaiveBacktrackHomomorphismAlgorithm()
         for d in self.data:
-            from_ = Dlgp2Parser.instance().parse_atoms(d["from"])
-            to = Dlgp2Parser.instance().parse_atoms(d["to"])
+            from_ = FrozenAtomSet(DlgpeParser.instance().parse_atoms(d["from"]))
+            to = FrozenAtomSet(DlgpeParser.instance().parse_atoms(d["to"]))
 
             # homomorphisms = tuple(nbha.compute_homomorphisms(from_, to, d["pre_sub"]))
             # print(homomorphisms)

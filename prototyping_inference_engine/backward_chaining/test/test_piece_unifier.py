@@ -3,10 +3,22 @@ from unittest import TestCase
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 from prototyping_inference_engine.api.atom.term.variable import Variable
+from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import (
     PieceUnifier,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+from prototyping_inference_engine.io.parsers.dlgpe.conversions import (
+    try_convert_fo_query,
+)
+
+
+def _parse_cq(text: str) -> ConjunctiveQuery:
+    query = next(iter(DlgpeParser.instance().parse_queries(text)))
+    converted = try_convert_fo_query(query)
+    if not isinstance(converted, ConjunctiveQuery):
+        raise AssertionError("Expected conjunctive query conversion to succeed.")
+    return converted
 
 
 class TestPieceUnifier(TestCase):
@@ -14,17 +26,11 @@ class TestPieceUnifier(TestCase):
         {
             "piece_unifier": PieceUnifier(
                 rule=next(
-                    iter(Dlgp2Parser.instance().parse_rules("r(X,Y), q(Y) :- p(X)."))
+                    iter(DlgpeParser.instance().parse_rules("r(X,Y), q(Y) :- p(X)."))
                 ),
-                query=next(
-                    iter(
-                        Dlgp2Parser.instance().parse_conjunctive_queries(
-                            "?() :- r(U,V), q(V), r(U,U)."
-                        )
-                    )
-                ),
+                query=_parse_cq("?() :- r(U,V), q(V), r(U,U)."),
                 unified_query_part=FrozenAtomSet(
-                    Dlgp2Parser.instance().parse_atoms("r(U, V), q(V).")
+                    DlgpeParser.instance().parse_atoms("r(U, V), q(V).")
                 ),
                 partition=TermPartition(
                     [{Variable("U"), Variable("X")}, {Variable("V"), Variable("Y")}]

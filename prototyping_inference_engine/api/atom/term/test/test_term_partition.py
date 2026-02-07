@@ -5,7 +5,7 @@ from prototyping_inference_engine.api.atom.term.term_partition import TermPartit
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestTermPartition(TestCase):
@@ -102,8 +102,8 @@ class TestTermPartition(TestCase):
     def test_is_valid_simple_rule(self):
         """Test is_valid with a simple valid partition."""
         # Rule: p(X) -> q(X)
-        body_atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
-        head_atoms = Dlgp2Parser.instance().parse_atoms("q(X).")
+        body_atoms = DlgpeParser.instance().parse_atoms("p(X).")
+        head_atoms = DlgpeParser.instance().parse_atoms("q(X).")
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         head = ConjunctiveQuery(head_atoms, [x])
@@ -116,8 +116,8 @@ class TestTermPartition(TestCase):
     def test_is_valid_existential_not_with_constant(self):
         """Test is_valid returns False when existential variable is with constant."""
         # Rule: p(X) -> q(X,Y) where Y is existential
-        body_atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
-        head_atoms = Dlgp2Parser.instance().parse_atoms("q(X,Y).")
+        body_atoms = DlgpeParser.instance().parse_atoms("p(X).")
+        head_atoms = DlgpeParser.instance().parse_atoms("q(X,Y).")
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         head = ConjunctiveQuery(head_atoms, [x])
@@ -131,8 +131,8 @@ class TestTermPartition(TestCase):
     def test_is_valid_existential_not_with_frontier(self):
         """Test is_valid returns False when existential is with frontier variable."""
         # Rule: p(X) -> q(X,Y) where Y is existential, X is frontier
-        body_atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
-        head_atoms = Dlgp2Parser.instance().parse_atoms("q(X,Y).")
+        body_atoms = DlgpeParser.instance().parse_atoms("p(X).")
+        head_atoms = DlgpeParser.instance().parse_atoms("q(X,Y).")
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         head = ConjunctiveQuery(head_atoms, [x])

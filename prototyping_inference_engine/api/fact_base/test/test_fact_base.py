@@ -16,7 +16,7 @@ from prototyping_inference_engine.api.fact_base.protocols import (
     Writable,
     Enumerable,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestFrozenInMemoryFactBase(TestCase):
@@ -27,25 +27,25 @@ class TestFrozenInMemoryFactBase(TestCase):
 
     def test_instantiation_with_atoms(self):
         """Test that FrozenInMemoryFactBase can be instantiated with atoms."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), q(c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), q(c).")
         fb = FrozenInMemoryFactBase(atoms)
         self.assertEqual(len(fb), 2)
 
     def test_variables(self):
         """Test variables property returns variables from the fact base."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(X,a).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X,Y), q(X,a).")
         fb = FrozenInMemoryFactBase(atoms)
         self.assertEqual(fb.variables, {Variable("X"), Variable("Y")})
 
     def test_constants(self):
         """Test constants property returns constants from the fact base."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,a), q(b,c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X,a), q(b,c).")
         fb = FrozenInMemoryFactBase(atoms)
         self.assertEqual(fb.constants, {Constant("a"), Constant("b"), Constant("c")})
 
     def test_terms(self):
         """Test terms property returns all terms from the fact base."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,a), q(Y).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X,a), q(Y).")
         fb = FrozenInMemoryFactBase(atoms)
         self.assertEqual(fb.terms, {Variable("X"), Variable("Y"), Constant("a")})
 
@@ -58,7 +58,7 @@ class TestMutableInMemoryFactBase(TestCase):
 
     def test_instantiation_with_atoms(self):
         """Test that MutableInMemoryFactBase can be instantiated with atoms."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), q(c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), q(c).")
         fb = MutableInMemoryFactBase(atoms)
         self.assertEqual(len(fb), 2)
 
@@ -73,34 +73,34 @@ class TestMutableInMemoryFactBase(TestCase):
     def test_update_atoms(self):
         """Test updating the fact base with multiple atoms."""
         fb = MutableInMemoryFactBase()
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), q(c), r(d,e,f).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), q(c), r(d,e,f).")
         fb.update(atoms)
         self.assertEqual(len(fb), 3)
 
     def test_variables(self):
         """Test variables property returns variables from the fact base."""
         fb = MutableInMemoryFactBase()
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(X,a).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X,Y), q(X,a).")
         fb.update(atoms)
         self.assertEqual(fb.variables, {Variable("X"), Variable("Y")})
 
     def test_constants(self):
         """Test constants property returns constants from the fact base."""
         fb = MutableInMemoryFactBase()
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,a), q(b,c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X,a), q(b,c).")
         fb.update(atoms)
         self.assertEqual(fb.constants, {Constant("a"), Constant("b"), Constant("c")})
 
     def test_terms(self):
         """Test terms property returns all terms from the fact base."""
         fb = MutableInMemoryFactBase()
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,a), q(Y).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X,a), q(Y).")
         fb.update(atoms)
         self.assertEqual(fb.terms, {Variable("X"), Variable("Y"), Constant("a")})
 
     def test_add_after_instantiation(self):
         """Test adding atoms after instantiation with initial atoms."""
-        initial_atoms = Dlgp2Parser.instance().parse_atoms("p(a,b).")
+        initial_atoms = DlgpeParser.instance().parse_atoms("p(a,b).")
         fb = MutableInMemoryFactBase(initial_atoms)
         self.assertEqual(len(fb), 1)
 
@@ -144,13 +144,13 @@ class TestProtocols(TestCase):
 class TestEnumerable(TestCase):
     def test_len(self):
         """Test len() on fact base."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a), q(b).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a), q(b).")
         fb = FrozenInMemoryFactBase(atoms)
         self.assertEqual(len(fb), 2)
 
     def test_iter(self):
         """Test iteration over fact base."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a), q(b).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a), q(b).")
         fb = FrozenInMemoryFactBase(atoms)
         self.assertEqual(len(list(fb)), 2)
 
@@ -176,7 +176,7 @@ class TestFactory(TestCase):
 
     def test_create_frozen_with_atoms(self):
         """Test factory creates FrozenInMemoryFactBase with atoms."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a), q(b).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a), q(b).")
         fb = FactBaseFactory.create_frozen(atoms)
         self.assertIsInstance(fb, FrozenInMemoryFactBase)
         self.assertEqual(len(fb), 2)
@@ -188,7 +188,7 @@ class TestFactory(TestCase):
 
     def test_create_mutable_with_atoms(self):
         """Test factory creates MutableInMemoryFactBase with atoms."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a), q(b).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a), q(b).")
         fb = FactBaseFactory.create_mutable(atoms)
         self.assertIsInstance(fb, MutableInMemoryFactBase)
         self.assertEqual(len(fb), 2)

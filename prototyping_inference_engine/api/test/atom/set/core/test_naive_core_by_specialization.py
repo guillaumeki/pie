@@ -7,7 +7,8 @@ from prototyping_inference_engine.api.atom.set.core.naive_core_by_specialization
 from prototyping_inference_engine.api.atom.set.homomorphism.backtrack.naive_backtrack_homomorphism_algorithm import (
     NaiveBacktrackHomomorphismAlgorithm,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestNaiveCoreBySpecialization(TestCase):
@@ -40,7 +41,7 @@ class TestNaiveCoreBySpecialization(TestCase):
 
     def test_compute_core(self):
         for d in self.data:
-            atom_set = Dlgp2Parser.instance().parse_atoms(d["atom_set"])
+            atom_set = FrozenAtomSet(DlgpeParser.instance().parse_atoms(d["atom_set"]))
             core = NaiveCoreBySpecialization.instance().compute_core(atom_set)
 
             # print(core)

@@ -13,20 +13,20 @@ from prototyping_inference_engine.api.atom.set.index.index_by_term_and_predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestIndexByPredicate(TestCase):
     def test_creation(self):
         """Test creating IndexByPredicate."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByPredicate(atom_set)
         self.assertIsNotNone(index)
 
     def test_atoms_by_predicate(self):
         """Test atoms_by_predicate returns atoms with given predicate."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByPredicate(atom_set)
 
@@ -38,7 +38,7 @@ class TestIndexByPredicate(TestCase):
 
     def test_atoms_by_predicate_empty(self):
         """Test atoms_by_predicate returns empty for non-existent predicate."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByPredicate(atom_set)
 
@@ -47,7 +47,7 @@ class TestIndexByPredicate(TestCase):
 
     def test_domain(self):
         """Test domain returns atoms with matching predicate."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByPredicate(atom_set)
 
@@ -57,7 +57,7 @@ class TestIndexByPredicate(TestCase):
 
     def test_match(self):
         """Test match returns atoms that can specialize query."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByPredicate(atom_set)
 
@@ -67,7 +67,7 @@ class TestIndexByPredicate(TestCase):
 
     def test_match_with_constant(self):
         """Test match filters by constant in query."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(a,c), p(d,e).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(a,c), p(d,e).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByPredicate(atom_set)
 
@@ -77,7 +77,7 @@ class TestIndexByPredicate(TestCase):
 
     def test_domain_size(self):
         """Test domain_size returns correct size."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a), p(b), p(c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a), p(b), p(c).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByPredicate(atom_set)
 
@@ -87,7 +87,7 @@ class TestIndexByPredicate(TestCase):
 
     def test_extend_substitution(self):
         """Test extend_substitution yields valid substitutions."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a), p(b).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a), p(b).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByPredicate(atom_set)
 
@@ -103,14 +103,14 @@ class TestIndexByPredicate(TestCase):
 class TestIndexByTerm(TestCase):
     def test_creation(self):
         """Test creating IndexByTerm."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), q(a,c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), q(a,c).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTerm(atom_set)
         self.assertIsNotNone(index)
 
     def test_atoms_by_term(self):
         """Test atoms_by_term returns atoms containing given term."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), q(a,c), r(d).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), q(a,c), r(d).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTerm(atom_set)
 
@@ -122,7 +122,7 @@ class TestIndexByTerm(TestCase):
 
     def test_atoms_by_term_empty(self):
         """Test atoms_by_term returns empty for non-existent term."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTerm(atom_set)
 
@@ -131,7 +131,7 @@ class TestIndexByTerm(TestCase):
 
     def test_domain_with_constant(self):
         """Test domain uses constant term for filtering."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d), q(a).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(c,d), q(a).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTerm(atom_set)
 
@@ -143,7 +143,7 @@ class TestIndexByTerm(TestCase):
 
     def test_domain_with_substitution(self):
         """Test domain uses substitution for filtering."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(c,d).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTerm(atom_set)
 
@@ -156,7 +156,7 @@ class TestIndexByTerm(TestCase):
 
     def test_domain_all_variables(self):
         """Test domain returns all atoms when query has only unmapped variables."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(c,d).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTerm(atom_set)
 
@@ -167,7 +167,7 @@ class TestIndexByTerm(TestCase):
 
     def test_match(self):
         """Test match returns correct atoms."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(a,c), p(d,e).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(a,c), p(d,e).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTerm(atom_set)
 
@@ -179,14 +179,14 @@ class TestIndexByTerm(TestCase):
 class TestIndexByTermAndPredicate(TestCase):
     def test_creation(self):
         """Test creating IndexByTermAndPredicate."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), q(a,c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), q(a,c).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTermAndPredicate(atom_set)
         self.assertIsNotNone(index)
 
     def test_inherits_from_both(self):
         """Test that IndexByTermAndPredicate inherits from both indexes."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTermAndPredicate(atom_set)
         self.assertIsInstance(index, IndexByTerm)
@@ -194,7 +194,7 @@ class TestIndexByTermAndPredicate(TestCase):
 
     def test_atoms_by_predicate(self):
         """Test atoms_by_predicate works."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(c,d), q(e).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTermAndPredicate(atom_set)
 
@@ -203,7 +203,7 @@ class TestIndexByTermAndPredicate(TestCase):
 
     def test_atoms_by_term(self):
         """Test atoms_by_term works."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), q(a,c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), q(a,c).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTermAndPredicate(atom_set)
 
@@ -213,7 +213,7 @@ class TestIndexByTermAndPredicate(TestCase):
     def test_domain_chooses_smaller(self):
         """Test domain chooses the smaller of term/predicate domains."""
         # Create a scenario where term index gives smaller domain
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(c,d), p(e,f), q(a).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(c,d), p(e,f), q(a).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTermAndPredicate(atom_set)
 
@@ -226,7 +226,7 @@ class TestIndexByTermAndPredicate(TestCase):
 
     def test_match(self):
         """Test match works correctly."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b), p(a,c), p(d,e).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b), p(a,c), p(d,e).")
         atom_set = FrozenAtomSet(atoms)
         index = IndexByTermAndPredicate(atom_set)
 

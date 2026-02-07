@@ -13,7 +13,7 @@ from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base impor
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
     MutableInMemoryFactBase,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestQueryableProtocol(unittest.TestCase):
@@ -31,7 +31,7 @@ class TestQueryableProtocol(unittest.TestCase):
 
     def test_readable_data_subclass_is_queryable(self):
         """Test that ReadableData subclasses are Queryable."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         fb = FrozenInMemoryFactBase(parser.parse_atoms("p(a)."))
         # ReadableData should satisfy Queryable protocol
         self.assertIsInstance(fb, Queryable)

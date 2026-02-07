@@ -17,7 +17,7 @@ from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base impo
     MutableInMemoryFactBase,
 )
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import (
     AtomEvaluator,
 )
@@ -27,7 +27,7 @@ class TestCollectionWithAtomEvaluator(unittest.TestCase):
     """Test collections work with AtomEvaluator."""
 
     def setUp(self):
-        self.parser = Dlgp2Parser.instance()
+        self.parser = DlgpeParser.instance()
         self.evaluator = AtomEvaluator()
 
         # Create fact bases
@@ -117,7 +117,7 @@ class TestCollectionWithMultipleSources(unittest.TestCase):
     """Test collections aggregating many sources."""
 
     def setUp(self):
-        self.parser = Dlgp2Parser.instance()
+        self.parser = DlgpeParser.instance()
         self.evaluator = AtomEvaluator()
 
     def test_three_sources(self):
@@ -174,7 +174,7 @@ class TestWritableCollectionIntegration(unittest.TestCase):
     """Test writable collections with evaluators."""
 
     def setUp(self):
-        self.parser = Dlgp2Parser.instance()
+        self.parser = DlgpeParser.instance()
         self.evaluator = AtomEvaluator()
 
     def test_add_then_evaluate(self):
@@ -229,7 +229,7 @@ class TestCollectionAsDropInReplacement(unittest.TestCase):
 
     def test_same_results_as_fact_base(self):
         """Test that collection gives same results as direct fact base query."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         evaluator = AtomEvaluator()
 
         atoms = parser.parse_atoms("p(a,b), p(c,d), p(e,f).")
@@ -255,7 +255,7 @@ class TestCollectionAsDropInReplacement(unittest.TestCase):
 
     def test_collection_can_replace_fact_base_parameter(self):
         """Test that a function accepting FactBase works with collection."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
 
         def count_matches(data, predicate):
             """Function that accepts any ReadableData."""
@@ -283,7 +283,7 @@ class TestEdgeCases(unittest.TestCase):
 
     def test_single_atom_collection(self):
         """Test collection with just one atom."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         fb = FrozenInMemoryFactBase(parser.parse_atoms("p(a)."))
 
         collection = MaterializedCollectionBuilder().add_all_predicates_from(fb).build()
@@ -293,7 +293,7 @@ class TestEdgeCases(unittest.TestCase):
 
     def test_high_arity_predicates(self):
         """Test predicates with high arity."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         fb = FrozenInMemoryFactBase(parser.parse_atoms("p(a,b,c,d,e)."))
 
         collection = MaterializedCollectionBuilder().add_all_predicates_from(fb).build()
@@ -303,7 +303,7 @@ class TestEdgeCases(unittest.TestCase):
 
     def test_special_constant_names(self):
         """Test constants with special names."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         # Using quoted constants
         fb = FrozenInMemoryFactBase(parser.parse_atoms('p("hello world"), p("123").'))
 
@@ -313,7 +313,7 @@ class TestEdgeCases(unittest.TestCase):
 
     def test_same_source_multiple_predicates(self):
         """Test one source providing multiple predicates."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         fb = FrozenInMemoryFactBase(parser.parse_atoms("p(a), q(b), r(c)."))
 
         collection = MaterializedCollectionBuilder().add_all_predicates_from(fb).build()

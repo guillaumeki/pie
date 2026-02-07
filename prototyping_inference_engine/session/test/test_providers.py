@@ -11,7 +11,6 @@ from prototyping_inference_engine.session.providers import (
     ParserProvider,
     DefaultFactBaseFactoryProvider,
     DefaultRewritingAlgorithmProvider,
-    Dlgp2ParserProvider,
 )
 from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base import (
     FrozenInMemoryFactBase,
@@ -22,7 +21,7 @@ from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base impo
 from prototyping_inference_engine.backward_chaining.breadth_first_rewriting import (
     BreadthFirstRewriting,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestDefaultFactBaseFactoryProvider(TestCase):
@@ -42,7 +41,7 @@ class TestDefaultFactBaseFactoryProvider(TestCase):
     def test_create_mutable_with_atoms(self):
         """Test that create_mutable can be initialized with atoms."""
         provider = DefaultFactBaseFactoryProvider()
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b). q(c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b). q(c).")
         fb = provider.create_mutable(atoms)
         self.assertEqual(len(fb), 2)
 
@@ -55,7 +54,7 @@ class TestDefaultFactBaseFactoryProvider(TestCase):
     def test_create_frozen_with_atoms(self):
         """Test that create_frozen can be initialized with atoms."""
         provider = DefaultFactBaseFactoryProvider()
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b). q(c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b). q(c).")
         fb = provider.create_frozen(atoms)
         self.assertEqual(len(fb), 2)
 
@@ -107,45 +106,6 @@ class TestCustomProvider(TestCase):
         provider.create_mutable()
         provider.create_frozen()
         self.assertEqual(provider.create_count, 2)
-
-
-class TestDlgp2ParserProvider(TestCase):
-    """Tests for Dlgp2ParserProvider."""
-
-    def test_implements_protocol(self):
-        """Test that Dlgp2ParserProvider implements the protocol."""
-        provider = Dlgp2ParserProvider()
-        self.assertIsInstance(provider, ParserProvider)
-
-    def test_parse_atoms(self):
-        """Test parsing atoms."""
-        provider = Dlgp2ParserProvider()
-        atoms = list(provider.parse_atoms("p(a,b). q(c)."))
-        self.assertEqual(len(atoms), 2)
-
-    def test_parse_rules(self):
-        """Test parsing rules."""
-        provider = Dlgp2ParserProvider()
-        rules = list(provider.parse_rules("q(X) :- p(X,Y)."))
-        self.assertEqual(len(rules), 1)
-
-    def test_parse_conjunctive_queries(self):
-        """Test parsing conjunctive queries."""
-        provider = Dlgp2ParserProvider()
-        queries = list(provider.parse_conjunctive_queries("?(X) :- p(X,Y)."))
-        self.assertEqual(len(queries), 1)
-
-    def test_parse_union_conjunctive_queries(self):
-        """Test parsing union of conjunctive queries."""
-        provider = Dlgp2ParserProvider()
-        queries = list(provider.parse_union_conjunctive_queries("?(X) :- p(X,Y)."))
-        self.assertGreaterEqual(len(queries), 1)
-
-    def test_parse_negative_constraints(self):
-        """Test parsing negative constraints."""
-        provider = Dlgp2ParserProvider()
-        constraints = list(provider.parse_negative_constraints("! :- p(X,X)."))
-        self.assertEqual(len(constraints), 1)
 
 
 class TestCustomParserProvider(TestCase):

@@ -17,14 +17,14 @@ from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base impor
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
     MutableInMemoryFactBase,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestMaterializedDataCollection(unittest.TestCase):
     """Test MaterializedDataCollection."""
 
     def setUp(self):
-        self.parser = Dlgp2Parser.instance()
+        self.parser = DlgpeParser.instance()
         self.p = Predicate("p", 2)
         self.q = Predicate("q", 1)
 
@@ -224,7 +224,7 @@ class TestMaterializedDataCollectionWithMutable(unittest.TestCase):
 
     def test_mutable_source(self):
         """Test collection works with mutable fact base."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         p = Predicate("p", 2)
 
         fb = MutableInMemoryFactBase(parser.parse_atoms("p(a,b)."))

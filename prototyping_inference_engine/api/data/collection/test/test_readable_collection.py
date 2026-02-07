@@ -12,14 +12,14 @@ from prototyping_inference_engine.api.data.collection.readable_collection import
 from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base import (
     FrozenInMemoryFactBase,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestReadableDataCollection(unittest.TestCase):
     """Test ReadableDataCollection."""
 
     def setUp(self):
-        self.parser = Dlgp2Parser.instance()
+        self.parser = DlgpeParser.instance()
         self.p = Predicate("p", 2)
         self.q = Predicate("q", 1)
         self.r = Predicate("r", 2)
@@ -170,7 +170,7 @@ class TestDynamicPredicates(unittest.TestCase):
 
     def test_dynamic_source_predicates_discovered(self):
         """Test that predicates from dynamic sources are discovered."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         p = Predicate("p", 2)
         q = Predicate("q", 1)
 
@@ -189,7 +189,7 @@ class TestDynamicPredicates(unittest.TestCase):
 
     def test_dynamic_source_evaluate(self):
         """Test evaluate works for predicates discovered from dynamic sources."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         p = Predicate("p", 2)
         q = Predicate("q", 1)
 

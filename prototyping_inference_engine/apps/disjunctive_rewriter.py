@@ -11,7 +11,6 @@ from prototyping_inference_engine.api.query.union_conjunctive_queries import (
 from prototyping_inference_engine.backward_chaining.breadth_first_rewriting import (
     BreadthFirstRewriting,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 from prototyping_inference_engine.io.parsers.dlgpe.conversions import fo_query_to_ucq
 
@@ -41,36 +40,24 @@ def main():
     _, ext = os.path.splitext(args.file)
     ext = ext.lower()
 
-    if ext == ".dlgpe":
-        parsed = DlgpeParser.instance().parse_file(args.file)
-        rules = set(parsed["rules"])
-        queries = parsed["queries"]
-        if not queries:
-            print("The file should contain a UCQ-compatible query", file=sys.stderr)
-            exit()
-        if len(queries) > 1:
-            print(
-                "The file should contain a single UCQ-compatible query", file=sys.stderr
-            )
-            exit()
-        try:
-            ucq = fo_query_to_ucq(queries[0])
-        except ValueError as exc:
-            print(f"The query is not UCQ-compatible: {exc}", file=sys.stderr)
-            exit()
-    else:
-        rules = set(Dlgp2Parser.instance().parse_rules_from_file(args.file))
-        try:
-            ucq = next(
-                iter(
-                    Dlgp2Parser.instance().parse_union_conjunctive_queries_from_file(
-                        args.file
-                    )
-                )
-            )
-        except StopIteration:
-            print("The file should contain a UCQ", file=sys.stderr)
-            exit()
+    if ext not in {".dlgpe", ".dlgp"}:
+        print("Expected a .dlgpe or .dlgp file", file=sys.stderr)
+        exit()
+
+    parsed = DlgpeParser.instance().parse_file(args.file)
+    rules = set(parsed["rules"])
+    queries = parsed["queries"]
+    if not queries:
+        print("The file should contain a UCQ-compatible query", file=sys.stderr)
+        exit()
+    if len(queries) > 1:
+        print("The file should contain a single UCQ-compatible query", file=sys.stderr)
+        exit()
+    try:
+        ucq = fo_query_to_ucq(queries[0])
+    except ValueError as exc:
+        print(f"The query is not UCQ-compatible: {exc}", file=sys.stderr)
+        exit()
 
     if args.mapping:
         schema_predicates: set[Predicate] = {

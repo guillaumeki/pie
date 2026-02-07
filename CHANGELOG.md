@@ -9,6 +9,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: allow functional terms under negation by delegating to inner evaluators.
 - Added: negation evaluator tests for functional terms (including nested terms).
 - Updated: documentation example for functional terms under negation.
+- Changed: removed the DLGP2 parser and standardized on DLGPE (including `.dlgp` examples using `|`).
+- Changed: normalized equality atoms in CQ containment to keep equivalence checks consistent.
 
 ## [2026-02-06]
 - Added: `@computed` directive support in DLGPE parsing with computed prefixes stored in parse results and sessions.

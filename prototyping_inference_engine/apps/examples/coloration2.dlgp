@@ -1,2 +1,2 @@
-hasColor(X, green); hasColor(X, red) :- v(X).
+hasColor(X, green)| hasColor(X, red) :- v(X).
 ?() :- hasColor(U, T), edge(U,V), hasColor(V, T).

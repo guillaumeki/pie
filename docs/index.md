@@ -1,6 +1,6 @@
 # Pie Documentation
 
-Pie (Prototyping Inference Engine) is a Python library for building inference engines with disjunctive rules, first-order queries, and parsers for DLGPE/DLGP.
+Pie (Prototyping Inference Engine) is a Python library for building inference engines with disjunctive rules, first-order queries, and a DLGPE parser.
 
 ## Features
 - Existential disjunctive rules (Disjunctive Datalog with existentially quantified variables).
@@ -8,7 +8,6 @@ Pie (Prototyping Inference Engine) is a Python library for building inference en
 - Backward chaining (query rewriting).
 - DLGPE parser with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix`/`@computed`.
 - Computed predicates via Integraal standard functions.
-- Extended DLGP 2.1 parser with disjunction support.
 - IRI utilities (parsing, resolution, normalization, and base/prefix management).
 - IO helpers (parsers and writers, including DLGPE export).
 
@@ -22,7 +21,7 @@ Requires Python 3.10+ (uses match/case syntax).
 ## Quick Start
 Parse a DLGPE document, build a fact base, and evaluate the query.
 ```python
-from prototyping_inference_engine.io import DlgpeParser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
@@ -61,7 +60,6 @@ print(answers)  # (a, c), (b, d)
 | Data Abstraction | 80% | ReadableData interface for heterogeneous data sources |
 | Query Evaluation | 85% | Evaluating first-order queries against data sources |
 | DLGPE Parser | 75% | Extended Datalog+- with negation, sections, and IRI resolution |
-| DLGP Parser | 80% | Extended DLGP 2.1 with disjunction support |
 | Homomorphism | 70% | Pattern matching with backtracking and indexing |
 | Backward Chaining | 90% | UCQ rewriting with disjunctive existential rules |
 | Forward Chaining | 0% | Not yet implemented |

@@ -12,7 +12,7 @@ from prototyping_inference_engine.api.query.union_conjunctive_queries import (
     UnionConjunctiveQueries,
 )
 from prototyping_inference_engine.api.query.union_query import UnionQuery
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestRedundanciesCleanerConjunctiveQuery(TestCase):
@@ -27,7 +27,7 @@ class TestRedundanciesCleanerConjunctiveQuery(TestCase):
 
     def test_compute_core_no_redundancy(self):
         """Test compute_core on query with no redundant atoms."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y,Z).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X,Y), q(Y,Z).")
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         core = self.cleaner.compute_core(cq)
@@ -41,7 +41,7 @@ class TestRedundanciesCleanerConjunctiveQuery(TestCase):
         ?(X) :- p(X,Y), p(X,Z) where Y and Z are existential
         One of the p atoms is redundant.
         """
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), p(X,Z).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X,Y), p(X,Z).")
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         core = self.cleaner.compute_core(cq)
@@ -55,8 +55,8 @@ class TestRedundanciesCleanerConjunctiveQuery(TestCase):
         CQ2: ?(X) :- p(X,Y)        (more general)
         Cover should only contain CQ2.
         """
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X,Y), q(Y).")
+        atoms2 = DlgpeParser.instance().parse_atoms("p(X,Y).")
         x = Variable("X")
         cq1 = ConjunctiveQuery(atoms1, [x])  # More specific
         cq2 = ConjunctiveQuery(atoms2, [x])  # More general
@@ -69,8 +69,8 @@ class TestRedundanciesCleanerConjunctiveQuery(TestCase):
 
     def test_compute_cover_keeps_incomparable(self):
         """Test compute_cover keeps incomparable CQs."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(X).")
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X).")
+        atoms2 = DlgpeParser.instance().parse_atoms("q(X).")
         x = Variable("X")
         cq1 = ConjunctiveQuery(atoms1, [x])
         cq2 = ConjunctiveQuery(atoms2, [x])
@@ -80,8 +80,8 @@ class TestRedundanciesCleanerConjunctiveQuery(TestCase):
 
     def test_compute_cover_without_core_computation(self):
         """Test compute_cover with del_redundancies_in_cqs=False."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X,Y), q(Y).")
+        atoms2 = DlgpeParser.instance().parse_atoms("p(X,Y).")
         x = Variable("X")
         cq1 = ConjunctiveQuery(atoms1, [x])
         cq2 = ConjunctiveQuery(atoms2, [x])
@@ -90,9 +90,9 @@ class TestRedundanciesCleanerConjunctiveQuery(TestCase):
 
     def test_remove_more_specific_than(self):
         """Test remove_more_specific_than removes CQs contained in reference set."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y).")  # More specific
-        atoms2 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")  # More general
-        atoms3 = Dlgp2Parser.instance().parse_atoms("r(X).")  # Incomparable
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X,Y), q(Y).")  # More specific
+        atoms2 = DlgpeParser.instance().parse_atoms("p(X,Y).")  # More general
+        atoms3 = DlgpeParser.instance().parse_atoms("r(X).")  # Incomparable
         x = Variable("X")
         cq1 = ConjunctiveQuery(atoms1, [x])
         cq2 = ConjunctiveQuery(atoms2, [x])
@@ -118,8 +118,8 @@ class TestRedundanciesCleanerUnionConjunctiveQueries(TestCase):
 
     def test_compute_cover(self):
         """Test compute_cover on UCQ."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y).")  # More specific
-        atoms2 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")  # More general
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X,Y), q(Y).")  # More specific
+        atoms2 = DlgpeParser.instance().parse_atoms("p(X,Y).")  # More general
         x = Variable("X")
         z = Variable("Z")
         cq1 = ConjunctiveQuery(atoms1, [x])
@@ -134,7 +134,7 @@ class TestRedundanciesCleanerUnionConjunctiveQueries(TestCase):
 
     def test_compute_cover_preserves_label(self):
         """Test that compute_cover preserves the UCQ label."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X).")
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         ucq = UnionConjunctiveQueries([cq], [Variable("Z")], label="test_label")
@@ -144,9 +144,9 @@ class TestRedundanciesCleanerUnionConjunctiveQueries(TestCase):
 
     def test_remove_more_specific_than(self):
         """Test remove_more_specific_than on UCQs."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y).")  # More specific
-        atoms2 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")  # More general
-        atoms3 = Dlgp2Parser.instance().parse_atoms("r(X).")  # Incomparable
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X,Y), q(Y).")  # More specific
+        atoms2 = DlgpeParser.instance().parse_atoms("p(X,Y).")  # More general
+        atoms3 = DlgpeParser.instance().parse_atoms("r(X).")  # Incomparable
         x = Variable("X")
         z = Variable("Z")
         cq1 = ConjunctiveQuery(atoms1, [x])

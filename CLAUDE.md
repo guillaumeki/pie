@@ -10,7 +10,6 @@ Pie (Prototyping Inference Engine) is a Python library for building inference en
 - Query evaluation against fact bases - 85% complete
 - Backward chaining (query rewriting) - 90% complete
 - Forward chaining - not yet implemented
-- Extended DLGP 2.1 format parser with disjunction support
 - DLGPE format parser with negation, equality, and sections support
 
 ## Commands
@@ -29,7 +28,7 @@ python3 -m unittest prototyping_inference_engine.backward_chaining.test.test_bre
 
 ### CLI Application
 ```bash
-# Query rewriter tool
+# Query rewriter tool (DLGPE syntax; .dlgp supported)
 disjunctive-rewriter [file.dlgp] [-l LIMIT] [-v] [-m]
 ```
 
@@ -88,11 +87,6 @@ pip install -e .
 
 ### Parser (`parser/`)
 
-**DLGP 2.1 (`parser/dlgp/`):**
-- `Dlgp2Parser` - singleton parser using Lark
-- `Dlgp2Transformer` - transforms parse tree to domain objects
-- Grammar in `dlgp2.lark`
-
 **DLGPE (`parser/dlgpe/`):**
 - `DlgpeParser` - extended Datalog+- parser
 - Supports: disjunction, negation (`not`), equality (`=`), sections (`@facts`, `@rules`, etc.)
@@ -124,17 +118,20 @@ Internal formula evaluators (used by FOQueryEvaluators):
 - Schedulers control atom matching order: `ByVariableBacktrackScheduler`, `DynamicBacktrackScheduler`
 - Index structures: `IndexByPredicate`, `IndexByTerm`, `IndexByTermAndPredicate`
 
-## DLGP Format
+## DLGP-Compatible (.dlgp) Format
+
+DLGP files in this project are parsed with the DLGPE parser. Keep the `.dlgp`
+extension, but use `|` for disjunction so the syntax is DLGPE-compatible.
 
 ```prolog
 % Disjunctive rule
-q(X); r(Y) :- p(X,Y).
+q(X) | r(Y) :- p(X,Y).
 
 % Conjunctive query
 ?(X) :- p(X,Y), q(Y).
 
 % Disjunctive query
-?() :- (g(U), e(U,V)); (r(U), e(U,V)).
+?() :- (g(U), e(U,V)) | (r(U), e(U,V)).
 
 % Facts
 p(a,b).
@@ -157,7 +154,6 @@ stranger(X, Y) :- person(X), person(Y), not knows(X, Y).
 
 ## Key Patterns
 
-- Use `Dlgp2Parser.instance()` singleton for DLGP parsing
 - Use `DlgpeParser.instance()` singleton for DLGPE parsing
 - All substitutable objects implement `apply_substitution(self, sub) -> Self`
 - `Variable.safe_renaming_substitution(vars)` creates fresh variable renaming

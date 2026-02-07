@@ -7,7 +7,7 @@ from prototyping_inference_engine.api.query.union_conjunctive_queries import (
     UnionConjunctiveQueries,
 )
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestConjunctiveQuery(TestCase):
@@ -19,7 +19,7 @@ class TestConjunctiveQuery(TestCase):
 
     def test_creation_with_atoms(self):
         """Test creating ConjunctiveQuery with atoms."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y,Z).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y), q(Y,Z)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         self.assertEqual(len(cq.atoms), 2)
@@ -27,21 +27,21 @@ class TestConjunctiveQuery(TestCase):
 
     def test_variables_property(self):
         """Test variables property."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y,Z).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y), q(Y,Z)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         self.assertEqual(cq.variables, {Variable("X"), Variable("Y"), Variable("Z")})
 
     def test_constants_property(self):
         """Test constants property."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,a), q(b,Y).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,a), q(b,Y)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         self.assertEqual(cq.constants, {Constant("a"), Constant("b")})
 
     def test_terms_property(self):
         """Test terms property."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,a).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,a)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         terms = cq.terms
@@ -50,7 +50,7 @@ class TestConjunctiveQuery(TestCase):
 
     def test_existential_variables(self):
         """Test existential_variables property."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y,Z).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y), q(Y,Z)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         existential = cq.existential_variables
@@ -58,7 +58,7 @@ class TestConjunctiveQuery(TestCase):
 
     def test_answer_atom(self):
         """Test answer_atom property."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         ans_atom = cq.answer_atom
@@ -68,7 +68,7 @@ class TestConjunctiveQuery(TestCase):
 
     def test_apply_substitution(self):
         """Test applying substitution to ConjunctiveQuery."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         y = Variable("Y")
         cq = ConjunctiveQuery(atoms, [x])
@@ -79,8 +79,8 @@ class TestConjunctiveQuery(TestCase):
 
     def test_aggregate(self):
         """Test aggregating two ConjunctiveQueries."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Y)."))
         x = Variable("X")
         y = Variable("Y")
         cq1 = ConjunctiveQuery(atoms1, [x])
@@ -91,7 +91,7 @@ class TestConjunctiveQuery(TestCase):
 
     def test_equality_same_queries(self):
         """Test equality of identical queries."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         cq1 = ConjunctiveQuery(atoms, [x])
         cq2 = ConjunctiveQuery(atoms, [x])
@@ -99,8 +99,8 @@ class TestConjunctiveQuery(TestCase):
 
     def test_equality_different_atoms(self):
         """Test inequality of queries with different atoms."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(X).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(X)."))
         x = Variable("X")
         cq1 = ConjunctiveQuery(atoms1, [x])
         cq2 = ConjunctiveQuery(atoms2, [x])
@@ -108,7 +108,7 @@ class TestConjunctiveQuery(TestCase):
 
     def test_hash(self):
         """Test that ConjunctiveQuery is hashable."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         h = hash(cq)
@@ -116,7 +116,7 @@ class TestConjunctiveQuery(TestCase):
 
     def test_str(self):
         """Test string representation."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         s = str(cq)
@@ -125,7 +125,7 @@ class TestConjunctiveQuery(TestCase):
 
     def test_repr(self):
         """Test repr representation."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         r = repr(cq)
@@ -133,14 +133,14 @@ class TestConjunctiveQuery(TestCase):
 
     def test_answer_variable_must_appear_in_atoms(self):
         """Test that answer variables must appear in atoms."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         y = Variable("Y")  # Y does not appear in atoms
         with self.assertRaises(ValueError):
             ConjunctiveQuery(atoms, [y])
 
     def test_query_with_other_answer_variables(self):
         """Test creating query with different answer variables."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         y = Variable("Y")
         cq1 = ConjunctiveQuery(atoms, [x])
@@ -149,7 +149,7 @@ class TestConjunctiveQuery(TestCase):
 
     def test_pre_substitution(self):
         """Test ConjunctiveQuery with pre_substitution."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         a = Constant("a")
         pre_sub = Substitution({x: a})
@@ -158,7 +158,7 @@ class TestConjunctiveQuery(TestCase):
 
     def test_pre_substitution_must_be_on_answer_variables(self):
         """Test that pre_substitution can only be on answer variables."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         y = Variable("Y")
         pre_sub = Substitution({y: Constant("a")})  # Y is not answer variable
@@ -174,8 +174,8 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_creation_with_cqs(self):
         """Test creating UCQ with conjunctive queries."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Y)."))
         x = Variable("X")
         y = Variable("Y")
         cq1 = ConjunctiveQuery(atoms1, [x])
@@ -185,7 +185,7 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_conjunctive_queries_property(self):
         """Test conjunctive_queries property."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         ucq = UnionConjunctiveQueries([cq], [Variable("Z")])
@@ -194,8 +194,8 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_variables_property(self):
         """Test variables property."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Z).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Z)."))
         x = Variable("X")
         z = Variable("Z")
         cq1 = ConjunctiveQuery(atoms1, [x])
@@ -206,8 +206,8 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_constants_property(self):
         """Test constants property."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,a).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y,b).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X,a)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Y,b)."))
         x = Variable("X")
         y = Variable("Y")
         cq1 = ConjunctiveQuery(atoms1, [x])
@@ -217,7 +217,7 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_terms_property(self):
         """Test terms property."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,a).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,a)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         ucq = UnionConjunctiveQueries([cq], [Variable("Z")])
@@ -226,7 +226,7 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_apply_substitution(self):
         """Test applying substitution to UCQ."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         z = Variable("Z")
@@ -237,8 +237,8 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_union_operator(self):
         """Test | operator for union."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Y)."))
         x = Variable("X")
         y = Variable("Y")
         z = Variable("Z")
@@ -251,8 +251,8 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_union_different_answer_variables_raises(self):
         """Test that union with different answer variables raises."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Y)."))
         x = Variable("X")
         y = Variable("Y")
         cq1 = ConjunctiveQuery(atoms1, [x])
@@ -264,7 +264,7 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_equality(self):
         """Test equality of UCQs."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         z = Variable("Z")
@@ -274,7 +274,7 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_hash(self):
         """Test that UCQ is hashable."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         ucq = UnionConjunctiveQueries([cq], [Variable("Z")])
@@ -283,8 +283,8 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_iter(self):
         """Test iteration over UCQ."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Y)."))
         x = Variable("X")
         y = Variable("Y")
         cq1 = ConjunctiveQuery(atoms1, [x])
@@ -295,8 +295,8 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_len(self):
         """Test __len__ method."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Y)."))
         x = Variable("X")
         y = Variable("Y")
         cq1 = ConjunctiveQuery(atoms1, [x])
@@ -306,7 +306,7 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_str(self):
         """Test string representation."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         ucq = UnionConjunctiveQueries([cq], [Variable("Z")])
@@ -321,7 +321,7 @@ class TestUnionConjunctiveQueries(TestCase):
 
     def test_mismatched_answer_variable_count_raises(self):
         """Test that CQs with wrong number of answer variables raises."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         y = Variable("Y")
         cq = ConjunctiveQuery(atoms1, [x, y])  # 2 answer variables
@@ -336,7 +336,7 @@ class TestCQToFOQueryConversion(TestCase):
         """Test converting a simple CQ to FOQuery."""
         from prototyping_inference_engine.api.query.fo_query import FOQuery
 
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         y = Variable("Y")
         cq = ConjunctiveQuery(atoms, [x, y])
@@ -355,7 +355,7 @@ class TestCQToFOQueryConversion(TestCase):
         )
         from prototyping_inference_engine.api.query.fo_query import FOQuery
 
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y,Z).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y), q(Y,Z)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])  # Y and Z are existential
 
@@ -369,7 +369,7 @@ class TestCQToFOQueryConversion(TestCase):
 
     def test_cq_existential_variables(self):
         """Test existential_variables property on CQ."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y,Z).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y), q(Y,Z)."))
         x = Variable("X")
         y = Variable("Y")
         z = Variable("Z")
@@ -381,7 +381,7 @@ class TestCQToFOQueryConversion(TestCase):
         """Test converting a UCQ with one CQ to FOQuery."""
         from prototyping_inference_engine.api.query.fo_query import FOQuery
 
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         ucq = UnionConjunctiveQueries([cq], [x])
@@ -398,8 +398,8 @@ class TestCQToFOQueryConversion(TestCase):
         )
         from prototyping_inference_engine.api.query.fo_query import FOQuery
 
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Y)."))
         x = Variable("X")
         y = Variable("Y")
         z = Variable("Z")

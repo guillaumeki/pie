@@ -236,63 +236,6 @@ class ParserProvider(Protocol):
         ...
 
 
-class Dlgp2ParserProvider:
-    """
-    Default parser provider using DLGP2 format.
-
-    Delegates to the existing Dlgp2Parser for parsing DLGP format content.
-    """
-
-    def __init__(self, term_factories=None) -> None:
-        self._term_factories = term_factories
-
-    def _parser(self):
-        from prototyping_inference_engine.api.atom.term.literal import Literal
-        from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import (
-            Dlgp2Parser,
-        )
-        from prototyping_inference_engine.io.parsers.dlgp.dlgp2_transformer import (
-            Dlgp2Transformer,
-        )
-
-        if self._term_factories and Literal in self._term_factories:
-            literal_factory = self._term_factories.get(Literal)
-            return Dlgp2Parser.create(Dlgp2Transformer(literal_factory))
-        return Dlgp2Parser.instance()
-
-    def parse_atoms(self, text: str) -> Iterable["Atom"]:
-        """Parse atoms from DLGP text."""
-        return self._parser().parse_atoms(text)
-
-    def parse_rules(self, text: str) -> Iterable["Rule"]:
-        """Parse rules from DLGP text."""
-        return self._parser().parse_rules(text)
-
-    def parse_conjunctive_queries(self, text: str) -> Iterable["ConjunctiveQuery"]:
-        """Parse conjunctive queries from DLGP text."""
-        return self._parser().parse_conjunctive_queries(text)
-
-    def parse_queries(self, text: str) -> Iterable["Query"]:
-        """Parse queries from DLGP text."""
-        parser = self._parser()
-        yield from parser.parse_conjunctive_queries(text)
-        yield from parser.parse_union_conjunctive_queries(text)
-
-    def parse_union_conjunctive_queries(
-        self, text: str
-    ) -> Iterable["UnionConjunctiveQueries"]:
-        """Parse union of conjunctive queries from DLGP text."""
-        return self._parser().parse_union_conjunctive_queries(text)
-
-    def parse_negative_constraints(self, text: str) -> Iterable["NegativeConstraint"]:
-        """Parse negative constraints from DLGP text."""
-        return self._parser().parse_negative_constraints(text)
-
-    def parse_document(self, text: str) -> dict:
-        """Parse a full DLGP document and return header + body."""
-        return self._parser().parse(text)
-
-
 class DlgpeParserProvider:
     """
     Default parser provider using DLGPE format.

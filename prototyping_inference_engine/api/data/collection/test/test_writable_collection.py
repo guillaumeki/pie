@@ -14,14 +14,14 @@ from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base impor
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
     MutableInMemoryFactBase,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestWritableDataCollection(unittest.TestCase):
     """Test WritableDataCollection."""
 
     def setUp(self):
-        self.parser = Dlgp2Parser.instance()
+        self.parser = DlgpeParser.instance()
         self.p = Predicate("p", 2)
         self.q = Predicate("q", 1)
         self.r = Predicate("r", 1)
@@ -155,7 +155,7 @@ class TestWritableCollectionWithDynamicSources(unittest.TestCase):
 
     def test_add_discovers_dynamic_source(self):
         """Test that adding atom discovers predicate from dynamic source."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         p = Predicate("p", 2)
         q = Predicate("q", 1)
 

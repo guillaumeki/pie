@@ -9,7 +9,6 @@ Pie (Prototyping Inference Engine) is a Python library for building inference en
 - Data abstraction for heterogeneous sources and multi-source collections
 - Forward chaining - not yet implemented
 - DLGPE parser with negation, equality, sections support, and IRI resolution
-- Extended DLGP 2.1 format parser with disjunction support (compatibility)
 
 Requires Python 3.10+ (uses match/case syntax).
 
@@ -142,6 +141,7 @@ For any important change:
 - `agents/design/doc-examples-tests.md`
 - `agents/design/computed-functions-docs.md`
 - `agents/design/negation-function-terms.md`
+- `agents/design/remove-dlgp2-parser.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`
@@ -225,7 +225,7 @@ Evaluators return `Iterator[Substitution]` via `evaluate()` or projected tuples 
 
 ### Parser (`parser/`)
 - DLGPE with disjunction, negation, equality, sections via `DlgpeParser.instance()`
-- DLGP 2.1 (extended with disjunction) via `Dlgp2Parser.instance()`
+- DLGP-compatible files (`.dlgp`) are parsed by `DlgpeParser` and must use `|` for disjunction.
 
 ## Formats
 DLGPE sample:
@@ -240,9 +240,9 @@ person(alice).
 ?(X) :- knows(alice, X).
 ```
 
-DLGP sample:
+DLGP-compatible sample (.dlgp extension, DLGPE syntax):
 ```prolog
-q(X); r(Y) :- p(X,Y).
+q(X) | r(Y) :- p(X,Y).
 ?(X) :- p(X,Y), q(Y).
 ```
 

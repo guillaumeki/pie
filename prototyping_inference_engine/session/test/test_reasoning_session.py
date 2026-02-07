@@ -469,9 +469,9 @@ class TestReasoningSessionRewriting(TestCase):
     """Tests for query rewriting."""
 
     def setUp(self):
-        from prototyping_inference_engine.session.providers import Dlgp2ParserProvider
+        from prototyping_inference_engine.session.providers import DlgpeParserProvider
 
-        self.session = ReasoningSession.create(parser_provider=Dlgp2ParserProvider())
+        self.session = ReasoningSession.create(parser_provider=DlgpeParserProvider())
 
     def tearDown(self):
         self.session.close()

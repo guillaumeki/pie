@@ -1,6 +1,6 @@
 import unittest
 
-from prototyping_inference_engine.io import DlgpeWriter
+from prototyping_inference_engine.io.writers.dlgpe_writer import DlgpeWriter
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
 

@@ -12,7 +12,7 @@ from prototyping_inference_engine.api.query.containment.union_conjunctive_querie
 from prototyping_inference_engine.api.query.union_conjunctive_queries import (
     UnionConjunctiveQueries,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestConjunctiveQueryContainment(TestCase):
@@ -31,7 +31,7 @@ class TestConjunctiveQueryContainment(TestCase):
 
     def test_identical_queries_contained(self):
         """Test that identical queries are contained in each other."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X,Y), q(Y).")
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         self.assertTrue(self.containment.is_contained_in(cq, cq))
@@ -43,8 +43,8 @@ class TestConjunctiveQueryContainment(TestCase):
         Q2: ?(X) :- p(X,Y), q(Y)        (fewer atoms = more general)
         Q1 is contained in Q2
         """
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y), r(Y).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y).")
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X,Y), q(Y), r(Y).")
+        atoms2 = DlgpeParser.instance().parse_atoms("p(X,Y), q(Y).")
         x = Variable("X")
         cq1 = ConjunctiveQuery(atoms1, [x])
         cq2 = ConjunctiveQuery(atoms2, [x])
@@ -53,8 +53,8 @@ class TestConjunctiveQueryContainment(TestCase):
 
     def test_different_answer_variable_count_not_contained(self):
         """Test that queries with different answer variable counts are not contained."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X,Y).")
+        atoms2 = DlgpeParser.instance().parse_atoms("p(X,Y).")
         x = Variable("X")
         y = Variable("Y")
         cq1 = ConjunctiveQuery(atoms1, [x])
@@ -64,8 +64,8 @@ class TestConjunctiveQueryContainment(TestCase):
 
     def test_disjoint_predicates_not_contained(self):
         """Test that queries with disjoint predicates are not contained."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(X).")
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X).")
+        atoms2 = DlgpeParser.instance().parse_atoms("q(X).")
         x = Variable("X")
         cq1 = ConjunctiveQuery(atoms1, [x])
         cq2 = ConjunctiveQuery(atoms2, [x])
@@ -74,7 +74,7 @@ class TestConjunctiveQueryContainment(TestCase):
 
     def test_is_equivalent_to(self):
         """Test is_equivalent_to method."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         cq1 = ConjunctiveQuery(atoms, [x])
         cq2 = ConjunctiveQuery(atoms, [x])
@@ -82,8 +82,8 @@ class TestConjunctiveQueryContainment(TestCase):
 
     def test_not_equivalent_when_not_bidirectionally_contained(self):
         """Test queries are not equivalent when not bidirectionally contained."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y), q(Y).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X,Y), q(Y).")
+        atoms2 = DlgpeParser.instance().parse_atoms("p(X,Y).")
         x = Variable("X")
         cq1 = ConjunctiveQuery(atoms1, [x])
         cq2 = ConjunctiveQuery(atoms2, [x])
@@ -96,10 +96,20 @@ class TestConjunctiveQueryContainment(TestCase):
         Q2: ?(A) :- p(A,B)
         These should be equivalent (variable names don't matter)
         """
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("p(A,B).")
+        atoms1 = DlgpeParser.instance().parse_atoms("p(X,Y).")
+        atoms2 = DlgpeParser.instance().parse_atoms("p(A,B).")
         cq1 = ConjunctiveQuery(atoms1, [Variable("X")])
         cq2 = ConjunctiveQuery(atoms2, [Variable("A")])
+        self.assertTrue(self.containment.is_equivalent_to(cq1, cq2))
+
+    def test_containment_with_equality(self):
+        """Test containment works with equality constraints."""
+        atoms1 = list(DlgpeParser.instance().parse_atoms("v(X), X=Y."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("v(Y), X=Y."))
+        x = Variable("X")
+        y = Variable("Y")
+        cq1 = ConjunctiveQuery(atoms1, [x, y])
+        cq2 = ConjunctiveQuery(atoms2, [x, y])
         self.assertTrue(self.containment.is_equivalent_to(cq1, cq2))
 
 
@@ -115,7 +125,7 @@ class TestUnionConjunctiveQueriesContainment(TestCase):
 
     def test_identical_ucqs_contained(self):
         """Test that identical UCQs are contained in each other."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = DlgpeParser.instance().parse_atoms("p(X).")
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         ucq = UnionConjunctiveQueries([cq], [Variable("Z")])
@@ -123,8 +133,8 @@ class TestUnionConjunctiveQueriesContainment(TestCase):
 
     def test_subset_ucq_contained(self):
         """Test that UCQ with subset of CQs is contained."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Y)."))
         x = Variable("X")
         y = Variable("Y")
         z = Variable("Z")
@@ -136,8 +146,8 @@ class TestUnionConjunctiveQueriesContainment(TestCase):
 
     def test_superset_ucq_not_contained_in_subset(self):
         """Test that UCQ with more CQs is not contained in one with fewer."""
-        atoms1 = Dlgp2Parser.instance().parse_atoms("p(X).")
-        atoms2 = Dlgp2Parser.instance().parse_atoms("q(Y).")
+        atoms1 = list(DlgpeParser.instance().parse_atoms("p(X)."))
+        atoms2 = list(DlgpeParser.instance().parse_atoms("q(Y)."))
         x = Variable("X")
         y = Variable("Y")
         z = Variable("Z")
@@ -150,7 +160,7 @@ class TestUnionConjunctiveQueriesContainment(TestCase):
 
     def test_different_answer_variable_count_not_contained(self):
         """Test that UCQs with different answer variable counts are not contained."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X,Y).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         y = Variable("Y")
         cq1 = ConjunctiveQuery(atoms, [x])
@@ -161,7 +171,7 @@ class TestUnionConjunctiveQueriesContainment(TestCase):
 
     def test_is_equivalent_to(self):
         """Test is_equivalent_to method."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         z = Variable("Z")
@@ -171,7 +181,7 @@ class TestUnionConjunctiveQueriesContainment(TestCase):
 
     def test_empty_ucq_contained_in_any(self):
         """Test that empty UCQ is contained in any UCQ."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(X).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         z = Variable("Z")

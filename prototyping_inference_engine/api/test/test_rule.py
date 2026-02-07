@@ -2,16 +2,16 @@ from typing import Callable
 from unittest import TestCase
 
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestRule(TestCase):
-    disjunctive_rules = Dlgp2Parser.instance().parse_rules("""
-        <G>(X); <R>(X) :- <V>(X).
-        <s1>(Y); <s2>(X) :- p(X,Y).
-        <s1>(Y), <s3>(X,Y); <s2>(X), <s5>(X,Y) :- p(X,Y).""")
+    disjunctive_rules = DlgpeParser.instance().parse_rules("""
+        <G>(X) | <R>(X) :- <V>(X).
+        <s1>(Y) | <s2>(X) :- p(X,Y).
+        <s1>(Y), <s3>(X,Y) | <s2>(X), <s5>(X,Y) :- p(X,Y).""")
 
-    conjonctive_rules = Dlgp2Parser.instance().parse_rules("""
+    conjonctive_rules = DlgpeParser.instance().parse_rules("""
         <G>(X) :- <V>(X).
         <s1>(Y) :- p(X,Y).
         s(X,Y), s(Y,Z) :- q(X),t(X,Z).""")

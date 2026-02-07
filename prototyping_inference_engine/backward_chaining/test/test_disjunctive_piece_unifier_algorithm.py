@@ -4,26 +4,31 @@ from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.backward_chaining.unifier.disjunctive_piece_unifier_algorithm import (
     DisjunctivePieceUnifierAlgorithm,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+from prototyping_inference_engine.io.parsers.dlgpe.conversions import fo_query_to_ucq
 
 
 class TestDisjunctivePieceUnifierAlgorithm(TestCase):
     data = (
-        {"rule": "q(X); r(Y) :- p(X,Y).", "query": "?() :- q(U), r(U).", "len_dpus": 1},
         {
-            "rule": "g(X); r(X) :- v(X).",
-            "query": "?() :- (g(U), e(U,V), g(V)); (r(U), e(U,V), r(V)).",
-            "len_dpus": 9,
-        },
-        {"rule": "g(X); r(X) :- v(X).", "query": "?() :- g(a); r(a).", "len_dpus": 1},
-        {"rule": "g(X); r(X) :- v(X).", "query": "?() :- g(a); r(b).", "len_dpus": 0},
-        {
-            "rule": "g(X); r(X) :- v(X).",
-            "query": "?() :- g(a); (r(U), t(U)).",
+            "rule": "q(X) | r(Y) :- p(X,Y).",
+            "query": "?() :- q(U), r(U).",
             "len_dpus": 1,
         },
         {
-            "rule": "hasColor(X, green); hasColor(X, red) :- v(X).",
+            "rule": "g(X) | r(X) :- v(X).",
+            "query": "?() :- (g(U), e(U,V), g(V)) | (r(U), e(U,V), r(V)).",
+            "len_dpus": 9,
+        },
+        {"rule": "g(X) | r(X) :- v(X).", "query": "?() :- g(a) | r(a).", "len_dpus": 1},
+        {"rule": "g(X) | r(X) :- v(X).", "query": "?() :- g(a) | r(b).", "len_dpus": 0},
+        {
+            "rule": "g(X) | r(X) :- v(X).",
+            "query": "?() :- g(a) | (r(U), t(U)).",
+            "len_dpus": 1,
+        },
+        {
+            "rule": "hasColor(X, green) | hasColor(X, red) :- v(X).",
             "query": "?() :- hasColor(U, T), edge(U,V), hasColor(V, T).",
             "len_dpus": 9,
         },
@@ -31,9 +36,9 @@ class TestDisjunctivePieceUnifierAlgorithm(TestCase):
 
     def test_compute_disjunctive_unifiers(self):
         for d in self.data:
-            rule = next(iter(Dlgp2Parser.instance().parse_rules(d["rule"])))
-            query = next(
-                iter(Dlgp2Parser.instance().parse_union_conjunctive_queries(d["query"]))
+            rule = next(iter(DlgpeParser.instance().parse_rules(d["rule"])))
+            query = fo_query_to_ucq(
+                next(iter(DlgpeParser.instance().parse_queries(d["query"])))
             )
             dpua = DisjunctivePieceUnifierAlgorithm()
             dpus = dpua.compute_disjunctive_unifiers(query, query, rule)

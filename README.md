@@ -13,7 +13,6 @@ The library supports:
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
 - **DLGPE parser** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
 - **Computed predicates** with Integraal standard functions via `@computed`
-- **Extended DLGP 2.1 format** parser with disjunction support (compatibility)
 - **IRI utilities** for parsing, normalization, and base/prefix management
 - **IO helpers** with parsers and writers (DLGPE export)
 
@@ -33,7 +32,6 @@ Requires Python 3.10+ (uses match/case syntax).
 | **Data Abstraction** | 80% | ReadableData interface for heterogeneous data sources |
 | **Query Evaluation** | 85% | Evaluating first-order queries against data sources |
 | **DLGPE Parser** | 75% | Extended Datalog+- with negation, sections, and IRI resolution |
-| **DLGP Parser** | 80% | Extended DLGP 2.1 with disjunction support |
 | **Homomorphism** | 70% | Pattern matching with backtracking and indexing |
 | **Backward Chaining** | 90% | UCQ rewriting with disjunctive existential rules |
 | **Forward Chaining** | 0% | Not yet implemented |
@@ -43,7 +41,7 @@ Requires Python 3.10+ (uses match/case syntax).
 ### Parsing and Querying
 
 ```python
-from prototyping_inference_engine.io import DlgpeParser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
 
@@ -78,7 +76,7 @@ for answer in evaluator.evaluate_and_project(query, fact_base):
 
 ```python
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
-from prototyping_inference_engine.io import DlgpeParser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 with ReasoningSession() as session:
     # Parse DLGPE content
@@ -120,8 +118,8 @@ print(iri.recompose())  # http://example.org/ns/resource
 ### Exporting DLGPE
 
 ```python
-from prototyping_inference_engine.io import DlgpeWriter
-from prototyping_inference_engine.io import DlgpeParser
+from prototyping_inference_engine.io.writers.dlgpe_writer import DlgpeWriter
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 parser = DlgpeParser.instance()
 result = parser.parse("""
@@ -210,7 +208,7 @@ Evaluators work with any `ReadableData` source, not just in-memory fact bases.
 
 #### DLGPE (`parser/dlgpe/`)
 
-Extended Datalog+- format with additional features beyond DLGP 2.1 (recommended).
+Extended Datalog+- format with disjunction, negation, and sections (recommended).
 
 **Supported features:**
 
@@ -227,7 +225,7 @@ Extended Datalog+- format with additional features beyond DLGP 2.1 (recommended)
 **Usage:**
 
 ```python
-from prototyping_inference_engine.io import DlgpeParser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeUnsupportedFeatureError
 
 parser = DlgpeParser.instance()
@@ -256,30 +254,31 @@ atoms = list(parser.parse_atoms("p(a). q(b)."))
 rules = list(parser.parse_rules("h(X) :- b(X). p(X) | q(X) :- r(X)."))
 ```
 
-**Not supported:** functional terms, arithmetic expressions, comparison operators (`<`, `>`, etc.), `@import`, `@computed`, `@view` directives.
+**Not supported:** arithmetic expressions, comparison operators (`<`, `>`, etc.), `@import`, `@view` directives.
 
-#### DLGP 2.1 (`parser/dlgp/`)
+#### DLGP-Compatible (`.dlgp`)
 
-Extended DLGP 2.1 format with disjunction:
+DLGP files in this project are parsed with the DLGPE parser. Keep the `.dlgp`
+extension, but use `|` for disjunction so the syntax is DLGPE-compatible.
 
 ```prolog
 % Facts
 p(a,b).
 
 % Disjunctive rule
-q(X); r(Y) :- p(X,Y).
+q(X) | r(Y) :- p(X,Y).
 
 % Conjunctive query
 ?(X) :- p(X,Y), q(Y).
 
 % Disjunctive query
-?() :- (p(X), q(X)); (r(X), s(X)).
+?() :- (p(X), q(X)) | (r(X), s(X)).
 ```
 
 ## CLI Tools
 
 ```bash
-# Query rewriter (currently DLGP input)
+# Query rewriter (DLGPE syntax; .dlgp supported)
 disjunctive-rewriter [file.dlgp] [-l LIMIT] [-v] [-m]
 ```
 

@@ -621,7 +621,11 @@ class ReasoningSession:
 
     def rewrite(
         self,
-        query: Union[ConjunctiveQuery, UnionQuery[ConjunctiveQuery]],
+        query: Union[
+            ConjunctiveQuery,
+            UnionQuery[ConjunctiveQuery],
+            "FOQuery",
+        ],
         rules: set[Rule],
         step_limit: float = inf,
         verbose: bool = False,
@@ -630,7 +634,7 @@ class ReasoningSession:
         Perform UCQ rewriting.
 
         Args:
-            query: The query to rewrite (CQ or UCQ)
+            query: The query to rewrite (CQ, UCQ, or FOQuery convertible to UCQ)
             rules: The rules to use for rewriting
             step_limit: Maximum number of rewriting steps (default: unlimited)
             verbose: Whether to print progress
@@ -639,6 +643,27 @@ class ReasoningSession:
             The rewritten union of conjunctive queries
         """
         self._check_not_closed()
+
+        # Convert FOQuery to UCQ if needed
+        if not isinstance(query, (ConjunctiveQuery, UnionQuery)):
+            from prototyping_inference_engine.io.parsers.dlgpe.conversions import (
+                try_convert_fo_query,
+            )
+            from prototyping_inference_engine.api.query.union_conjunctive_queries import (
+                UnionConjunctiveQueries,
+            )
+
+            converted = try_convert_fo_query(query)
+            if isinstance(converted, ConjunctiveQuery):
+                query = UnionQuery(
+                    frozenset([converted]),
+                    converted.answer_variables,
+                    converted.label,
+                )
+            elif isinstance(converted, UnionConjunctiveQueries):
+                query = converted
+            else:
+                raise ValueError("FOQuery is not UCQ-compatible for rewriting.")
 
         # Convert CQ to UCQ if needed
         if isinstance(query, ConjunctiveQuery):

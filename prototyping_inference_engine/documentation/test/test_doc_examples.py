@@ -10,8 +10,12 @@ from typing import Callable, cast
 
 from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.term.term import Term
+from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.io import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+from prototyping_inference_engine.io.parsers.dlgpe.conversions import (
+    try_convert_fo_query,
+)
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
 
@@ -231,11 +235,14 @@ def _run_collection_functions_example(source: str) -> None:
 
 
 def _run_dlgp_example(source: str) -> None:
-    parser = Dlgp2Parser.instance()
+    parser = DlgpeParser.instance()
     rules = list(parser.parse_rules(source))
-    queries = list(parser.parse_conjunctive_queries(source))
+    queries = list(parser.parse_queries(source))
     if len(rules) != 1 or len(queries) != 1:
         raise AssertionError("DLGP example did not parse as expected.")
+    converted = try_convert_fo_query(queries[0])
+    if not isinstance(converted, ConjunctiveQuery):
+        raise AssertionError("DLGP example is not a conjunctive query.")
 
 
 DOC_EXAMPLES: dict[str, list[DocExample]] = {
@@ -245,7 +252,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 '''
-                from prototyping_inference_engine.io import DlgpeParser
+                from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
                 from prototyping_inference_engine.api.atom.term.variable import Variable
                 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
                 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
@@ -286,7 +293,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 '''
-                from prototyping_inference_engine.io import DlgpeParser
+                from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
                 from prototyping_inference_engine.api.atom.term.variable import Variable
                 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
                 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import GenericFOQueryEvaluator
@@ -327,7 +334,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             textwrap.dedent(
                 '''
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
-                from prototyping_inference_engine.io import DlgpeParser
+                from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
                 with ReasoningSession.create() as session:
                     parser = DlgpeParser.instance()
@@ -374,7 +381,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 '''
-                from prototyping_inference_engine.io import DlgpeWriter
+                from prototyping_inference_engine.io.writers.dlgpe_writer import DlgpeWriter
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
                 with ReasoningSession.create() as session:
@@ -453,7 +460,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "prolog",
             textwrap.dedent(
                 """
-                q(X); r(Y) :- p(X,Y).
+                q(X) | r(Y) :- p(X,Y).
                 ?(X) :- p(X,Y), q(Y).
                 """
             ).strip("\n"),

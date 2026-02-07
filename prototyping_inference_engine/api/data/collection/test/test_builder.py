@@ -25,14 +25,14 @@ from prototyping_inference_engine.api.fact_base.frozen_in_memory_fact_base impor
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
     MutableInMemoryFactBase,
 )
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestReadableCollectionBuilder(unittest.TestCase):
     """Test ReadableCollectionBuilder."""
 
     def setUp(self):
-        self.parser = Dlgp2Parser.instance()
+        self.parser = DlgpeParser.instance()
         self.p = Predicate("p", 2)
         self.q = Predicate("q", 1)
         self.fb1 = FrozenInMemoryFactBase(self.parser.parse_atoms("p(a,b)."))
@@ -113,7 +113,7 @@ class TestMaterializedCollectionBuilder(unittest.TestCase):
     """Test MaterializedCollectionBuilder."""
 
     def setUp(self):
-        self.parser = Dlgp2Parser.instance()
+        self.parser = DlgpeParser.instance()
         self.p = Predicate("p", 2)
         self.q = Predicate("q", 1)
         self.fb1 = FrozenInMemoryFactBase(self.parser.parse_atoms("p(a,b)."))
@@ -189,7 +189,7 @@ class TestWritableCollectionBuilder(unittest.TestCase):
     """Test WritableCollectionBuilder."""
 
     def setUp(self):
-        self.parser = Dlgp2Parser.instance()
+        self.parser = DlgpeParser.instance()
         self.p = Predicate("p", 2)
         self.q = Predicate("q", 1)
         self.fb_frozen = FrozenInMemoryFactBase(self.parser.parse_atoms("p(a,b)."))
@@ -264,7 +264,7 @@ class TestIntegration(unittest.TestCase):
 
     def test_build_collection_from_multiple_fact_bases(self):
         """Test building a collection from multiple fact bases."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
 
         fb1 = FrozenInMemoryFactBase(parser.parse_atoms("person(alice), person(bob)."))
         fb2 = FrozenInMemoryFactBase(
@@ -286,7 +286,7 @@ class TestIntegration(unittest.TestCase):
 
     def test_writable_collection_routes_writes(self):
         """Test that writable collection routes writes to correct source."""
-        parser = Dlgp2Parser.instance()
+        parser = DlgpeParser.instance()
         p = Predicate("p", 1)
         q = Predicate("q", 1)
 

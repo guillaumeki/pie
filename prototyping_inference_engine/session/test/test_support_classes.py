@@ -8,7 +8,7 @@ from unittest import TestCase
 from prototyping_inference_engine.session.parse_result import ParseResult
 from prototyping_inference_engine.session.cleanup_stats import SessionCleanupStats
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
-from prototyping_inference_engine.io.parsers.dlgp.dlgp2_parser import Dlgp2Parser
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
 class TestParseResult(TestCase):
@@ -30,7 +30,7 @@ class TestParseResult(TestCase):
 
     def test_create_result_with_facts(self):
         """Test creating a ParseResult with facts."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a,b). q(c).")
+        atoms = DlgpeParser.instance().parse_atoms("p(a,b). q(c).")
         result = ParseResult(
             facts=FrozenAtomSet(atoms),
             rules=frozenset(),
@@ -43,7 +43,7 @@ class TestParseResult(TestCase):
 
     def test_create_result_with_rules(self):
         """Test creating a ParseResult with rules."""
-        rules = set(Dlgp2Parser.instance().parse_rules("q(X) :- p(X,Y)."))
+        rules = set(DlgpeParser.instance().parse_rules("q(X) :- p(X,Y)."))
         result = ParseResult(
             facts=FrozenAtomSet([]),
             rules=frozenset(rules),
@@ -56,9 +56,7 @@ class TestParseResult(TestCase):
 
     def test_create_result_with_queries(self):
         """Test creating a ParseResult with queries."""
-        queries = set(
-            Dlgp2Parser.instance().parse_conjunctive_queries("?(X) :- p(X,Y).")
-        )
+        queries = set(DlgpeParser.instance().parse_queries("?(X) :- p(X,Y)."))
         result = ParseResult(
             facts=FrozenAtomSet([]),
             rules=frozenset(),
@@ -82,7 +80,7 @@ class TestParseResult(TestCase):
 
     def test_equality(self):
         """Test that ParseResult supports equality comparison."""
-        atoms = Dlgp2Parser.instance().parse_atoms("p(a).")
+        atoms = list(DlgpeParser.instance().parse_atoms("p(a)."))
         result1 = ParseResult(
             facts=FrozenAtomSet(atoms),
             rules=frozenset(),

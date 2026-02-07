@@ -11,7 +11,6 @@ from prototyping_inference_engine.session.providers import (
     ParserProvider,
     DefaultFactBaseFactoryProvider,
     DefaultRewritingAlgorithmProvider,
-    Dlgp2ParserProvider,
     DlgpeParserProvider,
 )
 from prototyping_inference_engine.session.parse_result import ParseResult
@@ -37,7 +36,6 @@ __all__ = [
     "ParserProvider",
     "DefaultFactBaseFactoryProvider",
     "DefaultRewritingAlgorithmProvider",
-    "Dlgp2ParserProvider",
     "DlgpeParserProvider",
     # Support classes
     "ParseResult",
