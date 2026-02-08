@@ -8,6 +8,8 @@ Pie (Prototyping Inference Engine) is a Python library for building inference en
 - Backward chaining (query rewriting).
 - DLGP parser (DLGPE version) with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix`/`@computed`.
 - Computed predicates via Integraal standard functions.
+- Knowledge bases and rule bases for grouping facts and rules.
+- Prepared query interfaces and FOQuery factory helpers.
 - IRI utilities (parsing, resolution, normalization, and base/prefix management).
 - IO helpers (parsers and writers, including DLGP export).
 

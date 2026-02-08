@@ -127,6 +127,10 @@ For any important change:
 - `agents/design/io-parsers-writers.md`
 - `agents/design/iri-relativization-fixes.md`
 - `agents/design/integraal-standard-functions.md`
+- `agents/design/kb-rulebase-csvcopyable.md`
+- `agents/design/data-delegation-wrappers.md`
+- `agents/design/prepared-queries-factory.md`
+- `agents/design/functional-terms-identity.md`
 - `agents/design/process-templates.md`
 - `agents/design/commit-process.md`
 - `agents/design/functional-terms.md`

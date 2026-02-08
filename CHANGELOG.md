@@ -5,6 +5,19 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [2026-02-08]
+- Added: KnowledgeBase and RuleBase abstractions with ReasoningSession helpers.
+- Added: CSVCopyable protocol for fact bases that can export CSV.
+- Added: DatalogDelegable protocol and delegation wrappers (DelAtomWrapper, QueryableDataDelAtomsWrapper).
+- Added: PreparedQuery and PreparedFOQuery interfaces.
+- Added: FOQueryFactory package and backward-compatible re-export.
+- Added: FOConjunctionFactBaseWrapper to expose fact bases as conjunction formulas.
+- Added: identity-based term/predicate classes and factories, plus IdentityWrapper utility.
+- Changed: functional terms split into logical vs evaluable terms based on `@computed` prefixes.
+- Changed: DLGPE parsing treats registered Python functions as evaluable functional terms.
+- Changed: DLGPE parsing now uses injected term/predicate factories to enforce identity semantics.
+- Updated: documentation to describe new APIs and functional-term semantics.
+
 ## [2026-02-07]
 - Changed: allow functional terms under negation by delegating to inner evaluators.
 - Added: negation evaluator tests for functional terms (including nested terms).

@@ -15,6 +15,7 @@ from prototyping_inference_engine.api.fact_base.protocols import (
     TermInspectable,
     Writable,
     Enumerable,
+    CSVCopyable,
 )
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
@@ -49,6 +50,11 @@ class TestFrozenInMemoryFactBase(TestCase):
         fb = FrozenInMemoryFactBase(atoms)
         self.assertEqual(fb.terms, {Variable("X"), Variable("Y"), Constant("a")})
 
+    def test_not_csv_copyable(self):
+        """Test that FrozenInMemoryFactBase does not implement CSVCopyable."""
+        fb = FrozenInMemoryFactBase()
+        self.assertNotIsInstance(fb, CSVCopyable)
+
 
 class TestMutableInMemoryFactBase(TestCase):
     def test_instantiation_empty(self):
@@ -61,6 +67,11 @@ class TestMutableInMemoryFactBase(TestCase):
         atoms = DlgpeParser.instance().parse_atoms("p(a,b), q(c).")
         fb = MutableInMemoryFactBase(atoms)
         self.assertEqual(len(fb), 2)
+
+    def test_not_csv_copyable(self):
+        """Test that MutableInMemoryFactBase does not implement CSVCopyable."""
+        fb = MutableInMemoryFactBase()
+        self.assertNotIsInstance(fb, CSVCopyable)
 
     def test_add_atom(self):
         """Test adding an atom to the fact base."""

@@ -465,6 +465,51 @@ class TestReasoningSessionOntology(TestCase):
         self.assertEqual(len(self.session.ontologies), 2)
 
 
+class TestReasoningSessionRuleBase(TestCase):
+    """Tests for rule base creation."""
+
+    def setUp(self):
+        self.session = ReasoningSession.create()
+
+    def tearDown(self):
+        self.session.close()
+
+    def test_create_empty_rule_base(self):
+        """Test creating an empty rule base."""
+        rule_base = self.session.create_rule_base()
+        self.assertEqual(len(rule_base.rules), 0)
+        self.assertIn(rule_base, self.session.rule_bases)
+
+    def test_create_rule_base_with_rules(self):
+        """Test creating a rule base with rules."""
+        result = self.session.parse("q(X) :- p(X,Y).")
+        rule_base = self.session.create_rule_base(rules=result.rules)
+        self.assertEqual(len(rule_base.rules), 1)
+
+    def test_rule_bases_tracked(self):
+        """Test that created rule bases are tracked."""
+        _ = self.session.create_rule_base()
+        _ = self.session.create_rule_base()
+        self.assertEqual(len(self.session.rule_bases), 2)
+
+
+class TestReasoningSessionKnowledgeBase(TestCase):
+    """Tests for knowledge base creation."""
+
+    def setUp(self):
+        self.session = ReasoningSession.create()
+
+    def tearDown(self):
+        self.session.close()
+
+    def test_create_knowledge_base(self):
+        """Test creating a knowledge base."""
+        kb = self.session.create_knowledge_base()
+        self.assertIn(kb, self.session.knowledge_bases)
+        self.assertIsNotNone(kb.fact_base)
+        self.assertIsNotNone(kb.rule_base)
+
+
 class TestReasoningSessionRewriting(TestCase):
     """Tests for query rewriting."""
 

@@ -8,7 +8,9 @@ import warnings
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
-from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
+from prototyping_inference_engine.api.atom.term.evaluable_function_term import (
+    EvaluableFunctionTerm,
+)
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
     LiteralFactory,
@@ -121,7 +123,9 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         func_source = self._stdfct_source([sum_pred])
         data = ReadableDataCollection({p: fact_base, sum_pred: func_source})
 
-        formula = NegationFormula(Atom(p, FunctionTerm("stdfct:sum", [one, two])))
+        formula = NegationFormula(
+            Atom(p, EvaluableFunctionTerm("stdfct:sum", [one, two]))
+        )
 
         results = list(self.evaluator.evaluate(formula, data))
 
@@ -142,7 +146,9 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         func_source = self._stdfct_source([sum_pred])
         data = ReadableDataCollection({p: fact_base, sum_pred: func_source})
 
-        formula = NegationFormula(Atom(p, FunctionTerm("stdfct:sum", [one, two])))
+        formula = NegationFormula(
+            Atom(p, EvaluableFunctionTerm("stdfct:sum", [one, two]))
+        )
 
         results = list(self.evaluator.evaluate(formula, data))
 
@@ -167,8 +173,10 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
             {p: fact_base, sum_pred: func_source, product_pred: func_source}
         )
 
-        nested = FunctionTerm("stdfct:product", [two, two])
-        formula = NegationFormula(Atom(p, FunctionTerm("stdfct:sum", [one, nested])))
+        nested = EvaluableFunctionTerm("stdfct:product", [two, two])
+        formula = NegationFormula(
+            Atom(p, EvaluableFunctionTerm("stdfct:sum", [one, nested]))
+        )
 
         results = list(self.evaluator.evaluate(formula, data))
 

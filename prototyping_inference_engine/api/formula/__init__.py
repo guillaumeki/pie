@@ -27,6 +27,9 @@ from prototyping_inference_engine.api.formula.universal_formula import Universal
 from prototyping_inference_engine.api.formula.existential_formula import (
     ExistentialFormula,
 )
+from prototyping_inference_engine.api.formula.fo_conjunction_fact_base_wrapper import (
+    FOConjunctionFactBaseWrapper,
+)
 from prototyping_inference_engine.api.formula.formula_builder import FormulaBuilder
 
 __all__ = [
@@ -38,5 +41,6 @@ __all__ = [
     "QuantifiedFormula",
     "UniversalFormula",
     "ExistentialFormula",
+    "FOConjunctionFactBaseWrapper",
     "FormulaBuilder",
 ]

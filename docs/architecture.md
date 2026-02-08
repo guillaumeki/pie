@@ -9,13 +9,17 @@ Pie is organized around core API types (terms, atoms, queries), evaluator stacks
 - Formulas: `Atom`, `ConjunctionFormula`, `DisjunctionFormula`, `NegationFormula`, `ExistentialFormula`, `UniversalFormula`.
 - Queries: `FOQuery` wrapping formulas and answer variables.
 - Fact bases: `MutableInMemoryFactBase`, `FrozenInMemoryFactBase`.
-- Rules and ontologies with disjunctive head support.
+- Rule bases and ontologies with disjunctive head support.
+- Knowledge bases for grouping facts with rule bases.
+- Functional terms distinguish logical terms from evaluable terms tied to `@computed`.
 
 ## Data Abstraction (`prototyping_inference_engine.api.data`)
 - `ReadableData` interface for queryable data sources.
 - `MaterializedData` for fully iterable data sources.
 - `BasicQuery`, `AtomicPattern`, and `PositionConstraint` to describe capabilities.
 - `DataCollection` for integrating multiple data sources.
+- `DatalogDelegable` for delegating rules and queries to external engines.
+- Delegation wrappers (`DelAtomWrapper`, `QueryableDataDelAtomsWrapper`) for atom filtering.
 
 ## Query Evaluation (`prototyping_inference_engine.query_evaluation`)
 Evaluator hierarchy:

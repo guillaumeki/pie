@@ -38,3 +38,12 @@ class Enumerable(Protocol):
     def __iter__(self) -> Iterator[Atom]: ...
 
     def __contains__(self, atom: Atom) -> bool: ...
+
+
+@runtime_checkable
+class CSVCopyable(Protocol):
+    """Fact bases that can import CSV content directly."""
+
+    def copy(
+        self, csv_file_path: str, separator: str, header_size: int, witness: Atom
+    ) -> bool: ...

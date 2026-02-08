@@ -17,10 +17,22 @@ from prototyping_inference_engine.api.atom.term.factory.predicate_factory import
 from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
     LiteralFactory,
 )
+from prototyping_inference_engine.api.atom.term.factory.identity_term_factory import (
+    IdentityVariableFactory,
+    IdentityConstantFactory,
+    IdentityLiteralFactory,
+)
+from prototyping_inference_engine.api.atom.term.factory.identity_predicate_factory import (
+    IdentityPredicateFactory,
+)
 
 __all__ = [
     "VariableFactory",
     "ConstantFactory",
     "PredicateFactory",
     "LiteralFactory",
+    "IdentityVariableFactory",
+    "IdentityConstantFactory",
+    "IdentityLiteralFactory",
+    "IdentityPredicateFactory",
 ]

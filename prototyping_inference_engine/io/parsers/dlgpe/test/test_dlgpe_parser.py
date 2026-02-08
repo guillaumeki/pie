@@ -8,7 +8,9 @@ from prototyping_inference_engine.io.parsers.dlgpe import (
     DlgpeParser,
     DlgpeUnsupportedFeatureError,
 )
-from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
+from prototyping_inference_engine.api.atom.term.logical_function_term import (
+    LogicalFunctionalTerm,
+)
 
 
 class TestDlgpeParserBasics(unittest.TestCase):
@@ -286,7 +288,7 @@ class TestDlgpeParserFunctionalTerms(unittest.TestCase):
     def test_function_term_in_fact(self):
         result = self.parser.parse("p(f(a)).")
         atom = result["facts"][0]
-        self.assertIsInstance(atom.terms[0], FunctionTerm)
+        self.assertIsInstance(atom.terms[0], LogicalFunctionalTerm)
 
 
 class TestDlgpeParserComparison(unittest.TestCase):

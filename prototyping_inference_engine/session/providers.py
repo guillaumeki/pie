@@ -243,19 +243,33 @@ class DlgpeParserProvider:
     Delegates to the existing DlgpeParser for parsing DLGPE format content.
     """
 
-    def __init__(self, term_factories=None) -> None:
+    def __init__(self, term_factories=None, python_function_names=None) -> None:
         self._term_factories = term_factories
+        self._python_function_names = python_function_names
 
     def _transformer(self):
         from prototyping_inference_engine.api.atom.term.literal import Literal
+        from prototyping_inference_engine.api.atom.term.identity_literal import (
+            IdentityLiteral,
+        )
         from prototyping_inference_engine.io.parsers.dlgpe.dlgpe_transformer import (
             DlgpeTransformer,
         )
 
-        if self._term_factories and Literal in self._term_factories:
-            literal_factory = self._term_factories.get(Literal)
-            return DlgpeTransformer(literal_factory)
-        return DlgpeTransformer()
+        literal_factory = None
+        if self._term_factories:
+            if Literal in self._term_factories:
+                literal_factory = self._term_factories.get(Literal)
+            elif IdentityLiteral in self._term_factories:
+                literal_factory = self._term_factories.get(IdentityLiteral)
+        python_function_names = (
+            self._python_function_names() if self._python_function_names else set()
+        )
+        return DlgpeTransformer(
+            literal_factory=literal_factory,
+            term_factories=self._term_factories,
+            python_function_names=python_function_names,
+        )
 
     def parse_atoms(self, text: str) -> Iterable["Atom"]:
         """Parse atoms from DLGPE text."""

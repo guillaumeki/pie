@@ -6,7 +6,9 @@ from __future__ import annotations
 
 
 from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
+from prototyping_inference_engine.api.atom.term.evaluable_function_term import (
+    EvaluableFunctionTerm,
+)
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.formula.formula import Formula
@@ -47,7 +49,7 @@ def formula_contains_function(formula: Formula) -> bool:
 
 
 def term_contains_function(term: Term) -> bool:
-    if isinstance(term, FunctionTerm):
+    if isinstance(term, EvaluableFunctionTerm):
         return True
     args = getattr(term, "args", None)
     if args:
@@ -61,7 +63,7 @@ def _rewrite_term(term: Term) -> tuple[Term, list[Atom]]:
         function_predicate,
     )
 
-    if isinstance(term, FunctionTerm):
+    if isinstance(term, EvaluableFunctionTerm):
         rewritten_args: list[Term] = []
         extra_atoms: list[Atom] = []
         for arg in term.args:

@@ -29,7 +29,8 @@ from prototyping_inference_engine.api.atom.term.storage.storage_strategy import 
     TermStorageStrategy,
 )
 from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
-from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
+from prototyping_inference_engine.api.kb.knowledge_base import KnowledgeBase
+from prototyping_inference_engine.api.kb.rule_base import RuleBase
 from prototyping_inference_engine.api.ontology.ontology import Ontology
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.ontology.constraint.negative_constraint import (
@@ -58,7 +59,9 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.formula.formula_builder import FormulaBuilder
     from prototyping_inference_engine.api.query.fo_query import FOQuery
     from prototyping_inference_engine.api.query.query import Query
-    from prototyping_inference_engine.api.query.fo_query_factory import FOQueryFactory
+    from prototyping_inference_engine.api.query.factory.fo_query_factory import (
+        FOQueryFactory,
+    )
 
 
 class ReasoningSession:
@@ -113,15 +116,6 @@ class ReasoningSession:
                 Literal, LiteralFactory(DictStorage(), self._literal_config)
             )
 
-        self._parser_provider = parser_provider or DlgpeParserProvider(
-            self._term_factories
-        )
-        self._fact_base_provider = (
-            fact_base_provider or DefaultFactBaseFactoryProvider()
-        )
-        self._rewriting_provider = (
-            rewriting_provider or DefaultRewritingAlgorithmProvider()
-        )
         self._python_function_source = None
 
         if Literal in self._term_factories:
@@ -132,9 +126,26 @@ class ReasoningSession:
             literal_factory = self._term_factories.get(Literal)
             self._python_function_source = PythonFunctionReadable(literal_factory)
 
+        self._parser_provider = parser_provider or DlgpeParserProvider(
+            self._term_factories,
+            python_function_names=(
+                self._python_function_source.function_names
+                if self._python_function_source
+                else None
+            ),
+        )
+        self._fact_base_provider = (
+            fact_base_provider or DefaultFactBaseFactoryProvider()
+        )
+        self._rewriting_provider = (
+            rewriting_provider or DefaultRewritingAlgorithmProvider()
+        )
+
         # Session-owned resources
         self._fact_bases: list["FactBase"] = []
+        self._rule_bases: list[RuleBase] = []
         self._ontologies: list[Ontology] = []
+        self._knowledge_bases: list[KnowledgeBase] = []
         self._closed = False
         self._iri_base: str | None = None
         self._iri_prefixes: dict[str, str] = {}
@@ -239,6 +250,16 @@ class ReasoningSession:
     def ontologies(self) -> list[Ontology]:
         """Return a copy of the list of ontologies created in this session."""
         return list(self._ontologies)
+
+    @property
+    def rule_bases(self) -> list[RuleBase]:
+        """Return a copy of the list of rule bases created in this session."""
+        return list(self._rule_bases)
+
+    @property
+    def knowledge_bases(self) -> list[KnowledgeBase]:
+        """Return a copy of the list of knowledge bases created in this session."""
+        return list(self._knowledge_bases)
 
     @property
     def is_closed(self) -> bool:
@@ -418,7 +439,7 @@ class ReasoningSession:
             formula = session.formula().atom("p", "X", "Y").build()
             query = session.fo_query().from_formula(formula, ["X"])
         """
-        from prototyping_inference_engine.api.query.fo_query_factory import (
+        from prototyping_inference_engine.api.query.factory.fo_query_factory import (
             FOQueryFactory,
         )
 
@@ -465,6 +486,50 @@ class ReasoningSession:
         onto = Ontology(rules or set(), constraints or set())
         self._ontologies.append(onto)
         return onto
+
+    def create_rule_base(
+        self,
+        rules: Optional[set[Rule]] = None,
+        constraints: Optional[set[NegativeConstraint]] = None,
+    ) -> RuleBase:
+        """
+        Create a rule base and register it with the session.
+
+        Args:
+            rules: Optional set of rules
+            constraints: Optional set of negative constraints
+
+        Returns:
+            A new RuleBase instance
+        """
+        self._check_not_closed()
+        rule_base = RuleBase(rules or set(), constraints or set())
+        self._rule_bases.append(rule_base)
+        return rule_base
+
+    def create_knowledge_base(
+        self,
+        fact_base: Optional["FactBase"] = None,
+        rule_base: Optional[RuleBase] = None,
+    ) -> KnowledgeBase:
+        """
+        Create a knowledge base and register it with the session.
+
+        Args:
+            fact_base: Optional FactBase to attach (defaults to new mutable FactBase)
+            rule_base: Optional RuleBase to attach (defaults to new RuleBase)
+
+        Returns:
+            A new KnowledgeBase instance
+        """
+        self._check_not_closed()
+        if fact_base is None:
+            fact_base = self.create_fact_base()
+        if rule_base is None:
+            rule_base = self.create_rule_base()
+        kb = KnowledgeBase(fact_base, rule_base)
+        self._knowledge_bases.append(kb)
+        return kb
 
     # =========================================================================
     # Parsing methods
@@ -805,7 +870,9 @@ class ReasoningSession:
                 factory._storage.clear()
 
         self._fact_bases.clear()
+        self._rule_bases.clear()
         self._ontologies.clear()
+        self._knowledge_bases.clear()
         self._closed = True
 
     # =========================================================================
@@ -832,19 +899,54 @@ class ReasoningSession:
     def _track_atom(self, atom: Atom) -> None:
         """Track all terms and predicate in an atom."""
         # Track predicate
+        from prototyping_inference_engine.api.atom.identity_predicate import (
+            IdentityPredicate,
+        )
+
         if Predicate in self._term_factories:
             self._term_factories.get(Predicate).create(
+                atom.predicate.name, atom.predicate.arity
+            )
+        elif IdentityPredicate in self._term_factories:
+            self._term_factories.get(IdentityPredicate).create(
                 atom.predicate.name, atom.predicate.arity
             )
 
         # Track terms
         for term in atom.terms:
+            from prototyping_inference_engine.api.atom.term.identity_constant import (
+                IdentityConstant,
+            )
+            from prototyping_inference_engine.api.atom.term.identity_literal import (
+                IdentityLiteral,
+            )
+            from prototyping_inference_engine.api.atom.term.identity_variable import (
+                IdentityVariable,
+            )
+
             if isinstance(term, Variable) and Variable in self._term_factories:
                 self._term_factories.get(Variable).create(str(term.identifier))
+            elif (
+                isinstance(term, IdentityVariable)
+                and IdentityVariable in self._term_factories
+            ):
+                self._term_factories.get(IdentityVariable).create(str(term.identifier))
             elif isinstance(term, Constant) and Constant in self._term_factories:
                 self._term_factories.get(Constant).create(term.identifier)
+            elif (
+                isinstance(term, IdentityConstant)
+                and IdentityConstant in self._term_factories
+            ):
+                self._term_factories.get(IdentityConstant).create(term.identifier)
             elif isinstance(term, Literal) and Literal in self._term_factories:
                 self._term_factories.get(Literal).create(
+                    term.lexical or str(term.value), term.datatype, term.lang
+                )
+            elif (
+                isinstance(term, IdentityLiteral)
+                and IdentityLiteral in self._term_factories
+            ):
+                self._term_factories.get(IdentityLiteral).create(
                     term.lexical or str(term.value), term.datatype, term.lang
                 )
 
@@ -880,7 +982,11 @@ def _contains_function_term(atoms: Iterable[Atom]) -> bool:
 
 
 def _term_contains_function(term: Term) -> bool:
-    if isinstance(term, FunctionTerm):
+    from prototyping_inference_engine.api.atom.term.evaluable_function_term import (
+        EvaluableFunctionTerm,
+    )
+
+    if isinstance(term, EvaluableFunctionTerm):
         return True
     args = getattr(term, "args", None)
     if args:
@@ -909,9 +1015,11 @@ def _extract_computed_predicates(
 def _collect_computed_predicates_from_term(
     term: Term, base_iris: list[str], predicates: set[Predicate]
 ) -> None:
-    from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
+    from prototyping_inference_engine.api.atom.term.evaluable_function_term import (
+        EvaluableFunctionTerm,
+    )
 
-    if isinstance(term, FunctionTerm):
+    if isinstance(term, EvaluableFunctionTerm):
         if any(term.name.startswith(base) for base in base_iris):
             predicates.add(Predicate(term.name, len(term.args) + 1))
         for arg in term.args:

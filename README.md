@@ -13,6 +13,8 @@ The library supports:
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
 - **DLGP parser (DLGPE version)** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
 - **Computed predicates** with Integraal standard functions via `@computed`
+- **Knowledge bases and rule bases** for grouping facts and rules
+- **Prepared query interfaces** and FOQuery factory helpers
 - **IRI utilities** for parsing, normalization, and base/prefix management
 - **IO helpers** with parsers and writers (DLGP export)
 
@@ -163,6 +165,7 @@ Other computed libraries are not supported by the DLGP parser.
 - **Queries**: `FOQuery` wrapping formulas with answer variables
 - **Fact Bases**: `MutableInMemoryFactBase`, `FrozenInMemoryFactBase`
 - **Rules & Ontology**: Generic rules with disjunctive head support
+- **Rule Bases & Knowledge Bases**: Containers for rules, facts, and ontologies
 
 ### Data Abstraction (`api/data/`)
 

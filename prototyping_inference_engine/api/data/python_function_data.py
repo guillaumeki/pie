@@ -141,6 +141,9 @@ class PythonFunctionReadable(ReadableData):
     def get_spec_by_name(self, name: str) -> Optional[FunctionSpec]:
         return self._specs_by_name.get(name)
 
+    def function_names(self) -> set[str]:
+        return set(self._specs_by_name.keys())
+
     def get_predicates(self) -> Iterator[Predicate]:
         return iter(self._specs_by_predicate.keys())
 

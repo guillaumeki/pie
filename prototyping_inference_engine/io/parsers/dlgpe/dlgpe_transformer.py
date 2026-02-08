@@ -13,7 +13,19 @@ from prototyping_inference_engine.api.atom.predicate import (
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.atom.term.function_term import FunctionTerm
+from prototyping_inference_engine.api.atom.term.evaluable_function_term import (
+    EvaluableFunctionTerm,
+)
+from prototyping_inference_engine.api.atom.term.identity_constant import (
+    IdentityConstant,
+)
+from prototyping_inference_engine.api.atom.term.identity_variable import (
+    IdentityVariable,
+)
+from prototyping_inference_engine.api.atom.term.logical_function_term import (
+    LogicalFunctionalTerm,
+)
+from prototyping_inference_engine.api.atom.identity_predicate import IdentityPredicate
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
     LiteralFactory,
@@ -91,6 +103,8 @@ class DlgpeTransformer(Transformer):
         literal_factory: Optional[LiteralFactory] = None,
         iri_manager: Optional[IRIManager] = None,
         strict_prefix_base: bool = True,
+        term_factories=None,
+        python_function_names: Optional[set[str]] = None,
     ):
         super().__init__()
         self._base_iri: Optional[str] = None
@@ -114,6 +128,23 @@ class DlgpeTransformer(Transformer):
             use_default_base=False,
         )
         self._strict_prefix_base = strict_prefix_base
+        self._term_factories = term_factories
+        self._python_function_names = python_function_names or set()
+
+    def _get_factory(self, primary_type, identity_type):
+        if not self._term_factories:
+            return None
+        if primary_type in self._term_factories:
+            return self._term_factories.get(primary_type)
+        if identity_type in self._term_factories:
+            return self._term_factories.get(identity_type)
+        return None
+
+    def _create_predicate(self, name: str, arity: int) -> Predicate | IdentityPredicate:
+        factory = self._get_factory(Predicate, IdentityPredicate)
+        if factory is not None:
+            return factory.create(name, arity)
+        return Predicate(name, arity)
 
     # ==================== Unsupported Features ====================
 
@@ -459,14 +490,14 @@ class DlgpeTransformer(Transformer):
         """Atom in head: predicate(terms)"""
         predicate_name = items[0]
         terms = items[1] if len(items) > 1 else ()
-        predicate = Predicate(predicate_name, len(terms))
+        predicate = self._create_predicate(predicate_name, len(terms))
         return Atom(predicate, *terms)
 
     def body_atom(self, items) -> Atom:
         """Atom in body: predicate(terms)"""
         predicate_name = items[0]
         terms = items[1] if len(items) > 1 else ()
-        predicate = Predicate(predicate_name, len(terms))
+        predicate = self._create_predicate(predicate_name, len(terms))
         return Atom(predicate, *terms)
 
     def equal_atom(self, items) -> Atom:
@@ -515,10 +546,16 @@ class DlgpeTransformer(Transformer):
 
     def named_variable(self, items) -> Variable:
         name = str(items[0])
+        factory = self._get_factory(Variable, IdentityVariable)
+        if factory is not None:
+            return factory.create(name)
         return Variable(name)
 
     def anonymous_variable(self, items) -> Variable:
         # Generate a unique anonymous variable
+        factory = self._get_factory(Variable, IdentityVariable)
+        if factory is not None and hasattr(factory, "fresh"):
+            return factory.fresh()
         return Variable.fresh_variable()
 
     def constant(self, items) -> Term:
@@ -527,12 +564,24 @@ class DlgpeTransformer(Transformer):
             return value
         if isinstance(value, Literal):
             return value
+        factory = self._get_factory(Constant, IdentityConstant)
+        if factory is not None:
+            return factory.create(str(value))
         return Constant(str(value))
 
-    def functional_term(self, items) -> FunctionTerm:
+    def functional_term(self, items) -> Term:
         name = str(items[0])
         args = items[1] if len(items) > 1 else ()
-        return FunctionTerm(name, args)
+        if self._is_computed_function_name(name):
+            return EvaluableFunctionTerm(name, args)
+        return LogicalFunctionalTerm(name, args)
+
+    def _is_computed_function_name(self, name: str) -> bool:
+        bases = set(self._computed_prefixes.values())
+        bases.update(self._computed_prefixes_raw.values())
+        if any(base and name.startswith(base) for base in bases):
+            return True
+        return name in self._python_function_names
 
     def function_symbol(self, items) -> str:
         return str(items[0])

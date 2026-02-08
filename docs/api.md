@@ -2,6 +2,7 @@
 
 ## Public Interfaces
 - Terms, atoms, queries, and fact bases under `prototyping_inference_engine.api`.
+- Knowledge bases and rule bases under `prototyping_inference_engine.api.kb`.
 - Query evaluators under `prototyping_inference_engine.query_evaluation`.
 - Parsers under `prototyping_inference_engine.io.parsers`.
 - IRI utilities under `prototyping_inference_engine.api.iri`.
@@ -16,6 +17,13 @@
 - `IRIRef` / `IRIManager`: parse and resolve IRIs with base/prefix state.
 - `DlgpeWriter`: write DLGP (DLGPE version) documents from parse results.
 - `IntegraalStandardFunctionSource`: computed predicates for Integraal standard functions.
+- `RuleBase` / `KnowledgeBase`: rule and knowledge containers.
+- `PreparedQuery` / `PreparedFOQuery`: prepared query interfaces.
+- `FOQueryFactory`: central query construction utilities.
+- `FOConjunctionFactBaseWrapper`: expose a fact base as a conjunction formula.
+- `DatalogDelegable`: delegation hooks for rule and query evaluation.
+- `DelAtomWrapper`: atom-filtering wrapper for delegable evaluation.
+- `IdentityVariable` / `IdentityConstant` / `IdentityLiteral` / `IdentityPredicate`: identity-based term and predicate types with matching factories.
 
 ## API Notes
 - Docstrings are the authoritative source for method-level behavior and edge cases.

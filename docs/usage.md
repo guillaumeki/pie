@@ -243,6 +243,30 @@ The queries below yield:
 ?(U) :- ig:union(ig:set(a, b), ig:set(b, c), U).
 ```
 
+## Functional Term Semantics
+Functional terms are evaluated when they use a prefix declared by `@computed`
+or when the function is registered in the session's Python function source.
+If neither applies, the functional term is treated as a logical
+(uninterpreted) functional term and is not evaluated by computed predicate
+sources.
+
+## Knowledge Bases and Rule Bases
+`RuleBase` collects rules (including ontologies), while `KnowledgeBase` bundles
+facts and rule bases together. Use the `ReasoningSession` helpers to create and
+track them alongside fact bases when you need a persistent container for rules
+or knowledge.
+
+## Prepared Queries and Fact-Base Wrappers
+Prepared queries (`PreparedQuery`, `PreparedFOQuery`) represent validated or
+compiled query objects. `FOQueryFactory` centralizes query construction, and
+`FOConjunctionFactBaseWrapper` exposes a fact base as a conjunction formula for
+formula-level APIs.
+
+## Delegation and Atom Filtering
+Data sources can opt into `DatalogDelegable` to delegate rule/query evaluation
+to external engines. Use `DelAtomWrapper` and `QueryableDataDelAtomsWrapper`
+to filter out specific atoms before delegating evaluation.
+
 ## DLGP Features (Supported)
 - Disjunction in head and body.
 - Negation in body.

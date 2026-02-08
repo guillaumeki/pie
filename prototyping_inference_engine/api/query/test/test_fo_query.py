@@ -248,7 +248,7 @@ class TestFOQueryFactory(unittest.TestCase):
         self.assertEqual(query.label, "test")
 
     def test_builder_returns_builder(self):
-        from prototyping_inference_engine.api.query.fo_query_factory import (
+        from prototyping_inference_engine.api.query.factory.fo_query_factory import (
             FOQueryBuilder,
         )
 
