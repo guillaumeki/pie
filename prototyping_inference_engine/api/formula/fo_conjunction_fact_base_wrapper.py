@@ -39,13 +39,16 @@ class FOConjunctionFactBaseWrapper(Formula):
         return frozenset(self._fact_base)
 
     def apply_substitution(self, substitution: "Substitution") -> "Formula":
-        atoms = [atom.apply_substitution(substitution) for atom in self._fact_base]
+        atoms = [
+            atom.apply_substitution(substitution)
+            for atom in sorted(self._fact_base, key=str)
+        ]
         if not atoms:
             return self
         return _conjoin_all(atoms)
 
     def __str__(self) -> str:
-        return " \u2227 ".join(map(str, self._fact_base))
+        return " \u2227 ".join(map(str, sorted(self._fact_base, key=str)))
 
     def __repr__(self) -> str:
         return str(self)
