@@ -68,13 +68,14 @@ For any important change:
 8) Update documentation (README and `docs/`) after the design docs so docs stay current.
 9) Build docs locally with `mkdocs build --clean` to verify documentation changes will not break CI.
 10) Write unit tests when relevant.
-11) Commit and push changes to both `bitbucket` and `origin`.
-12) Delete the plan file after changelog, design docs, and documentation updates are written.
-13) Do not commit or push unless `mypy prototyping_inference_engine` and the full unit test suite have passed.
-14) Every documentation example must be covered by a unit test.
-15) Every documentation code block must be surrounded by explanatory text.
-16) Tests must never use `str(...)` or `repr(...)` in assertions or comparisons (avoid brittle expectations).
-17) Tests must be deterministic (no reliance on iteration order from sets/dicts; always sort or normalize).
+11) When a new version is justified, create and push a git tag `v<version>` that matches `pyproject.toml`.
+12) Commit and push changes to both `bitbucket` and `origin`.
+13) Delete the plan file after changelog, design docs, and documentation updates are written.
+14) Do not commit or push unless `mypy prototyping_inference_engine` and the full unit test suite have passed.
+15) Every documentation example must be covered by a unit test.
+16) Every documentation code block must be surrounded by explanatory text.
+17) Tests must never use `str(...)` or `repr(...)` in assertions or comparisons (avoid brittle expectations).
+18) Tests must be deterministic (no reliance on iteration order from sets/dicts; always sort or normalize).
 
 ## Python Module Hierarchy Standards
 - This project uses a flat layout (importable packages at repo root). Do not introduce a `src/` layout unless the plan explicitly justifies it and includes required packaging changes. (https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/)

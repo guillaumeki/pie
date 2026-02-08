@@ -21,6 +21,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: GitHub Actions release workflow for PyPI Trusted Publishing.
 - Changed: change process now requires version updates for release-worthy changes.
 - Changed: bumped version to 0.0.14.
+- Changed: PyPI publishing now triggers on `v*` tags with a version/tag consistency check.
 - Updated: Usage documentation now focuses on concrete usage flows with executable examples.
 - Added: Usage reference with signatures and runnable examples for every computed function.
 - Added: documentation tests for new usage examples and API snippets.
