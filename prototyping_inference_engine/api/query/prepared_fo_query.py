@@ -25,6 +25,9 @@ class PreparedFOQuery(
 class PreparedFOQueryDefaults:
     """Optional mixin providing default behaviors for prepared FO queries."""
 
+    def execute(self, assignation: Substitution) -> Iterable[Substitution]:
+        raise NotImplementedError
+
     def execute_empty(self) -> Iterable[Substitution]:
         return self.execute(Substitution())
 
