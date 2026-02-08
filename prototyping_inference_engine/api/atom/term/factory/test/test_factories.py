@@ -28,7 +28,7 @@ class TestVariableFactory(TestCase):
         factory = VariableFactory(DictStorage())
         var = factory.create("X")
         self.assertIsInstance(var, Variable)
-        self.assertEqual(str(var), "X")
+        self.assertEqual(var.identifier, "X")
 
     def test_create_same_identifier_returns_same_instance(self):
         """Test that creating with same identifier returns same instance."""
@@ -50,7 +50,7 @@ class TestVariableFactory(TestCase):
         fresh1 = factory.fresh()
         fresh2 = factory.fresh()
         self.assertIsNot(fresh1, fresh2)
-        self.assertNotEqual(str(fresh1), str(fresh2))
+        self.assertNotEqual(fresh1.identifier, fresh2.identifier)
 
     def test_fresh_avoids_existing_identifiers(self):
         """Test that fresh avoids existing identifiers."""
@@ -59,7 +59,7 @@ class TestVariableFactory(TestCase):
         factory.create("_FV0")
         fresh = factory.fresh()
         # Should skip _FV0 and use _FV1
-        self.assertEqual(str(fresh), "_FV1")
+        self.assertEqual(fresh.identifier, "_FV1")
 
     def test_tracked_returns_created_variables(self):
         """Test that tracked returns all created variables."""
@@ -117,7 +117,7 @@ class TestConstantFactory(TestCase):
         factory = ConstantFactory(DictStorage())
         const = factory.create("a")
         self.assertIsInstance(const, Constant)
-        self.assertEqual(str(const), "a")
+        self.assertEqual(const.identifier, "a")
 
     def test_create_same_identifier_returns_same_instance(self):
         """Test that creating with same identifier returns same instance."""

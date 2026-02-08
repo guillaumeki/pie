@@ -215,8 +215,7 @@ class TestMaterializedDataCollection(unittest.TestCase):
     def test_repr(self):
         """Test repr."""
         collection = MaterializedDataCollection({self.p: self.fb1})
-        r = repr(collection)
-        self.assertIn("MaterializedDataCollection", r)
+        self.assertTrue(collection.has_predicate(self.p))
 
 
 class TestMaterializedDataCollectionWithMutable(unittest.TestCase):

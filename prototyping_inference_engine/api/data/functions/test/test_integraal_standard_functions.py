@@ -433,7 +433,8 @@ class TestIntegraalStandardFunctions(unittest.TestCase):
             self._literal("12", "xsd:string"),
         )
         value = self._evaluate_single("toStringWithDatatype", [literal])
-        self.assertTrue(str(value.value).startswith("Literal"))
+        self.assertEqual(value.datatype, "xsd:string")
+        self.assertEqual(value.value, "Literal<int> 12")
 
     def test_tuple_and_dict_functions(self):
         a = Constant("a")

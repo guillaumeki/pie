@@ -72,6 +72,8 @@ For any important change:
 12) Do not commit or push unless `mypy prototyping_inference_engine` and the full unit test suite have passed.
 13) Every documentation example must be covered by a unit test.
 14) Every documentation code block must be surrounded by explanatory text.
+15) Tests must never use `str(...)` or `repr(...)` in assertions or comparisons (avoid brittle expectations).
+16) Tests must be deterministic (no reliance on iteration order from sets/dicts; always sort or normalize).
 
 ## Python Module Hierarchy Standards
 - This project uses a flat layout (importable packages at repo root). Do not introduce a `src/` layout unless the plan explicitly justifies it and includes required packaging changes. (https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/)
@@ -131,6 +133,7 @@ For any important change:
 - `agents/design/data-delegation-wrappers.md`
 - `agents/design/prepared-queries-factory.md`
 - `agents/design/functional-terms-identity.md`
+- `agents/design/test-writing-rules.md`
 - `agents/design/process-templates.md`
 - `agents/design/commit-process.md`
 - `agents/design/functional-terms.md`

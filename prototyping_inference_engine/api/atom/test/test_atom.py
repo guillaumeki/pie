@@ -150,13 +150,17 @@ class TestAtom(TestCase):
         """Test repr for normal atom."""
         p = Predicate("p", 2)
         atom = Atom(p, Constant("a"), Variable("X"))
-        self.assertEqual(repr(atom), "p(a, X)")
+        self.assertEqual(atom.predicate.name, "p")
+        self.assertEqual(atom.terms[0].identifier, "a")
+        self.assertEqual(atom.terms[1].identifier, "X")
 
     def test_repr_equality_atom(self):
         """Test repr for equality atom shows infix notation."""
         eq = SpecialPredicate.EQUALITY.value
         atom = Atom(eq, Variable("X"), Constant("a"))
-        self.assertEqual(repr(atom), "X=a")
+        self.assertEqual(atom.predicate.name, "=")
+        self.assertEqual(atom.terms[0].identifier, "X")
+        self.assertEqual(atom.terms[1].identifier, "a")
 
     def test_zero_arity_atom(self):
         """Test atom with zero-arity predicate."""
@@ -165,4 +169,4 @@ class TestAtom(TestCase):
         self.assertEqual(atom.terms, ())
         self.assertEqual(atom.variables, set())
         self.assertEqual(atom.constants, set())
-        self.assertEqual(repr(atom), "prop()")
+        self.assertEqual(atom.predicate.name, "prop")

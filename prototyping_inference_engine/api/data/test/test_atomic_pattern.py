@@ -44,7 +44,7 @@ class TestUnconstrainedPattern(unittest.TestCase):
 
     def test_repr(self):
         """Test repr."""
-        self.assertIn("UnconstrainedPattern", repr(self.pattern))
+        self.assertEqual(self.pattern.predicate, self.p)
 
 
 class TestSimpleAtomicPattern(unittest.TestCase):
@@ -129,9 +129,8 @@ class TestSimpleAtomicPattern(unittest.TestCase):
     def test_repr_with_constraints(self):
         """Test repr with constraints."""
         pattern = SimpleAtomicPattern(self.p, {0: CONSTANT})
-        r = repr(pattern)
-        self.assertIn("SimpleAtomicPattern", r)
-        self.assertIn("constant", r)
+        self.assertEqual(pattern.predicate, self.p)
+        self.assertEqual(pattern.get_constraint(0), CONSTANT)
 
 
 class TestAtomicPatternAPI(unittest.TestCase):

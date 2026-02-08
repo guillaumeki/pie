@@ -41,7 +41,7 @@ class TestPythonFunctionReadable(unittest.TestCase):
         query = BasicQuery(pred, {0: a, 1: b}, {2: Variable("R")})
         results = list(self.data.evaluate(query))
         self.assertEqual(len(results), 1)
-        self.assertEqual(str(results[0][0]), "3")
+        self.assertEqual(results[0][0].value, 3)
 
     def test_min_bound_with_solver(self):
         self.data.register_function(
@@ -57,7 +57,7 @@ class TestPythonFunctionReadable(unittest.TestCase):
         query = BasicQuery(pred, {0: a, 2: res}, {1: Variable("B")})
         results = list(self.data.evaluate(query))
         self.assertEqual(len(results), 1)
-        self.assertEqual(str(results[0][0]), "4")
+        self.assertEqual(results[0][0].value, 4)
 
 
 if __name__ == "__main__":

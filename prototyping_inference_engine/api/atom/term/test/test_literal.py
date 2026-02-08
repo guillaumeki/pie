@@ -26,14 +26,14 @@ class TestLiteralFactoryDefaults(unittest.TestCase):
         factory = LiteralFactory(DictStorage(), LiteralConfig.default())
         lit = factory.create("01", "xsd:integer")
         self.assertEqual(lit.value, 1)
-        self.assertEqual(str(lit), "1")
+        self.assertEqual(lit.lexical, "1")
         self.assertEqual(lit.datatype, "xsd:integer")
 
     def test_language_literal(self):
         factory = LiteralFactory(DictStorage(), LiteralConfig.default())
         lit = factory.create("chat", lang="fr")
         self.assertEqual(lit.lang, "fr")
-        self.assertEqual(str(lit), '"chat"@fr')
+        self.assertEqual(lit.lexical, "chat")
 
 
 class TestLiteralFactoryConfig(unittest.TestCase):
@@ -48,7 +48,7 @@ class TestLiteralFactoryConfig(unittest.TestCase):
         self.assertEqual(lit.value, "01")
         self.assertIsNone(lit.lexical)
         self.assertEqual(lit.comparison_key, ("xsd:integer", "01", None))
-        self.assertEqual(str(lit), "01")
+        self.assertEqual(lit.datatype, "xsd:integer")
 
 
 class TestLiteralFactoryXsdAdvanced(unittest.TestCase):
@@ -61,17 +61,18 @@ class TestLiteralFactoryXsdAdvanced(unittest.TestCase):
             lit.value, datetime(2024, 6, 1, 12, 34, 56, tzinfo=timezone.utc)
         )
         self.assertEqual(lit.lexical, "2024-06-01T12:34:56Z")
-        self.assertEqual(str(lit), '"2024-06-01T12:34:56Z"^^xsd:dateTime')
+        self.assertEqual(lit.datatype, "xsd:dateTime")
 
     def test_time_with_timezone(self):
         lit = self.factory.create("12:34:56+02:00", "xsd:time")
         self.assertEqual(lit.value, time.fromisoformat("12:34:56+02:00"))
         self.assertEqual(lit.lexical, "12:34:56+02:00")
-        self.assertEqual(str(lit), '"12:34:56+02:00"^^xsd:time')
+        self.assertEqual(lit.datatype, "xsd:time")
 
     def test_date_normalization(self):
         lit = self.factory.create("2024-06-01", "xsd:date")
-        self.assertEqual(str(lit), '"2024-06-01"^^xsd:date')
+        self.assertEqual(lit.value, datetime(2024, 6, 1).date())
+        self.assertEqual(lit.datatype, "xsd:date")
 
     def test_duration_normalization(self):
         lit = self.factory.create("P1Y2M3DT4H5M6.7S", "xsd:duration")
@@ -80,7 +81,7 @@ class TestLiteralFactoryXsdAdvanced(unittest.TestCase):
             XsdDuration(1, 1, 2, 3, 4, 5, Decimal("6.7")),
         )
         self.assertEqual(lit.lexical, "P1Y2M3DT4H5M6.7S")
-        self.assertEqual(str(lit), '"P1Y2M3DT4H5M6.7S"^^xsd:duration')
+        self.assertEqual(lit.datatype, "xsd:duration")
 
     def test_g_year_g_month_variants(self):
         gyear = self.factory.create("2024Z", "xsd:gYear")
@@ -93,7 +94,7 @@ class TestLiteralFactoryXsdAdvanced(unittest.TestCase):
         self.assertEqual(gmonth_day.value, XsdGMonthDay(12, 25, None))
         self.assertEqual(gday.value, XsdGDay(15, None))
         self.assertEqual(gmonth.value, XsdGMonth(8, None))
-        self.assertEqual(str(gyear), '"2024Z"^^xsd:gYear')
+        self.assertEqual(gyear.lexical, "2024Z")
 
     def test_binary_normalization(self):
         base64_lit = self.factory.create("aGVsbG8=", "xsd:base64Binary")

@@ -27,4 +27,4 @@ class TestDlgpeLiterals(unittest.TestCase):
         string_terms = [t for t in terms if t.datatype == "xsd:string"]
         self.assertEqual(len(string_terms), 1)
         self.assertEqual(string_terms[0].value, "chat")
-        self.assertEqual(str(string_terms[0]), '"chat"')
+        self.assertEqual(string_terms[0].datatype, "xsd:string")

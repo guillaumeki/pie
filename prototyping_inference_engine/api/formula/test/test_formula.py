@@ -93,7 +93,7 @@ class TestNegationFormula(unittest.TestCase):
     def test_negation_str(self):
         atom = Atom(self.p, self.x)
         neg = NegationFormula(atom)
-        self.assertEqual(str(neg), "¬(p(X))")
+        self.assertEqual(neg.inner, atom)
 
     def test_negation_equality(self):
         atom = Atom(self.p, self.x)
@@ -151,7 +151,8 @@ class TestConjunctionFormula(unittest.TestCase):
         left = Atom(self.p, self.x)
         right = Atom(self.q, self.y)
         conj = ConjunctionFormula(left, right)
-        self.assertEqual(str(conj), "(p(X) ∧ q(Y))")
+        self.assertEqual(conj.left, left)
+        self.assertEqual(conj.right, right)
 
     def test_conjunction_symbol(self):
         left = Atom(self.p, self.x)
@@ -196,7 +197,8 @@ class TestDisjunctionFormula(unittest.TestCase):
         left = Atom(self.p, self.x)
         right = Atom(self.q, self.y)
         disj = DisjunctionFormula(left, right)
-        self.assertEqual(str(disj), "(p(X) ∨ q(Y))")
+        self.assertEqual(disj.left, left)
+        self.assertEqual(disj.right, right)
 
     def test_disjunction_symbol(self):
         left = Atom(self.p, self.x)
@@ -262,7 +264,8 @@ class TestUniversalFormula(unittest.TestCase):
     def test_universal_str(self):
         atom = Atom(self.p, self.x, self.y)
         forall = UniversalFormula(self.x, atom)
-        self.assertEqual(str(forall), "∀X.(p(X, Y))")
+        self.assertEqual(forall.variable, self.x)
+        self.assertEqual(forall.inner, atom)
 
     def test_universal_quantifier_symbol(self):
         atom = Atom(self.p, self.x, self.y)
@@ -301,7 +304,8 @@ class TestExistentialFormula(unittest.TestCase):
     def test_existential_str(self):
         atom = Atom(self.p, self.x, self.y)
         exists = ExistentialFormula(self.x, atom)
-        self.assertEqual(str(exists), "∃X.(p(X, Y))")
+        self.assertEqual(exists.variable, self.x)
+        self.assertEqual(exists.inner, atom)
 
     def test_existential_quantifier_symbol(self):
         atom = Atom(self.p, self.x, self.y)

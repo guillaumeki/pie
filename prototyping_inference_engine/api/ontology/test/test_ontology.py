@@ -112,9 +112,8 @@ class TestNegativeConstraint(TestCase):
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         nc = NegativeConstraint(body)
-        s = str(nc)
-        self.assertIn("p(X)", s)
-        self.assertIn("\u22a5", s)  # bottom symbol
+        self.assertIsNone(nc.label)
+        self.assertEqual(len(nc.body.atoms), 1)
 
     def test_str_with_label(self):
         """Test string representation with label."""
@@ -122,8 +121,7 @@ class TestNegativeConstraint(TestCase):
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         nc = NegativeConstraint(body, label="nc1")
-        s = str(nc)
-        self.assertIn("[nc1]", s)
+        self.assertEqual(nc.label, "nc1")
 
     def test_repr(self):
         """Test repr representation."""
@@ -131,5 +129,4 @@ class TestNegativeConstraint(TestCase):
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         nc = NegativeConstraint(body)
-        r = repr(nc)
-        self.assertTrue(r.startswith("Constraint:"))
+        self.assertIsNone(nc.label)

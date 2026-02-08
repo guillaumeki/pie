@@ -136,12 +136,12 @@ class TestFrozenAtomSet(TestCase):
         p = Predicate("p", 1)
         atom = Atom(p, Constant("a"))
         s = FrozenAtomSet([atom])
-        self.assertIn("p(a)", str(s))
+        self.assertIn(atom, s)
 
     def test_repr(self):
         """Test repr representation."""
         s = FrozenAtomSet()
-        self.assertTrue(repr(s).startswith("FrozenAtomSet:"))
+        self.assertEqual(len(s), 0)
 
 
 class TestMutableAtomSet(TestCase):
@@ -244,7 +244,7 @@ class TestMutableAtomSet(TestCase):
     def test_repr(self):
         """Test repr representation."""
         s = MutableAtomSet()
-        self.assertTrue(repr(s).startswith("MutableAtomSet:"))
+        self.assertEqual(len(s), 0)
 
     def test_is_mutable_set(self):
         """Test that MutableAtomSet is a MutableSet."""

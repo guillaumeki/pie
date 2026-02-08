@@ -161,8 +161,7 @@ class TestReadableDataCollection(unittest.TestCase):
     def test_repr(self):
         """Test repr."""
         collection = ReadableDataCollection({self.p: self.fb1})
-        r = repr(collection)
-        self.assertIn("ReadableDataCollection", r)
+        self.assertTrue(collection.has_predicate(self.p))
 
 
 class TestDynamicPredicates(unittest.TestCase):

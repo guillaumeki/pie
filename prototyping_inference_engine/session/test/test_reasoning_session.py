@@ -159,7 +159,7 @@ class TestReasoningSessionTermCreation(TestCase):
         """Test creating variables."""
         x = self.session.variable("X")
         self.assertIsInstance(x, Variable)
-        self.assertEqual(str(x), "X")
+        self.assertEqual(x.identifier, "X")
 
     def test_variable_same_identifier_same_instance(self):
         """Test that same identifier returns same instance."""
@@ -171,7 +171,7 @@ class TestReasoningSessionTermCreation(TestCase):
         """Test creating constants."""
         a = self.session.constant("a")
         self.assertIsInstance(a, Constant)
-        self.assertEqual(str(a), "a")
+        self.assertEqual(a.identifier, "a")
 
     def test_predicate_creation(self):
         """Test creating predicates."""
@@ -185,7 +185,7 @@ class TestReasoningSessionTermCreation(TestCase):
         v1 = self.session.fresh_variable()
         v2 = self.session.fresh_variable()
         self.assertIsNot(v1, v2)
-        self.assertNotEqual(str(v1), str(v2))
+        self.assertNotEqual(v1.identifier, v2.identifier)
 
     def test_atom_creation(self):
         """Test creating atoms."""

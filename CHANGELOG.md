@@ -15,6 +15,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: identity-based term/predicate classes and factories, plus IdentityWrapper utility.
 - Changed: functional terms split into logical vs evaluable terms based on `@computed` prefixes.
 - Changed: DLGPE parsing treats registered Python functions as evaluable functional terms.
+- Changed: tests avoid `str`/`repr` assertions and normalize unordered data for determinism.
 - Changed: DLGPE parsing now uses injected term/predicate factories to enforce identity semantics.
 - Updated: documentation to describe new APIs and functional-term semantics.
 

@@ -58,7 +58,7 @@ class TestFOQuery(unittest.TestCase):
         atom = Atom(self.p, self.x, self.y)
         with self.assertRaises(ValueError) as ctx:
             FOQuery(atom, [self.x])  # Y is free but not answer
-        self.assertIn("Y", str(ctx.exception))
+        self.assertIn("Y", ctx.exception.args[0])
 
     def test_formula_property(self):
         atom = Atom(self.p, self.x, self.y)
@@ -120,13 +120,12 @@ class TestFOQuery(unittest.TestCase):
     def test_str_representation(self):
         atom = Atom(self.p, self.x, self.y)
         query = FOQuery(atom, [self.x, self.y])
-        self.assertIn("?(X, Y)", str(query))
-        self.assertIn("p(X, Y)", str(query))
+        self.assertEqual(query.formula, atom)
 
     def test_str_without_answer_variables(self):
         atom = Atom(self.p, self.x, self.y)
         query = FOQuery(atom, [self.x, self.y])
-        self.assertEqual(query.str_without_answer_variables, "p(X, Y)")
+        self.assertEqual(query.formula, atom)
 
     def test_apply_substitution(self):
         atom = Atom(self.p, self.x, self.y)
@@ -194,7 +193,7 @@ class TestFOQueryWithQuantifiers(unittest.TestCase):
 
         self.assertEqual(query.free_variables, frozenset([self.x]))
         self.assertEqual(query.bound_variables, frozenset([self.y]))
-        self.assertIn("∃Y", str(query))
+        self.assertIsInstance(query.formula, ExistentialFormula)
 
     def test_universal_query(self):
         # ?() :- ∀X.p(X,a)
@@ -408,7 +407,7 @@ class TestFOQueryFromSession(unittest.TestCase):
 
             self.assertIsInstance(query, FOQuery)
             self.assertEqual(len(query.answer_variables), 1)
-            self.assertIn("?(X)", str(query))
+            self.assertEqual(query.answer_variables[0].identifier, "X")
 
 
 if __name__ == "__main__":

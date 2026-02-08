@@ -24,7 +24,7 @@ class TestDlgpeQueryExistentials(unittest.TestCase):
         query = result["queries"][0]
 
         self.assertEqual(len(query.answer_variables), 1)
-        self.assertEqual(str(query.answer_variables[0]), "X")
+        self.assertEqual(query.answer_variables[0].identifier, "X")
 
         self.assertIsInstance(query.formula, ExistentialFormula)
         self.assertEqual(query.formula.free_variables, frozenset({Variable("X")}))
@@ -70,8 +70,8 @@ class TestDlgpeConversions(unittest.TestCase):
 
         atom = next(iter(cq.atoms))
         self.assertEqual(atom.predicate.name, "p")
-        self.assertEqual(str(atom.terms[0]), "X")
-        self.assertEqual(str(atom.terms[1]), "Y")
+        self.assertEqual(atom.terms[0].identifier, "X")
+        self.assertEqual(atom.terms[1].identifier, "Y")
 
     def test_fo_query_to_ucq_with_disjunction(self):
         """Disjunctive FOQuery converts to a multi-CQ UCQ."""

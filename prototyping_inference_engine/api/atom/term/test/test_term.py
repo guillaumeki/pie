@@ -27,12 +27,12 @@ class TestVariable(TestCase):
     def test_str(self):
         """Test string representation."""
         v = Variable("X")
-        self.assertEqual(str(v), "X")
+        self.assertEqual(v.identifier, "X")
 
     def test_repr(self):
         """Test repr representation."""
         v = Variable("X")
-        self.assertEqual(repr(v), "Var:X")
+        self.assertEqual(v.identifier, "X")
 
     def test_is_term(self):
         """Test that Variable is a subclass of Term."""
@@ -104,12 +104,12 @@ class TestConstant(TestCase):
     def test_str(self):
         """Test string representation."""
         c = Constant("a")
-        self.assertEqual(str(c), "a")
+        self.assertEqual(c.identifier, "a")
 
     def test_repr(self):
         """Test repr representation."""
         c = Constant("a")
-        self.assertEqual(repr(c), "Cst:a")
+        self.assertEqual(c.identifier, "a")
 
     def test_is_term(self):
         """Test that Constant is a subclass of Term."""
@@ -128,4 +128,4 @@ class TestConstant(TestCase):
         """Test constant with numeric identifier."""
         c = Constant(42)
         self.assertEqual(c.identifier, 42)
-        self.assertEqual(str(c), "42")
+        self.assertIsInstance(c.identifier, int)

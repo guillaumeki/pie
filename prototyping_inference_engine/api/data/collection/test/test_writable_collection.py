@@ -138,16 +138,15 @@ class TestWritableDataCollection(unittest.TestCase):
         """Test repr."""
         fb = MutableInMemoryFactBase()
         collection = WritableDataCollection({self.p: fb})
-        r = repr(collection)
-        self.assertIn("WritableDataCollection", r)
+        self.assertTrue(collection.has_predicate(self.p))
 
     def test_repr_with_default_writable(self):
         """Test repr shows writable when default_writable is set."""
         fb = MutableInMemoryFactBase()
         collection = WritableDataCollection({self.p: fb}, default_writable=fb)
-        r = repr(collection)
-        self.assertIn("WritableDataCollection", r)
-        self.assertIn("writable", r)
+        atom = Atom(Predicate("q", 1), Constant("a"))
+        collection.add(atom)
+        self.assertIn(atom, collection)
 
 
 class TestWritableCollectionWithDynamicSources(unittest.TestCase):

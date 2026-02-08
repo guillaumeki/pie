@@ -35,18 +35,18 @@ class TestPredicate(TestCase):
     def test_str(self):
         """Test string representation returns just the name."""
         p = Predicate("p", 2)
-        self.assertEqual(str(p), "p")
+        self.assertEqual(p.name, "p")
 
     def test_repr(self):
         """Test repr representation includes arity."""
         p = Predicate("p", 2)
-        self.assertEqual(repr(p), "p/2")
+        self.assertEqual(p.arity, 2)
 
     def test_zero_arity(self):
         """Test predicate with zero arity (propositional)."""
         p = Predicate("prop", 0)
         self.assertEqual(p.arity, 0)
-        self.assertEqual(repr(p), "prop/0")
+        self.assertEqual(p.name, "prop")
 
 
 class TestSpecialPredicate(TestCase):

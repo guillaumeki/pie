@@ -94,7 +94,7 @@ def _normalize_term(term: object) -> object:
     if isinstance(term, Literal):
         return _normalize_value(term.value)
     if isinstance(term, Term):
-        return str(term)
+        return term.identifier
     return term
 
 
@@ -104,7 +104,7 @@ def _normalize_value(value: object) -> object:
     if isinstance(value, Term):
         return _normalize_term(value)
     if isinstance(value, dict):
-        return {str(_normalize_term(k)): _normalize_term(v) for k, v in value.items()}
+        return {_normalize_term(k): _normalize_term(v) for k, v in value.items()}
     if isinstance(value, set):
         return {_normalize_value(v) for v in value}
     if isinstance(value, list):
@@ -215,7 +215,7 @@ def _run_collection_functions_example(source: str) -> None:
         if len(query_answers) != 1:
             raise AssertionError("Expected exactly one answer per query.")
         atom = next(iter(query.atoms))
-        observed[str(atom.predicate)] = _normalize_term(query_answers[0][0])
+        observed[atom.predicate.name] = _normalize_term(query_answers[0][0])
 
     normalized_observed = {
         key.replace("ig:", "stdfct:", 1): value for key, value in observed.items()
@@ -280,7 +280,9 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                     tuple(sub.apply(var) for var in variables)
                     for sub in answers
                 ]
-                answers = sorted(answers, key=lambda row: tuple(str(term) for term in row))
+                answers = sorted(
+                    answers, key=lambda row: tuple(term.identifier for term in row)
+                )
                 print(answers)  # (a, c), (b, d)
                 '''
             ).strip("\n"),
@@ -321,7 +323,9 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                     tuple(sub.apply(var) for var in variables)
                     for sub in answers
                 ]
-                projected = sorted(projected, key=lambda row: tuple(str(term) for term in row))
+                projected = sorted(
+                    projected, key=lambda row: tuple(term.identifier for term in row)
+                )
 
                 print(answers)
                 print(projected)

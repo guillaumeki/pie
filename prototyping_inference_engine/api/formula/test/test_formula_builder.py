@@ -27,7 +27,9 @@ class TestFormulaBuilder(unittest.TestCase):
     def test_build_simple_atom(self):
         formula = self.session.formula().atom("p", "X", "Y").build()
         self.assertIsInstance(formula, Atom)
-        self.assertEqual(str(formula), "p(X, Y)")
+        self.assertEqual(formula.predicate.name, "p")
+        self.assertEqual(formula.terms[0].identifier, "X")
+        self.assertEqual(formula.terms[1].identifier, "Y")
 
     def test_build_atom_with_constants(self):
         formula = self.session.formula().atom("p", "X", "a").build()
@@ -38,27 +40,32 @@ class TestFormulaBuilder(unittest.TestCase):
     def test_build_negation(self):
         formula = self.session.formula().atom("p", "X").not_().build()
         self.assertIsInstance(formula, NegationFormula)
-        self.assertEqual(str(formula), "¬(p(X))")
+        self.assertIsInstance(formula.inner, Atom)
+        self.assertEqual(formula.inner.predicate.name, "p")
 
     def test_build_conjunction(self):
         formula = self.session.formula().atom("p", "X").and_().atom("q", "Y").build()
         self.assertIsInstance(formula, ConjunctionFormula)
-        self.assertEqual(str(formula), "(p(X) ∧ q(Y))")
+        self.assertIsInstance(formula.left, Atom)
+        self.assertIsInstance(formula.right, Atom)
 
     def test_build_disjunction(self):
         formula = self.session.formula().atom("p", "X").or_().atom("q", "Y").build()
         self.assertIsInstance(formula, DisjunctionFormula)
-        self.assertEqual(str(formula), "(p(X) ∨ q(Y))")
+        self.assertIsInstance(formula.left, Atom)
+        self.assertIsInstance(formula.right, Atom)
 
     def test_build_universal(self):
         formula = self.session.formula().forall("X").atom("p", "X").build()
         self.assertIsInstance(formula, UniversalFormula)
-        self.assertEqual(str(formula), "∀X.(p(X))")
+        self.assertEqual(formula.variable.identifier, "X")
+        self.assertIsInstance(formula.inner, Atom)
 
     def test_build_existential(self):
         formula = self.session.formula().exists("X").atom("p", "X").build()
         self.assertIsInstance(formula, ExistentialFormula)
-        self.assertEqual(str(formula), "∃X.(p(X))")
+        self.assertEqual(formula.variable.identifier, "X")
+        self.assertIsInstance(formula.inner, Atom)
 
     def test_build_nested_quantifiers(self):
         # ∀X.∃Y.p(X,Y)
@@ -68,7 +75,7 @@ class TestFormulaBuilder(unittest.TestCase):
         self.assertIsInstance(formula, UniversalFormula)
         self.assertIsInstance(formula.inner, ExistentialFormula)
         self.assertTrue(formula.is_closed)
-        self.assertEqual(str(formula), "∀X.(∃Y.(p(X, Y)))")
+        self.assertIsInstance(formula.inner.inner, Atom)
 
     def test_build_complex_formula(self):
         # ∀X.∃Y.(p(X,Y) ∧ q(Y))

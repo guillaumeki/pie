@@ -37,7 +37,9 @@ projected = [
     tuple(sub.apply(var) for var in variables)
     for sub in answers
 ]
-projected = sorted(projected, key=lambda row: tuple(str(term) for term in row))
+projected = sorted(
+    projected, key=lambda row: tuple(term.identifier for term in row)
+)
 
 print(answers)
 print(projected)

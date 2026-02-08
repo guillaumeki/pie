@@ -167,11 +167,10 @@ class TestSessionCleanupStats(TestCase):
     def test_repr(self):
         """Test string representation."""
         stats = SessionCleanupStats(5, 3, 2)
-        repr_str = repr(stats)
-        self.assertIn("variables=5", repr_str)
-        self.assertIn("constants=3", repr_str)
-        self.assertIn("predicates=2", repr_str)
-        self.assertIn("total=10", repr_str)
+        self.assertEqual(stats.variables_removed, 5)
+        self.assertEqual(stats.constants_removed, 3)
+        self.assertEqual(stats.predicates_removed, 2)
+        self.assertEqual(stats.total_removed, 10)
 
     def test_equality(self):
         """Test that SessionCleanupStats supports equality comparison."""

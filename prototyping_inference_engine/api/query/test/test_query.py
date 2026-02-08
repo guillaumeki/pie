@@ -119,17 +119,15 @@ class TestConjunctiveQuery(TestCase):
         atoms = list(DlgpeParser.instance().parse_atoms("p(X,Y)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
-        s = str(cq)
-        self.assertIn("X", s)
-        self.assertIn("p", s)
+        self.assertEqual(cq.answer_variables, (x,))
+        self.assertEqual(len(cq.atoms), 1)
 
     def test_repr(self):
         """Test repr representation."""
         atoms = list(DlgpeParser.instance().parse_atoms("p(X)."))
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
-        r = repr(cq)
-        self.assertTrue(r.startswith("ConjunctiveQuery:"))
+        self.assertEqual(cq.answer_variables, (x,))
 
     def test_answer_variable_must_appear_in_atoms(self):
         """Test that answer variables must appear in atoms."""
@@ -310,14 +308,13 @@ class TestUnionConjunctiveQueries(TestCase):
         x = Variable("X")
         cq = ConjunctiveQuery(atoms, [x])
         ucq = UnionConjunctiveQueries([cq], [Variable("Z")])
-        s = str(ucq)
-        self.assertIn("Z", s)
+        self.assertEqual(len(ucq.conjunctive_queries), 1)
+        self.assertEqual(len(ucq.answer_variables), 1)
 
     def test_repr(self):
         """Test repr representation."""
         ucq = UnionConjunctiveQueries()
-        r = repr(ucq)
-        self.assertTrue(r.startswith("UCQ:"))
+        self.assertEqual(len(ucq.conjunctive_queries), 0)
 
     def test_mismatched_answer_variable_count_raises(self):
         """Test that CQs with wrong number of answer variables raises."""

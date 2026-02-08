@@ -148,11 +148,9 @@ class TestNaiveBacktrackHomomorphismAlgorithm(TestCase):
 
             self.assertTrue(
                 all(h in homomorphisms for h in d["homomorphisms"]),
-                str(d) + "\n" + str(homomorphisms),
             )
             self.assertTrue(
                 all(h in d["homomorphisms"] for h in homomorphisms),
-                str(d) + "\n" + str(homomorphisms),
             )
 
     def test_exist_homomorphisms(self):

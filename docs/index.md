@@ -51,7 +51,9 @@ answers = [
     tuple(sub.apply(var) for var in variables)
     for sub in answers
 ]
-answers = sorted(answers, key=lambda row: tuple(str(term) for term in row))
+answers = sorted(
+    answers, key=lambda row: tuple(term.identifier for term in row)
+)
 print(answers)  # (a, c), (b, d)
 ```
 

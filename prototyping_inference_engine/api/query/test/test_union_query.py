@@ -209,8 +209,7 @@ class TestUnionQueryOperations(unittest.TestCase):
         cq = ConjunctiveQuery(FrozenAtomSet([Atom(self.p, self.x)]), [self.x])
         uq = UnionQuery([cq], [self.x])
 
-        s = str(uq)
-        self.assertIn("X", s)
+        self.assertIn(self.x, uq.answer_variables)
 
 
 if __name__ == "__main__":

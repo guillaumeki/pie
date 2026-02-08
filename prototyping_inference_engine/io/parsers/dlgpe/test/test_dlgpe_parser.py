@@ -30,7 +30,7 @@ class TestDlgpeParserBasics(unittest.TestCase):
         result = self.parser.parse("p(a).")
         self.assertEqual(len(result["facts"]), 1)
         atom = result["facts"][0]
-        self.assertEqual(str(atom.predicate), "p")
+        self.assertEqual(atom.predicate.name, "p")
 
     def test_parse_multiple_facts(self):
         """Test parsing multiple facts."""
@@ -208,7 +208,7 @@ class TestDlgpeParserUnsupportedFeatures(unittest.TestCase):
         """Test that @import raises an error."""
         with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:
             self.parser.parse("@import <file.dlgpe>.")
-        self.assertIn("@import", str(ctx.exception))
+        self.assertIn("@import", ctx.exception.args[0])
 
     def test_computed_directive_is_supported(self):
         """Test that @computed is parsed into the header."""
@@ -221,13 +221,13 @@ class TestDlgpeParserUnsupportedFeatures(unittest.TestCase):
         """Test that @view raises an error."""
         with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:
             self.parser.parse("@view ex: <http://example.org/>.")
-        self.assertIn("@view", str(ctx.exception))
+        self.assertIn("@view", ctx.exception.args[0])
 
     def test_patterns_directive_raises_error(self):
         """Test that @patterns raises an error."""
         with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:
             self.parser.parse("@patterns p(a).")
-        self.assertIn("@patterns", str(ctx.exception))
+        self.assertIn("@patterns", ctx.exception.args[0])
 
 
 class TestDlgpeParserComments(unittest.TestCase):
@@ -302,7 +302,18 @@ class TestDlgpeParserComparison(unittest.TestCase):
         self.assertEqual(len(result["rules"]), 1)
         rule = result["rules"][0]
         atoms = list(rule.body.atoms)
-        self.assertTrue(any(str(atom) == "X < 3" for atom in atoms))
+
+        def is_expected(atom) -> bool:
+            if atom.predicate.name != "<":
+                return False
+            left = atom.terms[0]
+            right = atom.terms[1]
+            return (
+                getattr(left, "identifier", None) == "X"
+                and getattr(right, "value", None) == 3
+            )
+
+        self.assertTrue(any(is_expected(atom) for atom in atoms))
 
     def test_comparison_sources(self):
         result = self.parser.parse("?(X) :- X != 1.")

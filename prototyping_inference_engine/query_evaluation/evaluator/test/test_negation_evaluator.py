@@ -234,7 +234,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
             list(self.evaluator.evaluate(formula, fact_base))
             self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[0].category, UnsafeNegationWarning))
-            self.assertIn("X", str(w[0].message))
+            self.assertIn("X", w[0].message.args[0])
 
     def test_unsafe_negation_returns_complement(self):
         """
