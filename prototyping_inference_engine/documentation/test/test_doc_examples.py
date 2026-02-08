@@ -134,9 +134,21 @@ def _evaluate_dlgpe_queries(
         return results
 
 
+def _collect_single_answer_results(
+    results: list[tuple[FOQuery, list[tuple[Term, ...]]]],
+) -> dict[str, object]:
+    observed: dict[str, object] = {}
+    for query, query_answers in results:
+        if len(query_answers) != 1:
+            raise AssertionError("Expected exactly one answer per query.")
+        atom = next(iter(query.atoms))
+        observed[atom.predicate.name] = _normalize_term(query_answers[0][0])
+    return {key.replace("ig:", "stdfct:", 1): value for key, value in observed.items()}
+
+
 def _run_usage_parsing_example(source: str) -> None:
     namespace: dict[str, object] = {}
-    exec(source, namespace)  # nosec B102 - trusted doc example execution in tests
+    exec(source, namespace)  # nosec B102
     projected = cast(list[tuple[Term, ...]], namespace["projected"])
     self_check = _normalize_projected(projected)
     expected = {("a", "c"), ("b", "d")}
@@ -146,7 +158,7 @@ def _run_usage_parsing_example(source: str) -> None:
 
 def _run_usage_session_example(source: str) -> None:
     namespace: dict[str, object] = {}
-    exec(source, namespace)  # nosec B102 - trusted doc example execution in tests
+    exec(source, namespace)  # nosec B102
     answers = cast(list[tuple[Term, ...]], namespace["answers"])
     normalized = _normalize_projected(answers)
     if normalized != [("b",)]:
@@ -155,7 +167,7 @@ def _run_usage_session_example(source: str) -> None:
 
 def _run_iri_example(source: str) -> None:
     namespace: dict[str, object] = {}
-    exec(source, namespace)  # nosec B102 - trusted doc example execution in tests
+    exec(source, namespace)  # nosec B102
     value = namespace["value"]
     if value != "http://example.org/ns/resource":
         raise AssertionError(f"Unexpected IRI value: {value}")
@@ -163,7 +175,7 @@ def _run_iri_example(source: str) -> None:
 
 def _run_export_example(source: str) -> None:
     namespace: dict[str, object] = {}
-    exec(source, namespace)  # nosec B102 - trusted doc example execution in tests
+    exec(source, namespace)  # nosec B102
     output = cast(str, namespace["output"])
     required = [
         "@base <http://example.org/base/>.",
@@ -178,7 +190,7 @@ def _run_export_example(source: str) -> None:
 
 def _run_index_quick_start_example(source: str) -> None:
     namespace: dict[str, object] = {}
-    exec(source, namespace)  # nosec B102 - trusted doc example execution in tests
+    exec(source, namespace)  # nosec B102
     answers = cast(list[tuple[Term, ...]], namespace["answers"])
     normalized = _normalize_projected(answers)
     expected = {("a", "c"), ("b", "d")}
@@ -205,33 +217,149 @@ def _run_negated_function_term_example(source: str) -> None:
         raise AssertionError(f"Unexpected negated functional-term answers: {answers}")
 
 
-def _run_collection_functions_example(source: str) -> None:
-    results = _evaluate_dlgpe_queries(source)
-    if len(results) != 5:
-        raise AssertionError("Expected 5 queries in collection example.")
-
-    observed: dict[str, object] = {}
-    for query, query_answers in results:
-        if len(query_answers) != 1:
-            raise AssertionError("Expected exactly one answer per query.")
-        atom = next(iter(query.atoms))
-        observed[atom.predicate.name] = _normalize_term(query_answers[0][0])
-
-    normalized_observed = {
-        key.replace("ig:", "stdfct:", 1): value for key, value in observed.items()
-    }
+def _run_arithmetic_functions_example(source: str) -> None:
+    normalized_observed = _collect_single_answer_results(
+        _evaluate_dlgpe_queries(source)
+    )
     expected = {
-        "stdfct:tuple": ["a", "b", "c"],
-        "stdfct:dict": {"a": "b", "b": "c"},
-        "stdfct:dictKeys": {"a", "b"},
-        "stdfct:get": "b",
-        "stdfct:union": {"a", "b", "c"},
+        "stdfct:sum": 3,
+        "stdfct:min": 1,
+        "stdfct:max": 3,
+        "stdfct:minus": 7,
+        "stdfct:product": 6,
+        "stdfct:divide": 4.0,
+        "stdfct:average": 3.0,
+        "stdfct:median": 4.0,
+        "stdfct:weightedAverage": 17.5,
+        "stdfct:weightedMedian": 20.0,
     }
 
     if normalized_observed != expected:
         raise AssertionError(
-            f"Unexpected collection result: {observed} (expected {expected})"
+            f"Unexpected arithmetic results: {normalized_observed} (expected {expected})"
         )
+
+
+def _run_comparison_functions_example(source: str) -> None:
+    normalized_observed = _collect_single_answer_results(
+        _evaluate_dlgpe_queries(source)
+    )
+    expected = {
+        "stdfct:isEven": True,
+        "stdfct:isOdd": True,
+        "stdfct:isPrime": True,
+        "stdfct:isGreaterThan": True,
+        "stdfct:isGreaterOrEqualsTo": True,
+        "stdfct:isSmallerThan": True,
+        "stdfct:isSmallerOrEqualsTo": True,
+        "stdfct:isLexicographicallyGreaterThan": True,
+        "stdfct:isLexicographicallyGreaterOrEqualsTo": True,
+        "stdfct:isLexicographicallySmallerThan": True,
+        "stdfct:isLexicographicallySmallerOrEqualsTo": True,
+        "stdfct:equals": True,
+        "stdfct:contains": True,
+        "stdfct:isEmpty": True,
+        "stdfct:isBlank": True,
+        "stdfct:isNumeric": True,
+    }
+
+    if normalized_observed != expected:
+        raise AssertionError(
+            f"Unexpected comparison results: {normalized_observed} (expected {expected})"
+        )
+
+
+def _run_string_functions_example(source: str) -> None:
+    normalized_observed = _collect_single_answer_results(
+        _evaluate_dlgpe_queries(source)
+    )
+    expected = {
+        "stdfct:concat": "foobar",
+        "stdfct:toLowerCase": "abc",
+        "stdfct:toUpperCase": "ABC",
+        "stdfct:replace": "aBc",
+        "stdfct:length": 4,
+        "stdfct:toString": "1",
+        "stdfct:toStringWithDatatype": "Literal<int> 1",
+        "stdfct:toInt": 12,
+        "stdfct:toFloat": 1.5,
+        "stdfct:toBoolean": True,
+    }
+
+    if normalized_observed != expected:
+        raise AssertionError(
+            f"Unexpected string results: {normalized_observed} (expected {expected})"
+        )
+
+
+def _run_collection_functions_example(source: str) -> None:
+    normalized_observed = _collect_single_answer_results(
+        _evaluate_dlgpe_queries(source)
+    )
+    expected = {
+        "stdfct:set": {"a", "b"},
+        "stdfct:tuple": ["a", "b"],
+        "stdfct:union": {"a", "b", "c"},
+        "stdfct:size": 2,
+        "stdfct:intersection": {"b"},
+        "stdfct:isSubset": True,
+        "stdfct:isStrictSubset": True,
+        "stdfct:dict": {"a": "b", "b": "c"},
+        "stdfct:mergeDicts": {"a": "b", "c": "d"},
+        "stdfct:dictKeys": {"a", "b"},
+        "stdfct:dictValues": ["b", "c"],
+        "stdfct:get": "b",
+        "stdfct:containsKey": True,
+        "stdfct:containsValue": True,
+        "stdfct:toSet": {"a", "b"},
+        "stdfct:toTuple": ["a", "b"],
+    }
+
+    if normalized_observed != expected:
+        raise AssertionError(
+            f"Unexpected collection result: {normalized_observed} (expected {expected})"
+        )
+
+
+def _run_knowledge_base_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    fact_count = cast(int, namespace["fact_count"])
+    rule_count = cast(int, namespace["rule_count"])
+    if fact_count != 1 or rule_count != 1:
+        raise AssertionError("Unexpected knowledge base counts.")
+
+
+def _run_prepared_query_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    answers = cast(list[dict], namespace["answers"])
+    if len(answers) != 1 or not isinstance(answers[0], dict):
+        raise AssertionError("Unexpected prepared query answers.")
+
+
+def _run_fact_base_wrapper_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    atom_count = cast(int, namespace["atom_count"])
+    free_count = cast(int, namespace["free_count"])
+    if atom_count != 2 or free_count != 0:
+        raise AssertionError("Unexpected wrapper counts.")
+
+
+def _run_delegation_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    delegated = _normalize_projected(
+        cast(list[tuple[Term, ...]], namespace["delegated"])
+    )
+    filtered = _normalize_projected(
+        cast(list[tuple[Term, ...]], namespace["filtered_results"])
+    )
+    if set(delegated) != {("a",), ("b",)}:
+        raise AssertionError(f"Unexpected delegated results: {delegated}")
+    if filtered != [("a",)]:
+        raise AssertionError(f"Unexpected filtered results: {filtered}")
 
 
 def _run_dlgp_example(source: str) -> None:
@@ -451,14 +579,214 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 @computed ig: <stdfct>.
 
                 @queries
-                ?(T) :- ig:tuple(a, b, c, T).
-                ?(D) :- ig:dict(ig:tuple(a, b), ig:tuple(b, c), D).
-                ?(K) :- ig:dictKeys(ig:dict(ig:tuple(a, b), ig:tuple(b, c)), K).
-                ?(V) :- ig:get(ig:tuple(a, b, c), 1, V).
+                ?(S) :- ig:sum(1, 2, S).
+                ?(Mi) :- ig:min(3, 1, Mi).
+                ?(Ma) :- ig:max(3, 1, Ma).
+                ?(D) :- ig:minus(10, 3, D).
+                ?(P) :- ig:product(2, 3, P).
+                ?(Q) :- ig:divide(8.0, 2.0, Q).
+                ?(A) :- ig:average(2.0, 4.0, A).
+                ?(Md) :- ig:median(2, 9, 4, Md).
+                ?(WA) :- ig:weightedAverage(ig:tuple(10, 1), ig:tuple(20, 3), WA).
+                ?(WM) :- ig:weightedMedian(ig:tuple(10, 1), ig:tuple(20, 3), WM).
+                """
+            ).strip("\n"),
+            runner=_run_arithmetic_functions_example,
+        ),
+        DocExample(
+            "prolog",
+            textwrap.dedent(
+                """
+                @computed ig: <stdfct>.
+
+                @queries
+                ?(E) :- ig:isEven(4, E).
+                ?(O) :- ig:isOdd(3, O).
+                ?(Pr) :- ig:isPrime(7, Pr).
+                ?(Gt) :- ig:isGreaterThan(5, 2, Gt).
+                ?(Ge) :- ig:isGreaterOrEqualsTo(2, 2, Ge).
+                ?(Lt) :- ig:isSmallerThan(1, 3, Lt).
+                ?(Le) :- ig:isSmallerOrEqualsTo(2, 2, Le).
+                ?(Lg) :- ig:isLexicographicallyGreaterThan("b", "a", Lg).
+                ?(Lge) :- ig:isLexicographicallyGreaterOrEqualsTo("a", "a", Lge).
+                ?(Ls) :- ig:isLexicographicallySmallerThan("a", "b", Ls).
+                ?(Lse) :- ig:isLexicographicallySmallerOrEqualsTo("a", "a", Lse).
+                ?(Eq) :- ig:equals(5, 5, 5, Eq).
+                ?(C) :- ig:contains(ig:tuple(a, b), a, C).
+                ?(Em) :- ig:isEmpty(ig:set(), Em).
+                ?(Bl) :- ig:isBlank("   ", Bl).
+                ?(Nu) :- ig:isNumeric("12.5", Nu).
+                """
+            ).strip("\n"),
+            runner=_run_comparison_functions_example,
+        ),
+        DocExample(
+            "prolog",
+            textwrap.dedent(
+                """
+                @computed ig: <stdfct>.
+
+                @queries
+                ?(C) :- ig:concat("foo", "bar", C).
+                ?(Lo) :- ig:toLowerCase("AbC", Lo).
+                ?(Up) :- ig:toUpperCase("AbC", Up).
+                ?(Re) :- ig:replace("abc", "b", "B", Re).
+                ?(Le) :- ig:length("abcd", Le).
+                ?(Ts) :- ig:toString(1, Ts).
+                ?(Td) :- ig:toStringWithDatatype(1, Td).
+                ?(Ti) :- ig:toInt("12", Ti).
+                ?(Tf) :- ig:toFloat("1.5", Tf).
+                ?(Tb) :- ig:toBoolean("true", Tb).
+                """
+            ).strip("\n"),
+            runner=_run_string_functions_example,
+        ),
+        DocExample(
+            "prolog",
+            textwrap.dedent(
+                """
+                @computed ig: <stdfct>.
+
+                @queries
+                ?(S) :- ig:set(a, b, S).
+                ?(T) :- ig:tuple(a, b, T).
                 ?(U) :- ig:union(ig:set(a, b), ig:set(b, c), U).
+                ?(Sz) :- ig:size(ig:set(a, b), Sz).
+                ?(I) :- ig:intersection(ig:set(a, b), ig:set(b, c), I).
+                ?(Su) :- ig:isSubset(ig:set(a), ig:set(a, b), Su).
+                ?(Ss) :- ig:isStrictSubset(ig:set(a), ig:set(a, b), Ss).
+                ?(D) :- ig:dict(ig:tuple(a, b), ig:tuple(b, c), D).
+                ?(M) :- ig:mergeDicts(ig:dict(ig:tuple(a, b)), ig:dict(ig:tuple(c, d)), M).
+                ?(K) :- ig:dictKeys(ig:dict(ig:tuple(a, b), ig:tuple(b, c)), K).
+                ?(V) :- ig:dictValues(ig:dict(ig:tuple(a, b), ig:tuple(b, c)), V).
+                ?(G) :- ig:get(ig:tuple(a, b, c), 1, G).
+                ?(Ck) :- ig:containsKey(ig:dict(ig:tuple(a, b)), a, Ck).
+                ?(Cv) :- ig:containsValue(ig:dict(ig:tuple(a, b)), b, Cv).
+                ?(Ts) :- ig:toSet(ig:tuple(a, b), Ts).
+                ?(Tt) :- ig:toTuple(ig:tuple(a, b), Tt).
                 """
             ).strip("\n"),
             runner=_run_collection_functions_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                '''
+                from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+                with ReasoningSession.create() as session:
+                    result = session.parse("""
+                        @facts
+                        p(a).
+
+                        @rules
+                        q(X) :- p(X).
+                    """)
+
+                    fb = session.create_fact_base(result.facts)
+                    rb = session.create_rule_base(set(result.rules))
+                    kb = session.create_knowledge_base(fb, rb)
+
+                    fact_count = len(kb.fact_base)
+                    rule_count = len(kb.rule_base.rules)
+                    print(fact_count)
+                    print(rule_count)
+                '''
+            ).strip("\n"),
+            runner=_run_knowledge_base_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                from prototyping_inference_engine.api.query.prepared_fo_query import PreparedFOQueryDefaults
+                from prototyping_inference_engine.api.substitution.substitution import Substitution
+                from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+
+                class SimplePreparedQuery(PreparedFOQueryDefaults):
+                    def __init__(self, query):
+                        self.query = query
+
+                    def execute(self, assignation: Substitution):
+                        return [assignation]
+
+
+                with ReasoningSession.create() as session:
+                    query = session.fo_query().builder().atom("p", "a").build()
+                    prepared = SimplePreparedQuery(query)
+                    answers = list(prepared.execute_empty())
+                    print(answers)
+                """
+            ).strip("\n"),
+            runner=_run_prepared_query_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                from prototyping_inference_engine.api.formula.fo_conjunction_fact_base_wrapper import (
+                    FOConjunctionFactBaseWrapper,
+                )
+                from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
+                from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+
+                facts = DlgpeParser.instance().parse_atoms("p(a), q(b).")
+                fact_base = MutableInMemoryFactBase(facts)
+                wrapper = FOConjunctionFactBaseWrapper(fact_base)
+
+                atom_count = len(wrapper.atoms)
+                free_count = len(wrapper.free_variables)
+                print(atom_count)
+                print(free_count)
+                """
+            ).strip("\n"),
+            runner=_run_fact_base_wrapper_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                from prototyping_inference_engine.api.atom.atom import Atom
+                from prototyping_inference_engine.api.atom.predicate import Predicate
+                from prototyping_inference_engine.api.atom.term.constant import Constant
+                from prototyping_inference_engine.api.atom.term.variable import Variable
+                from prototyping_inference_engine.api.data.basic_query import BasicQuery
+                from prototyping_inference_engine.api.data.datalog_delegable import DatalogDelegable
+                from prototyping_inference_engine.api.data.queryable_data_del_atoms_wrapper import (
+                    QueryableDataDelAtomsWrapper,
+                )
+                from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
+
+
+                class DelegableFactBase(MutableInMemoryFactBase, DatalogDelegable):
+                    def delegate_rules(self, rules):
+                        return False
+
+                    def delegate_query(self, query, count_answers_only=False):
+                        return iter(self.evaluate(query))
+
+
+                predicate = Predicate("p", 1)
+                removed = Atom(predicate, Constant("b"))
+
+                fact_base = DelegableFactBase(
+                    [Atom(predicate, Constant("a")), removed]
+                )
+                query = BasicQuery(predicate, {}, {0: Variable("X")})
+
+                delegated: list[tuple[Constant]] = []
+                if isinstance(fact_base, DatalogDelegable):
+                    delegated = list(fact_base.delegate_query(query))
+
+                filtered = QueryableDataDelAtomsWrapper(fact_base, [removed])
+                filtered_results = list(filtered.evaluate(query))
+
+                print(delegated)
+                print(filtered_results)
+                """
+            ).strip("\n"),
+            runner=_run_delegation_example,
         ),
         DocExample(
             "prolog",

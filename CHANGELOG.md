@@ -18,6 +18,9 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: tests avoid `str`/`repr` assertions and normalize unordered data for determinism.
 - Changed: DLGPE parsing now uses injected term/predicate factories to enforce identity semantics.
 - Updated: documentation to describe new APIs and functional-term semantics.
+- Updated: Usage documentation now focuses on concrete usage flows with executable examples.
+- Added: Usage reference with signatures and runnable examples for every computed function.
+- Added: documentation tests for new usage examples and API snippets.
 
 ## [2026-02-07]
 - Changed: allow functional terms under negation by delegating to inner evaluators.
