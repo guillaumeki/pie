@@ -45,5 +45,9 @@ class CSVCopyable(Protocol):
     """Fact bases that can import CSV content directly."""
 
     def copy(
-        self, csv_file_path: str, separator: str, header_size: int, witness: Atom
+        self,
+        _csv_file_path: str,
+        _separator: str,
+        _header_size: int,
+        _witness: Atom,
     ) -> bool: ...
