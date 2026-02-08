@@ -62,18 +62,19 @@ For any important change:
 2) Wait for user feedback/approval.
 3) Once approved, record the plan in `agents/plans/` and reference it in this file.
 4) Execute the plan and amend it per user requests.
-5) When done, update `CHANGELOG.md` with the date and version if it changed.
-6) Record design decisions in `agents/design/<feature_name>.md` with a date and list the file here.
-7) Update documentation (README and `docs/`) after the design docs so docs stay current.
-8) Build docs locally with `mkdocs build --clean` to verify documentation changes will not break CI.
-9) Write unit tests when relevant.
-10) Commit and push changes to both `bitbucket` and `origin`.
-11) Delete the plan file after changelog, design docs, and documentation updates are written.
-12) Do not commit or push unless `mypy prototyping_inference_engine` and the full unit test suite have passed.
-13) Every documentation example must be covered by a unit test.
-14) Every documentation code block must be surrounded by explanatory text.
-15) Tests must never use `str(...)` or `repr(...)` in assertions or comparisons (avoid brittle expectations).
-16) Tests must be deterministic (no reliance on iteration order from sets/dicts; always sort or normalize).
+5) Update the project version (e.g., `pyproject.toml`) when the change is release-worthy.
+6) When done, update `CHANGELOG.md` with the date and version if it changed.
+7) Record design decisions in `agents/design/<feature_name>.md` with a date and list the file here.
+8) Update documentation (README and `docs/`) after the design docs so docs stay current.
+9) Build docs locally with `mkdocs build --clean` to verify documentation changes will not break CI.
+10) Write unit tests when relevant.
+11) Commit and push changes to both `bitbucket` and `origin`.
+12) Delete the plan file after changelog, design docs, and documentation updates are written.
+13) Do not commit or push unless `mypy prototyping_inference_engine` and the full unit test suite have passed.
+14) Every documentation example must be covered by a unit test.
+15) Every documentation code block must be surrounded by explanatory text.
+16) Tests must never use `str(...)` or `repr(...)` in assertions or comparisons (avoid brittle expectations).
+17) Tests must be deterministic (no reliance on iteration order from sets/dicts; always sort or normalize).
 
 ## Python Module Hierarchy Standards
 - This project uses a flat layout (importable packages at repo root). Do not introduce a `src/` layout unless the plan explicitly justifies it and includes required packaging changes. (https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/)
@@ -122,6 +123,7 @@ For any important change:
 - `agents/design/coverage-badge.md`
 - `agents/design/tests-when-pertinent.md`
 - `agents/design/atom-evaluator-dip.md`
+- `agents/design/pypi-cd.md`
 - `agents/design/docs-content.md`
 - `agents/design/agent-artifacts-docs.md`
 - `agents/design/iri-resolution.md`
