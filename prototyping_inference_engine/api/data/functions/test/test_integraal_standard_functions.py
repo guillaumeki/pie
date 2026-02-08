@@ -139,6 +139,23 @@ class TestIntegraalStandardFunctions(unittest.TestCase):
         zero = self._literal("0", "xsd:integer")
         self.assertEqual(self._evaluate("divide", [one, zero]), [])
 
+    def test_numeric_functions_invalid_arguments_return_no_result(self):
+        invalid = self._literal("invalid", "xsd:string")
+        numeric = self._literal("2", "xsd:integer")
+        cases = [
+            ("sum", [invalid]),
+            ("min", [invalid]),
+            ("max", [invalid]),
+            ("minus", [invalid, numeric]),
+            ("product", [invalid, numeric]),
+            ("divide", [invalid, numeric]),
+            ("average", [invalid]),
+            ("median", [invalid]),
+        ]
+        for name, inputs in cases:
+            with self.subTest(name=name):
+                self.assertEqual(self._evaluate(name, inputs), [])
+
     def test_predicates_boolean(self):
         two = self._literal("2", "xsd:integer")
         three = self._literal("3", "xsd:integer")
@@ -167,6 +184,28 @@ class TestIntegraalStandardFunctions(unittest.TestCase):
             self._literal("true", "xsd:boolean"),
         )
 
+    def test_numeric_predicates_invalid_arguments_return_no_result(self):
+        invalid = self._literal("invalid", "xsd:string")
+        numeric = self._literal("2", "xsd:integer")
+        non_literal = Constant("a")
+        cases = [
+            ("isEven", [invalid]),
+            ("isOdd", [invalid]),
+            ("isEven", [non_literal]),
+            ("isOdd", [non_literal]),
+            ("isGreaterThan", [invalid, numeric]),
+            ("isGreaterThan", [numeric, invalid]),
+            ("isGreaterOrEqualsTo", [invalid, numeric]),
+            ("isGreaterOrEqualsTo", [numeric, invalid]),
+            ("isSmallerThan", [invalid, numeric]),
+            ("isSmallerThan", [numeric, invalid]),
+            ("isSmallerOrEqualsTo", [invalid, numeric]),
+            ("isSmallerOrEqualsTo", [numeric, invalid]),
+        ]
+        for name, inputs in cases:
+            with self.subTest(name=name):
+                self.assertEqual(self._evaluate(name, inputs), [])
+
     def test_lexicographic_predicates(self):
         a = self._literal("a", "xsd:string")
         b = self._literal("b", "xsd:string")
@@ -186,6 +225,26 @@ class TestIntegraalStandardFunctions(unittest.TestCase):
             self._evaluate_single("isLexicographicallySmallerOrEqualsTo", [a, a]),
             self._literal("true", "xsd:boolean"),
         )
+
+    def test_lexicographic_invalid_arguments_return_no_result(self):
+        not_string = self._literal("1", "xsd:integer")
+        a = self._literal("a", "xsd:string")
+        non_literal = Constant("a")
+        cases = [
+            ("isLexicographicallyGreaterThan", [not_string, a]),
+            ("isLexicographicallyGreaterThan", [a, not_string]),
+            ("isLexicographicallyGreaterThan", [non_literal, a]),
+            ("isLexicographicallyGreaterThan", [a, non_literal]),
+            ("isLexicographicallyGreaterOrEqualsTo", [not_string, a]),
+            ("isLexicographicallyGreaterOrEqualsTo", [a, not_string]),
+            ("isLexicographicallySmallerThan", [not_string, a]),
+            ("isLexicographicallySmallerThan", [a, not_string]),
+            ("isLexicographicallySmallerOrEqualsTo", [not_string, a]),
+            ("isLexicographicallySmallerOrEqualsTo", [a, not_string]),
+        ]
+        for name, inputs in cases:
+            with self.subTest(name=name):
+                self.assertEqual(self._evaluate(name, inputs), [])
 
     def test_misc_numeric_predicates(self):
         seven = self._literal("7", "xsd:integer")
@@ -207,6 +266,30 @@ class TestIntegraalStandardFunctions(unittest.TestCase):
             self._literal("false", "xsd:boolean"),
         )
 
+    def test_is_prime_edge_cases(self):
+        negative = self._literal("-1", "xsd:integer")
+        zero = self._literal("0", "xsd:integer")
+        self.assertEqual(
+            self._evaluate_single("isPrime", [negative]),
+            self._literal("false", "xsd:boolean"),
+        )
+        self.assertEqual(
+            self._evaluate_single("isPrime", [zero]),
+            self._literal("false", "xsd:boolean"),
+        )
+
+    def test_equals_multiple_arguments(self):
+        a = Constant("a")
+        b = Constant("b")
+        self.assertEqual(
+            self._evaluate_single("equals", [a, a, a]),
+            self._literal("true", "xsd:boolean"),
+        )
+        self.assertEqual(
+            self._evaluate_single("equals", [a, b, a]),
+            self._literal("false", "xsd:boolean"),
+        )
+
     def test_string_functions(self):
         hello = self._literal("Hello", "xsd:string")
         world = self._literal("World", "xsd:string")
@@ -224,6 +307,13 @@ class TestIntegraalStandardFunctions(unittest.TestCase):
         self.assertEqual(list_concat.value, [hello, world])
         self.assertEqual(
             self._evaluate("concat", [hello, self._literal("1", "xsd:integer")]),
+            [],
+        )
+        self.assertEqual(
+            self._evaluate(
+                "concat",
+                [self._literal_from_value([hello]), self._literal("x", "xsd:string")],
+            ),
             [],
         )
         self.assertEqual(
@@ -525,3 +615,20 @@ class TestIntegraalStandardFunctions(unittest.TestCase):
     def test_function_bindings_are_exposed(self):
         definitions = standard_function_definitions()
         self.assertIn("sum", definitions)
+
+    def test_function_binding_respects_arity_bounds(self):
+        sum_pred = Predicate(BASE_IRI + "sum", 1)
+        is_even_pred = Predicate(BASE_IRI + "isEven", 3)
+        concat_pred = Predicate(BASE_IRI + "concat", 4)
+        equals_pred = Predicate(BASE_IRI + "equals", 2)
+        source = IntegraalStandardFunctionSource(
+            self.literal_factory,
+            {"ig": BASE_IRI},
+            [sum_pred, is_even_pred, concat_pred, equals_pred],
+        )
+        self.assertFalse(source.has_predicate(sum_pred))
+        self.assertFalse(source.has_predicate(is_even_pred))
+        self.assertFalse(source.has_predicate(concat_pred))
+        self.assertFalse(source.has_predicate(equals_pred))
+        query = BasicQuery(sum_pred)
+        self.assertEqual(list(source.evaluate(query)), [])

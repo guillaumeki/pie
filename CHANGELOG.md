@@ -25,6 +25,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Updated: Usage documentation now focuses on concrete usage flows with executable examples.
 - Added: Usage reference with signatures and runnable examples for every computed function.
 - Added: documentation tests for new usage examples and API snippets.
+- Added: standard-function tests for invalid inputs, arity bounds, and functional-term substitution behavior.
+- Changed: solver-backed standard functions now return no results for invalid inputs.
 
 ## [2026-02-07]
 - Changed: allow functional terms under negation by delegating to inner evaluators.

@@ -145,7 +145,10 @@ class IntegraalStandardFunctionSource(ReadableData):
             return self._evaluate_forward(binding, values, query)
 
         if len(missing) == 1:
-            assignments = binding.function.solver(values, self._literal_factory)
+            try:
+                assignments = binding.function.solver(values, self._literal_factory)
+            except Exception:
+                return iter(())
             return iter(
                 _answer_tuple(query, assignment)
                 for assignment in assignments
