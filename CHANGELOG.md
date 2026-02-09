@@ -11,8 +11,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: documentation example, schema file, and tests for computed JSON loading.
 - Changed: DLGPE parsing now accepts non-`stdfct` `@computed` directives and defers validation to session parsing.
 - Changed: default computed JSON examples now use module-level functions without a class.
-- Changed: release workflow now parses pyproject.toml with tomllib for version detection.
-- Changed: bumped version to 0.0.18.
+- Changed: release workflow now parses pyproject.toml with tomllib/tomli for Python 3.10 compatibility.
+- Changed: bumped version to 0.0.19.
 
 ## [2026-02-08]
 - Added: KnowledgeBase and RuleBase abstractions with ReasoningSession helpers.
