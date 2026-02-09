@@ -3,8 +3,7 @@
   "default": {
     "functions": {
       "path": ".",
-      "package": "computed_utils",
-      "class": "Functions"
+      "module": "computed_utils"
     }
   }
 }

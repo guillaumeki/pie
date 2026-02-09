@@ -36,9 +36,7 @@ class TestComputedJson(unittest.TestCase):
             fact_base = session.create_fact_base(result.facts)
             query = cast(FOQuery, next(iter(result.queries)))
             answers = list(
-                session.evaluate_query_with_sources(
-                    query, fact_base, result.sources
-                )
+                session.evaluate_query_with_sources(query, fact_base, result.sources)
             )
 
         self.assertEqual(len(answers), 1)
@@ -62,10 +60,7 @@ class TestComputedJson(unittest.TestCase):
     def test_predicate_usage_rejected(self) -> None:
         config_path = _computed_config_path()
         text = (
-            f"@computed ex: <{config_path}>.\n"
-            "\n"
-            "@queries\n"
-            "?(X) :- ex:increment(1, X).\n"
+            f"@computed ex: <{config_path}>.\n\n@queries\n?(X) :- ex:increment(1, X).\n"
         )
 
         with ReasoningSession.create() as session:

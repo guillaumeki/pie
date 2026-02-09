@@ -127,7 +127,15 @@ Example: `ig:sum(1, X, 3)` yields `X = 2`.
 ## Loading Computed Functions from JSON
 JSON configurations let you bind a prefix to Python functions. The JSON format
 accepts a legacy `functions` block and an extensible `providers` block. The
-example below uses the legacy form for brevity.
+example below uses the legacy form for brevity and points directly at a module.
+
+Define the Python functions in a module (example file:
+`docs/examples/computed/computed_utils.py`):
+
+```python
+def increment(value: int) -> int:
+    return value + 1
+```
 
 ```json
 {
@@ -135,8 +143,7 @@ example below uses the legacy form for brevity.
   "default": {
     "functions": {
       "path": ".",
-      "package": "computed_utils",
-      "class": "Functions"
+      "module": "computed_utils"
     }
   }
 }

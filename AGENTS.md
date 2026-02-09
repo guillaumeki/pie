@@ -119,6 +119,7 @@ For any important change:
 
 ### Design Docs
 - `agents/design/computed-json-loader.md`
+- `agents/design/computed-json-default-module.md`
 - `agents/design/io-api-restructure.md`
 - `agents/design/execution-notes-hygiene.md`
 - `agents/design/dlgpe-nested-functional-terms.md`

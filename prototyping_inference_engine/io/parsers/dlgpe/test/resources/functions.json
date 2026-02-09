@@ -3,8 +3,7 @@
   "default": {
     "functions": {
       "path": ".",
-      "package": "computed_module",
-      "class": "Functions"
+      "module": "computed_module"
     }
   }
 }

@@ -549,6 +549,15 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             runner=_run_computed_sum_example,
         ),
         DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                def increment(value: int) -> int:
+                    return value + 1
+                """
+            ).strip("\n"),
+        ),
+        DocExample(
             "json",
             textwrap.dedent(
                 """
@@ -557,8 +566,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                   "default": {
                     "functions": {
                       "path": ".",
-                      "package": "computed_utils",
-                      "class": "Functions"
+                      "module": "computed_utils"
                     }
                   }
                 }
