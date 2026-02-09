@@ -136,8 +136,9 @@ print(writer.write(result))
 
 ### Computed Predicates (`@computed`)
 
-To load Integraal standard functions, use `@computed <prefix>: <stdfct>.`.
-Other computed libraries are not supported by the DLGP parser.
+To load standard functions, use `@computed <prefix>: <stdfct>.`.
+To load Python computed functions, use `@computed <prefix>: <path/to/config.json>.`
+The configuration format is documented in `docs/usage.md`.
 
 ```prolog
 @computed ig: <stdfct>.

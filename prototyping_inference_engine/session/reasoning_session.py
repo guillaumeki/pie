@@ -6,6 +6,7 @@ fact bases, ontologies, and query rewriting.
 """
 
 from math import inf
+from pathlib import Path
 from typing import Optional, Iterable, Iterator, Tuple, Union, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -586,6 +587,11 @@ class ReasoningSession:
         for constraint in constraints:
             self._track_query(constraint.body)
 
+        atoms_for_sources = self._collect_atoms_for_sources(
+            facts, rules, queries, constraints
+        )
+        self._register_computed_functions(atoms_for_sources)
+
         sources = self._build_parse_sources(facts, rules, queries, constraints)
         return ParseResult(
             facts=FrozenAtomSet(facts),
@@ -616,6 +622,37 @@ class ReasoningSession:
         )
         from prototyping_inference_engine.api.data.readable_data import ReadableData
 
+        atoms = self._collect_atoms_for_sources(facts, rules, queries, constraints)
+
+        sources: list[ReadableData] = []
+        if any(is_comparison_predicate(atom.predicate) for atom in atoms):
+            sources.append(ComparisonDataSource(self._literal_config.comparison))
+        if self._python_function_source is not None and _contains_function_term(atoms):
+            sources.append(self._python_function_source)
+        std_prefixes = {
+            prefix
+            for prefix, value in self._computed_prefixes.items()
+            if value == "stdfct"
+        }
+        if std_prefixes:
+            resolved_prefixes = {prefix: "stdfct:" for prefix in std_prefixes}
+            computed_predicates = _extract_computed_predicates(atoms, resolved_prefixes)
+            if computed_predicates:
+                literal_factory = self._term_factories.get(Literal)
+                sources.append(
+                    IntegraalStandardFunctionSource(
+                        literal_factory, resolved_prefixes, computed_predicates
+                    )
+                )
+        return sources
+
+    def _collect_atoms_for_sources(
+        self,
+        facts: list[Atom],
+        rules: set[Rule],
+        queries: set["Query"],
+        constraints: set[NegativeConstraint],
+    ) -> list[Atom]:
         atoms: list[Atom] = list(facts)
 
         for rule in rules:
@@ -629,29 +666,33 @@ class ReasoningSession:
         for constraint in constraints:
             atoms.extend(self._extract_query_atoms(constraint.body))
 
-        sources: list[ReadableData] = []
-        if any(is_comparison_predicate(atom.predicate) for atom in atoms):
-            sources.append(ComparisonDataSource(self._literal_config.comparison))
-        if self._python_function_source is not None and _contains_function_term(atoms):
-            sources.append(self._python_function_source)
-        if self._computed_prefixes:
-            if any(value != "stdfct" for value in self._computed_prefixes.values()):
-                raise ValueError(
-                    "Unsupported computed library. "
-                    "Use @computed <stdfct> to load Integraal standard functions."
-                )
-            resolved_prefixes = {
-                prefix: "stdfct:" for prefix in self._computed_prefixes
-            }
-            computed_predicates = _extract_computed_predicates(atoms, resolved_prefixes)
-            if computed_predicates:
-                literal_factory = self._term_factories.get(Literal)
-                sources.append(
-                    IntegraalStandardFunctionSource(
-                        literal_factory, resolved_prefixes, computed_predicates
-                    )
-                )
-        return sources
+        return atoms
+
+    def _register_computed_functions(self, atoms: list[Atom]) -> None:
+        computed_files = {
+            prefix: value
+            for prefix, value in self._computed_prefixes.items()
+            if value != "stdfct"
+        }
+        if not computed_files:
+            return
+        if self._python_function_source is None:
+            raise RuntimeError("Python function source is not available")
+
+        from prototyping_inference_engine.io.parsers.dlgpe.computed_function_loader import (
+            load_computed_config,
+            register_python_functions,
+        )
+
+        registered_names: set[str] = set()
+        for prefix, raw_path in computed_files.items():
+            config_path = _coerce_computed_path(raw_path)
+            config = load_computed_config(config_path)
+            registered_names.update(
+                register_python_functions(prefix, config, self._python_function_source)
+            )
+
+        _validate_function_terms(atoms, registered_names, computed_files)
 
     @staticmethod
     def _extract_query_atoms(query: object) -> list[Atom]:
@@ -1024,3 +1065,61 @@ def _collect_computed_predicates_from_term(
             predicates.add(Predicate(term.name, len(term.args) + 1))
         for arg in term.args:
             _collect_computed_predicates_from_term(arg, base_iris, predicates)
+    else:
+        args = getattr(term, "args", None)
+        if args:
+            for arg in args:
+                _collect_computed_predicates_from_term(arg, base_iris, predicates)
+
+
+def _collect_function_term_names(term: Term, names: set[str]) -> None:
+    from prototyping_inference_engine.api.atom.term.evaluable_function_term import (
+        EvaluableFunctionTerm,
+    )
+
+    if isinstance(term, EvaluableFunctionTerm):
+        names.add(term.name)
+        for arg in term.args:
+            _collect_function_term_names(arg, names)
+        return
+    args = getattr(term, "args", None)
+    if args:
+        for arg in args:
+            _collect_function_term_names(arg, names)
+
+
+def _validate_function_terms(
+    atoms: Iterable[Atom],
+    registered_names: set[str],
+    computed_files: dict[str, str],
+) -> None:
+    computed_prefixes = tuple(computed_files.keys())
+    for atom in atoms:
+        predicate_name = atom.predicate.name
+        if predicate_name.startswith("stdfct:"):
+            continue
+        for prefix in computed_prefixes:
+            if predicate_name.startswith(f"{prefix}:"):
+                raise ValueError(
+                    "Computed functions loaded from configuration files must be used "
+                    "as functional terms, not predicates."
+                )
+
+    used_names: set[str] = set()
+    for atom in atoms:
+        for term in atom.terms:
+            _collect_function_term_names(term, used_names)
+
+    for name in sorted(used_names):
+        if name.startswith("stdfct:"):
+            continue
+        if name not in registered_names:
+            raise ValueError(f"Unknown computed function: {name}")
+
+
+def _coerce_computed_path(value: str) -> Path:
+    from urllib.parse import urlparse
+
+    if value.startswith("file://"):
+        return Path(urlparse(value).path).expanduser().resolve()
+    return Path(value).expanduser().resolve()

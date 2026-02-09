@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Computed Function Configuration",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1
+    },
+    "default": {
+      "type": "object",
+      "properties": {
+        "types": {"type": "object"},
+        "predicates": {"type": "object"},
+        "functions": {"$ref": "#/$defs/legacyFunctions"},
+        "providers": {
+          "type": "object",
+          "properties": {
+            "python": {"$ref": "#/$defs/pythonProviderOrList"}
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "legacyFunctions": {
+      "type": "object",
+      "properties": {
+        "path": {"type": "string"},
+        "package": {"type": "string"},
+        "class": {"type": "string"}
+      },
+      "required": ["package"],
+      "additionalProperties": true
+    },
+    "pythonProvider": {
+      "type": "object",
+      "properties": {
+        "path": {"type": "string"},
+        "module": {"type": "string"},
+        "package": {"type": "string"},
+        "class": {"type": "string"}
+      },
+      "anyOf": [
+        {"required": ["module"]},
+        {"required": ["package"]}
+      ],
+      "additionalProperties": true
+    },
+    "pythonProviderOrList": {
+      "anyOf": [
+        {"$ref": "#/$defs/pythonProvider"},
+        {"type": "array", "items": {"$ref": "#/$defs/pythonProvider"}}
+      ]
+    }
+  }
+}

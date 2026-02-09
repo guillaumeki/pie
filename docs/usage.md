@@ -112,8 +112,8 @@ with ReasoningSession.create() as session:
 ## Loading Computed Functions (`@computed`)
 PIE supports Integraal standard functions via `@computed` prefixes. To load the
 standard library, declare `@computed <prefix>: <stdfct>.` and use the functions
-as predicates where the **last argument** is the result. Any other computed
-library will raise an error.
+as predicates where the **last argument** is the result. Computed functions can
+also be loaded from JSON configuration files (schema: `docs/computed-json-schema.json`).
 
 Example: `ig:sum(1, X, 3)` yields `X = 2`.
 
@@ -122,6 +122,37 @@ Example: `ig:sum(1, X, 3)` yields `X = 2`.
 
 @queries
 ?(X) :- ig:sum(1, X, 3).
+```
+
+## Loading Computed Functions from JSON
+JSON configurations let you bind a prefix to Python functions. The JSON format
+accepts a legacy `functions` block and an extensible `providers` block. The
+example below uses the legacy form for brevity.
+
+```json
+{
+  "schema_version": 1,
+  "default": {
+    "functions": {
+      "path": ".",
+      "package": "computed_utils",
+      "class": "Functions"
+    }
+  }
+}
+```
+
+Functions loaded from JSON are used as functional terms (the result is placed
+directly in the term position).
+
+```prolog
+@computed ex: <docs/examples/computed/functions.json>.
+
+@facts
+p(2).
+
+@queries
+?() :- p(ex:increment(1)).
 ```
 
 ## Using Functional Terms

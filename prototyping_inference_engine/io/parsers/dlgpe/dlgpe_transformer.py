@@ -277,18 +277,16 @@ class DlgpeTransformer(Transformer):
         # items[0] = COMPUTED_KWD, items[1] = prefix, items[2] = identifier
         prefix = str(items[1])
         iri = str(items[2])
-        if iri.startswith("<") and iri.endswith(">"):
-            iri = iri[1:-1]
         is_stdfct = (
             iri == "stdfct" or iri.endswith("/stdfct") or iri.endswith("#stdfct")
         )
-        if not is_stdfct:
-            raise DlgpeUnsupportedFeatureError(
-                "Only @computed <stdfct> is supported by PIE. "
-                "Use @computed prefix: <stdfct> to load Integraal standard functions."
-            )
-        self._computed_prefixes_display[prefix] = "stdfct"
-        self._computed_prefixes[prefix] = "stdfct:"
+        if is_stdfct:
+            self._computed_prefixes_display[prefix] = "stdfct"
+            self._computed_prefixes[prefix] = "stdfct:"
+            return None
+
+        self._computed_prefixes_display[prefix] = iri
+        self._computed_prefixes[prefix] = f"{prefix}:"
         return None
 
     def top_directive(self, items):

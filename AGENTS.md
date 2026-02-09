@@ -118,6 +118,7 @@ For any important change:
 - None
 
 ### Design Docs
+- `agents/design/computed-json-loader.md`
 - `agents/design/io-api-restructure.md`
 - `agents/design/execution-notes-hygiene.md`
 - `agents/design/dlgpe-nested-functional-terms.md`

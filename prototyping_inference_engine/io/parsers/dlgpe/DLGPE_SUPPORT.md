@@ -17,7 +17,7 @@ DLGPE grammar is based on: https://gitlab.inria.fr/jfbaget/dlgpe
 | `@top` | ✅ Supported | Parsed, stored in header |
 | `@una` | ✅ Supported | Parsed, stored in header |
 | `@import` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
-| `@computed` | ✅ Supported | Only `@computed <prefix>: <stdfct>` is supported for Integraal standard functions |
+| `@computed` | ✅ Supported | Supports `@computed <prefix>: <stdfct>` for standard functions and JSON configuration files for Python functions |
 | `@view` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
 | `@patterns` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
 

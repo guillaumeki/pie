@@ -5,6 +5,13 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [2026-02-09]
+- Added: JSON-based computed configuration with a versioned schema and extensible providers.
+- Added: Python function loading via `@computed <prefix>: <path/to/config.json>` and functional-term validation.
+- Added: documentation example, schema file, and tests for computed JSON loading.
+- Changed: DLGPE parsing now accepts non-`stdfct` `@computed` directives and defers validation to session parsing.
+- Changed: bumped version to 0.0.15.
+
 ## [2026-02-08]
 - Added: KnowledgeBase and RuleBase abstractions with ReasoningSession helpers.
 - Added: CSVCopyable protocol for fact bases that can export CSV.

@@ -20,9 +20,12 @@ class TestDlgpeUnsupportedFeaturesExtra(unittest.TestCase):
         result = self.parser.parse("?(X) :- X < Y.")
         self.assertEqual(len(result["queries"]), 1)
 
-    def test_unsupported_computed_library(self):
-        with self.assertRaises(DlgpeUnsupportedFeatureError):
-            self.parser.parse("@computed ig: <http://example.org/functions#>.")
+    def test_computed_directive_accepts_non_stdfct(self):
+        result = self.parser.parse("@computed ex: <http://example.org/functions#>.")
+        header = result.get("header", {})
+        self.assertIsInstance(header, dict)
+        self.assertIn("computed", header)
+        self.assertEqual(header["computed"].get("ex"), "http://example.org/functions#")
 
     def test_unsupported_arithmetic(self):
         with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:

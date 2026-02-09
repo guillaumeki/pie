@@ -205,6 +205,12 @@ def _run_computed_sum_example(source: str) -> None:
         raise AssertionError(f"Unexpected sum answers: {normalized}")
 
 
+def _run_computed_json_example(source: str) -> None:
+    _, answers = _evaluate_dlgpe_queries(source)[0]
+    if answers != [tuple()]:
+        raise AssertionError(f"Unexpected computed JSON answers: {answers}")
+
+
 def _run_function_term_example(source: str) -> None:
     _, answers = _evaluate_dlgpe_queries(source)[0]
     if answers != [tuple()]:
@@ -541,6 +547,38 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 """
             ).strip("\n"),
             runner=_run_computed_sum_example,
+        ),
+        DocExample(
+            "json",
+            textwrap.dedent(
+                """
+                {
+                  "schema_version": 1,
+                  "default": {
+                    "functions": {
+                      "path": ".",
+                      "package": "computed_utils",
+                      "class": "Functions"
+                    }
+                  }
+                }
+                """
+            ).strip("\n"),
+        ),
+        DocExample(
+            "prolog",
+            textwrap.dedent(
+                """
+                @computed ex: <docs/examples/computed/functions.json>.
+
+                @facts
+                p(2).
+
+                @queries
+                ?() :- p(ex:increment(1)).
+                """
+            ).strip("\n"),
+            runner=_run_computed_json_example,
         ),
         DocExample(
             "prolog",

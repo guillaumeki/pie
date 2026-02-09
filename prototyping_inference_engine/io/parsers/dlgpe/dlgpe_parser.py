@@ -290,7 +290,10 @@ class DlgpeParser:
         computed_prefixes = (
             header.get("computed", {}) if isinstance(header, dict) else {}
         )
-        if computed_prefixes:
+        std_prefixes = {
+            prefix for prefix, value in computed_prefixes.items() if value == "stdfct"
+        }
+        if std_prefixes:
             from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
                 LiteralFactory,
             )
@@ -304,16 +307,6 @@ class DlgpeParser:
                 IntegraalStandardFunctionSource,
             )
 
-            std_prefixes = {
-                prefix: value
-                for prefix, value in computed_prefixes.items()
-                if value == "stdfct"
-            }
-            if len(std_prefixes) != len(computed_prefixes):
-                raise DlgpeUnsupportedFeatureError(
-                    "Unsupported computed library. "
-                    "Use @computed <stdfct> to load Integraal standard functions."
-                )
             resolved_prefixes = {prefix: "stdfct:" for prefix in std_prefixes}
             base_iris = list(resolved_prefixes.values())
             computed_predicates = {
