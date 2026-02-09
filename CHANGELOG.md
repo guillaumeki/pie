@@ -10,7 +10,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: Python function loading via `@computed <prefix>: <path/to/config.json>` and functional-term validation.
 - Added: documentation example, schema file, and tests for computed JSON loading.
 - Changed: DLGPE parsing now accepts non-`stdfct` `@computed` directives and defers validation to session parsing.
-- Changed: bumped version to 0.0.15.
+- Changed: default computed JSON examples now use module-level functions without a class.
+- Changed: bumped version to 0.0.16.
 
 ## [2026-02-08]
 - Added: KnowledgeBase and RuleBase abstractions with ReasoningSession helpers.
