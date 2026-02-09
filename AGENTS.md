@@ -122,6 +122,7 @@ For any important change:
 - `agents/design/computed-json-default-module.md`
 - `agents/design/pypi-release-0.0.16.md`
 - `agents/design/pypi-release-0.0.17.md`
+- `agents/design/pypi-release-0.0.18.md`
 - `agents/design/io-api-restructure.md`
 - `agents/design/execution-notes-hygiene.md`
 - `agents/design/dlgpe-nested-functional-terms.md`
