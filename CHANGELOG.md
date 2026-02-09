@@ -11,7 +11,8 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Added: documentation example, schema file, and tests for computed JSON loading.
 - Changed: DLGPE parsing now accepts non-`stdfct` `@computed` directives and defers validation to session parsing.
 - Changed: default computed JSON examples now use module-level functions without a class.
-- Changed: bumped version to 0.0.16.
+- Changed: release workflow version check now accepts leading whitespace and single-quoted values.
+- Changed: bumped version to 0.0.17.
 
 ## [2026-02-08]
 - Added: KnowledgeBase and RuleBase abstractions with ReasoningSession helpers.
