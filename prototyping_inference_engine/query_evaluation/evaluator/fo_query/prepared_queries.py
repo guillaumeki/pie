@@ -14,6 +14,7 @@ from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
+from prototyping_inference_engine.api.data.atomic_pattern import AtomicPattern
 from prototyping_inference_engine.api.formula.conjunction_formula import (
     ConjunctionFormula,
 )
@@ -35,10 +36,8 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 from prototyping_inference_engine.query_evaluation.evaluator.errors import (
     UnsupportedFormulaError,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.negation.negation_formula_evaluator import (
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.warnings import (
     UnsafeNegationWarning,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.universal_formula_evaluator import (
     UniversalQuantifierWarning,
 )
 from prototyping_inference_engine.query_evaluation.evaluator.rewriting.function_term_rewriter import (
@@ -94,10 +93,26 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
         self._query = query
         self._data_source = data_source
         self._atom = query.formula
-        self._pattern = data_source.get_atomic_pattern(self._atom.predicate)
-        self._mandatory = self._compute_mandatory_parameters()
-        self._ground_positions = self._compute_ground_positions()
-        self._variable_positions = self._compute_variable_positions()
+        self._missing_predicate: bool = not data_source.has_predicate(
+            self._atom.predicate
+        )
+        self._pattern: AtomicPattern
+        self._mandatory: set[Variable] = set()
+        self._ground_positions: dict[int, Term] = {}
+        self._variable_positions: dict[Variable, list[int]] = {}
+        try:
+            self._pattern = data_source.get_atomic_pattern(self._atom.predicate)
+        except KeyError:
+            self._missing_predicate = True
+            from prototyping_inference_engine.api.data.atomic_pattern import (
+                UnconstrainedPattern,
+            )
+
+            self._pattern = UnconstrainedPattern(self._atom.predicate)
+        if not self._missing_predicate:
+            self._mandatory = self._compute_mandatory_parameters()
+            self._ground_positions = self._compute_ground_positions()
+            self._variable_positions = self._compute_variable_positions()
 
     @property
     def query(self) -> FOQuery:
@@ -108,6 +123,8 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
         return self._data_source
 
     def execute(self, assignation: Substitution) -> Iterable[Substitution]:
+        if self._missing_predicate:
+            return
         query = self._build_basic_query(assignation)
         if query is None:
             return
@@ -138,6 +155,8 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
                 yield assignation.compose(Substitution(result))
 
     def estimate_bound(self, substitution: Substitution) -> int | None:
+        if self._missing_predicate:
+            return 0
         query = self._build_basic_query(substitution)
         if query is None:
             return 0
@@ -146,6 +165,8 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
         return self._data_source.estimate_bound(query)
 
     def is_evaluable_with(self, substitution: Substitution) -> bool:
+        if self._missing_predicate:
+            return False
         query = self._build_basic_query(substitution)
         if query is None:
             return False
@@ -336,7 +357,10 @@ class PreparedDisjunctiveFOQuery(PreparedFOQueryDefaults):
         )
 
         registry = FOQueryEvaluatorRegistry.instance()
-        query = FOQuery(formula, list(self._query.answer_variables))
+        answer_vars = [
+            var for var in self._query.answer_variables if var in formula.free_variables
+        ]
+        query = FOQuery(formula, answer_vars)
         evaluator = registry.get_evaluator(query)
         if evaluator is None:
             raise UnsupportedFormulaError(type(formula))

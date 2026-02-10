@@ -1,16 +1,31 @@
 """
-Tests for BacktrackConjunctionEvaluator.
+Tests for conjunction evaluation via FOQuery evaluators.
 
-Based on test cases from Integraal's BacktrackEvaluatorTest.java:
-https://gitlab.inria.fr/rules/integraal/-/blob/develop/integraal/integraal-query-evaluation/src/test/java/fr/boreal/test/query_evaluation/BacktrackEvaluatorTest.java
+Based on test cases from a reference implementation:
+
 """
 
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
+from prototyping_inference_engine.api.atom.predicate import SpecialPredicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.evaluable_function_term import (
+    EvaluableFunctionTerm,
+)
 from prototyping_inference_engine.api.atom.term.variable import Variable
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
+    LiteralFactory,
+)
+from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
+from prototyping_inference_engine.api.atom.term.storage.dict_storage import DictStorage
+from prototyping_inference_engine.api.data.collection.builder import (
+    ReadableCollectionBuilder,
+)
+from prototyping_inference_engine.api.data.functions.integraal_standard_functions import (
+    IntegraalStandardFunctionSource,
+)
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
     MutableInMemoryFactBase,
 )
@@ -21,21 +36,15 @@ from prototyping_inference_engine.api.formula.existential_formula import (
     ExistentialFormula,
 )
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
-    BacktrackConjunctionEvaluator,
-)
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
     GenericFOQueryEvaluator,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
-    FormulaEvaluatorRegistry,
 )
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
-class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
+class TestBacktrackEvaluatorReference(unittest.TestCase):
     """
-    Test cases based on Integraal's BacktrackEvaluatorTest.
+    Test cases based on a reference backtrack evaluator test suite.
 
     Fact bases:
     - factBase1: {p(a,a), p(a,b), p(c,d)}
@@ -105,14 +114,14 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
         )
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
         self.evaluator = GenericFOQueryEvaluator()
 
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+    def _evaluate_formula(self, formula, data, substitution=None):
+        query = FOQuery(formula, sorted(formula.free_variables, key=lambda v: str(v)))
+        return list(self.evaluator.evaluate(query, data, substitution))
 
     # =========================================================================
-    # Test from Integraal: query7 - Double predicate with join
+    # Reference test: query7 - Double predicate with join
     # p(X,Z,W) ∧ p(Z,W,T) with output {X}
     # =========================================================================
     def test_chain_join_arity3(self):
@@ -480,9 +489,8 @@ class TestBacktrackEvaluatorIntegraal(unittest.TestCase):
             Atom(self.p2, self.y, self.z),
         )
 
-        conj_evaluator = BacktrackConjunctionEvaluator()
         initial_sub = Substitution({self.y: self.b})
-        results = list(conj_evaluator.evaluate(formula, fb, initial_sub))
+        results = self._evaluate_formula(formula, fb, initial_sub)
 
         self.assertEqual(len(results), 2)
         x_values = {r[self.x] for r in results}
@@ -496,11 +504,11 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
     """Edge cases and special scenarios."""
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
         self.evaluator = GenericFOQueryEvaluator()
 
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+    def _evaluate_formula(self, formula, data, substitution=None):
+        query = FOQuery(formula, sorted(formula.free_variables, key=lambda v: str(v)))
+        return list(self.evaluator.evaluate(query, data, substitution))
 
     def test_empty_fact_base(self):
         """Conjunction on empty fact base returns no results."""
@@ -599,6 +607,100 @@ class TestBacktrackEvaluatorEdgeCases(unittest.TestCase):
         results = list(self.evaluator.evaluate_and_project(query, fb))
 
         self.assertEqual(len(results), 0)
+
+
+class TestBacktrackWithComputedTerms(unittest.TestCase):
+    """Tests for backtrack evaluation with computed terms and equalities."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.eq = SpecialPredicate.EQUALITY.value
+        cls.p1 = Predicate("p1", 1)
+        cls.sum_pred = Predicate("stdfct:sum", 3)
+
+        cls.x = Variable("X")
+        cls.y = Variable("Y")
+
+        cls.literal_factory = LiteralFactory(DictStorage(), LiteralConfig.default())
+        cls.one = cls.literal_factory.create("1", "xsd:integer")
+        cls.two = cls.literal_factory.create("2", "xsd:integer")
+        cls.three = cls.literal_factory.create("3", "xsd:integer")
+        cls.four = cls.literal_factory.create("4", "xsd:integer")
+
+    def setUp(self):
+        self.evaluator = GenericFOQueryEvaluator()
+
+    def _collection_with_functions(self, fact_base):
+        stdfct_source = IntegraalStandardFunctionSource(
+            self.literal_factory, {"ig": "stdfct:"}, [self.sum_pred]
+        )
+        return (
+            ReadableCollectionBuilder()
+            .add_all_predicates_from(fact_base)
+            .add_all_predicates_from(stdfct_source)
+            .build()
+        )
+
+    def test_conjunction_with_computed_sum_equality(self):
+        """
+        Query: ?(X,Y) :- p1(X) ∧ p1(Y) ∧ sum(X,Y)=4
+        FactBase: {p1(1), p1(2), p1(3)}
+        Expected: (1,3), (3,1), (2,2)
+        """
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p1, self.one),
+                Atom(self.p1, self.two),
+                Atom(self.p1, self.three),
+            ]
+        )
+        collection = self._collection_with_functions(fact_base)
+
+        sum_term = EvaluableFunctionTerm("stdfct:sum", [self.x, self.y])
+        formula = ConjunctionFormula(
+            ConjunctionFormula(Atom(self.p1, self.x), Atom(self.p1, self.y)),
+            Atom(self.eq, sum_term, self.four),
+        )
+        query = FOQuery(formula, [self.x, self.y])
+
+        results = list(self.evaluator.evaluate_and_project(query, collection))
+
+        self.assertEqual(
+            set(results),
+            {
+                (self.one, self.three),
+                (self.three, self.one),
+                (self.two, self.two),
+            },
+        )
+
+    def test_computed_sum_with_initial_substitution(self):
+        """
+        Query: ?(Y) :- p1(X) ∧ sum(X,Y)=3 with {X -> 1}
+        FactBase: {p1(1), p1(2)}
+        Expected: {Y=2}
+        """
+        fact_base = MutableInMemoryFactBase(
+            [
+                Atom(self.p1, self.one),
+                Atom(self.p1, self.two),
+            ]
+        )
+        collection = self._collection_with_functions(fact_base)
+
+        formula = ConjunctionFormula(
+            Atom(self.p1, self.x),
+            Atom(self.sum_pred, self.x, self.y, self.three),
+        )
+        formula = ExistentialFormula(self.x, formula)
+        query = FOQuery(formula, [self.y])
+        initial_sub = Substitution({self.x: self.one})
+
+        results = list(
+            self.evaluator.evaluate_and_project(query, collection, initial_sub)
+        )
+
+        self.assertEqual(results, [(self.two,)])
 
 
 if __name__ == "__main__":

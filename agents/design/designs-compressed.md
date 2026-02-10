@@ -43,8 +43,9 @@ Dates: 2026-02-04, 2026-02-05, 2026-02-08, 2026-02-10
 - Prepared queries are cached for sub-formulas to avoid rebuilding during backtracking.
 - Lightweight bound estimation guides scheduler ordering; the estimate is intended to be cheap.
 - Backtracking conjunction evaluation uses a dynamic scheduler and prepared subqueries.
-- Function-term rewriting expands terms into computed atoms and is evaluated via the registry to decouple evaluators.
-- Atom-level evaluation delegates to the prepared atomic query path to reuse preparation logic.
+- Function-term rewriting expands terms into computed atoms and is evaluated via the FOQuery registry to decouple evaluators.
+- Atomic FOQueries route through the prepared atomic query path to reuse preparation logic.
+- Evaluation is defined on queries (FOQuery and higher-level query types), not on standalone formulas.
 
 ## Data Abstraction And Collections
 Dates: 2026-02-08

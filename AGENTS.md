@@ -118,6 +118,9 @@ For any important change:
 ### Tracked Plans
 - `agents/plans/2026-02-09-grd-implementation.md`
 - `agents/plans/2026-02-09-rulecompilation-atomic-evaluators.md`
+- `agents/plans/2026-02-10-query-only-evaluators.md`
+- `agents/plans/2026-02-10-integraal-tests-port.md`
+- `agents/plans/2026-02-10-federated-view-tests.md`
 
 ### Design Docs
 - `agents/design/designs-compressed.md`

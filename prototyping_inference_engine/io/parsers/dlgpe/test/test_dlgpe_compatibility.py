@@ -1,5 +1,5 @@
 """
-DLGPE compatibility tests inspired by Integraal DLGP tests.
+DLGPE compatibility tests for DLGP-style inputs.
 """
 
 import unittest

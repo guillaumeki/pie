@@ -1,5 +1,5 @@
 """
-Tests for ConjunctionEvaluator.
+Tests for conjunction evaluation via FOQuery evaluators.
 """
 
 import unittest
@@ -18,21 +18,20 @@ from prototyping_inference_engine.api.formula.existential_formula import (
     ExistentialFormula,
 )
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.conjunction.backtrack_conjunction_evaluator import (
-    BacktrackConjunctionEvaluator,
-)
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
     GenericFOQueryEvaluator,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
-    FormulaEvaluatorRegistry,
 )
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
 
-class TestBacktrackConjunctionEvaluator(unittest.TestCase):
-    """Test BacktrackConjunctionEvaluator."""
+def _evaluate_formula(evaluator, formula, data, substitution=None):
+    query = FOQuery(formula, sorted(formula.free_variables, key=lambda v: str(v)))
+    return list(evaluator.evaluate(query, data, substitution))
+
+
+class TestConjunctionEvaluation(unittest.TestCase):
+    """Test conjunction evaluation via FOQuery evaluators."""
 
     @classmethod
     def setUpClass(cls):
@@ -53,11 +52,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         cls.d = Constant("d")
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
-        self.evaluator = BacktrackConjunctionEvaluator()
-
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def test_simple_conjunction_single_match(self):
         """
@@ -76,7 +71,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
             Atom(self.q, self.y),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.a)
@@ -100,7 +95,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
             Atom(self.q, self.y),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 2)
         x_values = {r[self.x] for r in results}
@@ -123,7 +118,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
             Atom(self.q, self.y),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 0)
 
@@ -146,7 +141,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         )
         initial_sub = Substitution({self.x: self.a})
 
-        results = list(self.evaluator.evaluate(formula, fact_base, initial_sub))
+        results = _evaluate_formula(self.evaluator, formula, fact_base, initial_sub)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.a)
@@ -171,7 +166,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         )
         formula = ConjunctionFormula(inner, Atom(self.r, self.y, self.z))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.a)
@@ -197,7 +192,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         )
         formula = ConjunctionFormula(Atom(self.p, self.x, self.y), inner)
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.a)
@@ -226,7 +221,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
         inner2 = ConjunctionFormula(inner1, Atom(self.r, self.y, self.z))
         formula = ConjunctionFormula(inner2, Atom(self.p, self.z, w))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.a)
@@ -255,7 +250,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
             Atom(q1, self.y),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 4)
 
@@ -281,7 +276,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
             Atom(q2, self.x, self.z),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 2)
         result_pairs = {(r[self.x], r[self.z]) for r in results}
@@ -289,7 +284,7 @@ class TestBacktrackConjunctionEvaluator(unittest.TestCase):
 
 
 class TestConjunctionWithEquality(unittest.TestCase):
-    """Test BacktrackConjunctionEvaluator with equality atoms."""
+    """Test conjunction evaluation with equality atoms."""
 
     @classmethod
     def setUpClass(cls):
@@ -304,11 +299,7 @@ class TestConjunctionWithEquality(unittest.TestCase):
         cls.c = Constant("c")
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
-        self.evaluator = BacktrackConjunctionEvaluator()
-
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def test_equality_variable_constant(self):
         """
@@ -328,7 +319,7 @@ class TestConjunctionWithEquality(unittest.TestCase):
             Atom(self.eq, self.x, self.a),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.a)
@@ -355,7 +346,7 @@ class TestConjunctionWithEquality(unittest.TestCase):
             Atom(self.eq, self.y, self.z),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.a)
@@ -384,7 +375,7 @@ class TestConjunctionWithEquality(unittest.TestCase):
         conj3 = ConjunctionFormula(conj2, Atom(self.eq, self.x, self.y))
         formula = ConjunctionFormula(conj3, Atom(self.eq, self.y, self.z))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         # All three should map to 'a'
@@ -413,7 +404,7 @@ class TestConjunctionWithEquality(unittest.TestCase):
             Atom(self.eq, self.x, self.b),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 0)
 
@@ -434,7 +425,7 @@ class TestConjunctionWithEquality(unittest.TestCase):
             Atom(self.eq, self.a, self.a),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.b)
@@ -451,7 +442,7 @@ class TestConjunctionWithEquality(unittest.TestCase):
             Atom(self.eq, self.y, self.x),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0].apply(self.x), self.a)
@@ -462,11 +453,7 @@ class TestConjunctionFOQuery(unittest.TestCase):
     """Test FOQuery with conjunction formulas."""
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
         self.evaluator = GenericFOQueryEvaluator()
-
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
 
     def test_conjunction_query_with_answer_vars(self):
         """
@@ -554,12 +541,10 @@ class TestConjunctionWithSession(unittest.TestCase):
     """Test conjunction evaluation via ReasoningSession."""
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
         self.session = ReasoningSession.create(auto_cleanup=False)
 
     def tearDown(self):
         self.session.close()
-        FormulaEvaluatorRegistry.reset()
 
     def test_conjunction_query_via_builder(self):
         """Test building and evaluating a conjunction query."""

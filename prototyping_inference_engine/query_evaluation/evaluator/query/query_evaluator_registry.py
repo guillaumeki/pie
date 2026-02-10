@@ -52,7 +52,7 @@ class QueryEvaluatorRegistry:
             ConjunctiveQueryEvaluator,
         )
 
-        # Register FOQuery evaluator (delegates to formula-based registry)
+        # Register FOQuery evaluator (delegates by formula type)
         self.register(GenericFOQueryEvaluator())
 
         # Register UnionQuery evaluator

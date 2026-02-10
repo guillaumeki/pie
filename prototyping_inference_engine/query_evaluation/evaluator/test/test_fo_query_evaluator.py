@@ -18,9 +18,6 @@ from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
     GenericFOQueryEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
-    FormulaEvaluatorRegistry,
-)
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
 
@@ -28,7 +25,6 @@ class TestFOQueryEvaluator(unittest.TestCase):
     """Test FOQueryEvaluator."""
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
         self.evaluator = GenericFOQueryEvaluator()
         self.p = Predicate("p", 2)
         self.q = Predicate("q", 1)
@@ -37,9 +33,6 @@ class TestFOQueryEvaluator(unittest.TestCase):
         self.a = Constant("a")
         self.b = Constant("b")
         self.c = Constant("c")
-
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
 
     def test_evaluate_atomic_query_single_answer(self):
         # Fact base: {p(a, b)}
@@ -151,12 +144,10 @@ class TestFOQueryEvaluatorWithSession(unittest.TestCase):
     """Test FOQueryEvaluator via ReasoningSession."""
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
         self.session = ReasoningSession.create(auto_cleanup=False)
 
     def tearDown(self):
         self.session.close()
-        FormulaEvaluatorRegistry.reset()
 
     def test_evaluate_query_from_session(self):
         # Create fact base

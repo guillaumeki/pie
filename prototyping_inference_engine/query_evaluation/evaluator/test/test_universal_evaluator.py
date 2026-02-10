@@ -1,5 +1,5 @@
 """
-Tests for UniversalFormulaEvaluator.
+Tests for universal evaluation via FOQuery evaluators.
 """
 
 import unittest
@@ -16,18 +16,23 @@ from prototyping_inference_engine.api.formula.universal_formula import Universal
 from prototyping_inference_engine.api.formula.conjunction_formula import (
     ConjunctionFormula,
 )
+from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.universal_formula_evaluator import (
-    UniversalFormulaEvaluator,
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.warnings import (
     UniversalQuantifierWarning,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
-    FormulaEvaluatorRegistry,
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+    GenericFOQueryEvaluator,
 )
 
 
-class TestUniversalFormulaEvaluator(unittest.TestCase):
-    """Test UniversalFormulaEvaluator."""
+def _evaluate_formula(evaluator, formula, data, substitution=None):
+    query = FOQuery(formula, sorted(formula.free_variables, key=lambda v: str(v)))
+    return list(evaluator.evaluate(query, data, substitution))
+
+
+class TestUniversalEvaluation(unittest.TestCase):
+    """Test universal evaluation via FOQuery evaluators."""
 
     @classmethod
     def setUpClass(cls):
@@ -43,11 +48,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
         cls.c = Constant("c")
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
-        self.evaluator = UniversalFormulaEvaluator()
-
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def test_universal_emits_warning(self):
         """∀x.p(x) should emit UniversalQuantifierWarning."""
@@ -60,7 +61,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            list(self.evaluator.evaluate(formula, fact_base))
+            _evaluate_formula(self.evaluator, formula, fact_base)
             self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[0].category, UniversalQuantifierWarning))
 
@@ -79,7 +80,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UniversalQuantifierWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], Substitution())
@@ -100,7 +101,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UniversalQuantifierWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 0)
 
@@ -113,7 +114,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
         formula = UniversalFormula(self.x, Atom(self.p, self.x))
 
         # Empty domain doesn't trigger warning
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], Substitution())
@@ -132,7 +133,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UniversalQuantifierWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
 
@@ -150,7 +151,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UniversalQuantifierWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 0)
 
@@ -174,7 +175,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UniversalQuantifierWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         # c has no r(c, Y), so intersection is empty
         self.assertEqual(len(results), 0)
@@ -197,7 +198,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UniversalQuantifierWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.y], self.b)
@@ -232,7 +233,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UniversalQuantifierWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base2))
+            results = _evaluate_formula(self.evaluator, formula, fact_base2)
 
         result_values = {r[self.y] for r in results}
         self.assertEqual(result_values, {self.a, self.b})
@@ -254,7 +255,7 @@ class TestUniversalFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UniversalQuantifierWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base, initial_sub))
+            results = _evaluate_formula(self.evaluator, formula, fact_base, initial_sub)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.y], self.b)
@@ -264,10 +265,7 @@ class TestUniversalInConjunction(unittest.TestCase):
     """Test universal quantifier within conjunction."""
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
-
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def test_universal_after_binding(self):
         """
@@ -300,15 +298,9 @@ class TestUniversalInConjunction(unittest.TestCase):
             UniversalFormula(x, Atom(r, x, y)),
         )
 
-        from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
-            BacktrackConjunctionEvaluator,
-        )
-
-        evaluator = BacktrackConjunctionEvaluator()
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UniversalQuantifierWarning)
-            results = list(evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 2)
         result_values = {r[y] for r in results}

@@ -1,5 +1,5 @@
 """
-Tests for NegationFormulaEvaluator.
+Tests for negation evaluation via FOQuery evaluators.
 """
 
 import unittest
@@ -30,18 +30,23 @@ from prototyping_inference_engine.api.formula.negation_formula import NegationFo
 from prototyping_inference_engine.api.formula.conjunction_formula import (
     ConjunctionFormula,
 )
+from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.query_evaluation.evaluator.negation.negation_formula_evaluator import (
-    NegationFormulaEvaluator,
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.warnings import (
     UnsafeNegationWarning,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
-    FormulaEvaluatorRegistry,
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+    GenericFOQueryEvaluator,
 )
 
 
-class TestNegationFormulaEvaluator(unittest.TestCase):
-    """Test NegationFormulaEvaluator."""
+def _evaluate_formula(evaluator, formula, data, substitution=None):
+    query = FOQuery(formula, sorted(formula.free_variables, key=lambda v: str(v)))
+    return list(evaluator.evaluate(query, data, substitution))
+
+
+class TestNegationEvaluation(unittest.TestCase):
+    """Test negation evaluation via FOQuery evaluators."""
 
     @classmethod
     def setUpClass(cls):
@@ -57,12 +62,8 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         cls.c = Constant("c")
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
-        self.evaluator = NegationFormulaEvaluator()
+        self.evaluator = GenericFOQueryEvaluator()
         self._literal_factory = LiteralFactory(DictStorage(), LiteralConfig.default())
-
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
 
     def _literal(self, lexical: str, datatype: str):
         return self._literal_factory.create(lexical, datatype)
@@ -87,7 +88,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         )
         formula = NegationFormula(Atom(self.p, self.c))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], Substitution())
@@ -104,7 +105,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         )
         formula = NegationFormula(Atom(self.p, self.a))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 0)
 
@@ -127,7 +128,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
             Atom(p, EvaluableFunctionTerm("stdfct:sum", [one, two]))
         )
 
-        results = list(self.evaluator.evaluate(formula, data))
+        results = _evaluate_formula(self.evaluator, formula, data)
 
         self.assertEqual(results, [])
 
@@ -150,7 +151,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
             Atom(p, EvaluableFunctionTerm("stdfct:sum", [one, two]))
         )
 
-        results = list(self.evaluator.evaluate(formula, data))
+        results = _evaluate_formula(self.evaluator, formula, data)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], Substitution())
@@ -178,7 +179,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
             Atom(p, EvaluableFunctionTerm("stdfct:sum", [one, nested]))
         )
 
-        results = list(self.evaluator.evaluate(formula, data))
+        results = _evaluate_formula(self.evaluator, formula, data)
 
         self.assertEqual(results, [])
 
@@ -196,7 +197,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         formula = NegationFormula(Atom(self.p, self.x))
         substitution = Substitution({self.x: self.c})
 
-        results = list(self.evaluator.evaluate(formula, fact_base, substitution))
+        results = _evaluate_formula(self.evaluator, formula, fact_base, substitution)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.c)
@@ -214,7 +215,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
         formula = NegationFormula(Atom(self.p, self.x))
         substitution = Substitution({self.x: self.a})
 
-        results = list(self.evaluator.evaluate(formula, fact_base, substitution))
+        results = _evaluate_formula(self.evaluator, formula, fact_base, substitution)
 
         self.assertEqual(len(results), 0)
 
@@ -231,7 +232,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            list(self.evaluator.evaluate(formula, fact_base))
+            _evaluate_formula(self.evaluator, formula, fact_base)
             self.assertEqual(len(w), 1)
             self.assertTrue(issubclass(w[0].category, UnsafeNegationWarning))
             self.assertIn("X", w[0].message.args[0])
@@ -253,7 +254,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UnsafeNegationWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.c)
@@ -277,7 +278,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UnsafeNegationWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         result_values = {r[self.x] for r in results}
         self.assertEqual(result_values, {self.b, self.c, d})
@@ -297,7 +298,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UnsafeNegationWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 0)
 
@@ -316,7 +317,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UnsafeNegationWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         result_values = {r[self.x] for r in results}
         self.assertEqual(result_values, {self.a, self.b})
@@ -336,7 +337,7 @@ class TestNegationFormulaEvaluator(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UnsafeNegationWarning)
-            results = list(self.evaluator.evaluate(formula, fact_base))
+            results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         result_pairs = {(r[self.x], r[self.y]) for r in results}
         # Domain = {a, b}, all pairs = {(a,a), (a,b), (b,a), (b,b)}
@@ -349,10 +350,7 @@ class TestNegationInConjunction(unittest.TestCase):
     """Test negation within conjunction (safe pattern)."""
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
-
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def test_safe_negation_in_conjunction(self):
         """
@@ -380,13 +378,7 @@ class TestNegationInConjunction(unittest.TestCase):
             NegationFormula(Atom(p, x)),
         )
 
-        from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
-            BacktrackConjunctionEvaluator,
-        )
-
-        evaluator = BacktrackConjunctionEvaluator()
-
-        results = list(evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         result_values = {r[x] for r in results}
         self.assertEqual(result_values, {b, c})
@@ -416,13 +408,7 @@ class TestNegationInConjunction(unittest.TestCase):
             NegationFormula(Atom(p, y)),
         )
 
-        from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
-            BacktrackConjunctionEvaluator,
-        )
-
-        evaluator = BacktrackConjunctionEvaluator()
-
-        results = list(evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][x], a)

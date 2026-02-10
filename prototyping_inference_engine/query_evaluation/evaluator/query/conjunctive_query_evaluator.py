@@ -2,16 +2,18 @@
 Evaluator for ConjunctiveQuery.
 """
 
-from typing import Iterator, Type, Optional, TYPE_CHECKING, cast
+from typing import Iterator, Type, Optional, TYPE_CHECKING, cast, Iterable
 
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import (
     QueryEvaluator,
 )
+from prototyping_inference_engine.api.query.prepared_query import PreparedQuery
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
+    from prototyping_inference_engine.api.query.fo_query import FOQuery
     from prototyping_inference_engine.api.substitution.substitution import Substitution
     from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import (
         QueryEvaluatorRegistry,
@@ -68,14 +70,13 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         Yields:
             Substitutions that satisfy the query
         """
-        fo_query = query.to_fo_query()
-        registry = self._get_registry()
-        evaluator = registry.get_evaluator(fo_query)
+        prepared = self.prepare(query, data)
+        from prototyping_inference_engine.api.substitution.substitution import (
+            Substitution,
+        )
 
-        if evaluator is None:
-            raise ValueError("No evaluator registered for FOQuery")
-
-        yield from evaluator.evaluate(fo_query, data, substitution)
+        initial = substitution if substitution is not None else Substitution()
+        yield from prepared.execute(initial)
 
     def evaluate_and_project(
         self,
@@ -108,3 +109,48 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         yield from cast(FOQueryEvaluator, evaluator).evaluate_and_project(
             fo_query, data, substitution
         )
+
+    def prepare(
+        self,
+        query: ConjunctiveQuery,
+        data: "ReadableData",
+    ) -> "PreparedQuery[ConjunctiveQuery, ReadableData, Iterable[Substitution], Substitution]":
+        fo_query = query.to_fo_query()
+        registry = self._get_registry()
+        evaluator = registry.get_evaluator(fo_query)
+
+        if evaluator is None:
+            raise ValueError("No evaluator registered for FOQuery")
+
+        prepared = evaluator.prepare(fo_query, data)
+        return _DelegatingPreparedQuery(query, data, prepared)
+
+
+class _DelegatingPreparedQuery(
+    PreparedQuery[
+        ConjunctiveQuery, "ReadableData", Iterable["Substitution"], "Substitution"
+    ]
+):
+    def __init__(
+        self,
+        query: ConjunctiveQuery,
+        data: "ReadableData",
+        delegate: "PreparedQuery[FOQuery, ReadableData, Iterable[Substitution], Substitution]",
+    ):
+        self._query = query
+        self._data = data
+        self._delegate = delegate
+
+    @property
+    def query(self) -> ConjunctiveQuery:
+        return self._query
+
+    @property
+    def data_source(self) -> "ReadableData":
+        return self._data
+
+    def execute(self, assignation: "Substitution") -> Iterable["Substitution"]:
+        return self._delegate.execute(assignation)
+
+    def estimate_bound(self, assignation: "Substitution") -> int | None:
+        return self._delegate.estimate_bound(assignation)

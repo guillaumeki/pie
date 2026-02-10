@@ -3,7 +3,7 @@ Date: 2026-02-09
 Status: Draft
 
 ## Summary
-Implement a GRD-backed RuleCompilation in PIE to provide Integraal-equivalent compilation features.
+Implement a GRD-backed RuleCompilation in PIE to provide compilation features aligned with the target behavior.
 
 ## Design Choices (with justification)
 - Introduce a GRD adapter layer to keep compilation concerns isolated from evaluators.
@@ -16,7 +16,7 @@ Implement a GRD-backed RuleCompilation in PIE to provide Integraal-equivalent co
 - Documentation updates (README/docs) if needed
 
 ## Alternatives Considered
-- No-op compilation — rejected because Integraal behavior requires GRD.
+- No-op compilation — rejected because the target behavior requires GRD.
 
 ## Risks & Mitigations
 - Dependency complexity — mitigate with adapter isolation and clear interfaces.

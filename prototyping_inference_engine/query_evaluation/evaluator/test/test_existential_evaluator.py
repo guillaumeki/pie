@@ -1,5 +1,5 @@
 """
-Tests for ExistentialFormulaEvaluator.
+Tests for existential evaluation via FOQuery evaluators.
 """
 
 import unittest
@@ -17,17 +17,15 @@ from prototyping_inference_engine.api.formula.existential_formula import (
 from prototyping_inference_engine.api.formula.conjunction_formula import (
     ConjunctionFormula,
 )
+from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.existential_formula_evaluator import (
-    ExistentialFormulaEvaluator,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
-    FormulaEvaluatorRegistry,
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+    GenericFOQueryEvaluator,
 )
 
 
-class TestExistentialFormulaEvaluator(unittest.TestCase):
-    """Test ExistentialFormulaEvaluator."""
+class TestExistentialEvaluation(unittest.TestCase):
+    """Test existential evaluation via FOQuery evaluators."""
 
     @classmethod
     def setUpClass(cls):
@@ -43,11 +41,11 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         cls.c = Constant("c")
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
-        self.evaluator = ExistentialFormulaEvaluator()
+        self.evaluator = GenericFOQueryEvaluator()
 
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+    def _evaluate_formula(self, formula, data, substitution=None):
+        query = FOQuery(formula, sorted(formula.free_variables, key=lambda v: str(v)))
+        return list(self.evaluator.evaluate(query, data, substitution))
 
     def test_existential_true_single_witness(self):
         """
@@ -61,7 +59,7 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         )
         formula = ExistentialFormula(self.x, Atom(self.p, self.x))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = self._evaluate_formula(formula, fact_base)
 
         # ∃x.p(x) is true, returns empty substitution (x is bound)
         self.assertEqual(len(results), 1)
@@ -81,7 +79,7 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         )
         formula = ExistentialFormula(self.x, Atom(self.p, self.x))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = self._evaluate_formula(formula, fact_base)
 
         # All witnesses project to same empty substitution
         self.assertEqual(len(results), 1)
@@ -99,7 +97,7 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         )
         formula = ExistentialFormula(self.x, Atom(self.p, self.x))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = self._evaluate_formula(formula, fact_base)
 
         self.assertEqual(len(results), 0)
 
@@ -119,7 +117,7 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         )
         formula = ExistentialFormula(self.x, Atom(self.r, self.x, self.y))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = self._evaluate_formula(formula, fact_base)
 
         # Y can be b or c
         result_values = {r[self.y] for r in results}
@@ -138,7 +136,7 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         )
         formula = ExistentialFormula(self.x, Atom(self.r, self.x, self.y))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = self._evaluate_formula(formula, fact_base)
 
         # Only one result: Y=b (deduplicated)
         self.assertEqual(len(results), 1)
@@ -152,7 +150,7 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         fact_base = MutableInMemoryFactBase([])
         formula = ExistentialFormula(self.x, Atom(self.p, self.x))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = self._evaluate_formula(formula, fact_base)
 
         self.assertEqual(len(results), 0)
 
@@ -171,7 +169,7 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         formula = ExistentialFormula(self.x, Atom(self.r, self.x, self.y))
         initial_sub = Substitution({self.y: self.b})
 
-        results = list(self.evaluator.evaluate(formula, fact_base, initial_sub))
+        results = self._evaluate_formula(formula, fact_base, initial_sub)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.y], self.b)
@@ -190,7 +188,7 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         formula = ExistentialFormula(self.x, Atom(self.r, self.x, self.y))
         initial_sub = Substitution({self.y: self.c})
 
-        results = list(self.evaluator.evaluate(formula, fact_base, initial_sub))
+        results = self._evaluate_formula(formula, fact_base, initial_sub)
 
         self.assertEqual(len(results), 0)
 
@@ -207,7 +205,7 @@ class TestExistentialFormulaEvaluator(unittest.TestCase):
         inner = ExistentialFormula(self.y, Atom(self.r, self.x, self.y))
         formula = ExistentialFormula(self.x, inner)
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = self._evaluate_formula(formula, fact_base)
 
         # Both variables projected out, result is empty substitution
         self.assertEqual(len(results), 1)
@@ -218,10 +216,11 @@ class TestExistentialInConjunction(unittest.TestCase):
     """Test existential quantifier within conjunction."""
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
+        self.evaluator = GenericFOQueryEvaluator()
 
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+    def _evaluate_formula(self, formula, data, substitution=None):
+        query = FOQuery(formula, sorted(formula.free_variables, key=lambda v: str(v)))
+        return list(self.evaluator.evaluate(query, data, substitution))
 
     def test_existential_in_conjunction(self):
         """
@@ -256,13 +255,7 @@ class TestExistentialInConjunction(unittest.TestCase):
             ExistentialFormula(x, Atom(r, x, y)),
         )
 
-        from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
-            BacktrackConjunctionEvaluator,
-        )
-
-        evaluator = BacktrackConjunctionEvaluator()
-
-        results = list(evaluator.evaluate(formula, fact_base))
+        results = self._evaluate_formula(formula, fact_base)
 
         self.assertEqual(len(results), 2)
         result_values = {r[y] for r in results}
@@ -292,8 +285,7 @@ class TestExistentialInConjunction(unittest.TestCase):
         inner = ConjunctionFormula(Atom(p, x), Atom(q, x))
         formula = ExistentialFormula(x, inner)
 
-        evaluator = ExistentialFormulaEvaluator()
-        results = list(evaluator.evaluate(formula, fact_base))
+        results = self._evaluate_formula(formula, fact_base)
 
         # x=b is the only witness, projected out
         self.assertEqual(len(results), 1)

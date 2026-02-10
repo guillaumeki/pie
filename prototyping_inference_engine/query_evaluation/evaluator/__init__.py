@@ -1,17 +1,7 @@
 """
-Formula and query evaluators.
+Query evaluators.
 """
 
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
-    FormulaEvaluator,
-    RegistryMixin,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import (
-    AtomEvaluator,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
-    FormulaEvaluatorRegistry,
-)
 from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import (
     QueryEvaluator,
 )
@@ -33,23 +23,9 @@ from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_e
     ExistentialFOQueryEvaluator,
     GenericFOQueryEvaluator,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
-    ConjunctionEvaluator,
-    BacktrackConjunctionEvaluator,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.negation.negation_formula_evaluator import (
-    NegationFormulaEvaluator,
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.warnings import (
     UnsafeNegationWarning,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.universal_formula_evaluator import (
-    UniversalFormulaEvaluator,
     UniversalQuantifierWarning,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.quantifiers.existential_formula_evaluator import (
-    ExistentialFormulaEvaluator,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.disjunction.disjunction_formula_evaluator import (
-    DisjunctionFormulaEvaluator,
 )
 
 __all__ = [
@@ -65,17 +41,6 @@ __all__ = [
     "ExistentialFOQueryEvaluator",
     "GenericFOQueryEvaluator",
     "UnsupportedFormulaError",
-    # Formula evaluators (internal)
-    "FormulaEvaluator",
-    "RegistryMixin",
-    "AtomEvaluator",
-    "ConjunctionEvaluator",
-    "BacktrackConjunctionEvaluator",
-    "DisjunctionFormulaEvaluator",
-    "NegationFormulaEvaluator",
     "UnsafeNegationWarning",
-    "UniversalFormulaEvaluator",
     "UniversalQuantifierWarning",
-    "ExistentialFormulaEvaluator",
-    "FormulaEvaluatorRegistry",
 ]

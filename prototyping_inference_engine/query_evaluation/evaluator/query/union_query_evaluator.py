@@ -2,16 +2,18 @@
 Evaluator for UnionQuery (disjunction of queries).
 """
 
-from typing import Iterator, Type, Optional, TYPE_CHECKING
+from typing import Iterator, Type, Optional, TYPE_CHECKING, Iterable
 
 from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator import (
     QueryEvaluator,
 )
+from prototyping_inference_engine.api.query.prepared_query import PreparedQuery
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
+    from prototyping_inference_engine.api.query.query import Query
     from prototyping_inference_engine.api.substitution.substitution import Substitution
     from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import (
         QueryEvaluatorRegistry,
@@ -72,31 +74,13 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         Yields:
             Substitutions that satisfy at least one sub-query
         """
+        prepared = self.prepare(query, data)
         from prototyping_inference_engine.api.substitution.substitution import (
             Substitution,
         )
 
-        if substitution is None:
-            substitution = Substitution()
-
-        registry = self._get_registry()
-
-        # Track seen results for deduplication
-        seen: set[frozenset] = set()
-
-        # Evaluate each sub-query
-        for sub_query in query.queries:
-            evaluator = registry.get_evaluator(sub_query)
-            if evaluator is None:
-                raise ValueError(
-                    f"No evaluator registered for query type: {type(sub_query).__name__}"
-                )
-
-            for result_sub in evaluator.evaluate(sub_query, data, substitution):
-                key = frozenset(result_sub.items())
-                if key not in seen:
-                    seen.add(key)
-                    yield result_sub
+        initial = substitution if substitution is not None else Substitution()
+        yield from prepared.execute(initial)
 
     def evaluate_and_project(
         self,
@@ -122,3 +106,67 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
             if answer not in seen:
                 seen.add(answer)
                 yield answer
+
+    def prepare(
+        self,
+        query: UnionQuery,
+        data: "ReadableData",
+    ) -> (
+        "PreparedQuery[UnionQuery, ReadableData, Iterable[Substitution], Substitution]"
+    ):
+        registry = self._get_registry()
+        prepared_queries = []
+
+        for sub_query in query.queries:
+            evaluator = registry.get_evaluator(sub_query)
+            if evaluator is None:
+                raise ValueError(
+                    f"No evaluator registered for query type: {type(sub_query).__name__}"
+                )
+            prepared_queries.append(evaluator.prepare(sub_query, data))
+
+        return _PreparedUnionQuery(query, data, prepared_queries)
+
+
+class _PreparedUnionQuery(
+    PreparedQuery[UnionQuery, "ReadableData", Iterable["Substitution"], "Substitution"]
+):
+    def __init__(
+        self,
+        query: UnionQuery,
+        data: "ReadableData",
+        prepared_queries: list[
+            PreparedQuery[
+                "Query", "ReadableData", Iterable["Substitution"], "Substitution"
+            ]
+        ],
+    ):
+        self._query = query
+        self._data = data
+        self._prepared = prepared_queries
+
+    @property
+    def query(self) -> UnionQuery:
+        return self._query
+
+    @property
+    def data_source(self) -> "ReadableData":
+        return self._data
+
+    def execute(self, assignation: "Substitution") -> Iterable["Substitution"]:
+        seen: set[frozenset] = set()
+        for prepared in self._prepared:
+            for result_sub in prepared.execute(assignation):
+                key = frozenset(result_sub.items())
+                if key not in seen:
+                    seen.add(key)
+                    yield result_sub
+
+    def estimate_bound(self, assignation: "Substitution") -> int | None:
+        total = 0
+        for prepared in self._prepared:
+            bound = prepared.estimate_bound(assignation)
+            if bound is None:
+                return None
+            total += bound
+        return total

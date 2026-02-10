@@ -3,12 +3,13 @@ Abstract base class for query evaluators.
 """
 
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Type, Iterator, Optional, TYPE_CHECKING
+from typing import Generic, TypeVar, Type, Iterator, Optional, TYPE_CHECKING, Iterable
 
 from prototyping_inference_engine.api.query.query import Query
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
+    from prototyping_inference_engine.api.query.prepared_query import PreparedQuery
     from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 Q = TypeVar("Q", bound=Query)
@@ -45,5 +46,19 @@ class QueryEvaluator(ABC, Generic[Q]):
 
         Yields:
             Substitutions that satisfy the query
+        """
+        ...
+
+    @abstractmethod
+    def prepare(
+        self,
+        query: Q,
+        data: "ReadableData",
+    ) -> "PreparedQuery[Q, ReadableData, Iterable[Substitution], Substitution]":
+        """
+        Prepare a query against a data source for repeated evaluation.
+
+        Implementations should perform inexpensive preprocessing and must not
+        trigger full evaluation.
         """
         ...

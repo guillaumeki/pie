@@ -18,17 +18,23 @@ from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base impo
 )
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
-from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import (
-    AtomEvaluator,
+from prototyping_inference_engine.api.query.fo_query import FOQuery
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+    GenericFOQueryEvaluator,
 )
 
 
-class TestCollectionWithAtomEvaluator(unittest.TestCase):
-    """Test collections work with AtomEvaluator."""
+def _evaluate_atom(evaluator, atom, data, substitution=None):
+    query = FOQuery(atom, sorted(atom.free_variables, key=lambda v: str(v)))
+    return list(evaluator.evaluate(query, data, substitution))
+
+
+class TestCollectionWithFOQueryEvaluator(unittest.TestCase):
+    """Test collections work with FOQuery evaluation."""
 
     def setUp(self):
         self.parser = DlgpeParser.instance()
-        self.evaluator = AtomEvaluator()
+        self.evaluator = GenericFOQueryEvaluator()
 
         # Create fact bases
         self.fb_persons = FrozenInMemoryFactBase(
@@ -55,7 +61,7 @@ class TestCollectionWithAtomEvaluator(unittest.TestCase):
     def test_evaluate_simple_atom(self):
         """Test evaluating a simple atom with one variable."""
         atom = Atom(self.person, self.X)
-        results = list(self.evaluator.evaluate(atom, self.collection))
+        results = _evaluate_atom(self.evaluator, atom, self.collection)
 
         self.assertEqual(len(results), 3)
         values = {sub.apply(self.X) for sub in results}
@@ -66,7 +72,7 @@ class TestCollectionWithAtomEvaluator(unittest.TestCase):
     def test_evaluate_binary_atom(self):
         """Test evaluating a binary atom with two variables."""
         atom = Atom(self.knows, self.X, self.Y)
-        results = list(self.evaluator.evaluate(atom, self.collection))
+        results = _evaluate_atom(self.evaluator, atom, self.collection)
 
         self.assertEqual(len(results), 2)
         pairs = {(sub.apply(self.X), sub.apply(self.Y)) for sub in results}
@@ -83,7 +89,7 @@ class TestCollectionWithAtomEvaluator(unittest.TestCase):
         atom = Atom(self.knows, self.X, self.Y)
         initial_sub = Substitution({self.X: Constant("alice")})
 
-        results = list(self.evaluator.evaluate(atom, self.collection, initial_sub))
+        results = _evaluate_atom(self.evaluator, atom, self.collection, initial_sub)
 
         self.assertEqual(len(results), 1)
         sub = results[0]
@@ -93,24 +99,24 @@ class TestCollectionWithAtomEvaluator(unittest.TestCase):
     def test_evaluate_ground_atom(self):
         """Test evaluating a ground atom."""
         atom = Atom(self.knows, Constant("alice"), Constant("bob"))
-        results = list(self.evaluator.evaluate(atom, self.collection))
+        results = _evaluate_atom(self.evaluator, atom, self.collection)
 
         self.assertEqual(len(results), 1)
 
     def test_evaluate_ground_atom_not_found(self):
         """Test evaluating a ground atom that doesn't exist."""
         atom = Atom(self.knows, Constant("alice"), Constant("carol"))
-        results = list(self.evaluator.evaluate(atom, self.collection))
+        results = _evaluate_atom(self.evaluator, atom, self.collection)
 
         self.assertEqual(len(results), 0)
 
     def test_evaluate_unknown_predicate_raises(self):
-        """Test that evaluating unknown predicate raises KeyError."""
+        """Test that evaluating unknown predicate returns no results."""
         unknown = Predicate("unknown", 1)
         atom = Atom(unknown, self.X)
 
-        with self.assertRaises(KeyError):
-            list(self.evaluator.evaluate(atom, self.collection))
+        results = _evaluate_atom(self.evaluator, atom, self.collection)
+        self.assertEqual(len(results), 0)
 
 
 class TestCollectionWithMultipleSources(unittest.TestCase):
@@ -118,7 +124,7 @@ class TestCollectionWithMultipleSources(unittest.TestCase):
 
     def setUp(self):
         self.parser = DlgpeParser.instance()
-        self.evaluator = AtomEvaluator()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def test_three_sources(self):
         """Test collection with three different sources."""
@@ -175,7 +181,7 @@ class TestWritableCollectionIntegration(unittest.TestCase):
 
     def setUp(self):
         self.parser = DlgpeParser.instance()
-        self.evaluator = AtomEvaluator()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def test_add_then_evaluate(self):
         """Test adding atoms then evaluating queries."""
@@ -199,7 +205,7 @@ class TestWritableCollectionIntegration(unittest.TestCase):
 
         # Now predicate is registered and we can evaluate
         self.assertTrue(collection.has_predicate(p))
-        results = list(self.evaluator.evaluate(atom, collection))
+        results = _evaluate_atom(self.evaluator, atom, collection)
         self.assertEqual(len(results), 2)
 
     def test_update_then_evaluate(self):
@@ -220,7 +226,7 @@ class TestWritableCollectionIntegration(unittest.TestCase):
         # Evaluate
         X, Y = Variable("X"), Variable("Y")
         query_atom = Atom(p, X, Y)
-        results = list(self.evaluator.evaluate(query_atom, collection))
+        results = _evaluate_atom(self.evaluator, query_atom, collection)
         self.assertEqual(len(results), 3)
 
 
@@ -230,7 +236,7 @@ class TestCollectionAsDropInReplacement(unittest.TestCase):
     def test_same_results_as_fact_base(self):
         """Test that collection gives same results as direct fact base query."""
         parser = DlgpeParser.instance()
-        evaluator = AtomEvaluator()
+        evaluator = GenericFOQueryEvaluator()
 
         atoms = parser.parse_atoms("p(a,b), p(c,d), p(e,f).")
         fb = FrozenInMemoryFactBase(atoms)
@@ -244,11 +250,11 @@ class TestCollectionAsDropInReplacement(unittest.TestCase):
         atom = Atom(p, X, Y)
 
         fb_results = set()
-        for sub in evaluator.evaluate(atom, fb):
+        for sub in _evaluate_atom(evaluator, atom, fb):
             fb_results.add((sub.apply(X), sub.apply(Y)))
 
         collection_results = set()
-        for sub in evaluator.evaluate(atom, collection):
+        for sub in _evaluate_atom(evaluator, atom, collection):
             collection_results.add((sub.apply(X), sub.apply(Y)))
 
         self.assertEqual(fb_results, collection_results)

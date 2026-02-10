@@ -1,5 +1,5 @@
 """
-Tests for DisjunctionFormulaEvaluator.
+Tests for disjunction evaluation via FOQuery evaluators.
 """
 
 import unittest
@@ -17,17 +17,20 @@ from prototyping_inference_engine.api.formula.disjunction_formula import (
 from prototyping_inference_engine.api.formula.conjunction_formula import (
     ConjunctionFormula,
 )
+from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.substitution.substitution import Substitution
-from prototyping_inference_engine.query_evaluation.evaluator.disjunction.disjunction_formula_evaluator import (
-    DisjunctionFormulaEvaluator,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
-    FormulaEvaluatorRegistry,
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+    GenericFOQueryEvaluator,
 )
 
 
-class TestDisjunctionFormulaEvaluator(unittest.TestCase):
-    """Test DisjunctionFormulaEvaluator."""
+def _evaluate_formula(evaluator, formula, data, substitution=None):
+    query = FOQuery(formula, sorted(formula.free_variables, key=lambda v: str(v)))
+    return list(evaluator.evaluate(query, data, substitution))
+
+
+class TestDisjunctionEvaluation(unittest.TestCase):
+    """Test disjunction evaluation via FOQuery evaluators."""
 
     @classmethod
     def setUpClass(cls):
@@ -43,11 +46,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
         cls.c = Constant("c")
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
-        self.evaluator = DisjunctionFormulaEvaluator()
-
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def test_disjunction_left_only(self):
         """
@@ -64,7 +63,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
             Atom(self.q, self.x),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.a)
@@ -84,7 +83,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
             Atom(self.q, self.x),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.b)
@@ -105,7 +104,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
             Atom(self.q, self.x),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 2)
         result_values = {r[self.x] for r in results}
@@ -126,7 +125,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
             Atom(self.q, self.x),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 0)
 
@@ -146,7 +145,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
             Atom(self.q, self.x),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         # Should be deduplicated to one result
         self.assertEqual(len(results), 1)
@@ -170,7 +169,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
             Atom(self.q, self.x),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         # a, b, c but b only once
         self.assertEqual(len(results), 3)
@@ -192,7 +191,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
             Atom(self.q, self.b),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], Substitution())
@@ -212,7 +211,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
             Atom(self.q, self.b),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0], Substitution())
@@ -233,7 +232,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
             Atom(self.q, self.b),
         )
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         # Both yield empty substitution, deduplicated
         self.assertEqual(len(results), 1)
@@ -257,7 +256,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
         )
         initial_sub = Substitution({self.x: self.a})
 
-        results = list(self.evaluator.evaluate(formula, fact_base, initial_sub))
+        results = _evaluate_formula(self.evaluator, formula, fact_base, initial_sub)
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.a)
@@ -281,7 +280,7 @@ class TestDisjunctionFormulaEvaluator(unittest.TestCase):
         )
         formula = DisjunctionFormula(inner, Atom(self.r, self.x, self.y))
 
-        results = list(self.evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         # X=a (from p), X=b (from q), X=c,Y=d (from r)
         self.assertEqual(len(results), 3)
@@ -291,10 +290,7 @@ class TestDisjunctionInConjunction(unittest.TestCase):
     """Test disjunction within conjunction."""
 
     def setUp(self):
-        FormulaEvaluatorRegistry.reset()
-
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+        self.evaluator = GenericFOQueryEvaluator()
 
     def test_disjunction_in_conjunction(self):
         """
@@ -323,13 +319,7 @@ class TestDisjunctionInConjunction(unittest.TestCase):
         disj = DisjunctionFormula(Atom(p, y), Atom(q, y))
         formula = ConjunctionFormula(Atom(r, x, y), disj)
 
-        from prototyping_inference_engine.query_evaluation.evaluator.conjunction import (
-            BacktrackConjunctionEvaluator,
-        )
-
-        evaluator = BacktrackConjunctionEvaluator()
-
-        results = list(evaluator.evaluate(formula, fact_base))
+        results = _evaluate_formula(self.evaluator, formula, fact_base)
 
         self.assertEqual(len(results), 2)
         result_pairs = {(r[x], r[y]) for r in results}

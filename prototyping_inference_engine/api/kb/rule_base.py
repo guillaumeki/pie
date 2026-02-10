@@ -9,9 +9,6 @@ from prototyping_inference_engine.api.ontology.rule.rule import Rule
 class RuleBase:
     """
     Container for rules and negative constraints.
-
-    This mirrors Integraal's RuleBase concept while staying compatible with PIE's
-    existing rule and constraint types.
     """
 
     def __init__(

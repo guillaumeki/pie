@@ -1,39 +1,43 @@
 """
 Tests for atomic FOQuery evaluation.
-
-Based on test cases from Integraal's AtomicFOQueryEvaluatorTest.java:
-https://gitlab.inria.fr/rules/integraal/-/blob/develop/integraal/integraal-query-evaluation/src/test/java/fr/boreal/test/query_evaluation/AtomicFOQueryEvaluatorTest.java
 """
 
 import unittest
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
+from prototyping_inference_engine.api.atom.predicate import SpecialPredicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
+    LiteralFactory,
+)
+from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
+from prototyping_inference_engine.api.atom.term.storage.dict_storage import DictStorage
+from prototyping_inference_engine.api.data.collection.builder import (
+    ReadableCollectionBuilder,
+)
+from prototyping_inference_engine.api.data.functions.integraal_standard_functions import (
+    IntegraalStandardFunctionSource,
+)
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
     MutableInMemoryFactBase,
+)
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
 )
 from prototyping_inference_engine.api.formula.existential_formula import (
     ExistentialFormula,
 )
 from prototyping_inference_engine.api.query.fo_query import FOQuery
-from prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator import (
-    AtomEvaluator,
-)
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
     GenericFOQueryEvaluator,
-)
-from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator_registry import (
-    FormulaEvaluatorRegistry,
 )
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
 class TestAtomicFOQueryEvaluator(unittest.TestCase):
     """
-    Test cases based on Integraal's AtomicFOQueryEvaluatorTest.
-
     Test fixtures:
     - factBase1: {p(a,a), p(a,b), p(c,d), p(x,x)} where x is a variable in facts
     - factBase2: {p(x,y)} where x,y are variables in facts
@@ -47,6 +51,8 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         # Predicates
         cls.p2 = Predicate("p", 2)
         cls.q2 = Predicate("q", 2)
+        cls.p1 = Predicate("p1", 1)
+        cls.eq = SpecialPredicate.EQUALITY.value
 
         # Variables (for queries)
         cls.x = Variable("X")
@@ -90,12 +96,10 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
             ]
         )
 
-    def setUp(self):
-        FormulaEvaluatorRegistry.reset()
-        self.evaluator = GenericFOQueryEvaluator()
+        cls._literal_factory = LiteralFactory(DictStorage(), LiteralConfig.default())
 
-    def tearDown(self):
-        FormulaEvaluatorRegistry.reset()
+    def setUp(self):
+        self.evaluator = GenericFOQueryEvaluator()
 
     # =========================================================================
     # Test 1: Query p(X,X) against factBase2 {p(a,b)} - no match
@@ -155,14 +159,12 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         Query: ?(X) :- p(X,Y) with initial substitution {X -> a}
         FactBase: {p(a,a), p(a,b), p(c,d)}
         Expected: {a} (only matches where X=a)
-
-        This tests the AtomEvaluator with an initial substitution.
         """
-        atom_evaluator = AtomEvaluator()
         atom = Atom(self.p2, self.x, self.y)
+        query = FOQuery(atom, [self.x, self.y])
         initial_sub = Substitution({self.x: self.a})
 
-        results = list(atom_evaluator.evaluate(atom, self.fact_base_1, initial_sub))
+        results = list(self.evaluator.evaluate(query, self.fact_base_1, initial_sub))
 
         # All results should have X -> a
         for sub in results:
@@ -180,11 +182,11 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         FactBase: {p(a,a), p(a,b), p(c,d)}
         Expected: {c} (only p(c,d) matches)
         """
-        atom_evaluator = AtomEvaluator()
         atom = Atom(self.p2, self.x, self.y)
+        query = FOQuery(atom, [self.x, self.y])
         initial_sub = Substitution({self.y: self.d})
 
-        results = list(atom_evaluator.evaluate(atom, self.fact_base_1, initial_sub))
+        results = list(self.evaluator.evaluate(query, self.fact_base_1, initial_sub))
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.c)
@@ -199,11 +201,11 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         FactBase: {p(a,a), p(a,b), p(c,d)}
         Expected: empty (no fact p(a,d))
         """
-        atom_evaluator = AtomEvaluator()
         atom = Atom(self.p2, self.x, self.y)
+        query = FOQuery(atom, [self.x, self.y])
         initial_sub = Substitution({self.x: self.a, self.y: self.d})
 
-        results = list(atom_evaluator.evaluate(atom, self.fact_base_1, initial_sub))
+        results = list(self.evaluator.evaluate(query, self.fact_base_1, initial_sub))
 
         self.assertEqual(len(results), 0)
 
@@ -249,6 +251,85 @@ class TestAtomicFOQueryEvaluator(unittest.TestCase):
         results = list(self.evaluator.evaluate_and_project(query, self.fact_base_2))
 
         self.assertEqual(len(results), 0)
+
+    def test_query_predicate_not_in_collection(self):
+        """
+        Query: ?(X,Y) :- q(X,Y)
+        Collection: built from a fact base that only contains p facts
+        Expected: empty (no crash)
+        """
+        fb = MutableInMemoryFactBase([Atom(self.p2, self.a, self.b)])
+        collection = ReadableCollectionBuilder().add_all_predicates_from(fb).build()
+
+        query = FOQuery(Atom(self.q2, self.x, self.y), [self.x, self.y])
+        results = list(self.evaluator.evaluate_and_project(query, collection))
+
+        self.assertEqual(len(results), 0)
+
+    def test_query_predicate_added_after_collection_creation(self):
+        """
+        Query: ?(X,Y) :- q(X,Y)
+        Collection: dynamic source gains predicate q after creation
+        Expected: returns the newly added fact
+        """
+        fb = MutableInMemoryFactBase([Atom(self.p2, self.a, self.b)])
+        collection = ReadableCollectionBuilder().add_dynamic_source(fb).build()
+
+        query = FOQuery(Atom(self.q2, self.x, self.y), [self.x, self.y])
+        results = list(self.evaluator.evaluate_and_project(query, collection))
+        self.assertEqual(len(results), 0)
+
+        fb.add(Atom(self.q2, self.a, self.b))
+        results = list(self.evaluator.evaluate_and_project(query, collection))
+
+        self.assertEqual(results, [(self.a, self.b)])
+
+    def test_query_with_equality_answer_var(self):
+        """
+        Query: ?(Z) :- p(X,Y) ∧ X=Z
+        FactBase: {p(a,a), p(a,b), p(c,d)}
+        Expected: {a, c}
+        """
+        formula = ConjunctionFormula(
+            Atom(self.p2, self.x, self.y),
+            Atom(self.eq, self.x, self.z),
+        )
+        formula = ExistentialFormula(self.x, ExistentialFormula(self.y, formula))
+        query = FOQuery(formula, [self.z])
+        results = list(self.evaluator.evaluate_and_project(query, self.fact_base_1))
+
+        result_values = {r[0] for r in results}
+        self.assertEqual(result_values, {self.a, self.c})
+
+    def test_computed_function_result_projected(self):
+        """
+        Query: ?(X,Y) :- p1(X) ∧ stdfct:toBoolean(X,Y)
+        FactBase: {p1(1)}
+        Expected: {X=1, Y=true}
+        """
+        one = self._literal_factory.create("1", "xsd:integer")
+        true_lit = self._literal_factory.create("true", "xsd:boolean")
+        to_boolean_pred = Predicate("stdfct:toBoolean", 2)
+
+        fact_base = MutableInMemoryFactBase([Atom(self.p1, one)])
+        stdfct_source = IntegraalStandardFunctionSource(
+            self._literal_factory, {"ig": "stdfct:"}, [to_boolean_pred]
+        )
+        collection = (
+            ReadableCollectionBuilder()
+            .add_all_predicates_from(fact_base)
+            .add_all_predicates_from(stdfct_source)
+            .build()
+        )
+
+        formula = ConjunctionFormula(
+            Atom(self.p1, self.x),
+            Atom(to_boolean_pred, self.x, self.y),
+        )
+        query = FOQuery(formula, [self.x, self.y])
+        results = list(self.evaluator.evaluate_and_project(query, collection))
+
+        self.assertEqual(results, [(one, true_lit)])
 
     # =========================================================================
     # Additional tests: reflexive queries

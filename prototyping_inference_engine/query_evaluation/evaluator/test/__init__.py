@@ -1,1 +1,1 @@
-"""Tests for formula evaluators."""
+"""Tests for query evaluators."""
