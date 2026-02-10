@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
 ## [Unreleased]
+- Added: DLGPE query-evaluation tests covering computed function terms and scheduler ordering.
+- Changed: consolidated design documents into `agents/design/designs-compressed.md`.
 
 ## [2026-02-10]
 - Added: prepared FOQuery implementations per formula, with lightweight result-bound estimation.

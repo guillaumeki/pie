@@ -14,8 +14,14 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 from prototyping_inference_engine.api.formula.conjunction_formula import (
     ConjunctionFormula,
 )
+from prototyping_inference_engine.api.formula.existential_formula import (
+    ExistentialFormula,
+)
+from prototyping_inference_engine.api.atom.term.evaluable_function_term import (
+    EvaluableFunctionTerm,
+)
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
-    ConjunctiveFOQueryEvaluator,
+    GenericFOQueryEvaluator,
 )
 
 
@@ -52,6 +58,62 @@ class _TracingData(ReadableData):
         return self._bounds.get(query.predicate)
 
 
+class _FunctionSchedulerData(ReadableData):
+    def __init__(self, p_predicate, s_predicate, sum_predicate, one, two, three):
+        self._p_predicate = p_predicate
+        self._s_predicate = s_predicate
+        self._sum_predicate = sum_predicate
+        self._one = one
+        self._two = two
+        self._three = three
+        self.log = []
+
+    def get_predicates(self):
+        return iter([self._p_predicate, self._s_predicate, self._sum_predicate])
+
+    def has_predicate(self, predicate):
+        return predicate in {
+            self._p_predicate,
+            self._s_predicate,
+            self._sum_predicate,
+        }
+
+    def get_atomic_pattern(self, predicate):
+        return UnconstrainedPattern(predicate)
+
+    def can_evaluate(self, query: BasicQuery):
+        bound = set(query.bound_positions.keys())
+        if query.predicate == self._p_predicate:
+            return True
+        if query.predicate == self._sum_predicate:
+            return {0, 1}.issubset(bound)
+        if query.predicate == self._s_predicate:
+            return 0 in bound
+        return False
+
+    def estimate_bound(self, query: BasicQuery):
+        if not self.can_evaluate(query):
+            return None
+        return 1
+
+    def evaluate(self, query: BasicQuery):
+        self.log.append(query.predicate)
+        if query.predicate == self._p_predicate:
+            return iter([(self._one, self._two)])
+        if query.predicate == self._sum_predicate:
+            if (
+                query.get_bound_term(0) == self._one
+                and query.get_bound_term(1) == self._two
+            ):
+                return iter([(self._three,)])
+            return iter(())
+        if query.predicate == self._s_predicate:
+            if query.get_bound_term(0) == self._three:
+                return iter([()])
+            return iter(())
+        return iter(())
+
+
 class TestPreparedScheduler(unittest.TestCase):
     def test_scheduler_uses_smallest_bound_first(self):
         x = Variable("X")
@@ -68,11 +130,37 @@ class TestPreparedScheduler(unittest.TestCase):
         formula = ConjunctionFormula(Atom(p, x), Atom(q, x))
         query = FOQuery(formula, [x])
 
-        evaluator = ConjunctiveFOQueryEvaluator()
+        evaluator = GenericFOQueryEvaluator()
         results = list(evaluator.evaluate(query, data, Substitution()))
 
         self.assertEqual(data.log[0], q)
         self.assertEqual(results, [Substitution({x: Constant("a")})])
+
+    def test_scheduler_defers_function_terms_until_evaluable(self):
+        x = Variable("X")
+        y = Variable("Y")
+        p = Predicate("p", 2)
+        s = Predicate("s", 1)
+        sum_predicate = Predicate("stdfct:sum", 3)
+        one = Constant("1")
+        two = Constant("2")
+        three = Constant("3")
+
+        data = _FunctionSchedulerData(p, s, sum_predicate, one, two, three)
+        formula = ConjunctionFormula(
+            Atom(s, EvaluableFunctionTerm("stdfct:sum", [x, y])),
+            Atom(p, x, y),
+        )
+        quantified = ExistentialFormula(x, ExistentialFormula(y, formula))
+        query = FOQuery(quantified, [])
+
+        evaluator = GenericFOQueryEvaluator()
+        results = list(evaluator.evaluate(query, data, Substitution()))
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(data.log[0], p)
+        self.assertEqual(data.log[1], sum_predicate)
+        self.assertEqual(data.log[2], s)
 
 
 if __name__ == "__main__":

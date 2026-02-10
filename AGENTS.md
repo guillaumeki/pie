@@ -76,6 +76,7 @@ For any important change:
 16) Every documentation code block must be surrounded by explanatory text.
 17) Tests must never use `str(...)` or `repr(...)` in assertions or comparisons (avoid brittle expectations).
 18) Tests must be deterministic (no reliance on iteration order from sets/dicts; always sort or normalize).
+19) If there are more than 10 files in `agents/design/`, compress them into a single file and ensure all dates remain present in the compressed version.
 
 ## Python Module Hierarchy Standards
 - This project uses a flat layout (importable packages at repo root). Do not introduce a `src/` layout unless the plan explicitly justifies it and includes required packaging changes. (https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/)
@@ -119,48 +120,7 @@ For any important change:
 - `agents/plans/2026-02-09-rulecompilation-atomic-evaluators.md`
 
 ### Design Docs
-- `agents/design/computed-json-loader.md`
-- `agents/design/computed-json-default-module.md`
-- `agents/design/pypi-release-0.0.16.md`
-- `agents/design/pypi-release-0.0.17.md`
-- `agents/design/pypi-release-0.0.18.md`
-- `agents/design/pypi-release-0.0.19.md`
-- `agents/design/prepared-query-scheduler-estimates.md`
-- `agents/design/io-api-restructure.md`
-- `agents/design/execution-notes-hygiene.md`
-- `agents/design/dlgpe-nested-functional-terms.md`
-- `agents/design/coverage-badge.md`
-- `agents/design/tests-when-pertinent.md`
-- `agents/design/atom-evaluator-dip.md`
-- `agents/design/pypi-cd.md`
-- `agents/design/docs-content.md`
-- `agents/design/agent-artifacts-docs.md`
-- `agents/design/iri-resolution.md`
-- `agents/design/iri-manager.md`
-- `agents/design/io-parsers-writers.md`
-- `agents/design/iri-relativization-fixes.md`
-- `agents/design/integraal-standard-functions.md`
-- `agents/design/integraal-tests-port.md`
-- `agents/design/kb-rulebase-csvcopyable.md`
-- `agents/design/data-delegation-wrappers.md`
-- `agents/design/prepared-queries-factory.md`
-- `agents/design/functional-terms-identity.md`
-- `agents/design/test-writing-rules.md`
-- `agents/design/process-templates.md`
-- `agents/design/commit-process.md`
-- `agents/design/functional-terms.md`
-- `agents/design/query-evaluation-structure.md`
-- `agents/design/mypy-fixes-2026-02-04.md`
-- `agents/design/github-ci.md`
-- `agents/design/ci-badge.md`
-- `agents/design/mypy-test-gate.md`
-- `agents/design/code-quality-tooling.md`
-- `agents/design/readme-badges.md`
-- `agents/design/ci-mypy-install.md`
-- `agents/design/doc-examples-tests.md`
-- `agents/design/computed-functions-docs.md`
-- `agents/design/negation-function-terms.md`
-- `agents/design/remove-dlgp2-parser.md`
+- `agents/design/designs-compressed.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`
