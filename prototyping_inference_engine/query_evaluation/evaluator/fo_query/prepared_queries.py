@@ -96,6 +96,8 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
         self._atom = query.formula
         self._pattern = data_source.get_atomic_pattern(self._atom.predicate)
         self._mandatory = self._compute_mandatory_parameters()
+        self._ground_positions = self._compute_ground_positions()
+        self._variable_positions = self._compute_variable_positions()
 
     @property
     def query(self) -> FOQuery:
@@ -106,7 +108,9 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
         return self._data_source
 
     def execute(self, assignation: Substitution) -> Iterable[Substitution]:
-        query = BasicQuery.from_atom(self._atom, assignation)
+        query = self._build_basic_query(assignation)
+        if query is None:
+            return
 
         if not self._data_source.can_evaluate(query):
             unsatisfied = self._pattern.get_unsatisfied_positions(
@@ -134,13 +138,17 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
                 yield assignation.compose(Substitution(result))
 
     def estimate_bound(self, substitution: Substitution) -> int | None:
-        query = BasicQuery.from_atom(self._atom, substitution)
+        query = self._build_basic_query(substitution)
+        if query is None:
+            return 0
         if not self._data_source.can_evaluate(query):
             return 0
         return self._data_source.estimate_bound(query)
 
     def is_evaluable_with(self, substitution: Substitution) -> bool:
-        query = BasicQuery.from_atom(self._atom, substitution)
+        query = self._build_basic_query(substitution)
+        if query is None:
+            return False
         return self._data_source.can_evaluate(query)
 
     def mandatory_parameters(self) -> set[Variable]:
@@ -155,6 +163,36 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
             if isinstance(term, Variable):
                 mandatory.add(term)
         return mandatory
+
+    def _compute_ground_positions(self) -> dict[int, Term]:
+        return {
+            pos: term for pos, term in enumerate(self._atom.terms) if term.is_ground
+        }
+
+    def _compute_variable_positions(self) -> dict[Variable, list[int]]:
+        positions: dict[Variable, list[int]] = {}
+        for pos, term in enumerate(self._atom.terms):
+            if isinstance(term, Variable):
+                positions.setdefault(term, []).append(pos)
+        return positions
+
+    def _build_basic_query(self, substitution: Substitution) -> Optional[BasicQuery]:
+        bound_positions: dict[int, Term] = dict(self._ground_positions)
+        answer_variables: dict[int, Variable] = {}
+
+        for var, positions in self._variable_positions.items():
+            resolved = substitution.apply(var)
+            if resolved.is_ground:
+                for pos in positions:
+                    existing = bound_positions.get(pos)
+                    if existing is not None and existing != resolved:
+                        return None
+                    bound_positions[pos] = resolved
+            elif isinstance(resolved, Variable):
+                for pos in positions:
+                    answer_variables[pos] = resolved
+
+        return BasicQuery(self._atom.predicate, bound_positions, answer_variables)
 
 
 class PreparedConjunctiveFOQuery(PreparedFOQueryDefaults):

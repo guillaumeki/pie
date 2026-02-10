@@ -2,27 +2,21 @@
 Evaluator for atomic formulas.
 """
 
-from typing import Type, Iterator, Optional, TYPE_CHECKING, cast
+from typing import Type, Iterator, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
-from prototyping_inference_engine.api.atom.term.term import Term
-from prototyping_inference_engine.api.atom.term.variable import Variable
-from prototyping_inference_engine.api.data.basic_query import BasicQuery
+from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.query_evaluation.evaluator.registry.formula_evaluator import (
     FormulaEvaluator,
     RegistryMixin,
 )
-from prototyping_inference_engine.query_evaluation.evaluator.rewriting.function_term_rewriter import (
-    formula_contains_function,
-    rewrite_atom_function_terms,
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.prepared_queries import (
+    prepare_atomic_or_conjunction,
 )
 from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
-    from prototyping_inference_engine.api.formula.conjunction_formula import (
-        ConjunctionFormula,
-    )
 
 
 class AtomEvaluator(RegistryMixin, FormulaEvaluator[Atom]):
@@ -66,66 +60,6 @@ class AtomEvaluator(RegistryMixin, FormulaEvaluator[Atom]):
             ValueError: If the atom cannot be evaluated (constraints not satisfied)
         """
         initial_sub = substitution if substitution is not None else Substitution()
-
-        if formula_contains_function(formula):
-            atoms = rewrite_atom_function_terms(formula)
-            if len(atoms) > 1:
-                conjunction = _build_conjunction(atoms)
-                evaluator = self._get_registry().get_evaluator(conjunction)
-                if evaluator is None:
-                    from prototyping_inference_engine.query_evaluation.evaluator.errors import (
-                        UnsupportedFormulaError,
-                    )
-
-                    raise UnsupportedFormulaError(type(conjunction))
-                yield from evaluator.evaluate(conjunction, data, initial_sub)
-                return
-
-        # Create a BasicQuery from the atom
-        query = BasicQuery.from_atom(formula, initial_sub)
-
-        # Check if the data source can evaluate this query
-        if not data.can_evaluate(query):
-            pattern = data.get_atomic_pattern(formula.predicate)
-            unsatisfied = pattern.get_unsatisfied_positions(formula, initial_sub)
-            raise ValueError(
-                f"Cannot evaluate atom {formula}: "
-                f"unsatisfied constraints at positions {unsatisfied}"
-            )
-
-        # Get answer positions in sorted order (matches tuple order from data source)
-        answer_positions = sorted(query.answer_variables.keys())
-
-        # Evaluate and map results to substitutions
-        for term_tuple in data.evaluate(query):
-            # Map tuple values to variables
-            result: dict[Variable, Term] = {}
-            consistent = True
-
-            for pos, term in zip(answer_positions, term_tuple):
-                var = query.answer_variables[pos]
-                if var in result:
-                    # Same variable at multiple positions: check consistency
-                    if result[var] != term:
-                        consistent = False
-                        break
-                else:
-                    result[var] = term
-
-            if consistent:
-                yield initial_sub.compose(Substitution(result))
-
-
-def _build_conjunction(formulas: list[Atom]) -> "ConjunctionFormula":
-    from prototyping_inference_engine.api.formula.conjunction_formula import (
-        ConjunctionFormula,
-    )
-    from prototyping_inference_engine.api.formula.formula import Formula
-
-    if not formulas:
-        raise ValueError("Cannot build conjunction from empty formula list.")
-
-    current: Formula = formulas[0]
-    for next_formula in formulas[1:]:
-        current = ConjunctionFormula(current, next_formula)
-    return cast(ConjunctionFormula, current)
+        query = FOQuery(formula, sorted(formula.free_variables, key=lambda v: str(v)))
+        prepared = prepare_atomic_or_conjunction(query, data)
+        yield from prepared.execute(initial_sub)

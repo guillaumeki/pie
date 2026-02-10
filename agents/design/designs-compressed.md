@@ -44,6 +44,7 @@ Dates: 2026-02-04, 2026-02-05, 2026-02-08, 2026-02-10
 - Lightweight bound estimation guides scheduler ordering; the estimate is intended to be cheap.
 - Backtracking conjunction evaluation uses a dynamic scheduler and prepared subqueries.
 - Function-term rewriting expands terms into computed atoms and is evaluated via the registry to decouple evaluators.
+- Atom-level evaluation delegates to the prepared atomic query path to reuse preparation logic.
 
 ## Data Abstraction And Collections
 Dates: 2026-02-08
@@ -71,4 +72,3 @@ Dates: 2026-02-03, 2026-02-04, 2026-02-08, 2026-02-09
 ## Standard Functions Note
 Dates: 2026-02-06
 - Standard functions are treated as a built-in computed library under the `stdfct:` namespace.
-

@@ -6,6 +6,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [Unreleased]
 - Added: DLGPE query-evaluation tests covering computed function terms and scheduler ordering.
 - Changed: consolidated design documents into `agents/design/designs-compressed.md`.
+- Changed: AtomEvaluator now routes through prepared atomic queries and adds PIE-specific atomic preparation.
 
 ## [2026-02-10]
 - Added: prepared FOQuery implementations per formula, with lightweight result-bound estimation.

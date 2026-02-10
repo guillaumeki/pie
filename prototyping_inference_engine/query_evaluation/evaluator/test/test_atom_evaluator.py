@@ -3,11 +3,27 @@ Tests for AtomEvaluator.
 """
 
 import unittest
+from unittest.mock import MagicMock, patch
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.evaluable_function_term import (
+    EvaluableFunctionTerm,
+)
 from prototyping_inference_engine.api.atom.term.variable import Variable
+from prototyping_inference_engine.api.atom.term.term import Term
+from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
+    LiteralFactory,
+)
+from prototyping_inference_engine.api.atom.term.literal_config import LiteralConfig
+from prototyping_inference_engine.api.atom.term.storage.dict_storage import DictStorage
+from prototyping_inference_engine.api.data.collection.builder import (
+    ReadableCollectionBuilder,
+)
+from prototyping_inference_engine.api.data.python_function_data import (
+    PythonFunctionReadable,
+)
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import (
     MutableInMemoryFactBase,
 )
@@ -146,6 +162,47 @@ class TestAtomEvaluator(unittest.TestCase):
 
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0][self.x], self.a)
+
+    def test_evaluate_with_python_function_term(self):
+        def increment(term: Term) -> Term:
+            identifier = term.identifier
+            if isinstance(identifier, int):
+                number = identifier
+            else:
+                number = int(str(identifier))
+            return Constant(number + 1)
+
+        pred = Predicate("p", 1)
+        fact_base = MutableInMemoryFactBase([Atom(pred, Constant(2))])
+        literal_factory = LiteralFactory(DictStorage(), LiteralConfig.default())
+        functions = PythonFunctionReadable(literal_factory)
+        functions.register_function("increment", increment, mode="terms")
+        collection = (
+            ReadableCollectionBuilder()
+            .add_all_predicates_from(fact_base)
+            .add_all_predicates_from(functions)
+            .build()
+        )
+
+        atom = Atom(pred, EvaluableFunctionTerm("increment", [Constant(1)]))
+        results = list(self.evaluator.evaluate(atom, collection))
+
+        self.assertEqual(len(results), 1)
+
+    def test_evaluate_uses_prepared_query(self):
+        fact_base = MutableInMemoryFactBase([Atom(self.p, self.a, self.b)])
+        atom = Atom(self.p, self.x, self.y)
+        prepared = MagicMock()
+        prepared.execute.return_value = iter([Substitution({self.x: self.a})])
+
+        with patch(
+            "prototyping_inference_engine.query_evaluation.evaluator.atom.atom_evaluator.prepare_atomic_or_conjunction"
+        ) as mock_prepare:
+            mock_prepare.return_value = prepared
+            results = list(self.evaluator.evaluate(atom, fact_base))
+
+        mock_prepare.assert_called_once()
+        self.assertEqual(len(results), 1)
 
 
 if __name__ == "__main__":
