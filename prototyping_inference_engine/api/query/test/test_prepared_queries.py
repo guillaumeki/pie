@@ -25,6 +25,9 @@ class _PreparedQueryImpl:
     def execute(self, assignation):
         return assignation
 
+    def estimate_bound(self, assignation):
+        return None
+
 
 class _PreparedFOQueryImpl:
     def __init__(self, query, data_source):
@@ -41,6 +44,15 @@ class _PreparedFOQueryImpl:
 
     def execute(self, assignation: Substitution):
         yield assignation
+
+    def estimate_bound(self, assignation: Substitution):
+        return None
+
+    def is_evaluable_with(self, substitution: Substitution) -> bool:
+        return True
+
+    def mandatory_parameters(self):
+        return set()
 
 
 class TestPreparedQueries(TestCase):

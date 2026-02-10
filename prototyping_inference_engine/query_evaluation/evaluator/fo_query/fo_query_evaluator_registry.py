@@ -48,11 +48,11 @@ class FOQueryEvaluatorRegistry:
         )
 
         self.register(AtomicFOQueryEvaluator())
-        self.register(ConjunctiveFOQueryEvaluator(registry=self))
-        self.register(DisjunctiveFOQueryEvaluator(registry=self))
-        self.register(NegationFOQueryEvaluator(registry=self))
-        self.register(UniversalFOQueryEvaluator(registry=self))
-        self.register(ExistentialFOQueryEvaluator(registry=self))
+        self.register(ConjunctiveFOQueryEvaluator())
+        self.register(DisjunctiveFOQueryEvaluator())
+        self.register(NegationFOQueryEvaluator())
+        self.register(UniversalFOQueryEvaluator())
+        self.register(ExistentialFOQueryEvaluator())
 
     def register(self, evaluator: FOQueryEvaluator) -> None:
         """Register an evaluator for a formula type."""

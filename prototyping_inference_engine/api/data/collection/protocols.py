@@ -48,6 +48,10 @@ class Queryable(Protocol):
         """Check if a basic query can be evaluated against this source."""
         ...
 
+    def estimate_bound(self, query: "BasicQuery") -> int | None:
+        """Return a lightweight upper bound on the number of results."""
+        ...
+
 
 @runtime_checkable
 class Materializable(Protocol):

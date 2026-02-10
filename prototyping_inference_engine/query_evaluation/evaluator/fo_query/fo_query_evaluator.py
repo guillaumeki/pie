@@ -14,6 +14,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluat
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
+    from prototyping_inference_engine.api.query.prepared_fo_query import PreparedFOQuery
     from prototyping_inference_engine.api.substitution.substitution import Substitution
 
 
@@ -57,6 +58,11 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
         Yields:
             Substitutions that satisfy the query's formula
         """
+        ...
+
+    @abstractmethod
+    def prepare(self, query: FOQuery, data: "ReadableData") -> "PreparedFOQuery":
+        """Prepare a query against a data source for repeated evaluation."""
         ...
 
     def evaluate_and_project(

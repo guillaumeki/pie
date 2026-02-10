@@ -199,6 +199,16 @@ class PythonFunctionReadable(ReadableData):
             results.append(answer_tuple)
         return iter(results)
 
+    def estimate_bound(self, query: BasicQuery) -> int | None:
+        spec = self._specs_by_predicate.get(query.predicate)
+        if spec is None:
+            return None
+        if not self.can_evaluate(query):
+            return None
+        if spec.returns_multiple:
+            return None
+        return 1
+
     def _evaluate_assignments(
         self, spec: FunctionSpec, values: list[Optional[Any]]
     ) -> Iterable[list[Any]]:

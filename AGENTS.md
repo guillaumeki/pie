@@ -115,7 +115,8 @@ For any important change:
 - Publish documentation via GitHub Pages using the workflow in `.github/workflows/docs.yml`. (https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 
 ### Tracked Plans
-- None
+- `agents/plans/2026-02-09-grd-implementation.md`
+- `agents/plans/2026-02-09-rulecompilation-atomic-evaluators.md`
 
 ### Design Docs
 - `agents/design/computed-json-loader.md`
@@ -124,6 +125,7 @@ For any important change:
 - `agents/design/pypi-release-0.0.17.md`
 - `agents/design/pypi-release-0.0.18.md`
 - `agents/design/pypi-release-0.0.19.md`
+- `agents/design/prepared-query-scheduler-estimates.md`
 - `agents/design/io-api-restructure.md`
 - `agents/design/execution-notes-hygiene.md`
 - `agents/design/dlgpe-nested-functional-terms.md`

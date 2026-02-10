@@ -154,6 +154,9 @@ class TestProtocolCombinations(unittest.TestCase):
             def can_evaluate(self, query):
                 return False
 
+            def estimate_bound(self, query):
+                return None
+
         source = QueryableOnly()
         self.assertIsInstance(source, Queryable)
         self.assertNotIsInstance(source, Materializable)

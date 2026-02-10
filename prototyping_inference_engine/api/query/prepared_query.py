@@ -16,6 +16,9 @@ S_contra = TypeVar("S_contra", contravariant=True)
 class PreparedQuery(Protocol, Generic[Q_co, D_co, A_co, S_contra]):
     """
     Protocol for a prepared query.
+
+    Implementations may provide estimate_bound, which should be a lightweight
+    upper bound computation and must not perform expensive evaluation.
     """
 
     @property
@@ -25,3 +28,5 @@ class PreparedQuery(Protocol, Generic[Q_co, D_co, A_co, S_contra]):
     def data_source(self) -> D_co: ...
 
     def execute(self, assignation: S_contra) -> A_co: ...
+
+    def estimate_bound(self, assignation: S_contra) -> int | None: ...

@@ -100,6 +100,13 @@ class ComparisonDataSource(ReadableData):
             return term.identifier
         return term
 
+    def estimate_bound(self, query: BasicQuery) -> int | None:
+        left = query.get_bound_term(0)
+        right = query.get_bound_term(1)
+        if left is None or right is None:
+            return None
+        return 1
+
 
 def comparison_predicates() -> Iterable[Predicate]:
     return tuple(comparison_predicate(op) for op in COMPARISON_OPERATORS)

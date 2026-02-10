@@ -138,6 +138,17 @@ class ReadableDataCollection(ReadableData):
             return False
         return source.can_evaluate(query)
 
+    def estimate_bound(self, query: "BasicQuery") -> int | None:
+        """
+        Return a lightweight upper bound on the number of results.
+
+        Delegates to the source owning the predicate when available.
+        """
+        source = self._get_source(query.predicate)
+        if source is None:
+            return None
+        return source.estimate_bound(query)
+
     @property
     def sources(self) -> Dict["Predicate", Queryable]:
         """The predicate-to-source mapping (read-only view)."""

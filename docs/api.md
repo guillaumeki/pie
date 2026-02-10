@@ -28,3 +28,4 @@
 ## API Notes
 - Docstrings are the authoritative source for method-level behavior and edge cases.
 - The module layout mirrors the functional areas described in Architecture.
+- `PreparedQuery.estimate_bound(...)` returns a lightweight upper bound when available; it must avoid expensive evaluation.

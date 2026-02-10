@@ -86,3 +86,12 @@ class ReadableData(ABC):
                     return False
 
         return True
+
+    def estimate_bound(self, query: "BasicQuery") -> int | None:
+        """
+        Return a lightweight upper bound on the number of results.
+
+        Implementations should keep this computation cheap and may return
+        None when no reliable bound is available.
+        """
+        return None

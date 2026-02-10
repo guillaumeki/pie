@@ -185,6 +185,16 @@ class IntegraalStandardFunctionSource(ReadableData):
         typed_assignment = cast(list[Term], assignment)
         return iter([_answer_tuple(query, typed_assignment)])
 
+    def estimate_bound(self, query: BasicQuery) -> int | None:
+        binding = self._bindings.get(query.predicate)
+        if binding is None:
+            return None
+        if not self.can_evaluate(query):
+            return None
+        if binding.function.solver is not None:
+            return None
+        return 1
+
 
 def _required_positions(binding: FunctionBinding) -> list[int]:
     if binding.function.solver is None:

@@ -5,6 +5,14 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [2026-02-10]
+- Added: prepared FOQuery implementations per formula, with lightweight result-bound estimation.
+- Added: dynamic backtrack scheduling that prioritizes evaluable subqueries with smaller bounds.
+- Added: optional `ReadableData.estimate_bound` and delegated support in collections and wrappers.
+- Added: scheduler coverage test for bound-based ordering.
+- Changed: FOQuery evaluators now prepare queries before execution.
+- Changed: bumped version to 0.0.20.
+
 ## [2026-02-09]
 - Added: JSON-based computed configuration with a versioned schema and extensible providers.
 - Added: Python function loading via `@computed <prefix>: <path/to/config.json>` and functional-term validation.

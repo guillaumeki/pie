@@ -19,7 +19,9 @@ class PreparedFOQuery(
     Prepared FOQuery that can be executed with a substitution.
     """
 
-    pass
+    def is_evaluable_with(self, substitution: Substitution) -> bool: ...
+
+    def mandatory_parameters(self) -> set: ...
 
 
 class PreparedFOQueryDefaults:
@@ -36,3 +38,12 @@ class PreparedFOQueryDefaults:
 
     def mandatory_parameters(self) -> set:
         return set()
+
+    def estimate_bound(self, substitution: Substitution) -> int | None:
+        """
+        Return a lightweight upper bound on the number of results.
+
+        Implementations should keep this computation cheap and avoid any
+        expensive evaluation or enumeration of results.
+        """
+        return None

@@ -40,3 +40,6 @@ class QueryableDataDelAtomsWrapper(ReadableData):
     def evaluate(self, query: BasicQuery) -> Iterator[tuple[Term, ...]]:
         results = self._data.evaluate(query)
         return self._wrapper.filter_results(query, results)
+
+    def estimate_bound(self, query: BasicQuery) -> int | None:
+        return self._data.estimate_bound(query)
