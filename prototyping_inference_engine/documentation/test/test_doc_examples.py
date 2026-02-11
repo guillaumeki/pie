@@ -506,9 +506,9 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 projected = sorted(
                     projected, key=lambda row: tuple(term.identifier for term in row)
                 )
+                projected_ids = [tuple(term.identifier for term in row) for row in projected]
 
-                print(answers)
-                print(projected)
+                print(projected_ids)
                 '''
             ).strip("\n"),
             runner=_run_usage_parsing_example,
@@ -533,7 +533,8 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
 
                     fb = session.create_fact_base(result["facts"])
                     answers = list(session.evaluate_query(result["queries"][0], fb))
-                    print(answers)
+                    normalized = [tuple(term.identifier for term in answer) for answer in answers]
+                    print(normalized)
                 '''
             ).strip("\n"),
             runner=_run_usage_session_example,
@@ -556,7 +557,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
 
                 iri = manager.create_iri_with_prefix("ex", "resource")
                 value = iri.recompose()
-                print(value)  # http://example.org/ns/resource
+                print(value)
                 """
             ).strip("\n"),
             runner=_run_iri_example,
@@ -604,6 +605,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
 
                     result = DlgpeParser.instance().parse_file(path)
                     predicates = sorted({atom.predicate.name for atom in result[\"facts\"]})
+                    print(predicates)
                 """
             ).strip("\n"),
             runner=_run_dlgpe_file_example,
@@ -626,6 +628,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         parser = CSVParser(path, session.term_factories)
                         atoms = list(parser.parse_atoms())
                         first_terms = [term.identifier for term in atoms[0].terms]
+                        print(first_terms)
                 """
             ).strip("\n"),
             runner=_run_csv_parser_example,
@@ -656,6 +659,8 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         atoms = list(parser.parse_atoms())
                         predicate_names = sorted({atom.predicate.name for atom in atoms})
                         atom_count = len(atoms)
+                        print(predicate_names)
+                        print(atom_count)
                 """
             ).strip("\n"),
             runner=_run_rls_csv_example,
@@ -692,6 +697,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         )
                         atoms = list(parser.parse_atoms())
                         predicates = sorted({atom.predicate.name for atom in atoms})
+                        print(predicates)
                 """
             ).strip("\n"),
             runner=_run_rdf_parser_example,
@@ -732,6 +738,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                     ) as session:
                         result = session.parse_file(base / "main.dlgpe")
                         predicates = sorted({atom.predicate.name for atom in result.facts})
+                        print(predicates)
                 """
             ).strip("\n"),
             runner=_run_imports_example,
@@ -962,7 +969,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                     evaluator = FOQueryEvaluatorRegistry.instance().get_evaluator(query)
                     prepared = evaluator.prepare(query, fact_base)
                     answers = list(prepared.execute_empty())
-                    print(answers)
+                    print(len(answers))
                 """
             ).strip("\n"),
             runner=_run_prepared_query_example,
@@ -1028,8 +1035,11 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 filtered = QueryableDataDelAtomsWrapper(fact_base, [removed])
                 filtered_results = list(filtered.evaluate(query))
 
-                print(delegated)
-                print(filtered_results)
+                delegated_ids = sorted([tuple(term.identifier for term in row) for row in delegated])
+                filtered_ids = [tuple(term.identifier for term in row) for row in filtered_results]
+
+                print(delegated_ids)
+                print(filtered_ids)
                 """
             ).strip("\n"),
             runner=_run_delegation_example,

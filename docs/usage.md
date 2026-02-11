@@ -40,10 +40,11 @@ projected = [
 projected = sorted(
     projected, key=lambda row: tuple(term.identifier for term in row)
 )
+projected_ids = [tuple(term.identifier for term in row) for row in projected]
 
-print(answers)
-print(projected)
+print(projected_ids)
 ```
+Expected output: `[('a', 'c'), ('b', 'd')]`.
 
 ## Using the Session API
 This example uses the `ReasoningSession` helper and returns query answers.
@@ -64,8 +65,10 @@ with ReasoningSession.create() as session:
 
     fb = session.create_fact_base(result["facts"])
     answers = list(session.evaluate_query(result["queries"][0], fb))
-    print(answers)
+    normalized = [tuple(term.identifier for term in answer) for answer in answers]
+    print(normalized)
 ```
+Expected output: `[('b',)]`.
 
 ## Working with IRIs
 This example shows how to resolve a prefixed name into an absolute IRI.
@@ -84,8 +87,9 @@ manager.set_prefix("ex", "http://example.org/ns/")
 
 iri = manager.create_iri_with_prefix("ex", "resource")
 value = iri.recompose()
-print(value)  # http://example.org/ns/resource
+print(value)
 ```
+Expected output: `http://example.org/ns/resource`.
 
 Parsing with DLGPE stores the last `@base` and `@prefix` directives in the
 `ParseResult` and `ReasoningSession` so you can reuse them when exporting.
@@ -108,6 +112,11 @@ with ReasoningSession.create() as session:
     output = writer.write(result)
     print(output)
 ```
+Expected output includes:
+- `@base <http://example.org/base/>.`
+- `@prefix ex: <http://example.org/ns/>.`
+- `@facts`
+- `<rel>(ex:obj).`
 
 ## Parsing Files and Imports
 DLGPE parsing can read `.dlgp`/`.dlgpe` files directly (DLGP syntax is supported
@@ -131,8 +140,9 @@ with tempfile.TemporaryDirectory() as tmpdir:
 
     result = DlgpeParser.instance().parse_file(path)
     predicates = sorted({atom.predicate.name for atom in result["facts"]})
+    print(predicates)
 ```
-The `predicates` list shows which relations were loaded.
+Expected output: `['p', 'q']`. The `predicates` list shows which relations were loaded.
 
 ### Parsing CSV Files
 CSV parsing creates one predicate per file, using the filename stem by default.
@@ -151,8 +161,9 @@ with tempfile.TemporaryDirectory() as tmpdir:
         parser = CSVParser(path, session.term_factories)
         atoms = list(parser.parse_atoms())
         first_terms = [term.identifier for term in atoms[0].terms]
+        print(first_terms)
 ```
-The `first_terms` list contains the first row of the CSV file.
+Expected output: `['alice', 'bob']`. The `first_terms` list contains the first row of the CSV file.
 
 ### Parsing RLS CSV Configurations
 RLS CSV files map multiple CSV sources to predicates.
@@ -179,7 +190,12 @@ with tempfile.TemporaryDirectory() as tmpdir:
         atoms = list(parser.parse_atoms())
         predicate_names = sorted({atom.predicate.name for atom in atoms})
         atom_count = len(atoms)
+        print(predicate_names)
+        print(atom_count)
 ```
+Expected output:
+- `['p', 'q']`
+- `3`
 The `predicate_names` and `atom_count` values show which sources loaded.
 
 ### Parsing RDF Files
@@ -214,8 +230,10 @@ with tempfile.TemporaryDirectory() as tmpdir:
         )
         atoms = list(parser.parse_atoms())
         predicates = sorted({atom.predicate.name for atom in atoms})
+        print(predicates)
 ```
-The `predicates` list reflects the translated RDF statements.
+Expected output: `['http://example.org/Person', 'http://example.org/knows']`. The `predicates`
+list reflects the translated RDF statements.
 
 ### Using `@import` Directives
 `@import` directives load external files and merge their facts into the current
@@ -253,8 +271,11 @@ with tempfile.TemporaryDirectory() as tmpdir:
     ) as session:
         result = session.parse_file(base / "main.dlgpe")
         predicates = sorted({atom.predicate.name for atom in result.facts})
+        print(predicates)
 ```
-The `predicates` list now includes facts from every imported file.
+Expected output: `['facts', 'p', 'triple']`. The `facts.csv` import yields atoms with
+predicate `facts(t1, ..., tn)` where each row becomes one atom. The `predicates`
+list now includes facts from every imported file.
 
 ## Loading Computed Functions (`@computed`)
 PIE supports Integraal standard functions via `@computed` prefixes. To load the
@@ -511,6 +532,9 @@ with ReasoningSession.create() as session:
     print(fact_count)
     print(rule_count)
 ```
+Expected output:
+- `1`
+- `1`
 
 ## Prepared Queries and FOQueryFactory
 Use `FOQueryFactory` to construct queries, then let the evaluator registry choose
@@ -539,8 +563,9 @@ with ReasoningSession.create() as session:
     evaluator = FOQueryEvaluatorRegistry.instance().get_evaluator(query)
     prepared = evaluator.prepare(query, fact_base)
     answers = list(prepared.execute_empty())
-    print(answers)
+    print(len(answers))
 ```
+Expected output: `1`.
 
 ## Wrapping a Fact Base as a Formula
 Use `FOConjunctionFactBaseWrapper` when you need a formula view of a fact base.
@@ -561,6 +586,9 @@ free_count = len(wrapper.free_variables)
 print(atom_count)
 print(free_count)
 ```
+Expected output:
+- `2`
+- `0`
 
 ## Delegation and Atom Filtering
 Use `DatalogDelegable` for data sources that can evaluate datalog rules or
@@ -603,9 +631,15 @@ if isinstance(fact_base, DatalogDelegable):
 filtered = QueryableDataDelAtomsWrapper(fact_base, [removed])
 filtered_results = list(filtered.evaluate(query))
 
-print(delegated)
-print(filtered_results)
+delegated_ids = sorted([tuple(term.identifier for term in row) for row in delegated])
+filtered_ids = [tuple(term.identifier for term in row) for row in filtered_results]
+
+print(delegated_ids)
+print(filtered_ids)
 ```
+Expected output:
+- `[('a',), ('b',)]`
+- `[('a',)]`
 
 ## Using DLGP Syntax
 DLGP files use the `.dlgp` extension. This version uses `|` for disjunction and

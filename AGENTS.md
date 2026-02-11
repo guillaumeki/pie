@@ -114,6 +114,7 @@ For any important change:
 - Use MkDocs (`mkdocs.yml`) to build the documentation site from `docs/` when publishing to GitHub Pages. (https://www.mkdocs.org/user-guide/configuration/)
 - Use docstrings for API-level explanations; keep narrative guides in `docs/`. (https://peps.python.org/pep-0257/)
 - Publish documentation via GitHub Pages using the workflow in `.github/workflows/docs.yml`. (https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+- Documentation examples intended to be executed must include `print(...)` statements, and their expected output must be shown in the surrounding prose.
 
 ### Tracked Plans
 - `agents/plans/2026-02-09-grd-implementation.md`
