@@ -139,10 +139,15 @@ with tempfile.TemporaryDirectory() as tmpdir:
     )
 
     result = DlgpeParser.instance().parse_file(path)
-    predicates = sorted({atom.predicate.name for atom in result["facts"]})
-    print(predicates)
+    atoms = sorted(
+        [
+            f"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})"
+            for atom in result["facts"]
+        ]
+    )
+    print(atoms)
 ```
-Expected output: `['p', 'q']`. The `predicates` list shows which relations were loaded.
+Expected output: `['p(a)', 'q(b)']`. The `atoms` list shows which relations were loaded.
 
 ### Parsing CSV Files
 CSV parsing creates one predicate per file, using the filename stem by default.
@@ -160,10 +165,13 @@ with tempfile.TemporaryDirectory() as tmpdir:
     with ReasoningSession.create() as session:
         parser = CSVParser(path, session.term_factories)
         atoms = list(parser.parse_atoms())
-        first_terms = [term.identifier for term in atoms[0].terms]
-        print(first_terms)
+        atom_strings = [
+            f"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})"
+            for atom in atoms
+        ]
+        print(atom_strings)
 ```
-Expected output: `['alice', 'bob']`. The `first_terms` list contains the first row of the CSV file.
+Expected output: `['people(alice, bob)', 'people(carol, dave)']`. The list shows the parsed CSV rows.
 
 ### Parsing RLS CSV Configurations
 RLS CSV files map multiple CSV sources to predicates.
@@ -188,15 +196,15 @@ with tempfile.TemporaryDirectory() as tmpdir:
     with ReasoningSession.create() as session:
         parser = RLSCSVsParser(rls_path, session.term_factories)
         atoms = list(parser.parse_atoms())
-        predicate_names = sorted({atom.predicate.name for atom in atoms})
-        atom_count = len(atoms)
-        print(predicate_names)
-        print(atom_count)
+        atom_strings = sorted(
+            [
+                f"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})"
+                for atom in atoms
+            ]
+        )
+        print(atom_strings)
 ```
-Expected output:
-- `['p', 'q']`
-- `3`
-The `predicate_names` and `atom_count` values show which sources loaded.
+Expected output: `['p(a, b)', 'p(c, d)', 'q(e, f)']`. The list shows which sources loaded.
 
 ### Parsing RDF Files
 RDF parsing supports multiple translation modes; the example below uses
@@ -229,11 +237,18 @@ with tempfile.TemporaryDirectory() as tmpdir:
             RDFParserConfig(translation_mode=RDFTranslationMode.NATURAL_FULL),
         )
         atoms = list(parser.parse_atoms())
-        predicates = sorted({atom.predicate.name for atom in atoms})
-        print(predicates)
+        atom_strings = sorted(
+            [
+                f"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})"
+                for atom in atoms
+            ]
+        )
+        print(atom_strings)
 ```
-Expected output: `['http://example.org/Person', 'http://example.org/knows']`. The `predicates`
-list reflects the translated RDF statements.
+Expected output includes:
+- `'http://example.org/Person(http://example.org/a)'`
+- `'http://example.org/knows(http://example.org/a, bob)'`
+The `atom_strings` list reflects the translated RDF statements.
 
 ### Using `@import` Directives
 `@import` directives load external files and merge their facts into the current
@@ -270,12 +285,20 @@ with tempfile.TemporaryDirectory() as tmpdir:
         rdf_translation_mode=RDFTranslationMode.RAW
     ) as session:
         result = session.parse_file(base / "main.dlgpe")
-        predicates = sorted({atom.predicate.name for atom in result.facts})
-        print(predicates)
+        atom_strings = sorted(
+            [
+                f"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})"
+                for atom in result.facts
+            ]
+        )
+        print(atom_strings)
 ```
-Expected output: `['facts', 'p', 'triple']`. The `facts.csv` import yields atoms with
-predicate `facts(t1, ..., tn)` where each row becomes one atom. The `predicates`
-list now includes facts from every imported file.
+Expected output includes:
+- `'facts(a, b)'`
+- `'p(a)'`
+- `'triple(http://example.org/a, http://example.org/knows, http://example.org/b)'`
+The `facts.csv` import yields atoms with predicate `facts(t1, ..., tn)` where each
+row becomes one atom. The `atom_strings` list now includes facts from every imported file.
 
 ## Loading Computed Functions (`@computed`)
 PIE supports Integraal standard functions via `@computed` prefixes. To load the

@@ -191,47 +191,50 @@ def _run_export_example(source: str) -> None:
 def _run_dlgpe_file_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
-    predicates = cast(list[str], namespace["predicates"])
-    if predicates != ["p", "q"]:
-        raise AssertionError(f"Unexpected file predicates: {predicates}")
+    atoms = cast(list[str], namespace["atoms"])
+    if atoms != ["p(a)", "q(b)"]:
+        raise AssertionError(f"Unexpected file atoms: {atoms}")
 
 
 def _run_csv_parser_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
-    first_terms = cast(list[str], namespace["first_terms"])
-    if first_terms != ["alice", "bob"]:
-        raise AssertionError(f"Unexpected CSV terms: {first_terms}")
+    atom_strings = cast(list[str], namespace["atom_strings"])
+    if atom_strings != ["people(alice, bob)", "people(carol, dave)"]:
+        raise AssertionError(f"Unexpected CSV atoms: {atom_strings}")
 
 
 def _run_rls_csv_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
-    predicate_names = cast(list[str], namespace["predicate_names"])
-    atom_count = cast(int, namespace["atom_count"])
-    if predicate_names != ["p", "q"]:
-        raise AssertionError(f"Unexpected RLS predicates: {predicate_names}")
-    if atom_count != 3:
-        raise AssertionError(f"Unexpected RLS atom count: {atom_count}")
+    atom_strings = cast(list[str], namespace["atom_strings"])
+    if atom_strings != ["p(a, b)", "p(c, d)", "q(e, f)"]:
+        raise AssertionError(f"Unexpected RLS atoms: {atom_strings}")
 
 
 def _run_rdf_parser_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
-    predicates = cast(list[str], namespace["predicates"])
-    if "http://example.org/Person" not in predicates:
-        raise AssertionError("Missing rdf:type predicate.")
-    if "http://example.org/knows" not in predicates:
-        raise AssertionError("Missing rdf predicate.")
+    atom_strings = cast(list[str], namespace["atom_strings"])
+    expected = {
+        "http://example.org/Person(http://example.org/a)",
+        "http://example.org/knows(http://example.org/a, bob)",
+    }
+    if set(atom_strings) != expected:
+        raise AssertionError(f"Unexpected RDF atoms: {atom_strings}")
 
 
 def _run_imports_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
-    predicates = cast(list[str], namespace["predicates"])
-    required = {"facts", "p", "triple"}
-    if set(predicates) != required:
-        raise AssertionError(f"Unexpected import predicates: {predicates}")
+    atom_strings = cast(list[str], namespace["atom_strings"])
+    expected = {
+        "facts(a, b)",
+        "p(a)",
+        "triple(http://example.org/a, http://example.org/knows, http://example.org/b)",
+    }
+    if set(atom_strings) != expected:
+        raise AssertionError(f"Unexpected import atoms: {atom_strings}")
 
 
 def _run_index_quick_start_example(source: str) -> None:
@@ -604,8 +607,13 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                     )
 
                     result = DlgpeParser.instance().parse_file(path)
-                    predicates = sorted({atom.predicate.name for atom in result[\"facts\"]})
-                    print(predicates)
+                    atoms = sorted(
+                        [
+                            f\"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})\"
+                            for atom in result[\"facts\"]
+                        ]
+                    )
+                    print(atoms)
                 """
             ).strip("\n"),
             runner=_run_dlgpe_file_example,
@@ -627,8 +635,11 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                     with ReasoningSession.create() as session:
                         parser = CSVParser(path, session.term_factories)
                         atoms = list(parser.parse_atoms())
-                        first_terms = [term.identifier for term in atoms[0].terms]
-                        print(first_terms)
+                        atom_strings = [
+                            f\"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})\"
+                            for atom in atoms
+                        ]
+                        print(atom_strings)
                 """
             ).strip("\n"),
             runner=_run_csv_parser_example,
@@ -657,10 +668,13 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                     with ReasoningSession.create() as session:
                         parser = RLSCSVsParser(rls_path, session.term_factories)
                         atoms = list(parser.parse_atoms())
-                        predicate_names = sorted({atom.predicate.name for atom in atoms})
-                        atom_count = len(atoms)
-                        print(predicate_names)
-                        print(atom_count)
+                        atom_strings = sorted(
+                            [
+                                f\"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})\"
+                                for atom in atoms
+                            ]
+                        )
+                        print(atom_strings)
                 """
             ).strip("\n"),
             runner=_run_rls_csv_example,
@@ -696,8 +710,13 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                             RDFParserConfig(translation_mode=RDFTranslationMode.NATURAL_FULL),
                         )
                         atoms = list(parser.parse_atoms())
-                        predicates = sorted({atom.predicate.name for atom in atoms})
-                        print(predicates)
+                        atom_strings = sorted(
+                            [
+                                f\"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})\"
+                                for atom in atoms
+                            ]
+                        )
+                        print(atom_strings)
                 """
             ).strip("\n"),
             runner=_run_rdf_parser_example,
@@ -737,8 +756,13 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         rdf_translation_mode=RDFTranslationMode.RAW
                     ) as session:
                         result = session.parse_file(base / "main.dlgpe")
-                        predicates = sorted({atom.predicate.name for atom in result.facts})
-                        print(predicates)
+                        atom_strings = sorted(
+                            [
+                                f"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})"
+                                for atom in result.facts
+                            ]
+                        )
+                        print(atom_strings)
                 """
             ).strip("\n"),
             runner=_run_imports_example,
