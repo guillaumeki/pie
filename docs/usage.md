@@ -535,6 +535,9 @@ Collection examples (one query per function, in the same order):
 Use `RuleBase` to store rules and `KnowledgeBase` to bundle rules with facts.
 
 ```python
+from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
+from prototyping_inference_engine.io.writers.dlgpe_writer import DlgpeWriter
+from prototyping_inference_engine.session.parse_result import ParseResult
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
 with ReasoningSession.create() as session:
@@ -550,14 +553,27 @@ with ReasoningSession.create() as session:
     rb = session.create_rule_base(set(result.rules))
     kb = session.create_knowledge_base(fb, rb)
 
-    fact_count = len(kb.fact_base)
-    rule_count = len(kb.rule_base.rules)
-    print(fact_count)
-    print(rule_count)
+    fact_atoms = sorted(
+        [
+            f"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})"
+            for atom in kb.fact_base
+        ]
+    )
+    writer = DlgpeWriter()
+    rules_result = ParseResult(
+        facts=FrozenAtomSet(),
+        rules=frozenset(kb.rule_base.rules),
+        queries=frozenset(),
+        constraints=frozenset(),
+    )
+    rule_doc = writer.write(rules_result)
+    rule_text = [line for line in rule_doc.splitlines() if line and not line.startswith("@")]
+    print(fact_atoms)
+    print(rule_text)
 ```
 Expected output:
-- `1`
-- `1`
+- `['p(a)']`
+- `['q(X) :- p(X).']`
 
 ## Prepared Queries and FOQueryFactory
 Use `FOQueryFactory` to construct queries, then let the evaluator registry choose
@@ -604,14 +620,16 @@ facts = DlgpeParser.instance().parse_atoms("p(a), q(b).")
 fact_base = MutableInMemoryFactBase(facts)
 wrapper = FOConjunctionFactBaseWrapper(fact_base)
 
-atom_count = len(wrapper.atoms)
-free_count = len(wrapper.free_variables)
-print(atom_count)
-print(free_count)
+atom_strings = sorted(
+    [
+        f"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})"
+        for atom in wrapper.atoms
+    ]
+)
+print(atom_strings)
 ```
 Expected output:
-- `2`
-- `0`
+- `['p(a)', 'q(b)']`
 
 ## Delegation and Atom Filtering
 Use `DatalogDelegable` for data sources that can evaluate datalog rules or
@@ -670,8 +688,30 @@ supports negation in rule bodies.
 
 ```prolog
 q(X) | r(Y) :- p(X,Y).
-?(X) :- p(X,Y), q(Y).
+?(X,Y) :- p(X,Y), q(Y).
 ```
+Load a DLGP snippet and evaluate the query with a `ReasoningSession`.
+```python
+from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+with ReasoningSession.create() as session:
+    result = session.parse("""
+        q(X) | r(Y) :- p(X,Y).
+        ?(X,Y) :- p(X,Y), q(Y).
+    """)
+    p = session.predicate("p", 2)
+    q = session.predicate("q", 1)
+    a = session.constant("a")
+    b = session.constant("b")
+    fact_base = session.create_fact_base(
+        [session.atom(p, a, b), session.atom(q, b)]
+    )
+    query = next(iter(result.queries))
+    answers = list(session.evaluate_query(query, fact_base))
+    projected = [tuple(term.identifier for term in answer) for answer in answers]
+    print(projected)
+```
+Expected output: `[('b', 'a')]`.
 
 ## CLI
 ```bash

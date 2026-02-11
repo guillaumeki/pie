@@ -379,10 +379,12 @@ def _run_collection_functions_example(source: str) -> None:
 def _run_knowledge_base_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
-    fact_count = cast(int, namespace["fact_count"])
-    rule_count = cast(int, namespace["rule_count"])
-    if fact_count != 1 or rule_count != 1:
-        raise AssertionError("Unexpected knowledge base counts.")
+    fact_atoms = cast(list[str], namespace["fact_atoms"])
+    rule_text = cast(list[str], namespace["rule_text"])
+    if fact_atoms != ["p(a)"]:
+        raise AssertionError(f"Unexpected fact atoms: {fact_atoms}")
+    if rule_text != ["q(X) :- p(X)."]:
+        raise AssertionError(f"Unexpected rule text: {rule_text}")
 
 
 def _run_prepared_query_example(source: str) -> None:
@@ -396,10 +398,17 @@ def _run_prepared_query_example(source: str) -> None:
 def _run_fact_base_wrapper_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
-    atom_count = cast(int, namespace["atom_count"])
-    free_count = cast(int, namespace["free_count"])
-    if atom_count != 2 or free_count != 0:
-        raise AssertionError("Unexpected wrapper counts.")
+    atom_strings = cast(list[str], namespace["atom_strings"])
+    if atom_strings != ["p(a)", "q(b)"]:
+        raise AssertionError(f"Unexpected wrapper atoms: {atom_strings}")
+
+
+def _run_dlgp_reasoning_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    projected = cast(list[tuple[str, ...]], namespace["projected"])
+    if projected != [("b", "a")]:
+        raise AssertionError(f"Unexpected DLGP projected answers: {projected}")
 
 
 def _run_delegation_example(source: str) -> None:
@@ -949,6 +958,9 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 '''
+                from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
+                from prototyping_inference_engine.io.writers.dlgpe_writer import DlgpeWriter
+                from prototyping_inference_engine.session.parse_result import ParseResult
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
                 with ReasoningSession.create() as session:
@@ -964,10 +976,23 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                     rb = session.create_rule_base(set(result.rules))
                     kb = session.create_knowledge_base(fb, rb)
 
-                    fact_count = len(kb.fact_base)
-                    rule_count = len(kb.rule_base.rules)
-                    print(fact_count)
-                    print(rule_count)
+                    fact_atoms = sorted(
+                        [
+                            f"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})"
+                            for atom in kb.fact_base
+                        ]
+                    )
+                    writer = DlgpeWriter()
+                    rules_result = ParseResult(
+                        facts=FrozenAtomSet(),
+                        rules=frozenset(kb.rule_base.rules),
+                        queries=frozenset(),
+                        constraints=frozenset(),
+                    )
+                    rule_doc = writer.write(rules_result)
+                    rule_text = [line for line in rule_doc.splitlines() if line and not line.startswith("@")]
+                    print(fact_atoms)
+                    print(rule_text)
                 '''
             ).strip("\n"),
             runner=_run_knowledge_base_example,
@@ -1012,10 +1037,13 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 fact_base = MutableInMemoryFactBase(facts)
                 wrapper = FOConjunctionFactBaseWrapper(fact_base)
 
-                atom_count = len(wrapper.atoms)
-                free_count = len(wrapper.free_variables)
-                print(atom_count)
-                print(free_count)
+                atom_strings = sorted(
+                    [
+                        f"{atom.predicate.name}({', '.join(term.identifier for term in atom.terms)})"
+                        for atom in wrapper.atoms
+                    ]
+                )
+                print(atom_strings)
                 """
             ).strip("\n"),
             runner=_run_fact_base_wrapper_example,
@@ -1073,10 +1101,36 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             textwrap.dedent(
                 """
                 q(X) | r(Y) :- p(X,Y).
-                ?(X) :- p(X,Y), q(Y).
+                ?(X,Y) :- p(X,Y), q(Y).
                 """
             ).strip("\n"),
             runner=_run_dlgp_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+                with ReasoningSession.create() as session:
+                    result = session.parse(\"\"\"
+                        q(X) | r(Y) :- p(X,Y).
+                        ?(X,Y) :- p(X,Y), q(Y).
+                    \"\"\")
+                    p = session.predicate(\"p\", 2)
+                    q = session.predicate(\"q\", 1)
+                    a = session.constant(\"a\")
+                    b = session.constant(\"b\")
+                    fact_base = session.create_fact_base(
+                        [session.atom(p, a, b), session.atom(q, b)]
+                    )
+                    query = next(iter(result.queries))
+                    answers = list(session.evaluate_query(query, fact_base))
+                    projected = [tuple(term.identifier for term in answer) for answer in answers]
+                    print(projected)
+                """
+            ).strip("\n"),
+            runner=_run_dlgp_reasoning_example,
         ),
         DocExample("bash", "disjunctive-rewriter [file.dlgp] [-l LIMIT] [-v] [-m]"),
     ],
