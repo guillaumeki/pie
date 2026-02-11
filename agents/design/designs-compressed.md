@@ -38,7 +38,7 @@ Dates: 2026-02-06, 2026-02-09
 - JSON configuration defaults to module-level functions (no class required). Class-based loading remains optional.
 
 ## Query Evaluation And Prepared Queries
-Dates: 2026-02-04, 2026-02-05, 2026-02-08, 2026-02-10
+Dates: 2026-02-04, 2026-02-05, 2026-02-08, 2026-02-10, 2026-02-11
 - FOQuery evaluators prepare queries before execution, per formula type.
 - Prepared queries are cached for sub-formulas to avoid rebuilding during backtracking.
 - Lightweight bound estimation guides scheduler ordering; the estimate is intended to be cheap.
@@ -46,6 +46,7 @@ Dates: 2026-02-04, 2026-02-05, 2026-02-08, 2026-02-10
 - Function-term rewriting expands terms into computed atoms and is evaluated via the FOQuery registry to decouple evaluators.
 - Atomic FOQueries route through the prepared atomic query path to reuse preparation logic.
 - Evaluation is defined on queries (FOQuery and higher-level query types), not on standalone formulas.
+ - Prepared queries are created by evaluators; the registry/dispatcher selects the default evaluator for preparation.
 
 ## Data Abstraction And Collections
 Dates: 2026-02-08

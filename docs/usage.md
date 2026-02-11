@@ -366,26 +366,27 @@ with ReasoningSession.create() as session:
 ```
 
 ## Prepared Queries and FOQueryFactory
-Use `FOQueryFactory` to construct queries and `PreparedFOQueryDefaults` to build
-prepared executors for those queries.
+Use `FOQueryFactory` to construct queries, then let the evaluator registry choose
+the default evaluator to prepare the query. Preparation is evaluator-specific,
+so different evaluators can prepare the same query type differently.
 
 ```python
-from prototyping_inference_engine.api.query.prepared_fo_query import PreparedFOQueryDefaults
-from prototyping_inference_engine.api.substitution.substitution import Substitution
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator_registry import (
+    FOQueryEvaluatorRegistry,
+)
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
 
-class SimplePreparedQuery(PreparedFOQueryDefaults):
-    def __init__(self, query):
-        self.query = query
-
-    def execute(self, assignation: Substitution):
-        return [assignation]
-
-
 with ReasoningSession.create() as session:
+    result = session.parse('''
+        @facts
+        p(a).
+    ''')
+    fact_base = session.create_fact_base(result.facts)
+
     query = session.fo_query().builder().atom("p", "a").build()
-    prepared = SimplePreparedQuery(query)
+    evaluator = FOQueryEvaluatorRegistry.instance().get_evaluator(query)
+    prepared = evaluator.prepare(query, fact_base)
     answers = list(prepared.execute_empty())
     print(answers)
 ```
