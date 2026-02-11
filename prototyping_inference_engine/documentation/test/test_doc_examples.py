@@ -188,6 +188,52 @@ def _run_export_example(source: str) -> None:
             raise AssertionError(f"Missing '{line}' in exported DLGPE.")
 
 
+def _run_dlgpe_file_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    predicates = cast(list[str], namespace["predicates"])
+    if predicates != ["p", "q"]:
+        raise AssertionError(f"Unexpected file predicates: {predicates}")
+
+
+def _run_csv_parser_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    first_terms = cast(list[str], namespace["first_terms"])
+    if first_terms != ["alice", "bob"]:
+        raise AssertionError(f"Unexpected CSV terms: {first_terms}")
+
+
+def _run_rls_csv_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    predicate_names = cast(list[str], namespace["predicate_names"])
+    atom_count = cast(int, namespace["atom_count"])
+    if predicate_names != ["p", "q"]:
+        raise AssertionError(f"Unexpected RLS predicates: {predicate_names}")
+    if atom_count != 3:
+        raise AssertionError(f"Unexpected RLS atom count: {atom_count}")
+
+
+def _run_rdf_parser_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    predicates = cast(list[str], namespace["predicates"])
+    if "http://example.org/Person" not in predicates:
+        raise AssertionError("Missing rdf:type predicate.")
+    if "http://example.org/knows" not in predicates:
+        raise AssertionError("Missing rdf predicate.")
+
+
+def _run_imports_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    predicates = cast(list[str], namespace["predicates"])
+    required = {"facts", "p", "triple"}
+    if set(predicates) != required:
+        raise AssertionError(f"Unexpected import predicates: {predicates}")
+
+
 def _run_index_quick_start_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
@@ -535,6 +581,160 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 '''
             ).strip("\n"),
             runner=_run_export_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                import tempfile
+                from pathlib import Path
+
+                from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    path = Path(tmpdir) / "example.dlgp"
+                    path.write_text(
+                        \"\"\"
+                        @facts
+                        p(a).
+                        q(b).
+                        \"\"\",
+                        encoding="utf-8",
+                    )
+
+                    result = DlgpeParser.instance().parse_file(path)
+                    predicates = sorted({atom.predicate.name for atom in result[\"facts\"]})
+                """
+            ).strip("\n"),
+            runner=_run_dlgpe_file_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                import tempfile
+                from pathlib import Path
+
+                from prototyping_inference_engine.io.parsers.csv import CSVParser
+                from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    path = Path(tmpdir) / "people.csv"
+                    path.write_text("alice,bob\\ncarol,dave\\n", encoding="utf-8")
+
+                    with ReasoningSession.create() as session:
+                        parser = CSVParser(path, session.term_factories)
+                        atoms = list(parser.parse_atoms())
+                        first_terms = [term.identifier for term in atoms[0].terms]
+                """
+            ).strip("\n"),
+            runner=_run_csv_parser_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                import tempfile
+                from pathlib import Path
+
+                from prototyping_inference_engine.io.parsers.csv import RLSCSVsParser
+                from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    base = Path(tmpdir)
+                    (base / "csv1.csv").write_text("a,b\\nc,d\\n", encoding="utf-8")
+                    (base / "csv2.csv").write_text("e,f\\n", encoding="utf-8")
+                    rls_path = base / "data.rls"
+                    rls_path.write_text(
+                        '@source p[2]: load-csv("csv1.csv") .\\n'
+                        '@source q[2]: load-csv("csv2.csv") .\\n',
+                        encoding="utf-8",
+                    )
+
+                    with ReasoningSession.create() as session:
+                        parser = RLSCSVsParser(rls_path, session.term_factories)
+                        atoms = list(parser.parse_atoms())
+                        predicate_names = sorted({atom.predicate.name for atom in atoms})
+                        atom_count = len(atoms)
+                """
+            ).strip("\n"),
+            runner=_run_rls_csv_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                import tempfile
+                from pathlib import Path
+
+                from prototyping_inference_engine.io.parsers.rdf import RDFParser
+                from prototyping_inference_engine.io.parsers.rdf.rdf_parser import RDFParserConfig
+                from prototyping_inference_engine.rdf.translator import RDFTranslationMode
+                from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    path = Path(tmpdir) / "data.ttl"
+                    path.write_text(
+                        \"\"\"
+                        @prefix ex: <http://example.org/> .
+                        @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+                        ex:a rdf:type ex:Person .
+                        ex:a ex:knows "bob" .
+                        \"\"\",
+                        encoding="utf-8",
+                    )
+
+                    with ReasoningSession.create() as session:
+                        parser = RDFParser(
+                            path,
+                            session.term_factories,
+                            RDFParserConfig(translation_mode=RDFTranslationMode.NATURAL_FULL),
+                        )
+                        atoms = list(parser.parse_atoms())
+                        predicates = sorted({atom.predicate.name for atom in atoms})
+                """
+            ).strip("\n"),
+            runner=_run_rdf_parser_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                import tempfile
+                from pathlib import Path
+
+                from prototyping_inference_engine.rdf.translator import RDFTranslationMode
+                from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    base = Path(tmpdir)
+                    (base / "facts.csv").write_text("a,b\\n", encoding="utf-8")
+                    (base / "data.ttl").write_text(
+                        \"\"\"
+                        @prefix ex: <http://example.org/> .
+                        ex:a ex:knows ex:b .
+                        \"\"\",
+                        encoding="utf-8",
+                    )
+                    (base / "main.dlgpe").write_text(
+                        \"\"\"
+                        @import <facts.csv>.
+                        @import <data.ttl>.
+
+                        @facts
+                        p(a).
+                        \"\"\",
+                        encoding="utf-8",
+                    )
+
+                    with ReasoningSession.create(
+                        rdf_translation_mode=RDFTranslationMode.RAW
+                    ) as session:
+                        result = session.parse_file(base / "main.dlgpe")
+                        predicates = sorted({atom.predicate.name for atom in result.facts})
+                """
+            ).strip("\n"),
+            runner=_run_imports_example,
         ),
         DocExample(
             "prolog",

@@ -41,3 +41,20 @@ class TestCSVParser(unittest.TestCase):
             self.assertEqual(len(atoms), 1)
             self.assertEqual(atoms[0].predicate.name, "ex:pair")
             self.assertEqual(atoms[0].predicate.arity, 2)
+
+    def test_parse_with_quoted_fields(self):
+        lorem = (
+            "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod "
+            "tempor incididunt ut labore et dolore magna aliqua."
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "data.csv"
+            path.write_text(f"d,{lorem!r}\n".replace("'", '"'), encoding="utf-8")
+
+            session = ReasoningSession.create()
+            parser = CSVParser(path, session.term_factories)
+            atoms = list(parser.parse_atoms())
+
+            self.assertEqual(len(atoms), 1)
+            self.assertEqual(atoms[0].terms[0].identifier, "d")
+            self.assertEqual(atoms[0].terms[1].identifier, lorem)

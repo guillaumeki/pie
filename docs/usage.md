@@ -109,6 +109,153 @@ with ReasoningSession.create() as session:
     print(output)
 ```
 
+## Parsing Files and Imports
+DLGPE parsing can read `.dlgp`/`.dlgpe` files directly (DLGP syntax is supported
+by the DLGPE parser).
+```python
+import tempfile
+from pathlib import Path
+
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+
+with tempfile.TemporaryDirectory() as tmpdir:
+    path = Path(tmpdir) / "example.dlgp"
+    path.write_text(
+        """
+        @facts
+        p(a).
+        q(b).
+        """,
+        encoding="utf-8",
+    )
+
+    result = DlgpeParser.instance().parse_file(path)
+    predicates = sorted({atom.predicate.name for atom in result["facts"]})
+```
+The `predicates` list shows which relations were loaded.
+
+### Parsing CSV Files
+CSV parsing creates one predicate per file, using the filename stem by default.
+```python
+import tempfile
+from pathlib import Path
+
+from prototyping_inference_engine.io.parsers.csv import CSVParser
+from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+with tempfile.TemporaryDirectory() as tmpdir:
+    path = Path(tmpdir) / "people.csv"
+    path.write_text("alice,bob\ncarol,dave\n", encoding="utf-8")
+
+    with ReasoningSession.create() as session:
+        parser = CSVParser(path, session.term_factories)
+        atoms = list(parser.parse_atoms())
+        first_terms = [term.identifier for term in atoms[0].terms]
+```
+The `first_terms` list contains the first row of the CSV file.
+
+### Parsing RLS CSV Configurations
+RLS CSV files map multiple CSV sources to predicates.
+```python
+import tempfile
+from pathlib import Path
+
+from prototyping_inference_engine.io.parsers.csv import RLSCSVsParser
+from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+with tempfile.TemporaryDirectory() as tmpdir:
+    base = Path(tmpdir)
+    (base / "csv1.csv").write_text("a,b\nc,d\n", encoding="utf-8")
+    (base / "csv2.csv").write_text("e,f\n", encoding="utf-8")
+    rls_path = base / "data.rls"
+    rls_path.write_text(
+        '@source p[2]: load-csv("csv1.csv") .\n'
+        '@source q[2]: load-csv("csv2.csv") .\n',
+        encoding="utf-8",
+    )
+
+    with ReasoningSession.create() as session:
+        parser = RLSCSVsParser(rls_path, session.term_factories)
+        atoms = list(parser.parse_atoms())
+        predicate_names = sorted({atom.predicate.name for atom in atoms})
+        atom_count = len(atoms)
+```
+The `predicate_names` and `atom_count` values show which sources loaded.
+
+### Parsing RDF Files
+RDF parsing supports multiple translation modes; the example below uses
+`NATURAL_FULL`.
+```python
+import tempfile
+from pathlib import Path
+
+from prototyping_inference_engine.io.parsers.rdf import RDFParser
+from prototyping_inference_engine.io.parsers.rdf.rdf_parser import RDFParserConfig
+from prototyping_inference_engine.rdf.translator import RDFTranslationMode
+from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+with tempfile.TemporaryDirectory() as tmpdir:
+    path = Path(tmpdir) / "data.ttl"
+    path.write_text(
+        """
+        @prefix ex: <http://example.org/> .
+        @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+        ex:a rdf:type ex:Person .
+        ex:a ex:knows "bob" .
+        """,
+        encoding="utf-8",
+    )
+
+    with ReasoningSession.create() as session:
+        parser = RDFParser(
+            path,
+            session.term_factories,
+            RDFParserConfig(translation_mode=RDFTranslationMode.NATURAL_FULL),
+        )
+        atoms = list(parser.parse_atoms())
+        predicates = sorted({atom.predicate.name for atom in atoms})
+```
+The `predicates` list reflects the translated RDF statements.
+
+### Using `@import` Directives
+`@import` directives load external files and merge their facts into the current
+document. Prefer parsing from a file path so relative imports resolve correctly.
+```python
+import tempfile
+from pathlib import Path
+
+from prototyping_inference_engine.rdf.translator import RDFTranslationMode
+from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+with tempfile.TemporaryDirectory() as tmpdir:
+    base = Path(tmpdir)
+    (base / "facts.csv").write_text("a,b\n", encoding="utf-8")
+    (base / "data.ttl").write_text(
+        """
+        @prefix ex: <http://example.org/> .
+        ex:a ex:knows ex:b .
+        """,
+        encoding="utf-8",
+    )
+    (base / "main.dlgpe").write_text(
+        """
+        @import <facts.csv>.
+        @import <data.ttl>.
+
+        @facts
+        p(a).
+        """,
+        encoding="utf-8",
+    )
+
+    with ReasoningSession.create(
+        rdf_translation_mode=RDFTranslationMode.RAW
+    ) as session:
+        result = session.parse_file(base / "main.dlgpe")
+        predicates = sorted({atom.predicate.name for atom in result.facts})
+```
+The `predicates` list now includes facts from every imported file.
+
 ## Loading Computed Functions (`@computed`)
 PIE supports Integraal standard functions via `@computed` prefixes. To load the
 standard library, declare `@computed <prefix>: <stdfct>.` and use the functions

@@ -27,3 +27,36 @@ class TestRLSCSVParser(unittest.TestCase):
             self.assertEqual(atoms[0].predicate.arity, 2)
             self.assertEqual(atoms[0].terms[0].identifier, "a")
             self.assertEqual(atoms[0].terms[1].identifier, "b")
+
+    def test_parse_multiple_sources(self):
+        long_text = (
+            "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod "
+            "tempor incididunt ut labore et dolore magna aliqua."
+        )
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base = Path(tmpdir)
+            (base / "csv1.csv").write_text(
+                "a,b\na,c\na,d\nb,b\na,b\n", encoding="utf-8"
+            )
+            (base / "csv2.csv").write_text(
+                f'b,"{long_text}"\nc,"{long_text}"\n', encoding="utf-8"
+            )
+            (base / "csv3.csv").write_text(
+                f'd,e,"{long_text}"\nd,e,"Not {long_text}"\n', encoding="utf-8"
+            )
+
+            rls_path = base / "config.rls"
+            rls_path.write_text(
+                '@source p_csv[2]: load-csv("csv1.csv") .\n'
+                '@source q_csv[2]: load-csv("csv2.csv") .\n'
+                '@source r_csv[3]: load-csv("csv3.csv") .\n',
+                encoding="utf-8",
+            )
+
+            session = ReasoningSession.create()
+            parser = RLSCSVsParser(rls_path, session.term_factories)
+            atoms = list(parser.parse_atoms())
+
+            predicate_names = {atom.predicate.name for atom in atoms}
+            self.assertEqual(predicate_names, {"p_csv", "q_csv", "r_csv"})
+            self.assertEqual(len(atoms), 9)
