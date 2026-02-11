@@ -14,6 +14,7 @@ Dates: 2026-02-06, 2026-02-05
 - Core code lives under `prototyping_inference_engine/` with explicit subpackages (no catch-all modules).
 - IO is under `prototyping_inference_engine/io/` with `parsers/` and `writers/`.
 - IRI utilities are under `prototyping_inference_engine/api/iri/`.
+- RDF translation utilities live under `prototyping_inference_engine/rdf/` (independent of IO).
 
 ## Core API Concepts
 Dates: 2026-02-08, 2026-02-06
@@ -24,11 +25,12 @@ Dates: 2026-02-08, 2026-02-06
 - Fact base capability protocols (e.g., `CSVCopyable`) to avoid hard dependencies.
 
 ## DLGPE Parsing And IRI Handling
-Dates: 2026-02-06, 2026-02-07
+Dates: 2026-02-06, 2026-02-07, 2026-02-11
 - DLGPE is the canonical syntax; `.dlgp` files use DLGPE semantics.
 - Nested functional terms are supported in DLGPE grammar.
 - Parsing resolves IRIs and preserves prefix/base context in parse results.
 - Undefined prefixes raise parsing errors to ensure consistent IRI resolution.
+- `@import` directives are supported with format-aware parsing.
 
 ## Computed Functions And `@computed`
 Dates: 2026-02-06, 2026-02-09
@@ -52,6 +54,12 @@ Dates: 2026-02-04, 2026-02-05, 2026-02-08, 2026-02-10, 2026-02-11
 Dates: 2026-02-08
 - `ReadableData` provides query capability, atomic patterns, and optional bound estimation.
 - Data collections compose multiple data sources with predicate introspection and delegation wrappers.
+
+## IO Parsers And Writers
+Dates: 2026-02-11
+- CSV, RLS CSV, and RDF parsers are available under `io/parsers/`.
+- CSV and RDF writers are available under `io/writers/`.
+- Import resolution uses a registry to dispatch parsers by detected format.
 
 ## Backward Chaining
 Dates: 2026-02-04

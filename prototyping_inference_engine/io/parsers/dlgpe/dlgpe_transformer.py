@@ -94,7 +94,7 @@ class DlgpeTransformer(Transformer):
     - Subqueries (Var := body)
     - Macro predicates ($predicate)
     - Repeated atoms (predicate+ or predicate*)
-    - @import, @view, @patterns directives
+    - @view, @patterns directives
     - JSON metadata
     """
 
@@ -120,6 +120,7 @@ class DlgpeTransformer(Transformer):
         self._top: Optional[str] = None
         self._una: bool = False
         self._ground_neck: bool = False  # Track if ::- was used
+        self._imports: list[str] = []
         self._literal_factory = literal_factory or LiteralFactory(
             DictStorage(), LiteralConfig.default()
         )
@@ -148,8 +149,10 @@ class DlgpeTransformer(Transformer):
 
     # ==================== Unsupported Features ====================
 
-    def unsupported_import(self, items):
-        raise DlgpeUnsupportedFeatureError("@import directive is not supported by PIE")
+    def import_directive(self, items):
+        # items[0] = IMPORT_KWD, items[1] = identifier
+        self._imports.append(str(items[1]))
+        return None
 
     def unsupported_computed(self, items):
         raise DlgpeUnsupportedFeatureError(
@@ -223,6 +226,7 @@ class DlgpeTransformer(Transformer):
             "computed": computed.copy(),
             "top": self._top,
             "una": self._una,
+            "imports": list(self._imports),
         }
 
     def body(self, items):

@@ -44,7 +44,7 @@ class DlgpeParser:
     - Arithmetic expressions
     - Subqueries
     - Macro predicates
-    - @import, @view, @patterns directives
+    - @view, @patterns directives
     - JSON metadata
 
     Usage:
@@ -95,6 +95,7 @@ class DlgpeParser:
             - "constraints": List of NegativeConstraint objects
             - "queries": List of FOQuery objects
             - "sources": List of ReadableData sources required for evaluation
+            - "imports": List of imported file references
 
         Raises:
             DlgpeUnsupportedFeatureError: If the text uses unsupported features
@@ -222,6 +223,7 @@ class DlgpeParser:
         rules: List[Rule] = []
         constraints: List[NegativeConstraint] = []
         queries: List[FOQuery] = []
+        imports: list[str] = []
         header = raw_result.get("header", {}) or {}
 
         statements = raw_result.get("statements", [])
@@ -241,6 +243,8 @@ class DlgpeParser:
                     constraints.append(stmt[1])
                 elif stmt_type == "query":
                     queries.append(stmt[1])
+                elif stmt_type == "import":
+                    imports.append(str(stmt[1]))
             elif isinstance(stmt, Atom):
                 facts.append(stmt)
             elif isinstance(stmt, Rule):
@@ -250,6 +254,9 @@ class DlgpeParser:
             elif isinstance(stmt, FOQuery):
                 queries.append(stmt)
 
+        if isinstance(header, dict):
+            imports.extend(header.get("imports", []) or [])
+
         sources = self._build_sources(facts, rules, queries, constraints, header)
         return {
             "header": header,
@@ -258,6 +265,7 @@ class DlgpeParser:
             "constraints": constraints,
             "queries": queries,
             "sources": sources,
+            "imports": imports,
         }
 
     @staticmethod

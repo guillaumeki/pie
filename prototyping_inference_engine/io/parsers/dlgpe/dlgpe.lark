@@ -96,7 +96,7 @@ body: statement* | block*
 // Directives
 directive: base_directive
          | prefix_directive
-         | import_directive      -> unsupported_import
+         | import_directive
          | computed_directive
          | view_directive        -> unsupported_view
          | top_directive

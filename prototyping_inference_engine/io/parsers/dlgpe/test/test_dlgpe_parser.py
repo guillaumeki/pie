@@ -204,11 +204,12 @@ class TestDlgpeParserUnsupportedFeatures(unittest.TestCase):
     def setUp(self):
         self.parser = DlgpeParser.instance()
 
-    def test_import_directive_raises_error(self):
-        """Test that @import raises an error."""
-        with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:
-            self.parser.parse("@import <file.dlgpe>.")
-        self.assertIn("@import", ctx.exception.args[0])
+    def test_import_directive_is_parsed(self):
+        """Test that @import is parsed into the import list."""
+        result = self.parser.parse("@import <file.dlgpe>.")
+        imports = result.get("imports", [])
+        self.assertEqual(len(imports), 1)
+        self.assertTrue(imports[0].endswith("file.dlgpe"))
 
     def test_computed_directive_is_supported(self):
         """Test that @computed is parsed into the header."""

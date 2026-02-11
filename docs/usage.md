@@ -370,6 +370,10 @@ Use `FOQueryFactory` to construct queries, then let the evaluator registry choos
 the default evaluator to prepare the query. Preparation is evaluator-specific,
 so different evaluators can prepare the same query type differently.
 
+For multi-file workflows, DLGPE supports `@import` directives that load external
+files (DLGPE/DLGP, CSV, RLS CSV, RDF). When using `@import`, prefer parsing from
+a file path so relative imports resolve correctly.
+
 ```python
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator_registry import (
     FOQueryEvaluatorRegistry,

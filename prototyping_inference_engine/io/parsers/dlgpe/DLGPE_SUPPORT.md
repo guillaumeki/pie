@@ -16,7 +16,7 @@ DLGPE grammar is based on: https://gitlab.inria.fr/jfbaget/dlgpe
 | `@prefix` | ✅ Supported | IRI resolution implemented |
 | `@top` | ✅ Supported | Parsed, stored in header |
 | `@una` | ✅ Supported | Parsed, stored in header |
-| `@import` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
+| `@import` | ✅ Supported | Loads external files via format-aware import |
 | `@computed` | ✅ Supported | Supports `@computed <prefix>: <stdfct>` for standard functions and JSON configuration files for Python functions |
 | `@view` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
 | `@patterns` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
@@ -97,7 +97,7 @@ The following features will raise `DlgpeUnsupportedFeatureError` when encountere
 |---------|--------|
 | Subqueries | Not implemented: `Result(X) := p(X, Y)` |
 | JSON metadata | Not implemented: `{"name": "rule1"} p(X) :- q(X).` |
-| `@import` directive | Module system not implemented |
+| `@import` directive | Imports are supported with format detection |
 | `@view` directive | Views not implemented |
 | `@patterns` directive | Pattern system not implemented |
 
@@ -159,4 +159,4 @@ Features that could be implemented in future versions:
 1. **IRI resolution**: Completed (base and prefix directives now resolve IRIs)
 2. **Arithmetic expressions**: Add support for basic arithmetic
 3. **Subqueries**: Implement subquery evaluation
-4. **`@import` directive**: Support modular knowledge bases
+4. **`@import` directive**: Supported (format-aware imports)

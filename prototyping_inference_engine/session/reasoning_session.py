@@ -40,6 +40,7 @@ from prototyping_inference_engine.api.ontology.constraint.negative_constraint im
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.session.cleanup_stats import SessionCleanupStats
+from prototyping_inference_engine.session.io_config import SessionIOConfig
 from prototyping_inference_engine.session.parse_result import ParseResult
 from prototyping_inference_engine.session.term_factories import TermFactories
 from prototyping_inference_engine.session.providers import (
@@ -63,6 +64,7 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.query.factory.fo_query_factory import (
         FOQueryFactory,
     )
+    from prototyping_inference_engine.rdf.translator import RDFTranslationMode
 
 
 class ReasoningSession:
@@ -99,6 +101,7 @@ class ReasoningSession:
         fact_base_provider: Optional[FactBaseFactoryProvider] = None,
         rewriting_provider: Optional[RewritingAlgorithmProvider] = None,
         literal_config: Optional[LiteralConfig] = None,
+        io_config: Optional[SessionIOConfig] = None,
     ) -> None:
         """
         Initialize a reasoning session.
@@ -111,6 +114,7 @@ class ReasoningSession:
         """
         self._term_factories = term_factories
         self._literal_config = literal_config or LiteralConfig.default()
+        self._io_config = io_config or SessionIOConfig()
 
         if Literal not in self._term_factories:
             self._term_factories.register(
@@ -160,6 +164,8 @@ class ReasoningSession:
         fact_base_provider: Optional[FactBaseFactoryProvider] = None,
         rewriting_provider: Optional[RewritingAlgorithmProvider] = None,
         literal_config: Optional[LiteralConfig] = None,
+        io_config: Optional[SessionIOConfig] = None,
+        rdf_translation_mode: Optional["RDFTranslationMode"] = None,
     ) -> "ReasoningSession":
         """
         Factory method to create a session with default term factories.
@@ -200,12 +206,21 @@ class ReasoningSession:
         )
         factories.register(Predicate, PredicateFactory(pred_storage))
 
+        if rdf_translation_mode is not None:
+            if io_config is None:
+                io_config = SessionIOConfig().with_rdf_translation_mode(
+                    rdf_translation_mode
+                )
+            else:
+                io_config = io_config.with_rdf_translation_mode(rdf_translation_mode)
+
         return cls(
             term_factories=factories,
             parser_provider=parser_provider,
             fact_base_provider=fact_base_provider,
             rewriting_provider=rewriting_provider,
             literal_config=literal_config,
+            io_config=io_config,
         )
 
     # =========================================================================
@@ -216,6 +231,11 @@ class ReasoningSession:
     def term_factories(self) -> TermFactories:
         """Access the term factory registry."""
         return self._term_factories
+
+    @property
+    def io_config(self) -> SessionIOConfig:
+        """Access the session IO configuration."""
+        return self._io_config
 
     @property
     def literal_config(self) -> LiteralConfig:
@@ -549,12 +569,27 @@ class ReasoningSession:
         Returns:
             ParseResult containing facts, rules, queries, constraints, and sources
         """
+        return self._parse_with_imports(text, source_path=None)
+
+    def parse_file(self, path: Union[str, Path]) -> ParseResult:
+        """
+        Parse a DLGPE file and resolve @import directives relative to it.
+        """
+        self._check_not_closed()
+        source_path = Path(path)
+        text = source_path.read_text(encoding="utf-8")
+        return self._parse_with_imports(text, source_path=source_path)
+
+    def _parse_with_imports(
+        self, text: str, source_path: Optional[Path]
+    ) -> ParseResult:
         self._check_not_closed()
 
         self._iri_base = None
         self._iri_prefixes = {}
         self._computed_prefixes = {}
 
+        parsed = None
         parse_document = getattr(self._parser_provider, "parse_document", None)
         if callable(parse_document):
             parsed = parse_document(text)
@@ -571,11 +606,28 @@ class ReasoningSession:
                     if isinstance(computed, dict):
                         self._computed_prefixes = dict(computed)
 
-        # Parse different types using the configured parser provider
-        facts = list(self._parser_provider.parse_atoms(text))
-        rules = set(self._parser_provider.parse_rules(text))
-        queries = set(self._parser_provider.parse_queries(text))
-        constraints = set(self._parser_provider.parse_negative_constraints(text))
+        if isinstance(parsed, dict) and "facts" in parsed:
+            facts = list(parsed.get("facts", []))
+            rules = set(parsed.get("rules", []))
+            queries = set(parsed.get("queries", []))
+            constraints = set(parsed.get("constraints", []))
+            imports = list(parsed.get("imports", []))
+        else:
+            facts = list(self._parser_provider.parse_atoms(text))
+            rules = set(self._parser_provider.parse_rules(text))
+            queries = set(self._parser_provider.parse_queries(text))
+            constraints = set(self._parser_provider.parse_negative_constraints(text))
+            imports = []
+
+        if imports:
+            self._merge_imports(
+                facts,
+                rules,
+                queries,
+                constraints,
+                imports,
+                source_path,
+            )
 
         # Track all terms and predicates
         for atom in facts:
@@ -603,6 +655,52 @@ class ReasoningSession:
             prefixes=tuple(self._iri_prefixes.items()),
             computed_prefixes=tuple(self._computed_prefixes.items()),
         )
+
+    def _merge_imports(
+        self,
+        facts: list[Atom],
+        rules: set[Rule],
+        queries: set["Query"],
+        constraints: set[NegativeConstraint],
+        imports: list[str],
+        source_path: Optional[Path],
+    ) -> None:
+        from prototyping_inference_engine.io.registry import (
+            ImportContext,
+            ImportResolver,
+            ParserRegistry,
+        )
+
+        context = ImportContext(
+            term_factories=self._term_factories,
+            io_config=self._io_config,
+            python_function_names=(
+                self._python_function_source.function_names()
+                if self._python_function_source
+                else set()
+            ),
+        )
+        resolver = ImportResolver(ParserRegistry.default(), context)
+        base_dir = source_path.parent if source_path is not None else None
+        resolution = resolver.resolve_all(imports, base_dir)
+
+        for result in resolution.results:
+            facts.extend(result.facts)
+            rules.update(result.rules)
+            queries.update(result.queries)
+            constraints.update(result.constraints)
+            self._merge_computed_prefixes(result.computed_prefixes)
+
+    def _merge_computed_prefixes(self, imported: tuple[tuple[str, str], ...]) -> None:
+        for prefix, value in imported:
+            if prefix in self._computed_prefixes:
+                if self._computed_prefixes[prefix] != value:
+                    raise ValueError(
+                        f"Computed prefix conflict for '{prefix}': "
+                        f"{self._computed_prefixes[prefix]} vs {value}"
+                    )
+                continue
+            self._computed_prefixes[prefix] = value
 
     def _build_parse_sources(
         self,
@@ -706,20 +804,6 @@ class ReasoningSession:
                 atoms.extend(ReasoningSession._extract_query_atoms(sub))
             return atoms
         return []
-
-    def parse_file(self, file_path: str) -> ParseResult:
-        """
-        Parse a DLGP file and return structured results.
-
-        Args:
-            file_path: Path to the DLGP file
-
-        Returns:
-            ParseResult containing facts, rules, queries, and constraints
-        """
-        self._check_not_closed()
-        with open(file_path, "r") as f:
-            return self.parse(f.read())
 
     # =========================================================================
     # Reasoning methods
