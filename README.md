@@ -24,7 +24,7 @@ The library supports:
 pip install -e .
 ```
 
-Requires Python 3.10+ (uses match/case syntax).
+Requires Python 3.10+ (uses match/case syntax). CI runs on CPython 3.10, CPython 3.12, and PyPy 3.10.
 
 ## Progression
 

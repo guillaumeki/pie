@@ -1,11 +1,11 @@
 # Design Notes (Compressed)
-Date: 2026-02-10
+Date: 2026-02-11
 Status: Active
 
 This document summarizes the current design of PIE. It is a compressed, current-state view of prior design decisions. Each section includes the dates of the decisions it reflects.
 
 ## Scope
-Dates: 2026-02-03, 2026-02-04, 2026-02-05, 2026-02-06, 2026-02-07, 2026-02-08, 2026-02-09, 2026-02-10
+Dates: 2026-02-03, 2026-02-04, 2026-02-05, 2026-02-06, 2026-02-07, 2026-02-08, 2026-02-09, 2026-02-10, 2026-02-11
 PIE is a Python 3.10+ library for inference engines with DLGPE parsing, rule/query abstractions, backward chaining, and FOQuery evaluation. The architecture favors explicit APIs, predictable module layout, and test-verified documentation.
 
 ## Repository Layout And Module Hierarchy
@@ -58,11 +58,12 @@ Dates: 2026-02-04
 - Designed to interoperate with FOQuery evaluation and prepared query interfaces.
 
 ## Documentation, Tests, And CI
-Dates: 2026-02-04, 2026-02-05, 2026-02-06, 2026-02-07, 2026-02-08
+Dates: 2026-02-04, 2026-02-05, 2026-02-06, 2026-02-07, 2026-02-08, 2026-02-11
 - Documentation is written in Markdown under `docs/` and built with MkDocs.
 - Every documentation code block is surrounded by explanatory text and must be covered by a unit test.
 - Runnable examples are executed in tests to prevent doc drift.
 - CI enforces mypy, unit tests, Ruff lint/format, and coverage; Bandit and pip-audit run for security.
+- CI validates CPython 3.10/3.12 and PyPy 3.10 runtime compatibility.
 
 ## Process And Release Practices
 Dates: 2026-02-03, 2026-02-04, 2026-02-08, 2026-02-09
