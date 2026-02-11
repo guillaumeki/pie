@@ -64,6 +64,7 @@ Dates: 2026-02-04, 2026-02-05, 2026-02-06, 2026-02-07, 2026-02-08, 2026-02-11
 - Runnable examples are executed in tests to prevent doc drift.
 - CI enforces mypy, unit tests, Ruff lint/format, and coverage; Bandit and pip-audit run for security.
 - CI validates CPython 3.10/3.12 and PyPy 3.10 runtime compatibility.
+- CI runs general quality checks (mypy/ruff/bandit/pip-audit) in a separate job.
 
 ## Process And Release Practices
 Dates: 2026-02-03, 2026-02-04, 2026-02-08, 2026-02-09

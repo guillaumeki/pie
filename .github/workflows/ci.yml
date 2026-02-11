@@ -5,6 +5,53 @@ on:
   pull_request:
 
 jobs:
+  quality:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+          pip install -r requirements-dev.txt
+
+      - name: Type check (mypy)
+        run: |
+          mypy prototyping_inference_engine
+
+      - name: Lint (ruff)
+        run: |
+          ruff check .
+
+      - name: Format check (ruff)
+        run: |
+          ruff format --check .
+
+      - name: Security scan (bandit)
+        run: |
+          bandit -r prototyping_inference_engine -x \"prototyping_inference_engine/**/test\" -ll
+
+      - name: Dependency audit (pip-audit)
+        run: |
+          pip-audit
+
+      - name: Complexity metrics (radon)
+        continue-on-error: true
+        run: |
+          radon cc -a -s prototyping_inference_engine
+
   tests:
     runs-on: ubuntu-latest
     permissions:
@@ -30,26 +77,6 @@ jobs:
           pip install -e .
           pip install -r requirements-dev.txt
           pip install coverage-badge
-
-      - name: Type check (mypy)
-        run: |
-          mypy prototyping_inference_engine
-
-      - name: Lint (ruff)
-        run: |
-          ruff check .
-
-      - name: Format check (ruff)
-        run: |
-          ruff format --check .
-
-      - name: Security scan (bandit)
-        run: |
-          bandit -r prototyping_inference_engine -x \"prototyping_inference_engine/**/test\" -ll
-
-      - name: Dependency audit (pip-audit)
-        run: |
-          pip-audit
 
       - name: Run unit tests
         run: |
@@ -84,8 +111,3 @@ jobs:
           git commit -m "chore: update coverage badge"
           git pull --rebase origin master
           git push
-
-      - name: Complexity metrics (radon)
-        continue-on-error: true
-        run: |
-          radon cc -a -s prototyping_inference_engine
