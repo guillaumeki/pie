@@ -54,6 +54,7 @@ For any important change:
 1) Propose a plan first, including:
    - Design choices + justification
    - SOLID alignment (if relevant)
+   - Verify existing design documentation in `agents/design/` and reference relevant decisions
    - How the proposed module hierarchy follows Python standards (see "Python Module Hierarchy Standards" below)
    - List of files to be modified
    - Type checking with Mypy
