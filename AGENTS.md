@@ -125,6 +125,7 @@ For any important change:
 
 ### Design Docs
 - `agents/design/designs-compressed.md`
+- `agents/design/answer-variable-ordering.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`

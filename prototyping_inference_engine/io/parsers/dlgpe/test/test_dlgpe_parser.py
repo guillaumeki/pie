@@ -95,6 +95,16 @@ class TestDlgpeParserQueries(unittest.TestCase):
         result = self.parser.parse("?(*) :- p(X, Y).")
         self.assertEqual(len(result["queries"]), 1)
 
+    def test_parse_query_preserves_answer_order(self):
+        """Test that answer variable order is preserved in queries."""
+        result = self.parser.parse("?(Y, X) :- p(X, Y).")
+        self.assertEqual(len(result["queries"]), 1)
+        query = result["queries"][0]
+        self.assertEqual(
+            tuple(var.identifier for var in query.answer_variables),
+            ("Y", "X"),
+        )
+
 
 class TestDlgpeParserConstraints(unittest.TestCase):
     """Test DLGPE constraint parsing."""

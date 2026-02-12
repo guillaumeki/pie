@@ -397,13 +397,13 @@ class DlgpeTransformer(Transformer):
     def dlgpe_query(self, items) -> Tuple[str, FOQuery, Optional[str]]:
         """Process a query: [label] ?(vars) :- body."""
         label = None
-        answer_vars: Optional[frozenset[Variable]] = frozenset()
+        answer_vars: Optional[tuple[Variable, ...]] = ()
         body_formula: Optional[Formula] = None
 
         for item in items:
             if isinstance(item, Label):
                 label = str(item) if item else None
-            elif isinstance(item, frozenset):
+            elif isinstance(item, tuple):
                 answer_vars = item
             elif isinstance(item, Formula):
                 body_formula = item
@@ -416,7 +416,9 @@ class DlgpeTransformer(Transformer):
 
         # If answer_vars is None (*), compute from body
         if answer_vars is None:
-            answer_vars_set = body_formula.free_variables
+            answer_vars_set = tuple(
+                sorted(body_formula.free_variables, key=lambda var: str(var.identifier))
+            )
         else:
             answer_vars_set = answer_vars
             extra_free_vars = body_formula.free_variables - set(answer_vars_set)
@@ -524,18 +526,18 @@ class DlgpeTransformer(Transformer):
     def body_terms_list(self, items) -> Tuple[Term, ...]:
         return tuple(items)
 
-    def variable_list(self, items) -> frozenset:
-        return frozenset(items)
+    def variable_list(self, items) -> tuple[Variable, ...]:
+        return tuple(items)
 
     def answer_vars(self, items):
         if not items:
-            return frozenset()
+            return ()
         # Check for STAR token (when * is used for all variables)
         if hasattr(items[0], "type") and items[0].type == "STAR":
             return "*"
-        if isinstance(items[0], frozenset):
+        if isinstance(items[0], tuple):
             return items[0]
-        return frozenset()
+        return ()
 
     def head_term(self, items):
         return items[0] if items else None
