@@ -589,8 +589,13 @@ def _run_dlgp_reasoning_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
     rule_strings = cast(list[str], namespace["rule_strings"])
-    if rule_strings != ["p(X, Y) → (q(X)) ∨ (r(Y))"]:
+    query_strings = cast(list[str], namespace["query_strings"])
+    expected_rules = ["p(X, Y) → (q(X)) ∨ (r(Y))"]
+    expected_queries = ["?(X, Y) :- (p(X, Y) ∧ q(Y))"]
+    if rule_strings != expected_rules:
         raise AssertionError(f"Unexpected DLGP rules: {rule_strings}")
+    if query_strings != expected_queries:
+        raise AssertionError(f"Unexpected DLGP queries: {query_strings}")
 
 
 def _run_delegation_example(source: str) -> None:
@@ -1561,8 +1566,12 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                     \"\"\")
                     rules = list(result.rules)
                     rule_strings = [str(rule) for rule in rules]
+                    queries = list(result.queries)
+                    query_strings = [str(query) for query in queries]
                     for rule in rules:
                         print(rule)
+                    for query in queries:
+                        print(query)
                 """
             ).strip("\n"),
             runner=_run_dlgp_reasoning_example,

@@ -943,10 +943,16 @@ with ReasoningSession.create() as session:
     """)
     rules = list(result.rules)
     rule_strings = [str(rule) for rule in rules]
+    queries = list(result.queries)
+    query_strings = [str(query) for query in queries]
     for rule in rules:
         print(rule)
+    for query in queries:
+        print(query)
 ```
-Expected output: `p(X, Y) → (q(X)) ∨ (r(Y))`.
+Expected output:
+- `p(X, Y) → (q(X)) ∨ (r(Y))`
+- `?(X, Y) :- (p(X, Y) ∧ q(Y))`
 
 ## CLI
 ```bash
