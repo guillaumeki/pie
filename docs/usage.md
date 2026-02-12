@@ -305,36 +305,8 @@ Example: `ig:sum(1, X, 3)` yields `X = 2`.
 ```
 Evaluate the query and print the projected answers.
 ```python
-from prototyping_inference_engine.api.atom.term.literal import Literal
-from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-def normalize_value(value: object) -> object:
-    if isinstance(value, Literal):
-        return normalize_value(value.value)
-    if isinstance(value, Term):
-        return normalize_value(value.identifier)
-    if isinstance(value, dict):
-        return [
-            (normalize_value(key), normalize_value(val))
-            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-        ]
-    if isinstance(value, set):
-        return sorted((normalize_value(item) for item in value), key=str)
-    if isinstance(value, list):
-        return [normalize_value(item) for item in value]
-    if isinstance(value, tuple):
-        return [normalize_value(item) for item in value]
-    return value
-
-
-def normalize_term(term: object) -> object:
-    if isinstance(term, Literal):
-        return normalize_value(term.value)
-    if isinstance(term, Term):
-        return normalize_value(term.identifier)
-    return normalize_value(term)
 
 
 dlgp = """
@@ -352,11 +324,11 @@ with ReasoningSession.create() as session:
         session.evaluate_query_with_sources(query, fact_base, result.sources)
     )
     projected = [
-        tuple(normalize_term(term) for term in answer) for answer in answers
+        tuple(answer) for answer in answers
     ]
     print(projected)
 ```
-Expected output: `[(2,)]`.
+Expected output: `[(Lit:2,)]`.
 
 ## Loading Computed Functions from JSON
 JSON configurations let you bind a prefix to Python functions. The JSON format
@@ -397,36 +369,8 @@ p(2).
 ```
 Evaluate the query and print the projected answers.
 ```python
-from prototyping_inference_engine.api.atom.term.literal import Literal
-from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-def normalize_value(value: object) -> object:
-    if isinstance(value, Literal):
-        return normalize_value(value.value)
-    if isinstance(value, Term):
-        return normalize_value(value.identifier)
-    if isinstance(value, dict):
-        return [
-            (normalize_value(key), normalize_value(val))
-            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-        ]
-    if isinstance(value, set):
-        return sorted((normalize_value(item) for item in value), key=str)
-    if isinstance(value, list):
-        return [normalize_value(item) for item in value]
-    if isinstance(value, tuple):
-        return [normalize_value(item) for item in value]
-    return value
-
-
-def normalize_term(term: object) -> object:
-    if isinstance(term, Literal):
-        return normalize_value(term.value)
-    if isinstance(term, Term):
-        return normalize_value(term.identifier)
-    return normalize_value(term)
 
 
 dlgp = """
@@ -447,7 +391,7 @@ with ReasoningSession.create() as session:
         session.evaluate_query_with_sources(query, fact_base, result.sources)
     )
     projected = [
-        tuple(normalize_term(term) for term in answer) for answer in answers
+        tuple(answer) for answer in answers
     ]
     print(projected)
 ```
@@ -469,36 +413,8 @@ p(3).
 ```
 Evaluate the query and print the projected answers.
 ```python
-from prototyping_inference_engine.api.atom.term.literal import Literal
-from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-def normalize_value(value: object) -> object:
-    if isinstance(value, Literal):
-        return normalize_value(value.value)
-    if isinstance(value, Term):
-        return normalize_value(value.identifier)
-    if isinstance(value, dict):
-        return [
-            (normalize_value(key), normalize_value(val))
-            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-        ]
-    if isinstance(value, set):
-        return sorted((normalize_value(item) for item in value), key=str)
-    if isinstance(value, list):
-        return [normalize_value(item) for item in value]
-    if isinstance(value, tuple):
-        return [normalize_value(item) for item in value]
-    return value
-
-
-def normalize_term(term: object) -> object:
-    if isinstance(term, Literal):
-        return normalize_value(term.value)
-    if isinstance(term, Term):
-        return normalize_value(term.identifier)
-    return normalize_value(term)
 
 
 dlgp = """
@@ -519,7 +435,7 @@ with ReasoningSession.create() as session:
         session.evaluate_query_with_sources(query, fact_base, result.sources)
     )
     projected = [
-        tuple(normalize_term(term) for term in answer) for answer in answers
+        tuple(answer) for answer in answers
     ]
     print(projected)
 ```
@@ -539,36 +455,8 @@ p(4).
 ```
 Evaluate the query and print the projected answers.
 ```python
-from prototyping_inference_engine.api.atom.term.literal import Literal
-from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-def normalize_value(value: object) -> object:
-    if isinstance(value, Literal):
-        return normalize_value(value.value)
-    if isinstance(value, Term):
-        return normalize_value(value.identifier)
-    if isinstance(value, dict):
-        return [
-            (normalize_value(key), normalize_value(val))
-            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-        ]
-    if isinstance(value, set):
-        return sorted((normalize_value(item) for item in value), key=str)
-    if isinstance(value, list):
-        return [normalize_value(item) for item in value]
-    if isinstance(value, tuple):
-        return [normalize_value(item) for item in value]
-    return value
-
-
-def normalize_term(term: object) -> object:
-    if isinstance(term, Literal):
-        return normalize_value(term.value)
-    if isinstance(term, Term):
-        return normalize_value(term.identifier)
-    return normalize_value(term)
 
 
 dlgp = """
@@ -589,7 +477,7 @@ with ReasoningSession.create() as session:
         session.evaluate_query_with_sources(query, fact_base, result.sources)
     )
     projected = [
-        tuple(normalize_term(term) for term in answer) for answer in answers
+        tuple(answer) for answer in answers
     ]
     print(projected)
 ```
@@ -632,36 +520,8 @@ Arithmetic examples (one query per function, in the same order):
 ```
 Evaluate all queries and print the results in order.
 ```python
-from prototyping_inference_engine.api.atom.term.literal import Literal
-from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-def normalize_value(value: object) -> object:
-    if isinstance(value, Literal):
-        return normalize_value(value.value)
-    if isinstance(value, Term):
-        return normalize_value(value.identifier)
-    if isinstance(value, dict):
-        return [
-            (normalize_value(key), normalize_value(val))
-            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-        ]
-    if isinstance(value, set):
-        return sorted((normalize_value(item) for item in value), key=str)
-    if isinstance(value, list):
-        return [normalize_value(item) for item in value]
-    if isinstance(value, tuple):
-        return [normalize_value(item) for item in value]
-    return value
-
-
-def normalize_term(term: object) -> object:
-    if isinstance(term, Literal):
-        return normalize_value(term.value)
-    if isinstance(term, Term):
-        return normalize_value(term.identifier)
-    return normalize_value(term)
 
 
 dlgp = """
@@ -689,12 +549,12 @@ with ReasoningSession.create() as session:
         answers = list(
             session.evaluate_query_with_sources(query, fact_base, result.sources)
         )
-        value = normalize_term(answers[0][0])
+        value = answers[0][0]
         pairs.append((atom.predicate.name, value))
     print(pairs)
 ```
 Expected output:
-`[('stdfct:sum', 3), ('stdfct:min', 1), ('stdfct:max', 3), ('stdfct:minus', 7), ('stdfct:product', 6), ('stdfct:divide', 4.0), ('stdfct:average', 3.0), ('stdfct:median', 4.0), ('stdfct:weightedAverage', 17.5), ('stdfct:weightedMedian', 20.0)]`.
+`[('stdfct:sum', Lit:3), ('stdfct:min', Lit:1), ('stdfct:max', Lit:3), ('stdfct:minus', Lit:7), ('stdfct:product', Lit:6), ('stdfct:divide', Lit:4), ('stdfct:average', Lit:3), ('stdfct:median', Lit:4), ('stdfct:weightedAverage', Lit:17.5), ('stdfct:weightedMedian', Lit:20)]`.
 
 ### Comparison and Predicate Functions
 - `isEven(value, Result)`: True if value is an even integer.
@@ -739,36 +599,8 @@ Comparison examples (one query per function, in the same order):
 ```
 Evaluate all queries and print the results in order.
 ```python
-from prototyping_inference_engine.api.atom.term.literal import Literal
-from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-def normalize_value(value: object) -> object:
-    if isinstance(value, Literal):
-        return normalize_value(value.value)
-    if isinstance(value, Term):
-        return normalize_value(value.identifier)
-    if isinstance(value, dict):
-        return [
-            (normalize_value(key), normalize_value(val))
-            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-        ]
-    if isinstance(value, set):
-        return sorted((normalize_value(item) for item in value), key=str)
-    if isinstance(value, list):
-        return [normalize_value(item) for item in value]
-    if isinstance(value, tuple):
-        return [normalize_value(item) for item in value]
-    return value
-
-
-def normalize_term(term: object) -> object:
-    if isinstance(term, Literal):
-        return normalize_value(term.value)
-    if isinstance(term, Term):
-        return normalize_value(term.identifier)
-    return normalize_value(term)
 
 
 dlgp = """
@@ -802,12 +634,12 @@ with ReasoningSession.create() as session:
         answers = list(
             session.evaluate_query_with_sources(query, fact_base, result.sources)
         )
-        value = normalize_term(answers[0][0])
+        value = answers[0][0]
         pairs.append((atom.predicate.name, value))
     print(pairs)
 ```
 Expected output:
-`[('stdfct:isEven', True), ('stdfct:isOdd', True), ('stdfct:isPrime', True), ('stdfct:isGreaterThan', True), ('stdfct:isGreaterOrEqualsTo', True), ('stdfct:isSmallerThan', True), ('stdfct:isSmallerOrEqualsTo', True), ('stdfct:isLexicographicallyGreaterThan', True), ('stdfct:isLexicographicallyGreaterOrEqualsTo', True), ('stdfct:isLexicographicallySmallerThan', True), ('stdfct:isLexicographicallySmallerOrEqualsTo', True), ('stdfct:equals', True), ('stdfct:contains', True), ('stdfct:isEmpty', True), ('stdfct:isBlank', True), ('stdfct:isNumeric', True)]`.
+`[('stdfct:isEven', Lit:true), ('stdfct:isOdd', Lit:true), ('stdfct:isPrime', Lit:true), ('stdfct:isGreaterThan', Lit:true), ('stdfct:isGreaterOrEqualsTo', Lit:true), ('stdfct:isSmallerThan', Lit:true), ('stdfct:isSmallerOrEqualsTo', Lit:true), ('stdfct:isLexicographicallyGreaterThan', Lit:true), ('stdfct:isLexicographicallyGreaterOrEqualsTo', Lit:true), ('stdfct:isLexicographicallySmallerThan', Lit:true), ('stdfct:isLexicographicallySmallerOrEqualsTo', Lit:true), ('stdfct:equals', Lit:true), ('stdfct:contains', Lit:true), ('stdfct:isEmpty', Lit:true), ('stdfct:isBlank', Lit:true), ('stdfct:isNumeric', Lit:true)]`.
 
 ### String and Conversion Functions
 - `concat(left, right, Result)`: Concatenate strings or lists.
@@ -840,36 +672,8 @@ String and conversion examples (one query per function, in the same order):
 ```
 Evaluate all queries and print the results in order.
 ```python
-from prototyping_inference_engine.api.atom.term.literal import Literal
-from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-def normalize_value(value: object) -> object:
-    if isinstance(value, Literal):
-        return normalize_value(value.value)
-    if isinstance(value, Term):
-        return normalize_value(value.identifier)
-    if isinstance(value, dict):
-        return [
-            (normalize_value(key), normalize_value(val))
-            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-        ]
-    if isinstance(value, set):
-        return sorted((normalize_value(item) for item in value), key=str)
-    if isinstance(value, list):
-        return [normalize_value(item) for item in value]
-    if isinstance(value, tuple):
-        return [normalize_value(item) for item in value]
-    return value
-
-
-def normalize_term(term: object) -> object:
-    if isinstance(term, Literal):
-        return normalize_value(term.value)
-    if isinstance(term, Term):
-        return normalize_value(term.identifier)
-    return normalize_value(term)
 
 
 dlgp = """
@@ -897,12 +701,12 @@ with ReasoningSession.create() as session:
         answers = list(
             session.evaluate_query_with_sources(query, fact_base, result.sources)
         )
-        value = normalize_term(answers[0][0])
+        value = answers[0][0]
         pairs.append((atom.predicate.name, value))
     print(pairs)
 ```
 Expected output:
-`[('stdfct:concat', 'foobar'), ('stdfct:toLowerCase', 'abc'), ('stdfct:toUpperCase', 'ABC'), ('stdfct:replace', 'aBc'), ('stdfct:length', 4), ('stdfct:toString', '1'), ('stdfct:toStringWithDatatype', 'Literal<int> 1'), ('stdfct:toInt', 12), ('stdfct:toFloat', 1.5), ('stdfct:toBoolean', True)]`.
+`[('stdfct:concat', Lit:"foobar"), ('stdfct:toLowerCase', Lit:"abc"), ('stdfct:toUpperCase', Lit:"ABC"), ('stdfct:replace', Lit:"aBc"), ('stdfct:length', Lit:4), ('stdfct:toString', Lit:"1"), ('stdfct:toStringWithDatatype', Lit:"Literal<int> 1"), ('stdfct:toInt', Lit:12), ('stdfct:toFloat', Lit:1.5), ('stdfct:toBoolean', Lit:true)]`.
 
 ### Collection and Dictionary Functions
 - `set(e1, ..., en, Result)` (n >= 0): Build a set.
@@ -947,36 +751,8 @@ Collection examples (one query per function, in the same order):
 ```
 Evaluate all queries and print the results in order.
 ```python
-from prototyping_inference_engine.api.atom.term.literal import Literal
-from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-def normalize_value(value: object) -> object:
-    if isinstance(value, Literal):
-        return normalize_value(value.value)
-    if isinstance(value, Term):
-        return normalize_value(value.identifier)
-    if isinstance(value, dict):
-        return [
-            (normalize_value(key), normalize_value(val))
-            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-        ]
-    if isinstance(value, set):
-        return sorted((normalize_value(item) for item in value), key=str)
-    if isinstance(value, list):
-        return [normalize_value(item) for item in value]
-    if isinstance(value, tuple):
-        return [normalize_value(item) for item in value]
-    return value
-
-
-def normalize_term(term: object) -> object:
-    if isinstance(term, Literal):
-        return normalize_value(term.value)
-    if isinstance(term, Term):
-        return normalize_value(term.identifier)
-    return normalize_value(term)
 
 
 dlgp = """
@@ -1010,12 +786,12 @@ with ReasoningSession.create() as session:
         answers = list(
             session.evaluate_query_with_sources(query, fact_base, result.sources)
         )
-        value = normalize_term(answers[0][0])
+        value = answers[0][0]
         pairs.append((atom.predicate.name, value))
     print(pairs)
 ```
 Expected output:
-`[('stdfct:set', ['a', 'b']), ('stdfct:tuple', ['a', 'b']), ('stdfct:union', ['a', 'b', 'c']), ('stdfct:size', 2), ('stdfct:intersection', ['b']), ('stdfct:isSubset', True), ('stdfct:isStrictSubset', True), ('stdfct:dict', [('a', 'b'), ('b', 'c')]), ('stdfct:mergeDicts', [('a', 'b'), ('c', 'd')]), ('stdfct:dictKeys', ['a', 'b']), ('stdfct:dictValues', ['b', 'c']), ('stdfct:get', 'b'), ('stdfct:containsKey', True), ('stdfct:containsValue', True), ('stdfct:toSet', ['a', 'b']), ('stdfct:toTuple', ['a', 'b'])]`.
+`[('stdfct:set', Lit:"{Cst:a, Cst:b}"), ('stdfct:tuple', Lit:"[Cst:a, Cst:b]"), ('stdfct:union', Lit:"{Cst:a, Cst:b, Cst:c}"), ('stdfct:size', Lit:2), ('stdfct:intersection', Lit:"{Cst:b}"), ('stdfct:isSubset', Lit:true), ('stdfct:isStrictSubset', Lit:true), ('stdfct:dict', Lit:"{Cst:a: Cst:b, Cst:b: Cst:c}"), ('stdfct:mergeDicts', Lit:"{Cst:a: Cst:b, Cst:c: Cst:d}"), ('stdfct:dictKeys', Lit:"{Cst:a, Cst:b}"), ('stdfct:dictValues', Lit:"[Cst:b, Cst:c]"), ('stdfct:get', Cst:b), ('stdfct:containsKey', Lit:true), ('stdfct:containsValue', Lit:true), ('stdfct:toSet', Lit:"{Cst:a, Cst:b}"), ('stdfct:toTuple', Lit:"[Cst:a, Cst:b]")]`.
 
 ## Knowledge Bases and Rule Bases
 Use `RuleBase` to store rules and `KnowledgeBase` to bundle rules with facts.

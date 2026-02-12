@@ -287,7 +287,8 @@ def _run_computed_sum_python_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
     projected = cast(list[tuple[object, ...]], namespace["projected"])
-    if projected != [(2,)]:
+    normalized = [tuple(_normalize_term(term) for term in row) for row in projected]
+    if normalized != [(2,)]:
         raise AssertionError(f"Unexpected sum projected: {projected}")
 
 
@@ -301,7 +302,8 @@ def _run_computed_json_python_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
     projected = cast(list[tuple[object, ...]], namespace["projected"])
-    if projected != [tuple()]:
+    normalized = [tuple(_normalize_term(term) for term in row) for row in projected]
+    if normalized != [tuple()]:
         raise AssertionError(f"Unexpected computed JSON projected: {projected}")
 
 
@@ -315,7 +317,8 @@ def _run_function_term_python_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
     projected = cast(list[tuple[object, ...]], namespace["projected"])
-    if projected != [tuple()]:
+    normalized = [tuple(_normalize_term(term) for term in row) for row in projected]
+    if normalized != [tuple()]:
         raise AssertionError(f"Unexpected functional-term projected: {projected}")
 
 
@@ -329,7 +332,8 @@ def _run_negated_function_term_python_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
     projected = cast(list[tuple[object, ...]], namespace["projected"])
-    if projected != [tuple()]:
+    normalized = [tuple(_normalize_term(term) for term in row) for row in projected]
+    if normalized != [tuple()]:
         raise AssertionError(
             f"Unexpected negated functional-term projected: {projected}"
         )
@@ -345,11 +349,11 @@ def _run_arithmetic_functions_example(source: str) -> None:
         "stdfct:max": 3,
         "stdfct:minus": 7,
         "stdfct:product": 6,
-        "stdfct:divide": 4.0,
-        "stdfct:average": 3.0,
-        "stdfct:median": 4.0,
+        "stdfct:divide": 4,
+        "stdfct:average": 3,
+        "stdfct:median": 4,
         "stdfct:weightedAverage": 17.5,
-        "stdfct:weightedMedian": 20.0,
+        "stdfct:weightedMedian": 20,
     }
 
     if normalized_observed != expected:
@@ -362,19 +366,20 @@ def _run_arithmetic_functions_python_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
     pairs = cast(list[tuple[str, object]], namespace["pairs"])
+    normalized = [(name, _normalize_term(value)) for name, value in pairs]
     expected = [
         ("stdfct:sum", 3),
         ("stdfct:min", 1),
         ("stdfct:max", 3),
         ("stdfct:minus", 7),
         ("stdfct:product", 6),
-        ("stdfct:divide", 4.0),
-        ("stdfct:average", 3.0),
-        ("stdfct:median", 4.0),
+        ("stdfct:divide", 4),
+        ("stdfct:average", 3),
+        ("stdfct:median", 4),
         ("stdfct:weightedAverage", 17.5),
-        ("stdfct:weightedMedian", 20.0),
+        ("stdfct:weightedMedian", 20),
     ]
-    if pairs != expected:
+    if normalized != expected:
         raise AssertionError(f"Unexpected arithmetic pairs: {pairs}")
 
 
@@ -411,6 +416,7 @@ def _run_comparison_functions_python_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
     pairs = cast(list[tuple[str, object]], namespace["pairs"])
+    normalized = [(name, _normalize_term(value)) for name, value in pairs]
     expected = [
         ("stdfct:isEven", True),
         ("stdfct:isOdd", True),
@@ -429,7 +435,7 @@ def _run_comparison_functions_python_example(source: str) -> None:
         ("stdfct:isBlank", True),
         ("stdfct:isNumeric", True),
     ]
-    if pairs != expected:
+    if normalized != expected:
         raise AssertionError(f"Unexpected comparison pairs: {pairs}")
 
 
@@ -460,6 +466,7 @@ def _run_string_functions_python_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
     pairs = cast(list[tuple[str, object]], namespace["pairs"])
+    normalized = [(name, _normalize_term(value)) for name, value in pairs]
     expected = [
         ("stdfct:concat", "foobar"),
         ("stdfct:toLowerCase", "abc"),
@@ -472,7 +479,7 @@ def _run_string_functions_python_example(source: str) -> None:
         ("stdfct:toFloat", 1.5),
         ("stdfct:toBoolean", True),
     ]
-    if pairs != expected:
+    if normalized != expected:
         raise AssertionError(f"Unexpected string pairs: {pairs}")
 
 
@@ -509,25 +516,26 @@ def _run_collection_functions_python_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
     pairs = cast(list[tuple[str, object]], namespace["pairs"])
+    normalized = [(name, _normalize_term(value)) for name, value in pairs]
     expected = [
-        ("stdfct:set", ["a", "b"]),
+        ("stdfct:set", {"a", "b"}),
         ("stdfct:tuple", ["a", "b"]),
-        ("stdfct:union", ["a", "b", "c"]),
+        ("stdfct:union", {"a", "b", "c"}),
         ("stdfct:size", 2),
-        ("stdfct:intersection", ["b"]),
+        ("stdfct:intersection", {"b"}),
         ("stdfct:isSubset", True),
         ("stdfct:isStrictSubset", True),
-        ("stdfct:dict", [("a", "b"), ("b", "c")]),
-        ("stdfct:mergeDicts", [("a", "b"), ("c", "d")]),
-        ("stdfct:dictKeys", ["a", "b"]),
+        ("stdfct:dict", {"a": "b", "b": "c"}),
+        ("stdfct:mergeDicts", {"a": "b", "c": "d"}),
+        ("stdfct:dictKeys", {"a", "b"}),
         ("stdfct:dictValues", ["b", "c"]),
         ("stdfct:get", "b"),
         ("stdfct:containsKey", True),
         ("stdfct:containsValue", True),
-        ("stdfct:toSet", ["a", "b"]),
+        ("stdfct:toSet", {"a", "b"}),
         ("stdfct:toTuple", ["a", "b"]),
     ]
-    if pairs != expected:
+    if normalized != expected:
         raise AssertionError(f"Unexpected collection pairs: {pairs}")
 
 
@@ -945,36 +953,8 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 """
-                from prototyping_inference_engine.api.atom.term.literal import Literal
-                from prototyping_inference_engine.api.atom.term.term import Term
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-                def normalize_value(value: object) -> object:
-                    if isinstance(value, Literal):
-                        return normalize_value(value.value)
-                    if isinstance(value, Term):
-                        return normalize_value(value.identifier)
-                    if isinstance(value, dict):
-                        return [
-                            (normalize_value(key), normalize_value(val))
-                            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-                        ]
-                    if isinstance(value, set):
-                        return sorted((normalize_value(item) for item in value), key=str)
-                    if isinstance(value, list):
-                        return [normalize_value(item) for item in value]
-                    if isinstance(value, tuple):
-                        return [normalize_value(item) for item in value]
-                    return value
-
-
-                def normalize_term(term: object) -> object:
-                    if isinstance(term, Literal):
-                        return normalize_value(term.value)
-                    if isinstance(term, Term):
-                        return normalize_value(term.identifier)
-                    return normalize_value(term)
 
 
                 dlgp = \"\"\"
@@ -992,7 +972,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         session.evaluate_query_with_sources(query, fact_base, result.sources)
                     )
                     projected = [
-                        tuple(normalize_term(term) for term in answer) for answer in answers
+                        tuple(answer) for answer in answers
                     ]
                     print(projected)
                 """
@@ -1043,36 +1023,8 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 """
-                from prototyping_inference_engine.api.atom.term.literal import Literal
-                from prototyping_inference_engine.api.atom.term.term import Term
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-                def normalize_value(value: object) -> object:
-                    if isinstance(value, Literal):
-                        return normalize_value(value.value)
-                    if isinstance(value, Term):
-                        return normalize_value(value.identifier)
-                    if isinstance(value, dict):
-                        return [
-                            (normalize_value(key), normalize_value(val))
-                            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-                        ]
-                    if isinstance(value, set):
-                        return sorted((normalize_value(item) for item in value), key=str)
-                    if isinstance(value, list):
-                        return [normalize_value(item) for item in value]
-                    if isinstance(value, tuple):
-                        return [normalize_value(item) for item in value]
-                    return value
-
-
-                def normalize_term(term: object) -> object:
-                    if isinstance(term, Literal):
-                        return normalize_value(term.value)
-                    if isinstance(term, Term):
-                        return normalize_value(term.identifier)
-                    return normalize_value(term)
 
 
                 dlgp = \"\"\"
@@ -1093,7 +1045,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         session.evaluate_query_with_sources(query, fact_base, result.sources)
                     )
                     projected = [
-                        tuple(normalize_term(term) for term in answer) for answer in answers
+                        tuple(answer) for answer in answers
                     ]
                     print(projected)
                 """
@@ -1119,36 +1071,8 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 """
-                from prototyping_inference_engine.api.atom.term.literal import Literal
-                from prototyping_inference_engine.api.atom.term.term import Term
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-                def normalize_value(value: object) -> object:
-                    if isinstance(value, Literal):
-                        return normalize_value(value.value)
-                    if isinstance(value, Term):
-                        return normalize_value(value.identifier)
-                    if isinstance(value, dict):
-                        return [
-                            (normalize_value(key), normalize_value(val))
-                            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-                        ]
-                    if isinstance(value, set):
-                        return sorted((normalize_value(item) for item in value), key=str)
-                    if isinstance(value, list):
-                        return [normalize_value(item) for item in value]
-                    if isinstance(value, tuple):
-                        return [normalize_value(item) for item in value]
-                    return value
-
-
-                def normalize_term(term: object) -> object:
-                    if isinstance(term, Literal):
-                        return normalize_value(term.value)
-                    if isinstance(term, Term):
-                        return normalize_value(term.identifier)
-                    return normalize_value(term)
 
 
                 dlgp = \"\"\"
@@ -1169,7 +1093,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         session.evaluate_query_with_sources(query, fact_base, result.sources)
                     )
                     projected = [
-                        tuple(normalize_term(term) for term in answer) for answer in answers
+                        tuple(answer) for answer in answers
                     ]
                     print(projected)
                 """
@@ -1195,36 +1119,8 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 """
-                from prototyping_inference_engine.api.atom.term.literal import Literal
-                from prototyping_inference_engine.api.atom.term.term import Term
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-                def normalize_value(value: object) -> object:
-                    if isinstance(value, Literal):
-                        return normalize_value(value.value)
-                    if isinstance(value, Term):
-                        return normalize_value(value.identifier)
-                    if isinstance(value, dict):
-                        return [
-                            (normalize_value(key), normalize_value(val))
-                            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-                        ]
-                    if isinstance(value, set):
-                        return sorted((normalize_value(item) for item in value), key=str)
-                    if isinstance(value, list):
-                        return [normalize_value(item) for item in value]
-                    if isinstance(value, tuple):
-                        return [normalize_value(item) for item in value]
-                    return value
-
-
-                def normalize_term(term: object) -> object:
-                    if isinstance(term, Literal):
-                        return normalize_value(term.value)
-                    if isinstance(term, Term):
-                        return normalize_value(term.identifier)
-                    return normalize_value(term)
 
 
                 dlgp = \"\"\"
@@ -1245,7 +1141,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         session.evaluate_query_with_sources(query, fact_base, result.sources)
                     )
                     projected = [
-                        tuple(normalize_term(term) for term in answer) for answer in answers
+                        tuple(answer) for answer in answers
                     ]
                     print(projected)
                 """
@@ -1277,36 +1173,8 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 """
-                from prototyping_inference_engine.api.atom.term.literal import Literal
-                from prototyping_inference_engine.api.atom.term.term import Term
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-                def normalize_value(value: object) -> object:
-                    if isinstance(value, Literal):
-                        return normalize_value(value.value)
-                    if isinstance(value, Term):
-                        return normalize_value(value.identifier)
-                    if isinstance(value, dict):
-                        return [
-                            (normalize_value(key), normalize_value(val))
-                            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-                        ]
-                    if isinstance(value, set):
-                        return sorted((normalize_value(item) for item in value), key=str)
-                    if isinstance(value, list):
-                        return [normalize_value(item) for item in value]
-                    if isinstance(value, tuple):
-                        return [normalize_value(item) for item in value]
-                    return value
-
-
-                def normalize_term(term: object) -> object:
-                    if isinstance(term, Literal):
-                        return normalize_value(term.value)
-                    if isinstance(term, Term):
-                        return normalize_value(term.identifier)
-                    return normalize_value(term)
 
 
                 dlgp = \"\"\"
@@ -1334,7 +1202,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         answers = list(
                             session.evaluate_query_with_sources(query, fact_base, result.sources)
                         )
-                        value = normalize_term(answers[0][0])
+                        value = answers[0][0]
                         pairs.append((atom.predicate.name, value))
                     print(pairs)
                 """
@@ -1372,36 +1240,8 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 """
-                from prototyping_inference_engine.api.atom.term.literal import Literal
-                from prototyping_inference_engine.api.atom.term.term import Term
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-                def normalize_value(value: object) -> object:
-                    if isinstance(value, Literal):
-                        return normalize_value(value.value)
-                    if isinstance(value, Term):
-                        return normalize_value(value.identifier)
-                    if isinstance(value, dict):
-                        return [
-                            (normalize_value(key), normalize_value(val))
-                            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-                        ]
-                    if isinstance(value, set):
-                        return sorted((normalize_value(item) for item in value), key=str)
-                    if isinstance(value, list):
-                        return [normalize_value(item) for item in value]
-                    if isinstance(value, tuple):
-                        return [normalize_value(item) for item in value]
-                    return value
-
-
-                def normalize_term(term: object) -> object:
-                    if isinstance(term, Literal):
-                        return normalize_value(term.value)
-                    if isinstance(term, Term):
-                        return normalize_value(term.identifier)
-                    return normalize_value(term)
 
 
                 dlgp = \"\"\"
@@ -1435,7 +1275,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         answers = list(
                             session.evaluate_query_with_sources(query, fact_base, result.sources)
                         )
-                        value = normalize_term(answers[0][0])
+                        value = answers[0][0]
                         pairs.append((atom.predicate.name, value))
                     print(pairs)
                 """
@@ -1467,36 +1307,8 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 """
-                from prototyping_inference_engine.api.atom.term.literal import Literal
-                from prototyping_inference_engine.api.atom.term.term import Term
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-                def normalize_value(value: object) -> object:
-                    if isinstance(value, Literal):
-                        return normalize_value(value.value)
-                    if isinstance(value, Term):
-                        return normalize_value(value.identifier)
-                    if isinstance(value, dict):
-                        return [
-                            (normalize_value(key), normalize_value(val))
-                            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-                        ]
-                    if isinstance(value, set):
-                        return sorted((normalize_value(item) for item in value), key=str)
-                    if isinstance(value, list):
-                        return [normalize_value(item) for item in value]
-                    if isinstance(value, tuple):
-                        return [normalize_value(item) for item in value]
-                    return value
-
-
-                def normalize_term(term: object) -> object:
-                    if isinstance(term, Literal):
-                        return normalize_value(term.value)
-                    if isinstance(term, Term):
-                        return normalize_value(term.identifier)
-                    return normalize_value(term)
 
 
                 dlgp = \"\"\"
@@ -1524,7 +1336,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         answers = list(
                             session.evaluate_query_with_sources(query, fact_base, result.sources)
                         )
-                        value = normalize_term(answers[0][0])
+                        value = answers[0][0]
                         pairs.append((atom.predicate.name, value))
                     print(pairs)
                 """
@@ -1562,36 +1374,8 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "python",
             textwrap.dedent(
                 """
-                from prototyping_inference_engine.api.atom.term.literal import Literal
-                from prototyping_inference_engine.api.atom.term.term import Term
                 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 
-
-                def normalize_value(value: object) -> object:
-                    if isinstance(value, Literal):
-                        return normalize_value(value.value)
-                    if isinstance(value, Term):
-                        return normalize_value(value.identifier)
-                    if isinstance(value, dict):
-                        return [
-                            (normalize_value(key), normalize_value(val))
-                            for key, val in sorted(value.items(), key=lambda item: str(item[0]))
-                        ]
-                    if isinstance(value, set):
-                        return sorted((normalize_value(item) for item in value), key=str)
-                    if isinstance(value, list):
-                        return [normalize_value(item) for item in value]
-                    if isinstance(value, tuple):
-                        return [normalize_value(item) for item in value]
-                    return value
-
-
-                def normalize_term(term: object) -> object:
-                    if isinstance(term, Literal):
-                        return normalize_value(term.value)
-                    if isinstance(term, Term):
-                        return normalize_value(term.identifier)
-                    return normalize_value(term)
 
 
                 dlgp = \"\"\"
@@ -1625,7 +1409,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         answers = list(
                             session.evaluate_query_with_sources(query, fact_base, result.sources)
                         )
-                        value = normalize_term(answers[0][0])
+                        value = answers[0][0]
                         pairs.append((atom.predicate.name, value))
                     print(pairs)
                 """
