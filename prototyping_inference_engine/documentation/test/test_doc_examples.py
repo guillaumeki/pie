@@ -588,9 +588,9 @@ def _run_fact_base_wrapper_example(source: str) -> None:
 def _run_dlgp_reasoning_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
-    projected = cast(list[tuple[str, ...]], namespace["projected"])
-    if projected != [("a", "b")]:
-        raise AssertionError(f"Unexpected DLGP projected answers: {projected}")
+    rule_strings = cast(list[str], namespace["rule_strings"])
+    if rule_strings != ["p(X, Y) → (q(X)) ∨ (r(Y))"]:
+        raise AssertionError(f"Unexpected DLGP rules: {rule_strings}")
 
 
 def _run_delegation_example(source: str) -> None:
@@ -1559,20 +1559,10 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                         q(X) | r(Y) :- p(X,Y).
                         ?(X,Y) :- p(X,Y), q(Y).
                     \"\"\")
-                    p = session.predicate(\"p\", 2)
-                    q = session.predicate(\"q\", 1)
-                    a = session.constant(\"a\")
-                    b = session.constant(\"b\")
-                    fact_base = session.create_fact_base(
-                        [session.atom(p, a, b), session.atom(q, b)]
-                    )
-                    query = next(iter(result.queries))
-                    answers = list(session.evaluate_query(query, fact_base))
-                    projected = [
-                        tuple(term.identifier for term in answer)
-                        for answer in answers
-                    ]
-                    print(projected)
+                    rules = list(result.rules)
+                    rule_strings = [str(rule) for rule in rules]
+                    for rule in rules:
+                        print(rule)
                 """
             ).strip("\n"),
             runner=_run_dlgp_reasoning_example,

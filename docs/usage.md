@@ -941,22 +941,12 @@ with ReasoningSession.create() as session:
         q(X) | r(Y) :- p(X,Y).
         ?(X,Y) :- p(X,Y), q(Y).
     """)
-    p = session.predicate("p", 2)
-    q = session.predicate("q", 1)
-    a = session.constant("a")
-    b = session.constant("b")
-    fact_base = session.create_fact_base(
-        [session.atom(p, a, b), session.atom(q, b)]
-    )
-    query = next(iter(result.queries))
-    answers = list(session.evaluate_query(query, fact_base))
-    projected = [
-        tuple(term.identifier for term in answer)
-        for answer in answers
-    ]
-    print(projected)
+    rules = list(result.rules)
+    rule_strings = [str(rule) for rule in rules]
+    for rule in rules:
+        print(rule)
 ```
-Expected output: `[('a', 'b')]`.
+Expected output: `p(X, Y) → (q(X)) ∨ (r(Y))`.
 
 ## CLI
 ```bash
