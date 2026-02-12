@@ -116,7 +116,7 @@ class DlgpeWriter:
 
         if result.queries:
             lines.append("@queries")
-            for query in sorted(result.queries, key=str):
+            for query in result.queries:
                 lines.extend(self._format_query_lines(query, context))
 
         return "\n".join(lines) + ("\n" if lines else "")

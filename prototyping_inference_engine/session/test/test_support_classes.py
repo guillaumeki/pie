@@ -19,7 +19,7 @@ class TestParseResult(TestCase):
         result = ParseResult(
             facts=FrozenAtomSet([]),
             rules=frozenset(),
-            queries=frozenset(),
+            queries=tuple(),
             constraints=frozenset(),
         )
         self.assertTrue(result.is_empty)
@@ -34,7 +34,7 @@ class TestParseResult(TestCase):
         result = ParseResult(
             facts=FrozenAtomSet(atoms),
             rules=frozenset(),
-            queries=frozenset(),
+            queries=tuple(),
             constraints=frozenset(),
         )
         self.assertFalse(result.is_empty)
@@ -47,7 +47,7 @@ class TestParseResult(TestCase):
         result = ParseResult(
             facts=FrozenAtomSet([]),
             rules=frozenset(rules),
-            queries=frozenset(),
+            queries=tuple(),
             constraints=frozenset(),
         )
         self.assertFalse(result.is_empty)
@@ -60,7 +60,7 @@ class TestParseResult(TestCase):
         result = ParseResult(
             facts=FrozenAtomSet([]),
             rules=frozenset(),
-            queries=frozenset(queries),
+            queries=tuple(queries),
             constraints=frozenset(),
         )
         self.assertFalse(result.is_empty)
@@ -72,7 +72,7 @@ class TestParseResult(TestCase):
         result = ParseResult(
             facts=FrozenAtomSet([]),
             rules=frozenset(),
-            queries=frozenset(),
+            queries=tuple(),
             constraints=frozenset(),
         )
         with self.assertRaises(AttributeError):
@@ -84,7 +84,7 @@ class TestParseResult(TestCase):
         result1 = ParseResult(
             facts=FrozenAtomSet(atoms),
             rules=frozenset(),
-            queries=frozenset(),
+            queries=tuple(),
             constraints=frozenset(),
             base_iri="http://example.org/base/",
             prefixes=(("ex", "http://example.org/ns/"),),
@@ -92,7 +92,7 @@ class TestParseResult(TestCase):
         result2 = ParseResult(
             facts=FrozenAtomSet(atoms),
             rules=frozenset(),
-            queries=frozenset(),
+            queries=tuple(),
             constraints=frozenset(),
             base_iri="http://example.org/base/",
             prefixes=(("ex", "http://example.org/ns/"),),

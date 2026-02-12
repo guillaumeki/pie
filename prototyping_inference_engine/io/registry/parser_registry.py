@@ -82,7 +82,7 @@ class _DlgpeImportParser:
 
         facts = list(parsed.get("facts", []))
         rules = set(parsed.get("rules", []))
-        queries = set(parsed.get("queries", []))
+        queries = list(parsed.get("queries", []))
         constraints = set(parsed.get("constraints", []))
         header = parsed.get("header", {}) or {}
         imports = parsed.get("imports", []) or []
@@ -90,7 +90,7 @@ class _DlgpeImportParser:
         result = ParseResult(
             facts=FrozenAtomSet(facts),
             rules=frozenset(rules),
-            queries=frozenset(queries),
+            queries=tuple(queries),
             constraints=frozenset(constraints),
             sources=tuple(),
             base_iri=header.get("base"),
@@ -119,7 +119,7 @@ class _CSVImportParser:
         result = ParseResult(
             facts=FrozenAtomSet(facts),
             rules=frozenset(),
-            queries=frozenset(),
+            queries=tuple(),
             constraints=frozenset(),
         )
         return ImportParseOutcome(result=result, imports=[])
@@ -144,7 +144,7 @@ class _RLSImportParser:
         result = ParseResult(
             facts=FrozenAtomSet(facts),
             rules=frozenset(),
-            queries=frozenset(),
+            queries=tuple(),
             constraints=frozenset(),
         )
         return ImportParseOutcome(result=result, imports=[])
@@ -170,7 +170,7 @@ class _RDFImportParser:
         result = ParseResult(
             facts=FrozenAtomSet(facts),
             rules=frozenset(),
-            queries=frozenset(),
+            queries=tuple(),
             constraints=frozenset(),
         )
         return ImportParseOutcome(result=result, imports=[])

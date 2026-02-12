@@ -23,7 +23,7 @@ class ParseResult:
     Contains all parsed elements categorized by type:
     - facts: Ground atoms (the extensional database)
     - rules: Inference rules (the intensional database)
-    - queries: Parsed queries (any Query implementation)
+    - queries: Parsed queries (any Query implementation), in source order
     - constraints: Negative constraints
     - sources: Extra readable data sources needed for evaluation
     - base_iri: Parsed @base value (if any)
@@ -35,7 +35,7 @@ class ParseResult:
 
     facts: "FrozenAtomSet"
     rules: FrozenSet["Rule"]
-    queries: FrozenSet["Query"]
+    queries: tuple["Query", ...]
     constraints: FrozenSet["NegativeConstraint"]
     sources: tuple["ReadableData", ...] = ()
     base_iri: str | None = None

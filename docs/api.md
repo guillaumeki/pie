@@ -16,7 +16,7 @@
 - `ReasoningSession`: high-level evaluation workflow.
 - `IRIRef` / `IRIManager`: parse and resolve IRIs with base/prefix state.
 - `DlgpeWriter`: write DLGP (DLGPE version) documents from parse results.
-- `IntegraalStandardFunctionSource`: computed predicates for Integraal standard functions.
+- `IntegraalStandardFunctionSource`: computed predicates for the standard function library.
 - `RuleBase` / `KnowledgeBase`: rule and knowledge containers.
 - `PreparedQuery` / `PreparedFOQuery`: prepared query interfaces.
 - `FOQueryFactory`: central query construction utilities.

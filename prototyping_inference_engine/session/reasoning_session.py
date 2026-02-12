@@ -67,6 +67,17 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.rdf.translator import RDFTranslationMode
 
 
+def _unique_preserve_order(queries: Iterable["Query"]) -> list["Query"]:
+    seen: set["Query"] = set()
+    ordered: list["Query"] = []
+    for query in queries:
+        if query in seen:
+            continue
+        seen.add(query)
+        ordered.append(query)
+    return ordered
+
+
 class ReasoningSession:
     """
     A scoped reasoning session with managed vocabulary and reasoning capabilities.
@@ -83,7 +94,7 @@ class ReasoningSession:
         with ReasoningSession.create(auto_cleanup=True) as session:
             result = session.parse("p(a,b). q(X) :- p(X,Y).")
             x = session.variable("X")
-            rewritten = session.rewrite(result.queries.pop(), result.rules)
+            rewritten = session.rewrite(result.queries[0], result.rules)
 
         # Advanced usage with custom factories
         factories = TermFactories()
@@ -609,13 +620,13 @@ class ReasoningSession:
         if isinstance(parsed, dict) and "facts" in parsed:
             facts = list(parsed.get("facts", []))
             rules = set(parsed.get("rules", []))
-            queries = set(parsed.get("queries", []))
+            queries = list(parsed.get("queries", []))
             constraints = set(parsed.get("constraints", []))
             imports = list(parsed.get("imports", []))
         else:
             facts = list(self._parser_provider.parse_atoms(text))
             rules = set(self._parser_provider.parse_rules(text))
-            queries = set(self._parser_provider.parse_queries(text))
+            queries = list(self._parser_provider.parse_queries(text))
             constraints = set(self._parser_provider.parse_negative_constraints(text))
             imports = []
 
@@ -634,6 +645,7 @@ class ReasoningSession:
             self._track_atom(atom)
         for rule in rules:
             self._track_rule(rule)
+        queries = _unique_preserve_order(queries)
         for query in queries:
             self._track_query(query)
         for constraint in constraints:
@@ -648,7 +660,7 @@ class ReasoningSession:
         return ParseResult(
             facts=FrozenAtomSet(facts),
             rules=frozenset(rules),
-            queries=frozenset(queries),
+            queries=tuple(queries),
             constraints=frozenset(constraints),
             sources=tuple(sources),
             base_iri=self._iri_base,
@@ -660,7 +672,7 @@ class ReasoningSession:
         self,
         facts: list[Atom],
         rules: set[Rule],
-        queries: set["Query"],
+        queries: list["Query"],
         constraints: set[NegativeConstraint],
         imports: list[str],
         source_path: Optional[Path],
@@ -684,10 +696,15 @@ class ReasoningSession:
         base_dir = source_path.parent if source_path is not None else None
         resolution = resolver.resolve_all(imports, base_dir)
 
+        seen_queries: set["Query"] = set(queries)
         for result in resolution.results:
             facts.extend(result.facts)
             rules.update(result.rules)
-            queries.update(result.queries)
+            for query in result.queries:
+                if query in seen_queries:
+                    continue
+                seen_queries.add(query)
+                queries.append(query)
             constraints.update(result.constraints)
             self._merge_computed_prefixes(result.computed_prefixes)
 
@@ -706,7 +723,7 @@ class ReasoningSession:
         self,
         facts: list[Atom],
         rules: set[Rule],
-        queries: set["Query"],
+        queries: list["Query"],
         constraints: set[NegativeConstraint],
     ) -> list["ReadableData"]:
         from prototyping_inference_engine.api.atom.predicate import (
@@ -748,7 +765,7 @@ class ReasoningSession:
         self,
         facts: list[Atom],
         rules: set[Rule],
-        queries: set["Query"],
+        queries: list["Query"],
         constraints: set[NegativeConstraint],
     ) -> list[Atom]:
         atoms: list[Atom] = list(facts)

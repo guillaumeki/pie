@@ -12,7 +12,7 @@ The library supports:
 - **First-order queries** with conjunction, disjunction, negation, and quantifiers
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
 - **DLGP parser (DLGPE version)** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
-- **Computed predicates** with Integraal standard functions via `@computed`
+- **Computed predicates** with the standard function library via `@computed`
 - **Knowledge bases and rule bases** for grouping facts and rules
 - **Prepared query interfaces** and FOQuery factory helpers
 - **IRI utilities** for parsing, normalization, and base/prefix management
