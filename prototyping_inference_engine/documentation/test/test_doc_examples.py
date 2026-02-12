@@ -407,7 +407,8 @@ def _run_dlgp_reasoning_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
     projected = cast(list[tuple[str, ...]], namespace["projected"])
-    if projected != [("b", "a")]:
+    projected = sorted(projected)
+    if projected != [("a", "b")]:
         raise AssertionError(f"Unexpected DLGP projected answers: {projected}")
 
 
@@ -1126,7 +1127,14 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                     )
                     query = next(iter(result.queries))
                     answers = list(session.evaluate_query(query, fact_base))
-                    projected = [tuple(term.identifier for term in answer) for answer in answers]
+                    answer_vars = list(query.answer_variables)
+                    answer_vars = sorted(answer_vars, key=lambda var: var.identifier)
+                    var_to_index = {var.identifier: index for index, var in enumerate(query.answer_variables)}
+                    projected = [
+                        tuple(answer[var_to_index[var.identifier]].identifier for var in answer_vars)
+                        for answer in answers
+                    ]
+                    projected = sorted(projected)
                     print(projected)
                 """
             ).strip("\n"),

@@ -708,10 +708,17 @@ with ReasoningSession.create() as session:
     )
     query = next(iter(result.queries))
     answers = list(session.evaluate_query(query, fact_base))
-    projected = [tuple(term.identifier for term in answer) for answer in answers]
+    answer_vars = list(query.answer_variables)
+    answer_vars = sorted(answer_vars, key=lambda var: var.identifier)
+    var_to_index = {var.identifier: index for index, var in enumerate(query.answer_variables)}
+    projected = [
+        tuple(answer[var_to_index[var.identifier]].identifier for var in answer_vars)
+        for answer in answers
+    ]
+    projected = sorted(projected)
     print(projected)
 ```
-Expected output: `[('b', 'a')]`.
+Expected output: `[('a', 'b')]`.
 
 ## CLI
 ```bash
