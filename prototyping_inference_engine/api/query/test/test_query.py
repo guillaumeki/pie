@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from prototyping_inference_engine.api.atom.atom import Atom
+from prototyping_inference_engine.api.atom.predicate import Predicate, SpecialPredicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
@@ -47,6 +49,26 @@ class TestConjunctiveQuery(TestCase):
         terms = cq.terms
         self.assertIn(Variable("X"), terms)
         self.assertIn(Constant("a"), terms)
+
+    def test_equality_atoms_and_partition(self):
+        x = Variable("X")
+        y = Variable("Y")
+        a = Constant("a")
+        p = Predicate("p", 1)
+        eq = SpecialPredicate.EQUALITY.value
+        atoms = [
+            Atom(p, x),
+            Atom(eq, x, y),
+            Atom(eq, y, a),
+        ]
+        cq = ConjunctiveQuery(atoms, [x])
+
+        self.assertEqual(len(cq.equality_atoms), 2)
+        self.assertEqual(len(cq.non_equality_atoms), 1)
+
+        partition = cq.equality_partition
+        self.assertTrue(partition.is_admissible)
+        self.assertEqual(partition.get_class(x), {x, y, a})
 
     def test_existential_variables(self):
         """Test existential_variables property."""

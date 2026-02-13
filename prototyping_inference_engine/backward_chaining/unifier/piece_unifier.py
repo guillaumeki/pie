@@ -64,7 +64,7 @@ class PieceUnifier:
 
     @cached_property
     def not_unified_part(self) -> FrozenAtomSet:
-        return FrozenAtomSet(self.query.atoms - self.unified_query_part)
+        return FrozenAtomSet(self.query.non_equality_atoms - self.unified_query_part)
 
     @cached_property
     def separating_variables(self) -> frozenset[Variable]:

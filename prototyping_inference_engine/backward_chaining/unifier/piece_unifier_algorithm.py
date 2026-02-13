@@ -17,6 +17,7 @@ class PieceUnifierAlgorithm:
     def compute_most_general_full_piece_unifiers(
         query: ConjunctiveQuery, rule: Rule[ConjunctiveQuery, ConjunctiveQuery]
     ) -> list[PieceUnifier]:
+        matchable_atoms = query.non_equality_atoms
         result = PieceUnifierAlgorithm.compute_most_general_mono_piece_unifiers(
             query, rule
         )
@@ -26,8 +27,8 @@ class PieceUnifierAlgorithm:
                 other_mpu = result[j]
                 if (
                     mpu is not other_mpu
-                    and len(mpu.unified_query_part) < len(mpu.query.atoms)
-                    and len(other_mpu.unified_query_part) < len(mpu.query.atoms)
+                    and len(mpu.unified_query_part) < len(matchable_atoms)
+                    and len(other_mpu.unified_query_part) < len(matchable_atoms)
                     and len(mpu.unified_query_part | other_mpu.unified_query_part)
                     != len(mpu.unified_query_part)
                 ):
@@ -59,13 +60,16 @@ class PieceUnifierAlgorithm:
     def _compute_atomic_pre_unifiers(
         query: ConjunctiveQuery, rule: Rule[ConjunctiveQuery, ConjunctiveQuery]
     ) -> list[PieceUnifier]:
+        if not query.equality_partition.is_admissible:
+            return []
         atomic_pre_unifiers = []
         for a in rule.head[0].atoms:
-            for b in query.atoms:
+            for b in query.non_equality_atoms:
                 if a.predicate == b.predicate:
                     by_position_part = TermPartition(
                         ({a[i], b[i]} for i in range(a.predicate.arity))
                     )
+                    by_position_part.join(query.equality_partition)
                     if by_position_part.is_valid(rule, query):
                         atomic_pre_unifiers.append(
                             PieceUnifier(
@@ -79,7 +83,7 @@ class PieceUnifierAlgorithm:
         query: ConjunctiveQuery,
     ) -> dict[Variable, MutableAtomSet]:
         v_to_qa: defaultdict[Variable, MutableAtomSet] = defaultdict(MutableAtomSet)
-        for atom in query.atoms:
+        for atom in query.non_equality_atoms:
             for v in atom.variables:
                 v_to_qa[v].add(atom)
         return v_to_qa

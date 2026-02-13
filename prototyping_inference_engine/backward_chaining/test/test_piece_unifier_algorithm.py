@@ -1,6 +1,9 @@
 from unittest import TestCase
 
+from prototyping_inference_engine.api.atom.atom import Atom
+from prototyping_inference_engine.api.atom.predicate import Predicate, SpecialPredicate
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
+from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
@@ -22,6 +25,15 @@ def _parse_cq(text: str) -> ConjunctiveQuery:
     if not isinstance(converted, ConjunctiveQuery):
         raise AssertionError("Expected conjunctive query conversion to succeed.")
     return converted
+
+
+def _build_cq_with_equality() -> ConjunctiveQuery:
+    r = Predicate("r", 1)
+    eq = SpecialPredicate.EQUALITY.value
+    u = Variable("U")
+    a = Constant("a")
+    atoms = FrozenAtomSet([Atom(r, u), Atom(eq, u, a)])
+    return ConjunctiveQuery(atoms, [])
 
 
 class TestPieceUnifierAlgorithm(TestCase):
@@ -185,6 +197,35 @@ class TestPieceUnifierAlgorithm(TestCase):
                 ),
                 d["piece_unifiers"],
             )
+
+    def test_equality_partition_applied(self):
+        rule = next(iter(DlgpeParser.instance().parse_rules("r(X) :- p(X).")))
+        query = _build_cq_with_equality()
+
+        unifiers = PieceUnifierAlgorithm.compute_most_general_mono_piece_unifiers(
+            query, rule
+        )
+        self.assertEqual(len(unifiers), 1)
+        partition = unifiers[0].partition
+        self.assertEqual(
+            partition.get_class(Variable("X")),
+            {Variable("X"), Variable("U"), Constant("a")},
+        )
+
+    def test_equality_inconsistent_constants(self):
+        r = Predicate("r", 1)
+        eq = SpecialPredicate.EQUALITY.value
+        u = Variable("U")
+        a = Constant("a")
+        b = Constant("b")
+        atoms = FrozenAtomSet([Atom(r, u), Atom(eq, u, a), Atom(eq, u, b)])
+        query = ConjunctiveQuery(atoms, [])
+        rule = next(iter(DlgpeParser.instance().parse_rules("r(X) :- p(X).")))
+
+        unifiers = PieceUnifierAlgorithm.compute_most_general_mono_piece_unifiers(
+            query, rule
+        )
+        self.assertEqual(unifiers, [])
 
     """def test__compute_separating_sticky_variables(self):
         pass

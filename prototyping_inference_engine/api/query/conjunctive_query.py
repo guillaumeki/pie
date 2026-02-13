@@ -9,6 +9,7 @@ from functools import cached_property
 from typing import Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
+from prototyping_inference_engine.api.atom.predicate import SpecialPredicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.set.frozen_atom_set import FrozenAtomSet
 from prototyping_inference_engine.api.query.query import Query
@@ -19,6 +20,7 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.query.fo_query import FOQuery
+    from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 
 
 class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
@@ -63,6 +65,33 @@ class ConjunctiveQuery(Query, Substitutable["ConjunctiveQuery"]):
     @property
     def atoms(self) -> FrozenAtomSet:
         return self._atoms
+
+    @cached_property
+    def equality_atoms(self) -> FrozenAtomSet:
+        return FrozenAtomSet(
+            atom
+            for atom in self._atoms
+            if atom.predicate == SpecialPredicate.EQUALITY.value
+        )
+
+    @cached_property
+    def non_equality_atoms(self) -> FrozenAtomSet:
+        return FrozenAtomSet(
+            atom
+            for atom in self._atoms
+            if atom.predicate != SpecialPredicate.EQUALITY.value
+        )
+
+    @cached_property
+    def equality_partition(self) -> "TermPartition":
+        from prototyping_inference_engine.api.atom.term.term_partition import (
+            TermPartition,
+        )
+
+        partition = TermPartition()
+        for atom in self.equality_atoms:
+            partition.union(atom.terms[0], atom.terms[1])
+        return partition
 
     @cached_property
     def variables(self) -> set[Variable]:

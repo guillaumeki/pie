@@ -123,6 +123,7 @@ For any important change:
 - `agents/plans/2026-02-10-query-only-evaluators.md`
 - `agents/plans/2026-02-10-integraal-tests-port.md`
 - `agents/plans/2026-02-10-federated-view-tests.md`
+- `agents/plans/2026-02-12-cq-equality-unification.md`
 
 ### Design Docs
 - `agents/design/designs-compressed.md`
