@@ -227,6 +227,48 @@ class TestPieceUnifierAlgorithm(TestCase):
         )
         self.assertEqual(unifiers, [])
 
+    def test_integraal_unifier_partitions(self):
+        cases = (
+            {
+                "rule": "p(X,Y) :- q(X,Y).",
+                "query": "?() :- p(U,V), p(W,V), r(W,U).",
+                "expected": {
+                    TermPartition(
+                        [{Variable("X"), Variable("U")}, {Variable("Y"), Variable("V")}]
+                    ),
+                    TermPartition(
+                        [{Variable("X"), Variable("W")}, {Variable("Y"), Variable("V")}]
+                    ),
+                },
+            },
+            {
+                "rule": "p(X,Z) :- q(X,Y).",
+                "query": "?() :- p(U,V), p(W,V), r(W,U).",
+                "expected": {
+                    TermPartition(
+                        [
+                            {Variable("X"), Variable("U"), Variable("W")},
+                            {Variable("Z"), Variable("V")},
+                        ]
+                    )
+                },
+            },
+            {
+                "rule": "q(X,Y) :- s(X).",
+                "query": "?(U) :- q(V,U).",
+                "expected": set(),
+            },
+        )
+
+        for case in cases:
+            rule = next(iter(DlgpeParser.instance().parse_rules(case["rule"])))
+            query = _parse_cq(case["query"])
+            unifiers = PieceUnifierAlgorithm.compute_most_general_mono_piece_unifiers(
+                query, rule
+            )
+            partitions = {u.partition for u in unifiers}
+            self.assertEqual(partitions, case["expected"])
+
     """def test__compute_separating_sticky_variables(self):
         pass
 
