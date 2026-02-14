@@ -2,6 +2,11 @@ from typing import Callable
 from unittest import TestCase
 
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
+from prototyping_inference_engine.api.ontology.rule.validators import (
+    ensure_conjunctive_rule,
+    ensure_ed_rule,
+)
+from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
 
@@ -28,8 +33,8 @@ class TestRule(TestCase):
 
     def test_frontier(self):
         def test_frontier(rule, *args):
-            body_variables = set(rule.body.variables)
-            head_variables = set(v for h in rule.head for v in h.variables)
+            body_variables = set(rule.body.free_variables)
+            head_variables = set(rule.head.free_variables)
             frontier_variables = body_variables & head_variables
             self.assertEqual(frontier_variables, rule.frontier)
 
@@ -43,6 +48,19 @@ class TestRule(TestCase):
         self.check_on_disjunctive_rules(
             lambda rule, *args: self.assertFalse(rule.is_conjunctive)
         )
+
+    def test_ensure_conjunctive_rule(self):
+        rule = next(iter(DlgpeParser.instance().parse_rules("q(X) :- p(X).")))
+        validated = ensure_conjunctive_rule(rule)
+        self.assertEqual(len(validated.body.atoms), 1)
+        self.assertEqual(len(validated.head.atoms), 1)
+        self.assertEqual(validated.body.answer_variables, (Variable("X"),))
+
+    def test_ensure_ed_rule(self):
+        rule = next(iter(DlgpeParser.instance().parse_rules("q(X,Y) :- p(X).")))
+        validated = ensure_ed_rule(rule)
+        self.assertEqual(len(validated.head_disjuncts), 1)
+        self.assertEqual(validated.head_disjuncts[0].answer_variables, (Variable("X"),))
 
     """def test_body(self):
         self.fail()

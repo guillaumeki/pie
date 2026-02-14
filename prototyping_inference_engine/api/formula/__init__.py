@@ -31,6 +31,9 @@ from prototyping_inference_engine.api.formula.fo_conjunction_fact_base_wrapper i
     FOConjunctionFactBaseWrapper,
 )
 from prototyping_inference_engine.api.formula.formula_builder import FormulaBuilder
+from prototyping_inference_engine.api.formula.variable_collectors import (
+    collect_existential_variables,
+)
 
 __all__ = [
     "Formula",
@@ -43,4 +46,5 @@ __all__ = [
     "ExistentialFormula",
     "FOConjunctionFactBaseWrapper",
     "FormulaBuilder",
+    "collect_existential_variables",
 ]

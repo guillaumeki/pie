@@ -32,7 +32,7 @@ class PieceUnifierCache:
         self._unifiers: defaultdict[
             ConjunctiveQuery,
             defaultdict[
-                Rule[ConjunctiveQuery, ConjunctiveQuery],
+                Rule,
                 defaultdict[
                     int, defaultdict[tuple[Optional[Term], ...], list[PieceUnifier]]
                 ],
@@ -84,7 +84,7 @@ class PieceUnifierCache:
     def mark_has_unifiers(self, rule: Rule, head_number: int) -> None:
         """Mark that unifiers exist for a specific rule head."""
         if rule not in self._has_unifiers:
-            self._has_unifiers[rule] = [False] * len(rule.head)
+            self._has_unifiers[rule] = [False] * len(rule.head_disjuncts)
         self._has_unifiers[rule][head_number] = True
 
     def has_unifiers_for_head(self, rule: Rule, head_number: int) -> bool:
@@ -102,7 +102,7 @@ class PieceUnifierCache:
     def initialize_rule(self, rule: Rule) -> None:
         """Initialize tracking for a rule if not already done."""
         if rule not in self._has_unifiers:
-            self._has_unifiers[rule] = [False] * len(rule.head)
+            self._has_unifiers[rule] = [False] * len(rule.head_disjuncts)
 
     @staticmethod
     def _is_instantiation_more_general_than(

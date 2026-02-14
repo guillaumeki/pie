@@ -11,7 +11,7 @@ class RewritingOperator(ABC):
         self,
         all_cqs: UnionQuery[ConjunctiveQuery],
         new_cqs: UnionQuery[ConjunctiveQuery],
-        rules: set[Rule[ConjunctiveQuery, ConjunctiveQuery]],
+        rules: set[Rule],
     ) -> UnionQuery[ConjunctiveQuery]:
         pass
 
@@ -19,6 +19,6 @@ class RewritingOperator(ABC):
         self,
         all_cqs: UnionQuery[ConjunctiveQuery],
         new_cqs: UnionQuery[ConjunctiveQuery],
-        rules: set[Rule[ConjunctiveQuery, ConjunctiveQuery]],
+        rules: set[Rule],
     ) -> UnionQuery[ConjunctiveQuery]:
         return self.rewrite(all_cqs, new_cqs, rules)

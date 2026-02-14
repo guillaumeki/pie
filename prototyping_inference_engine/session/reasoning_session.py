@@ -772,8 +772,7 @@ class ReasoningSession:
 
         for rule in rules:
             atoms.extend(rule.body.atoms)
-            for head in rule.head:
-                atoms.extend(head.atoms)
+            atoms.extend(rule.head.atoms)
 
         for query in queries:
             atoms.extend(self._extract_query_atoms(query))
@@ -1096,9 +1095,8 @@ class ReasoningSession:
         """Track all terms in a rule."""
         for atom in rule.body.atoms:
             self._track_atom(atom)
-        for head_cq in rule.head:
-            for atom in head_cq.atoms:
-                self._track_atom(atom)
+        for atom in rule.head.atoms:
+            self._track_atom(atom)
 
     def _track_query(self, query) -> None:
         """Track all terms in a query."""

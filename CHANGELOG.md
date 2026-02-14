@@ -9,6 +9,13 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: evaluation is query-only (FOQuery and higher-level queries); formula evaluators were removed.
 - Changed: query evaluators now expose `prepare` for reuse of prepared queries.
 
+## [2026-02-14]
+- Added: rule validators for conjunctive and existential-disjunctive fragments.
+- Changed: rules now use formula bodies and heads with matching free variables.
+- Changed: DLGPE rule parsing now adds implicit quantifiers to satisfy rule invariants.
+- Changed: DLGPE writer strips quantifiers when emitting rules.
+- Changed: bumped version to 0.0.21.
+
 ## [2026-02-10]
 - Added: prepared FOQuery implementations per formula, with lightweight result-bound estimation.
 - Added: dynamic backtrack scheduling that prioritizes evaluable subqueries with smaller bounds.

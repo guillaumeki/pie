@@ -280,8 +280,7 @@ class DlgpeParser:
 
         for rule in rules:
             atoms.extend(rule.body.atoms)
-            for head in rule.head:
-                atoms.extend(head.atoms)
+            atoms.extend(rule.head.atoms)
 
         for query in queries:
             atoms.extend(query.formula.atoms)

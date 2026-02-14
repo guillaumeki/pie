@@ -165,7 +165,7 @@ The configuration format is documented in `docs/usage.md`.
 - **Formulas**: `Atom`, `ConjunctionFormula`, `DisjunctionFormula`, `NegationFormula`, `ExistentialFormula`, `UniversalFormula`
 - **Queries**: `FOQuery` wrapping formulas with answer variables
 - **Fact Bases**: `MutableInMemoryFactBase`, `FrozenInMemoryFactBase`
-- **Rules & Ontology**: Generic rules with disjunctive head support
+- **Rules & Ontology**: Formula-based rules with disjunctive head support
 - **Rule Bases & Knowledge Bases**: Containers for rules, facts, and ontologies
 
 ### Data Abstraction (`api/data/`)

@@ -17,6 +17,9 @@ from prototyping_inference_engine.api.formula import (
     UniversalFormula,
     ExistentialFormula,
 )
+from prototyping_inference_engine.api.formula.variable_collectors import (
+    collect_existential_variables,
+)
 
 
 class TestAtomAsFormula(unittest.TestCase):
@@ -311,6 +314,15 @@ class TestExistentialFormula(unittest.TestCase):
         atom = Atom(self.p, self.x, self.y)
         exists = ExistentialFormula(self.x, atom)
         self.assertEqual(exists.quantifier_symbol, "∃")
+
+    def test_collect_existential_variables(self):
+        atom_x = Atom(self.p, self.x, self.y)
+        atom_y = Atom(self.p, self.y, self.x)
+        nested = ExistentialFormula(self.y, atom_y)
+        formula = ExistentialFormula(self.x, ConjunctionFormula(atom_x, nested))
+        self.assertEqual(
+            collect_existential_variables(formula), frozenset({self.x, self.y})
+        )
 
 
 class TestNestedFormulas(unittest.TestCase):

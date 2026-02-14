@@ -13,7 +13,7 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 
 @dataclass(frozen=True)
 class PieceUnifier:
-    rule: Rule[ConjunctiveQuery, ConjunctiveQuery]
+    rule: Rule
     query: ConjunctiveQuery
     unified_query_part: FrozenAtomSet
     partition: TermPartition

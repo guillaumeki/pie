@@ -22,7 +22,7 @@ class WithoutAggregationRewritingOperator(RewritingOperator):
         self,
         all_cqs: UnionQuery[ConjunctiveQuery],
         new_cqs: UnionQuery[ConjunctiveQuery],
-        rules: set[Rule[ConjunctiveQuery, ConjunctiveQuery]],
+        rules: set[Rule],
     ) -> UnionQuery[ConjunctiveQuery]:
         rewritten_cqs: set[ConjunctiveQuery] = set()
         disj_unifiers: set[DisjunctivePieceUnifier] = set()
@@ -32,9 +32,9 @@ class WithoutAggregationRewritingOperator(RewritingOperator):
             )
         for disj_unifier in disj_unifiers:
             u = disj_unifier.associated_substitution
-            new_cq_atoms = MutableAtomSet(u(disj_unifier.rule.body.atoms))
+            new_cq_atoms = MutableAtomSet(u(list(disj_unifier.rule.body.atoms)))
             for piece_unifier in disj_unifier.piece_unifiers:
-                new_cq_atoms |= u(piece_unifier.not_unified_part)
+                new_cq_atoms |= u(list(piece_unifier.not_unified_part))
             rewritten_cqs.add(
                 ConjunctiveQuery(
                     new_cq_atoms,

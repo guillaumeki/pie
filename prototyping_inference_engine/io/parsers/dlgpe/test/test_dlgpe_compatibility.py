@@ -59,13 +59,13 @@ class TestDlgpeCompatibility(unittest.TestCase):
     def test_parse_rule_with_disjunctive_head(self):
         result = self.parser.parse("p(X) | q(X) :- r(X).")
         self.assertEqual(len(result["rules"]), 1)
-        self.assertEqual(len(result["rules"][0].head), 2)
+        self.assertEqual(len(result["rules"][0].head_disjuncts), 2)
 
     def test_parse_rule_with_head_conjunction(self):
         result = self.parser.parse("p(X), q(X) :- r(X).")
         self.assertEqual(len(result["rules"]), 1)
-        self.assertEqual(len(result["rules"][0].head), 1)
-        self.assertEqual(len(result["rules"][0].head[0].atoms), 2)
+        self.assertEqual(len(result["rules"][0].head_disjuncts), 1)
+        self.assertEqual(len(result["rules"][0].head_disjuncts[0].atoms), 2)
 
     def test_parse_query_with_negation(self):
         result = self.parser.parse("?(X) :- p(X), not q(X).")

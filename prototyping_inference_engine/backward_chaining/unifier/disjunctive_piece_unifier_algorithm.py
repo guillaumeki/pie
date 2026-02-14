@@ -9,6 +9,7 @@ from prototyping_inference_engine.api.atom.term.term import Term
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
+from prototyping_inference_engine.api.ontology.rule.validators import ensure_ed_rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.union_query import UnionQuery
 from prototyping_inference_engine.backward_chaining.unifier.disjunctive_piece_unifier import (
@@ -29,7 +30,7 @@ from prototyping_inference_engine.backward_chaining.unifier.piece_unifier_cache 
 class _PartialDisjunctivePieceUnifier:
     """Represents a partially constructed disjunctive piece unifier."""
 
-    rule: Rule[ConjunctiveQuery, ConjunctiveQuery]
+    rule: Rule
     piece_unifiers: list[Optional[PieceUnifier]]
     cqs: list[Optional[ConjunctiveQuery]]
     answer_variables: tuple[Variable, ...]
@@ -85,7 +86,7 @@ class DisjunctivePieceUnifierAlgorithm:
         self,
         all_cqs: UnionQuery[ConjunctiveQuery],
         new_cqs: UnionQuery[ConjunctiveQuery],
-        rule: Rule[ConjunctiveQuery, ConjunctiveQuery],
+        rule: Rule,
     ) -> set[DisjunctivePieceUnifier]:
         """
         Compute disjunctive piece unifiers for a rule and set of conjunctive queries.
@@ -98,12 +99,13 @@ class DisjunctivePieceUnifierAlgorithm:
         Returns:
             Set of disjunctive piece unifiers
         """
+        ensure_ed_rule(rule)
         self._cache.cleanup(set(all_cqs))
         self._cache.initialize_rule(rule)
 
         result: set[DisjunctivePieceUnifier] = set()
 
-        for head_number, head in enumerate(rule.head):
+        for head_number, head in enumerate(rule.head_disjuncts):
             full_unifiers = self._compute_full_unifiers_of_a_ucq(
                 rule, head_number, new_cqs
             )
@@ -134,8 +136,8 @@ class DisjunctivePieceUnifierAlgorithm:
         answer_variables: tuple[Variable, ...],
     ) -> _PartialDisjunctivePieceUnifier:
         """Create a partial disjunctive piece unifier with one head filled in."""
-        piece_unifiers: list[Optional[PieceUnifier]] = [None] * len(rule.head)
-        cqs: list[Optional[ConjunctiveQuery]] = [None] * len(rule.head)
+        piece_unifiers: list[Optional[PieceUnifier]] = [None] * len(rule.head_disjuncts)
+        cqs: list[Optional[ConjunctiveQuery]] = [None] * len(rule.head_disjuncts)
         piece_unifiers[head_number] = unifier
         cqs[head_number] = unifier.query
         return _PartialDisjunctivePieceUnifier(
@@ -144,7 +146,7 @@ class DisjunctivePieceUnifierAlgorithm:
 
     def _extend(
         self,
-        rule: Rule[ConjunctiveQuery, ConjunctiveQuery],
+        rule: Rule,
         head_number: int,
         pdpu: _PartialDisjunctivePieceUnifier,
         result: set[DisjunctivePieceUnifier],
@@ -160,7 +162,7 @@ class DisjunctivePieceUnifierAlgorithm:
             result: Set to add complete unifiers to
             current_head: Current head index being processed
         """
-        if current_head == len(rule.head):
+        if current_head == len(rule.head_disjuncts):
             result.add(pdpu.to_disjunctive_piece_unifier())
         elif current_head != head_number:
             instantiation = pdpu.partial_frontier_instantiation(current_head)
@@ -175,7 +177,7 @@ class DisjunctivePieceUnifierAlgorithm:
 
     @staticmethod
     def _compute_full_unifiers_of_a_cq(
-        rule: Rule[ConjunctiveQuery, ConjunctiveQuery],
+        rule: Rule,
         head_number: int,
         cq: ConjunctiveQuery,
     ) -> list[PieceUnifier]:
@@ -187,7 +189,7 @@ class DisjunctivePieceUnifierAlgorithm:
 
     @staticmethod
     def _compute_full_unifiers_of_a_ucq(
-        rule: Rule[ConjunctiveQuery, ConjunctiveQuery],
+        rule: Rule,
         head_number: int,
         ucq: UnionQuery[ConjunctiveQuery],
     ) -> list[tuple[PieceUnifier, ConjunctiveQuery]]:

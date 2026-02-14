@@ -6,6 +6,9 @@ from prototyping_inference_engine.api.atom.set.mutable_atom_set import MutableAt
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
+from prototyping_inference_engine.api.ontology.rule.validators import (
+    ensure_conjunctive_rule,
+)
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import (
     PieceUnifier,
@@ -15,7 +18,7 @@ from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import
 class PieceUnifierAlgorithm:
     @staticmethod
     def compute_most_general_full_piece_unifiers(
-        query: ConjunctiveQuery, rule: Rule[ConjunctiveQuery, ConjunctiveQuery]
+        query: ConjunctiveQuery, rule: Rule
     ) -> list[PieceUnifier]:
         matchable_atoms = query.non_equality_atoms
         result = PieceUnifierAlgorithm.compute_most_general_mono_piece_unifiers(
@@ -39,7 +42,7 @@ class PieceUnifierAlgorithm:
 
     @staticmethod
     def compute_most_general_mono_piece_unifiers(
-        query: ConjunctiveQuery, rule: Rule[ConjunctiveQuery, ConjunctiveQuery]
+        query: ConjunctiveQuery, rule: Rule
     ) -> list[PieceUnifier]:
         apu = PieceUnifierAlgorithm._compute_atomic_pre_unifiers(query, rule)
         return PieceUnifierAlgorithm._extend_atomic_pre_unifiers(query, apu)
@@ -58,12 +61,14 @@ class PieceUnifierAlgorithm:
 
     @staticmethod
     def _compute_atomic_pre_unifiers(
-        query: ConjunctiveQuery, rule: Rule[ConjunctiveQuery, ConjunctiveQuery]
+        query: ConjunctiveQuery, rule: Rule
     ) -> list[PieceUnifier]:
         if not query.equality_partition.is_admissible:
             return []
+        validated = ensure_conjunctive_rule(rule)
+        head_cq = validated.head
         atomic_pre_unifiers = []
-        for a in rule.head[0].atoms:
+        for a in head_cq.atoms:
             for b in query.non_equality_atoms:
                 if a.predicate == b.predicate:
                     by_position_part = TermPartition(

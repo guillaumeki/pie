@@ -51,6 +51,7 @@ from prototyping_inference_engine.api.formula.disjunction_formula import (
 from prototyping_inference_engine.api.formula.existential_formula import (
     ExistentialFormula,
 )
+from prototyping_inference_engine.api.formula.universal_formula import UniversalFormula
 from prototyping_inference_engine.api.formula.negation_formula import NegationFormula
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.fo_query import FOQuery
@@ -360,19 +361,20 @@ class DlgpeTransformer(Transformer):
                 else:
                     body_formula = item
 
-        # Convert head to disjunction of ConjunctiveQuery
-        if head_formula is None:
-            head_disjuncts = [ConjunctiveQuery(frozenset())]
-        else:
-            head_disjuncts = self._formula_to_head_disjuncts(head_formula)
+        if head_formula is None or body_formula is None:
+            raise ValueError("Rule head or body is missing.")
 
-        # Convert body to ConjunctiveQuery
-        if body_formula is None:
-            body = ConjunctiveQuery(frozenset())
-        else:
-            body = self._formula_to_conjunctive_query(body_formula)
+        body_free = body_formula.free_variables
+        head_free = head_formula.free_variables
+        head_only = head_free - body_free
+        body_only = body_free - head_free
 
-        rule = Rule(body=body, head=tuple(head_disjuncts), label=label)
+        for var in sorted(head_only, key=str):
+            head_formula = ExistentialFormula(var, head_formula)
+        for var in sorted(body_only, key=str):
+            body_formula = UniversalFormula(var, body_formula)
+
+        rule = Rule(body=body_formula, head=head_formula, label=label)
         return ("rule", rule, label)
 
     def dlgpe_constraint(self, items) -> Tuple[str, NegativeConstraint, Optional[str]]:

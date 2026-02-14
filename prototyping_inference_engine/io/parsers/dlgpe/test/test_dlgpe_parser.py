@@ -64,7 +64,7 @@ class TestDlgpeParserRules(unittest.TestCase):
         result = self.parser.parse("p(X) | q(X) :- r(X).")
         self.assertEqual(len(result["rules"]), 1)
         rule = result["rules"][0]
-        self.assertEqual(len(rule.head), 2)
+        self.assertEqual(len(rule.head_disjuncts), 2)
 
     def test_parse_rule_with_label(self):
         """Test parsing a rule with a label."""

@@ -52,7 +52,7 @@ class BreadthFirstRewriting(UcqRewritingAlgorithm):
     @staticmethod
     def _safe_renaming(
         ucq: UnionQuery[ConjunctiveQuery],
-        rule_set: set[Rule[ConjunctiveQuery, ConjunctiveQuery]],
+        rule_set: set[Rule],
     ) -> UnionQuery[ConjunctiveQuery]:
         rules_variables = set(v for r in rule_set for v in r.variables)
         renaming = Substitution()
@@ -65,7 +65,7 @@ class BreadthFirstRewriting(UcqRewritingAlgorithm):
     def rewrite(
         self,
         ucq: UnionQuery[ConjunctiveQuery],
-        rule_set: set[Rule[ConjunctiveQuery, ConjunctiveQuery]],
+        rule_set: set[Rule],
         step_limit: float = inf,
         verbose: bool = False,
         printer: Optional["Callable[[UnionQuery[ConjunctiveQuery], int], None]"] = None,

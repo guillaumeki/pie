@@ -107,7 +107,7 @@ class TestTermPartition(TestCase):
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         head = ConjunctiveQuery(head_atoms, [x])
-        rule = Rule(body, [head])
+        rule = Rule(body.to_fo_query().formula, head.to_fo_query().formula)
 
         tp = TermPartition()
         tp.add_class([x, Constant("a")])
@@ -121,7 +121,7 @@ class TestTermPartition(TestCase):
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         head = ConjunctiveQuery(head_atoms, [x])
-        rule = Rule(body, [head])
+        rule = Rule(body.to_fo_query().formula, head.to_fo_query().formula)
 
         y = Variable("Y")  # Y is existential in the rule
         tp = TermPartition()
@@ -136,7 +136,7 @@ class TestTermPartition(TestCase):
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         head = ConjunctiveQuery(head_atoms, [x])
-        rule = Rule(body, [head])
+        rule = Rule(body.to_fo_query().formula, head.to_fo_query().formula)
 
         y = Variable("Y")  # Y is existential
         tp = TermPartition()

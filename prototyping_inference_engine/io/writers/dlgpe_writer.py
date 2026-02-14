@@ -123,16 +123,9 @@ class DlgpeWriter:
 
     def _format_rule(self, rule: Rule, context: WriterIriContext) -> str:
         label = f"[{rule.label}] " if rule.label else ""
-        head = self._format_rule_head(rule, context)
-        body = self._format_conjunctive_query(rule.body, context)
+        head = self._format_formula(rule.head, context)
+        body = self._format_formula(rule.body, context)
         return f"{label}{head} :- {body}"
-
-    def _format_rule_head(self, rule: Rule, context: WriterIriContext) -> str:
-        disjuncts = [self._format_conjunctive_query(h, context) for h in rule.head]
-        return " | ".join(
-            f"({d})" if self._needs_grouping(d) and len(rule.head) > 1 else d
-            for d in disjuncts
-        )
 
     def _format_constraint(
         self, constraint: NegativeConstraint, context: WriterIriContext
@@ -212,7 +205,9 @@ class DlgpeWriter:
         if isinstance(
             formula, (ExistentialFormula, UniversalFormula, QuantifiedFormula)
         ):
-            raise ValueError("Quantified formulas are not supported in DLGPE writer")
+            return self._format_formula_with_prec(
+                formula.inner, context, parent_prec=parent_prec
+            )
 
         raise ValueError(f"Unsupported formula type for DLGPE writer: {type(formula)}")
 

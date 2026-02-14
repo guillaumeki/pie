@@ -21,7 +21,7 @@ class TermPartition(Partition[Term]):
 
     def is_valid(
         self,
-        rule: Rule[ConjunctiveQuery, ConjunctiveQuery],
+        rule: Rule,
         context: Optional[ConjunctiveQuery] = None,
     ) -> bool:
         for cls in self.classes:

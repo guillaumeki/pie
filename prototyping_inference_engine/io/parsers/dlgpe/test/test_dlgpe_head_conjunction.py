@@ -18,10 +18,10 @@ class TestDlgpeHeadConjunction(unittest.TestCase):
         self.assertEqual(len(result["rules"]), 1)
         rule = result["rules"][0]
 
-        self.assertEqual(len(rule.head), 1)
-        head_cq = rule.head[0]
-        self.assertEqual(len(head_cq.atoms), 2)
-        predicates = {atom.predicate.name for atom in head_cq.atoms}
+        self.assertEqual(len(rule.head_disjuncts), 1)
+        head_formula = rule.head_disjuncts[0]
+        self.assertEqual(len(head_formula.atoms), 2)
+        predicates = {atom.predicate.name for atom in head_formula.atoms}
         self.assertEqual(predicates, {"p", "q"})
 
 

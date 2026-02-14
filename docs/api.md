@@ -18,6 +18,7 @@
 - `DlgpeWriter`: write DLGP (DLGPE version) documents from parse results.
 - `IntegraalStandardFunctionSource`: computed predicates for the standard function library.
 - `RuleBase` / `KnowledgeBase`: rule and knowledge containers.
+- `Rule`: formula-based rules; fragment validators live under `api.ontology.rule.validators`.
 - `PreparedQuery` / `PreparedFOQuery`: prepared query interfaces.
 - `FOQueryFactory`: central query construction utilities.
 - `FOConjunctionFactBaseWrapper`: expose a fact base as a conjunction formula.

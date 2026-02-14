@@ -552,10 +552,10 @@ def _run_knowledge_base_example(source: str) -> None:
     if len(rules) != 1:
         raise AssertionError(f"Unexpected rules: {rules}")
     rule = rules[0]
-    if len(rule.body.atoms) != 1 or len(rule.head[0].atoms) != 1:
+    if len(rule.body.atoms) != 1 or len(rule.head_disjuncts[0].atoms) != 1:
         raise AssertionError(f"Unexpected rule structure: {rule}")
     body = next(iter(rule.body.atoms))
-    head = next(iter(rule.head[0].atoms))
+    head = next(iter(rule.head_disjuncts[0].atoms))
     if body.predicate.name != "p" or head.predicate.name != "q":
         raise AssertionError(f"Unexpected rule predicates: {rule}")
     if [t.identifier for t in body.terms] != ["X"]:

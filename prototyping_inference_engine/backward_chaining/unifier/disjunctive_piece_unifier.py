@@ -12,7 +12,7 @@ from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import
 
 @dataclass(frozen=True)
 class DisjunctivePieceUnifier:
-    rule: Rule[ConjunctiveQuery, ConjunctiveQuery]
+    rule: Rule
     piece_unifiers: tuple[PieceUnifier]
     query: UnionQuery[ConjunctiveQuery]
 

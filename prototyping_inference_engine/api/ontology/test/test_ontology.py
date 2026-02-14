@@ -24,7 +24,7 @@ class TestOntology(TestCase):
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         head = ConjunctiveQuery(head_atoms, [x])
-        rule = Rule(body, [head])
+        rule = Rule(body.to_fo_query().formula, head.to_fo_query().formula)
 
         ont = Ontology(rules={rule})
         self.assertEqual(len(ont.rules), 1)
@@ -48,7 +48,7 @@ class TestOntology(TestCase):
         x = Variable("X")
         body = ConjunctiveQuery(body_atoms, [x])
         head = ConjunctiveQuery(head_atoms, [x])
-        rule = Rule(body, [head])
+        rule = Rule(body.to_fo_query().formula, head.to_fo_query().formula)
 
         ont = Ontology(rules={rule})
         self.assertIs(ont.rules, ont._rules)

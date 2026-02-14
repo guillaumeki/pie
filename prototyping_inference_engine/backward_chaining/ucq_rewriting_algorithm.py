@@ -12,7 +12,7 @@ class UcqRewritingAlgorithm(ABC):
     def rewrite(
         self,
         ucq: UnionQuery[ConjunctiveQuery],
-        rule_set: set[Rule[ConjunctiveQuery, ConjunctiveQuery]],
+        rule_set: set[Rule],
         step_limit: float = inf,
         verbose: bool = False,
         printer: Optional[Callable[[UnionQuery[ConjunctiveQuery], int], None]] = None,
