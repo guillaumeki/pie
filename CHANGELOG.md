@@ -10,6 +10,10 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: query evaluators now expose `prepare` for reuse of prepared queries.
 
 ## [2026-02-15]
+- Added: minimal-evaluation stratification to minimize strata while preserving one-pass evaluation for acyclic SCCs.
+- Changed: bumped version to 0.0.25.
+
+## [2026-02-15]
 - Added: igraph dependency for GRD stratification algorithms with PyPy-compatible graph routines.
 - Changed: GRD stratification now delegates SCC and Bellman-Ford to igraph.
 - Changed: bumped version to 0.0.24.

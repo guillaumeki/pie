@@ -5,6 +5,7 @@ from prototyping_inference_engine.grd.dependency_checker import (
 )
 from prototyping_inference_engine.grd.stratification import (
     BySccStratification,
+    MinimalEvaluationStratification,
     MinimalStratification,
     SingleEvaluationStratification,
     StratificationStrategy,
@@ -19,6 +20,7 @@ __all__ = [
     "StratificationStrategy",
     "BySccStratification",
     "MinimalStratification",
+    "MinimalEvaluationStratification",
     "SingleEvaluationStratification",
     "is_stratifiable",
 ]

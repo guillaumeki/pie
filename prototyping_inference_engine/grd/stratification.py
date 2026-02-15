@@ -67,6 +67,52 @@ class SingleEvaluationStratification(StratificationStrategy):
         return _bellman_ford_strata(grd, {True: -1, False: -1}, source_weight=-1)
 
 
+class MinimalEvaluationStratification(StratificationStrategy):
+    def compute(self, grd: "GRDProtocol") -> Optional[list[RuleBase]]:
+        if not is_stratifiable(grd):
+            return None
+
+        graph, rules, rule_index, edge_list = _build_graph(grd)
+        components = graph.connected_components(mode="STRONG")
+        membership = components.membership
+
+        comp_rules: dict[int, list[Rule]] = {}
+        for rule, comp_idx in zip(rules, membership):
+            comp_rules.setdefault(comp_idx, []).append(rule)
+
+        comp_edges: set[tuple[int, int]] = set()
+        for edge in edge_list:
+            src_comp = membership[rule_index[edge.src]]
+            tgt_comp = membership[rule_index[edge.target]]
+            if src_comp != tgt_comp:
+                comp_edges.add((src_comp, tgt_comp))
+
+        comp_order = topological_sort(
+            sorted(comp_rules.keys()),
+            comp_edges,
+            key=lambda idx: _scc_sort_key(comp_rules[idx]),
+        )
+
+        predecessors: dict[int, set[int]] = {idx: set() for idx in comp_rules}
+        for src, tgt in comp_edges:
+            predecessors[tgt].add(src)
+
+        levels: dict[int, int] = {}
+        for comp_idx in comp_order:
+            if not predecessors[comp_idx]:
+                levels[comp_idx] = 0
+            else:
+                levels[comp_idx] = (
+                    max(levels[pred] for pred in predecessors[comp_idx]) + 1
+                )
+
+        rules_by_level: dict[int, set[Rule]] = {}
+        for comp_idx, level in levels.items():
+            rules_by_level.setdefault(level, set()).update(comp_rules[comp_idx])
+
+        return [RuleBase(rules_by_level[level]) for level in sorted(rules_by_level)]
+
+
 def is_stratifiable(grd: "GRDProtocol") -> bool:
     graph, _, rule_index, edge_list = _build_graph(grd)
     components = graph.connected_components(mode="STRONG")

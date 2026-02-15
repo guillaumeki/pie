@@ -64,3 +64,21 @@ algorithmic work to an external, PyPy-compatible library.
 ### Rationale
 This avoids mixing generic algorithms with business logic while relying on
 optimized, well-tested graph routines with PyPy support.
+
+## Update: Minimal Evaluation Stratification
+Date: 2026-02-15
+
+### Context
+We need a stratification that minimizes the number of strata while guaranteeing
+single-pass application for rules outside cycles. Cycles are allowed only when
+they do not contain negative edges.
+
+### Decision
+Add a `MinimalEvaluationStratification` strategy that layers SCCs using the
+condensation DAG with strict ordering on all inter-SCC dependencies. SCCs that
+are independent are grouped in the same lowest possible stratum.
+
+### Rationale
+Strict ordering on the SCC DAG guarantees one-pass evaluation for acyclic SCCs,
+while cycles remain confined to SCCs and can be iterated without affecting other
+rules. Grouping independent SCCs minimizes the number of strata.

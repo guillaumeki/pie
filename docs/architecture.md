@@ -43,7 +43,7 @@ Each evaluator can return substitutions or projected tuples.
 ## GRD (`prototyping_inference_engine.grd`)
 - Graph of Rule Dependencies (GRD) with disjunctive heads and safe negation support.
 - Dependency checkers to validate positive/negative edges.
-- Stratification strategies (`BySccStratification`, `MinimalStratification`, `SingleEvaluationStratification`) live under `prototyping_inference_engine.grd.stratification`.
+- Stratification strategies (`BySccStratification`, `MinimalStratification`, `SingleEvaluationStratification`, `MinimalEvaluationStratification`) live under `prototyping_inference_engine.grd.stratification`.
 - Stratification algorithms rely on igraph for SCC and shortest-path computations.
 
 ## IO (`prototyping_inference_engine.io`)
