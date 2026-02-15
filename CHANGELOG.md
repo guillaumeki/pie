@@ -10,6 +10,11 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: query evaluators now expose `prepare` for reuse of prepared queries.
 
 ## [2026-02-15]
+- Added: GRD stratification strategies (by-SCC, minimal, single-evaluation) with OCP-friendly strategy interface.
+- Added: GRD stratification tests covering SCC and Bellman-Ford stratification outputs.
+- Changed: bumped version to 0.0.23.
+
+## [2026-02-15]
 - Added: GRD top-level package with disjunctive head and safe-negation support.
 - Added: GRD dependency checker abstraction with productivity checker.
 - Changed: bumped version to 0.0.22.

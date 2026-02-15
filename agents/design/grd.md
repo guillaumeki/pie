@@ -28,3 +28,22 @@ computing dependencies per head disjunct, matching Integraal’s semantics.
 
 ## Follow-ups
 - Add more dependency checkers if future fragments require it.
+- Add stratification strategies for GRD consumers.
+
+## Update: Stratification Strategies (OCP)
+Date: 2026-02-15
+
+### Context
+GRD needs by-SCC, minimal, and single-evaluation stratifications without coupling
+GRD to concrete algorithms or requiring GRD changes when adding new strategies.
+
+### Decision
+Introduce a `StratificationStrategy` interface with concrete strategies
+(`BySccStratification`, `MinimalStratification`, `SingleEvaluationStratification`).
+Expose a single `GRD.stratify(strategy)` entry point and keep GRD focused on graph
+construction and queries.
+
+### Rationale
+This keeps the GRD API closed for modification (OCP) while allowing extension
+through new strategy classes. It also preserves SRP by keeping stratification
+logic outside the GRD graph implementation.

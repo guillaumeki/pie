@@ -25,7 +25,7 @@
 - `DatalogDelegable`: delegation hooks for rule and query evaluation.
 - `DelAtomWrapper`: atom-filtering wrapper for delegable evaluation.
 - `IdentityVariable` / `IdentityConstant` / `IdentityLiteral` / `IdentityPredicate`: identity-based term and predicate types with matching factories.
-- `GRD`: graph of rule dependencies under `prototyping_inference_engine.grd`.
+- `GRD`: graph of rule dependencies under `prototyping_inference_engine.grd`, with stratification strategies in `prototyping_inference_engine.grd.stratification`.
 
 ## API Notes
 - Docstrings are the authoritative source for method-level behavior and edge cases.

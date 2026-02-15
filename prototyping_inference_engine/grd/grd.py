@@ -2,8 +2,10 @@
 Graph of rule dependencies (GRD) with support for disjunctive heads.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
@@ -19,9 +21,13 @@ from prototyping_inference_engine.grd.rule_utils import (
     extract_positive_body,
     split_head_disjuncts,
 )
+from prototyping_inference_engine.grd.stratification import Edge, StratificationStrategy
 from prototyping_inference_engine.unifier.piece_unifier_algorithm import (
     PieceUnifierAlgorithm,
 )
+
+if TYPE_CHECKING:
+    from prototyping_inference_engine.api.kb.rule_base import RuleBase
 
 
 @dataclass(frozen=True)
@@ -45,6 +51,12 @@ class GRD:
     @property
     def rules(self) -> tuple[Rule, ...]:
         return self._rules
+
+    def iter_edges(self) -> Iterable[Edge]:
+        for src, targets in self._edges.items():
+            for target, edges in targets.items():
+                for edge in edges:
+                    yield Edge(src=src, target=target, is_positive=edge.is_positive)
 
     def get_triggered_rules(self, src: Rule) -> set[Rule]:
         return {
@@ -72,6 +84,14 @@ class GRD:
             for target, edges in self._edges.get(src, {}).items()
             if any(not edge.is_positive for edge in edges)
         }
+
+    def is_stratifiable(self) -> bool:
+        from prototyping_inference_engine.grd.stratification import is_stratifiable
+
+        return is_stratifiable(self)
+
+    def stratify(self, strategy: StratificationStrategy) -> Optional[list[RuleBase]]:
+        return strategy.compute(self)
 
     def _build(self) -> None:
         self._edges = {r: {} for r in self._rules}
