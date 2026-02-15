@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prototyping_inference_engine"
-version = "0.0.23"
+version = "0.0.24"
 authors = [
   { name="Guillaume Pérution-Kihli", email="guillaume.kihli@yahoo.fr" },
 ]
@@ -33,6 +33,7 @@ keywords = [
     "first-order-logic",
 ]
 dependencies = [
+    "igraph>=0.10",
     "lark>=1.0",
 ]
 

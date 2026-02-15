@@ -238,3 +238,7 @@ q(X) | r(Y) :- p(X,Y).
 - Comments must always be in English.
 ## Writing Language
 - All content written to any file must be in English.
+
+## Algorithm Rules (Imposed)
+- Do not mix business logic and generic algorithms. Generic algorithms must either live under `prototyping_inference_engine/utils/` or come from an external library with optimized implementations that are compatible with PyPy.
+- Before adding a dependency, verify its compatibility with PyPy.
