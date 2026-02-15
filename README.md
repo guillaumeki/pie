@@ -167,6 +167,7 @@ The configuration format is documented in `docs/usage.md`.
 - **Fact Bases**: `MutableInMemoryFactBase`, `FrozenInMemoryFactBase`
 - **Rules & Ontology**: Formula-based rules with disjunctive head support
 - **Rule Bases & Knowledge Bases**: Containers for rules, facts, and ontologies
+- **GRD**: Graph of Rule Dependencies (disjunctive heads + safe negation)
 
 ### Data Abstraction (`api/data/`)
 

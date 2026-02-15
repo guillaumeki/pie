@@ -7,10 +7,10 @@ from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.term_partition import TermPartition
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import (
+from prototyping_inference_engine.unifier.piece_unifier import (
     PieceUnifier,
 )
-from prototyping_inference_engine.backward_chaining.unifier.piece_unifier_algorithm import (
+from prototyping_inference_engine.unifier import (
     PieceUnifierAlgorithm,
 )
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser

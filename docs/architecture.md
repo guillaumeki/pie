@@ -40,6 +40,10 @@ Each evaluator can return substitutions or projected tuples.
 - `BreadthFirstRewriting` UCQ rewriting algorithm.
 - Piece unifiers and rewriting operators.
 
+## GRD (`prototyping_inference_engine.grd`)
+- Graph of Rule Dependencies (GRD) with disjunctive heads and safe negation support.
+- Dependency checkers to validate positive/negative edges.
+
 ## IO (`prototyping_inference_engine.io`)
 - Parsers under `prototyping_inference_engine.io.parsers`.
 - Writers under `prototyping_inference_engine.io.writers`.

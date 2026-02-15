@@ -10,7 +10,7 @@ from prototyping_inference_engine.api.ontology.rule.validators import (
     ensure_conjunctive_rule,
 )
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
-from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import (
+from prototyping_inference_engine.unifier.piece_unifier import (
     PieceUnifier,
 )
 

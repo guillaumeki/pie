@@ -5,7 +5,7 @@ from prototyping_inference_engine.api.atom.term.term_partition import TermPartit
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.union_query import UnionQuery
-from prototyping_inference_engine.backward_chaining.unifier.piece_unifier import (
+from prototyping_inference_engine.unifier.piece_unifier import (
     PieceUnifier,
 )
 

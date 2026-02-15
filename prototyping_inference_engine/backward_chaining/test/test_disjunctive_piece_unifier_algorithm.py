@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
-from prototyping_inference_engine.backward_chaining.unifier.disjunctive_piece_unifier_algorithm import (
+from prototyping_inference_engine.unifier import (
     DisjunctivePieceUnifierAlgorithm,
 )
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser

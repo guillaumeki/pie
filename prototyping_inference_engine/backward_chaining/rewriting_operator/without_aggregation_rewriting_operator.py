@@ -6,10 +6,10 @@ from prototyping_inference_engine.api.substitution.substitution import Substitut
 from prototyping_inference_engine.backward_chaining.rewriting_operator.rewriting_operator import (
     RewritingOperator,
 )
-from prototyping_inference_engine.backward_chaining.unifier.disjunctive_piece_unifier import (
+from prototyping_inference_engine.unifier.disjunctive_piece_unifier import (
     DisjunctivePieceUnifier,
 )
-from prototyping_inference_engine.backward_chaining.unifier.disjunctive_piece_unifier_algorithm import (
+from prototyping_inference_engine.unifier import (
     DisjunctivePieceUnifierAlgorithm,
 )
 

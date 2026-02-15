@@ -9,6 +9,11 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: evaluation is query-only (FOQuery and higher-level queries); formula evaluators were removed.
 - Changed: query evaluators now expose `prepare` for reuse of prepared queries.
 
+## [2026-02-15]
+- Added: GRD top-level package with disjunctive head and safe-negation support.
+- Added: GRD dependency checker abstraction with productivity checker.
+- Changed: bumped version to 0.0.22.
+
 ## [2026-02-14]
 - Added: rule validators for conjunctive and existential-disjunctive fragments.
 - Changed: rules now use formula bodies and heads with matching free variables.

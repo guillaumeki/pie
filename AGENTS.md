@@ -129,6 +129,7 @@ For any important change:
 - `agents/design/designs-compressed.md`
 - `agents/design/answer-variable-ordering.md`
 - `agents/design/rule-formula.md`
+- `agents/design/grd.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`
