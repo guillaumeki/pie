@@ -47,3 +47,20 @@ construction and queries.
 This keeps the GRD API closed for modification (OCP) while allowing extension
 through new strategy classes. It also preserves SRP by keeping stratification
 logic outside the GRD graph implementation.
+
+## Update: igraph for Stratification Algorithms
+Date: 2026-02-15
+
+### Context
+The GRD stratification uses generic graph algorithms (SCC, Bellman-Ford) that
+should not be implemented inside domain logic. The project also requires PyPy
+compatibility for dependencies.
+
+### Decision
+Use `igraph` for Bellman-Ford and SCC computations inside stratification
+strategies, keeping only orchestration logic in `grd/` and delegating
+algorithmic work to an external, PyPy-compatible library.
+
+### Rationale
+This avoids mixing generic algorithms with business logic while relying on
+optimized, well-tested graph routines with PyPy support.

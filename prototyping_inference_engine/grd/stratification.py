@@ -5,12 +5,16 @@ Stratification strategies for GRD.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections import deque
 from dataclasses import dataclass
 from typing import Iterable, Optional, Protocol
 
+import igraph as ig  # type: ignore[import-untyped]
+
 from prototyping_inference_engine.api.kb.rule_base import RuleBase
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
+from prototyping_inference_engine.utils.graph.topological_sort import (
+    topological_sort,
+)
 
 
 @dataclass(frozen=True)
@@ -30,32 +34,49 @@ class StratificationStrategy(ABC):
 
 class BySccStratification(StratificationStrategy):
     def compute(self, grd: "GRDProtocol") -> Optional[list[RuleBase]]:
-        sccs = _strongly_connected_components(grd.rules, grd.iter_edges())
-        dag = _condensation_graph(sccs, grd.iter_edges())
-        order = _topological_order_sccs(sccs, dag)
-        return [RuleBase(set(scc)) for scc in order]
+        graph, rules, rule_index, edge_list = _build_graph(grd)
+        components = graph.connected_components(mode="STRONG")
+        membership = components.membership
+
+        comp_rules: dict[int, list[Rule]] = {}
+        for rule, comp_idx in zip(rules, membership):
+            comp_rules.setdefault(comp_idx, []).append(rule)
+
+        dag_edges: set[tuple[int, int]] = set()
+        for edge in edge_list:
+            src_comp = membership[rule_index[edge.src]]
+            tgt_comp = membership[rule_index[edge.target]]
+            if src_comp != tgt_comp:
+                dag_edges.add((src_comp, tgt_comp))
+
+        order = topological_sort(
+            sorted(comp_rules.keys()),
+            dag_edges,
+            key=lambda idx: _scc_sort_key(comp_rules[idx]),
+        )
+        return [RuleBase(set(comp_rules[idx])) for idx in order]
 
 
 class MinimalStratification(StratificationStrategy):
     def compute(self, grd: "GRDProtocol") -> Optional[list[RuleBase]]:
-        edges = list(grd.iter_edges())
-        weights = {True: 0, False: -1}
-        return _bellman_ford_strata(grd.rules, edges, weights, source_weight=0)
+        return _bellman_ford_strata(grd, {True: 0, False: -1}, source_weight=0)
 
 
 class SingleEvaluationStratification(StratificationStrategy):
     def compute(self, grd: "GRDProtocol") -> Optional[list[RuleBase]]:
-        edges = list(grd.iter_edges())
-        weights = {True: -1, False: -1}
-        return _bellman_ford_strata(grd.rules, edges, weights, source_weight=-1)
+        return _bellman_ford_strata(grd, {True: -1, False: -1}, source_weight=-1)
 
 
 def is_stratifiable(grd: "GRDProtocol") -> bool:
-    sccs = _strongly_connected_components(grd.rules, grd.iter_edges())
-    scc_index = _scc_index(sccs)
-    for edge in grd.iter_edges():
-        if not edge.is_positive and scc_index[edge.src] == scc_index[edge.target]:
-            return False
+    graph, _, rule_index, edge_list = _build_graph(grd)
+    components = graph.connected_components(mode="STRONG")
+    membership = components.membership
+    for edge in edge_list:
+        if not edge.is_positive:
+            src_comp = membership[rule_index[edge.src]]
+            tgt_comp = membership[rule_index[edge.target]]
+            if src_comp == tgt_comp:
+                return False
     return True
 
 
@@ -66,142 +87,59 @@ class GRDProtocol(Protocol):
     def iter_edges(self) -> Iterable[Edge]: ...
 
 
-def _strongly_connected_components(
-    rules: Iterable[Rule], edges: Iterable[Edge]
-) -> list[list[Rule]]:
-    adjacency: dict[Rule, list[Rule]] = {rule: [] for rule in rules}
-    for edge in edges:
-        adjacency[edge.src].append(edge.target)
+def _build_graph(
+    grd: "GRDProtocol",
+) -> tuple[ig.Graph, list[Rule], dict[Rule, int], list[Edge]]:
+    rules = list(grd.rules)
+    rule_index = {rule: idx for idx, rule in enumerate(rules)}
+    edge_list = list(grd.iter_edges())
+    edges = [(rule_index[e.src], rule_index[e.target]) for e in edge_list]
 
-    index = 0
-    stack: list[Rule] = []
-    on_stack: set[Rule] = set()
-    indices: dict[Rule, int] = {}
-    lowlinks: dict[Rule, int] = {}
-    result: list[list[Rule]] = []
-
-    def strongconnect(node: Rule) -> None:
-        nonlocal index
-        indices[node] = index
-        lowlinks[node] = index
-        index += 1
-        stack.append(node)
-        on_stack.add(node)
-
-        for neighbor in sorted(adjacency[node], key=_rule_sort_key):
-            if neighbor not in indices:
-                strongconnect(neighbor)
-                lowlinks[node] = min(lowlinks[node], lowlinks[neighbor])
-            elif neighbor in on_stack:
-                lowlinks[node] = min(lowlinks[node], indices[neighbor])
-
-        if lowlinks[node] == indices[node]:
-            scc: list[Rule] = []
-            while True:
-                w = stack.pop()
-                on_stack.remove(w)
-                scc.append(w)
-                if w == node:
-                    break
-            result.append(sorted(scc, key=_rule_sort_key))
-
-    for rule in sorted(adjacency.keys(), key=_rule_sort_key):
-        if rule not in indices:
-            strongconnect(rule)
-
-    return result
-
-
-def _scc_index(sccs: list[list[Rule]]) -> dict[Rule, int]:
-    index: dict[Rule, int] = {}
-    for i, scc in enumerate(sccs):
-        for rule in scc:
-            index[rule] = i
-    return index
-
-
-def _condensation_graph(
-    sccs: list[list[Rule]], edges: Iterable[Edge]
-) -> dict[int, set[int]]:
-    scc_index = _scc_index(sccs)
-    dag: dict[int, set[int]] = {i: set() for i in range(len(sccs))}
-    for edge in edges:
-        src_i = scc_index[edge.src]
-        tgt_i = scc_index[edge.target]
-        if src_i != tgt_i:
-            dag[src_i].add(tgt_i)
-    return dag
-
-
-def _topological_order_sccs(
-    sccs: list[list[Rule]], dag: dict[int, set[int]]
-) -> list[list[Rule]]:
-    indegree = {i: 0 for i in dag}
-    for src, targets in dag.items():
-        for tgt in targets:
-            indegree[tgt] += 1
-
-    queue = deque(
-        sorted(
-            [i for i, deg in indegree.items() if deg == 0],
-            key=lambda i: _scc_sort_key(sccs[i]),
-        )
-    )
-    order: list[list[Rule]] = []
-
-    while queue:
-        current = queue.popleft()
-        order.append(sccs[current])
-        for neighbor in sorted(dag[current], key=lambda i: _scc_sort_key(sccs[i])):
-            indegree[neighbor] -= 1
-            if indegree[neighbor] == 0:
-                queue.append(neighbor)
-
-    if len(order) != len(sccs):
-        return sccs
-    return order
+    graph = ig.Graph(directed=True)
+    graph.add_vertices(len(rules))
+    if edges:
+        graph.add_edges(edges)
+    return graph, rules, rule_index, edge_list
 
 
 def _bellman_ford_strata(
-    rules: Iterable[Rule],
-    edges: Iterable[Edge],
+    grd: "GRDProtocol",
     weights: dict[bool, int],
     *,
     source_weight: int,
 ) -> Optional[list[RuleBase]]:
-    rules_list = list(rules)
-    if not rules_list:
-        return []
+    _, rules, rule_index, edge_list = _build_graph(grd)
+    source_index = len(rules)
+    weighted_edges = [
+        (rule_index[edge.src], rule_index[edge.target]) for edge in edge_list
+    ]
+    edge_weights = [weights[edge.is_positive] for edge in edge_list]
 
-    dist: dict[Rule, int] = {rule: 10**9 for rule in rules_list}
-    for rule in rules_list:
-        dist[rule] = source_weight
+    source_edges = [(source_index, rule_idx) for rule_idx in range(len(rules))]
+    weighted_edges.extend(source_edges)
+    edge_weights.extend([source_weight for _ in source_edges])
 
-    all_edges = list(edges)
+    graph = ig.Graph(
+        n=len(rules) + 1,
+        edges=weighted_edges,
+        directed=True,
+    )
+    graph.es["weight"] = edge_weights
 
-    for _ in range(len(rules_list) - 1):
-        updated = False
-        for edge in all_edges:
-            weight = weights[edge.is_positive]
-            if dist[edge.src] + weight < dist[edge.target]:
-                dist[edge.target] = dist[edge.src] + weight
-                updated = True
-        if not updated:
-            break
-
-    for edge in all_edges:
-        weight = weights[edge.is_positive]
-        if dist[edge.src] + weight < dist[edge.target]:
-            return None
+    try:
+        distances = graph.distances(
+            source=source_index,
+            weights="weight",
+            algorithm="bellman-ford",
+        )[0]
+    except ig.InternalError:
+        return None
 
     rules_by_cost: dict[int, set[Rule]] = {}
-    for rule, cost in dist.items():
-        rules_by_cost.setdefault(cost, set()).add(rule)
+    for rule, cost in zip(rules, distances[: len(rules)]):
+        rules_by_cost.setdefault(int(cost), set()).add(rule)
 
-    strata: list[RuleBase] = []
-    for cost in sorted(rules_by_cost.keys()):
-        strata.append(RuleBase(rules_by_cost[cost]))
-
+    strata = [RuleBase(rules_by_cost[cost]) for cost in sorted(rules_by_cost.keys())]
     strata.reverse()
     return strata
 
@@ -210,8 +148,8 @@ def _rule_sort_key(rule: Rule) -> tuple[str, int]:
     return (rule.label or "", hash(rule))
 
 
-def _scc_sort_key(scc: list[Rule]) -> tuple[str, int]:
-    if not scc:
-        return ("", 0)
-    first = sorted(scc, key=_rule_sort_key)[0]
-    return (first.label or "", hash(first))
+def _scc_sort_key(rules: list[Rule]) -> str:
+    if not rules:
+        return ""
+    first = sorted(rules, key=_rule_sort_key)[0]
+    return f"{first.label or ''}:{hash(first)}"

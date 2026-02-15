@@ -10,6 +10,11 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: query evaluators now expose `prepare` for reuse of prepared queries.
 
 ## [2026-02-15]
+- Added: igraph dependency for GRD stratification algorithms with PyPy-compatible graph routines.
+- Changed: GRD stratification now delegates SCC and Bellman-Ford to igraph.
+- Changed: bumped version to 0.0.24.
+
+## [2026-02-15]
 - Added: GRD stratification strategies (by-SCC, minimal, single-evaluation) with OCP-friendly strategy interface.
 - Added: GRD stratification tests covering SCC and Bellman-Ford stratification outputs.
 - Changed: bumped version to 0.0.23.
