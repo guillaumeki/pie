@@ -339,6 +339,27 @@ def _run_negated_function_term_python_example(source: str) -> None:
         )
 
 
+def _run_arithmetic_expression_dlgpe_example(source: str) -> None:
+    results = _evaluate_dlgpe_queries(source)
+    normalized = [_normalize_projected(answers) for _, answers in results]
+    expected = [[(2,)], [tuple()]]
+    if normalized != expected:
+        raise AssertionError(
+            f"Unexpected arithmetic expression results: {normalized} (expected {expected})"
+        )
+
+
+def _run_arithmetic_expression_python_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    normalized = cast(list[list[tuple[object, ...]]], namespace["normalized"])
+    expected = [[("2",)], [tuple()]]
+    if normalized != expected:
+        raise AssertionError(
+            f"Unexpected arithmetic expression results: {normalized} (expected {expected})"
+        )
+
+
 def _run_arithmetic_functions_example(source: str) -> None:
     normalized_observed = _collect_single_answer_results(
         _evaluate_dlgpe_queries(source)
@@ -350,6 +371,7 @@ def _run_arithmetic_functions_example(source: str) -> None:
         "stdfct:minus": 7,
         "stdfct:product": 6,
         "stdfct:divide": 4,
+        "stdfct:power": 8,
         "stdfct:average": 3,
         "stdfct:median": 4,
         "stdfct:weightedAverage": 17.5,
@@ -374,6 +396,7 @@ def _run_arithmetic_functions_python_example(source: str) -> None:
         ("stdfct:minus", 7),
         ("stdfct:product", 6),
         ("stdfct:divide", 4),
+        ("stdfct:power", 8),
         ("stdfct:average", 3),
         ("stdfct:median", 4),
         ("stdfct:weightedAverage", 17.5),
@@ -946,6 +969,53 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
             "prolog",
             textwrap.dedent(
                 """
+                @facts
+                p(3).
+
+                @queries
+                ?(X) :- p(X + 1).
+                ?() :- (2 * 3) + 1 > 6.
+                """
+            ).strip("\n"),
+            runner=_run_arithmetic_expression_dlgpe_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+
+
+                dlgp = \"\"\"
+                @facts
+                p(3).
+
+                @queries
+                ?(X) :- p(X + 1).
+                ?() :- (2 * 3) + 1 > 6.
+                \"\"\"
+
+                with ReasoningSession.create() as session:
+                    result = session.parse(dlgp)
+                    fact_base = session.create_fact_base(result.facts)
+                    answers = [
+                        list(session.evaluate_query_with_sources(query, fact_base, result.sources))
+                        for query in result.queries
+                    ]
+                    normalized = [
+                        [tuple(term.identifier for term in row) for row in rows]
+                        for rows in answers
+                    ]
+                    print(normalized)
+                """
+            ).strip("\n"),
+            runner=_run_arithmetic_expression_python_example,
+        ),
+        DocExample(
+            "prolog",
+            textwrap.dedent(
+                """
                 @computed ig: <stdfct>.
 
                 @queries
@@ -1166,6 +1236,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 ?(D) :- ig:minus(10, 3, D).
                 ?(P) :- ig:product(2, 3, P).
                 ?(Q) :- ig:divide(8.0, 2.0, Q).
+                ?(Pow) :- ig:power(2, 3, Pow).
                 ?(A) :- ig:average(2.0, 4.0, A).
                 ?(Md) :- ig:median(2, 9, 4, Md).
                 ?(WA) :- ig:weightedAverage(ig:tuple(10, 1), ig:tuple(20, 3), WA).
@@ -1192,6 +1263,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 ?(D) :- ig:minus(10, 3, D).
                 ?(P) :- ig:product(2, 3, P).
                 ?(Q) :- ig:divide(8.0, 2.0, Q).
+                ?(Pow) :- ig:power(2, 3, Pow).
                 ?(A) :- ig:average(2.0, 4.0, A).
                 ?(Md) :- ig:median(2, 9, 4, Md).
                 ?(WA) :- ig:weightedAverage(ig:tuple(10, 1), ig:tuple(20, 3), WA).

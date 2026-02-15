@@ -50,6 +50,7 @@ DLGPE grammar is based on: https://gitlab.inria.fr/jfbaget/dlgpe
 | Negation | ✅ Supported | `not p(X)` or `not (p(X), q(X))` |
 | Equality | ✅ Supported | `X = Y` |
 | Comparison operators | ✅ Supported | `<`, `>`, `<=`, `>=`, `!=` |
+| Arithmetic expressions | ✅ Supported | `X + 1`, `X * Y`, `X - 1`, `X / 2`, `X ** 2` |
 | Labels | ✅ Supported | `[rule1] p(X) :- q(X).` |
 
 ### Neck Types
@@ -82,7 +83,6 @@ The following features will raise `DlgpeUnsupportedFeatureError` when encountere
 
 | Feature | Reason |
 |---------|--------|
-| Arithmetic expressions | Not implemented: `X + 1`, `X * Y`, `X - 1`, `X / 2`, `X ** 2` |
 
 ### Atoms
 
@@ -156,7 +156,6 @@ for rule in parser.parse_rules("h(X) :- b(X). g(X) | f(X) :- p(X)."):
 
 Features that could be implemented in future versions:
 
-1. **IRI resolution**: Completed (base and prefix directives now resolve IRIs)
-2. **Arithmetic expressions**: Add support for basic arithmetic
-3. **Subqueries**: Implement subquery evaluation
-4. **`@import` directive**: Supported (format-aware imports)
+1. **Subqueries**: Implement subquery evaluation
+2. **`@view` directive**: Implement views
+3. **`@patterns` directive**: Implement pattern predicates and expansions

@@ -749,16 +749,17 @@ class ReasoningSession:
             for prefix, value in self._computed_prefixes.items()
             if value == "stdfct"
         }
-        if std_prefixes:
-            resolved_prefixes = {prefix: "stdfct:" for prefix in std_prefixes}
-            computed_predicates = _extract_computed_predicates(atoms, resolved_prefixes)
-            if computed_predicates:
-                literal_factory = self._term_factories.get(Literal)
-                sources.append(
-                    IntegraalStandardFunctionSource(
-                        literal_factory, resolved_prefixes, computed_predicates
-                    )
+        resolved_prefixes = {prefix: "stdfct:" for prefix in std_prefixes}
+        if not resolved_prefixes:
+            resolved_prefixes = {"stdfct": "stdfct:"}
+        computed_predicates = _extract_computed_predicates(atoms, resolved_prefixes)
+        if computed_predicates:
+            literal_factory = self._term_factories.get(Literal)
+            sources.append(
+                IntegraalStandardFunctionSource(
+                    literal_factory, resolved_prefixes, computed_predicates
                 )
+            )
         return sources
 
     def _collect_atoms_for_sources(

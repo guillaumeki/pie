@@ -78,6 +78,7 @@ For any important change:
 17) Tests must never use `str(...)` or `repr(...)` in assertions or comparisons (avoid brittle expectations).
 18) Tests must be deterministic (no reliance on iteration order from sets/dicts; always sort or normalize).
 19) If there are more than 10 files in `agents/design/`, compress them into a single file and ensure all dates remain present in the compressed version.
+20) At the end of the process, verify `README.md` is up to date and contains nothing obsolete.
 
 ## Python Module Hierarchy Standards
 - This project uses a flat layout (importable packages at repo root). Do not introduce a `src/` layout unless the plan explicitly justifies it and includes required packaging changes. (https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/)
@@ -130,6 +131,7 @@ For any important change:
 - `agents/design/answer-variable-ordering.md`
 - `agents/design/rule-formula.md`
 - `agents/design/grd.md`
+- `agents/design/arithmetic-expressions.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`

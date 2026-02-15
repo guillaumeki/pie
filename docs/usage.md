@@ -289,6 +289,49 @@ Expected output includes:
 The `facts.csv` import yields atoms with predicate `facts(t1, ..., tn)` where each
 row becomes one atom. The output now includes facts from every imported file.
 
+### Arithmetic Expressions in DLGPE
+Arithmetic expressions are supported in terms, equalities, and comparisons.
+PIE desugars them to standard functions and loads `stdfct` automatically when
+arithmetic appears in a document.
+
+```prolog
+@facts
+p(3).
+
+@queries
+?(X) :- p(X + 1).
+?() :- (2 * 3) + 1 > 6.
+```
+Evaluate the queries and print the normalized answers.
+```python
+from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+
+
+dlgp = """
+@facts
+p(3).
+
+@queries
+?(X) :- p(X + 1).
+?() :- (2 * 3) + 1 > 6.
+"""
+
+with ReasoningSession.create() as session:
+    result = session.parse(dlgp)
+    fact_base = session.create_fact_base(result.facts)
+    answers = [
+        list(session.evaluate_query_with_sources(query, fact_base, result.sources))
+        for query in result.queries
+    ]
+    normalized = [
+        [tuple(term.identifier for term in row) for row in rows]
+        for rows in answers
+    ]
+    print(normalized)
+```
+Expected output: `[[('2',)], [()]]`.
+
 ## Loading Computed Functions (`@computed`)
 PIE supports the standard function library via `@computed` prefixes. To load the
 standard library, declare `@computed <prefix>: <stdfct>.` and use the functions
@@ -496,6 +539,7 @@ lists.
 - `minus(t1, ..., tn, Result)` (n >= 1): Left-fold subtraction.
 - `product(t1, ..., tn, Result)` (n >= 1): Product of all numeric inputs.
 - `divide(t1, t2, ..., tn, Result)` (n >= 2): Left-fold division.
+- `power(t1, t2, Result)`: Exponentiation (t1 ** t2).
 - `average(t1, ..., tn, Result)` (n >= 1): Arithmetic mean.
 - `median(t1, ..., tn, Result)` (n >= 1): Median value.
 - `weightedAverage(pair1, ..., pairN, Result)`: Weighted average.
@@ -513,6 +557,7 @@ Arithmetic examples (one query per function, in the same order):
 ?(D) :- ig:minus(10, 3, D).
 ?(P) :- ig:product(2, 3, P).
 ?(Q) :- ig:divide(8.0, 2.0, Q).
+?(Pow) :- ig:power(2, 3, Pow).
 ?(A) :- ig:average(2.0, 4.0, A).
 ?(Md) :- ig:median(2, 9, 4, Md).
 ?(WA) :- ig:weightedAverage(ig:tuple(10, 1), ig:tuple(20, 3), WA).
@@ -534,6 +579,7 @@ dlgp = """
 ?(D) :- ig:minus(10, 3, D).
 ?(P) :- ig:product(2, 3, P).
 ?(Q) :- ig:divide(8.0, 2.0, Q).
+?(Pow) :- ig:power(2, 3, Pow).
 ?(A) :- ig:average(2.0, 4.0, A).
 ?(Md) :- ig:median(2, 9, 4, Md).
 ?(WA) :- ig:weightedAverage(ig:tuple(10, 1), ig:tuple(20, 3), WA).
@@ -554,7 +600,7 @@ with ReasoningSession.create() as session:
     print(pairs)
 ```
 Expected output:
-`[('stdfct:sum', Lit:3), ('stdfct:min', Lit:1), ('stdfct:max', Lit:3), ('stdfct:minus', Lit:7), ('stdfct:product', Lit:6), ('stdfct:divide', Lit:4), ('stdfct:average', Lit:3), ('stdfct:median', Lit:4), ('stdfct:weightedAverage', Lit:17.5), ('stdfct:weightedMedian', Lit:20)]`.
+`[('stdfct:sum', Lit:3), ('stdfct:min', Lit:1), ('stdfct:max', Lit:3), ('stdfct:minus', Lit:7), ('stdfct:product', Lit:6), ('stdfct:divide', Lit:4), ('stdfct:power', Lit:8), ('stdfct:average', Lit:3), ('stdfct:median', Lit:4), ('stdfct:weightedAverage', Lit:17.5), ('stdfct:weightedMedian', Lit:20)]`.
 
 ### Comparison and Predicate Functions
 - `isEven(value, Result)`: True if value is an even integer.

@@ -38,10 +38,10 @@ class DlgpeParser:
     - Negation (not) in rule bodies
     - Disjunction (|) in rule bodies
     - Ground neck (::-)
+    - Arithmetic expressions in terms
     - Extended directives
 
     Features NOT supported by PIE (will raise DlgpeUnsupportedFeatureError):
-    - Arithmetic expressions
     - Subqueries
     - Macro predicates
     - @view, @patterns directives
@@ -120,18 +120,6 @@ class DlgpeParser:
 
         if re.search(r"\b[A-Za-z_][A-Za-z0-9_]*\s*\*\s*\(", stripped):
             return
-
-        if (
-            re.search(r"(?<![eE])\b\d+\s*[+\-*/]\s*\d+\b", stripped)
-            or re.search(
-                r"\b[A-Za-z_][A-Za-z0-9_]*\s*[+\-*/]\s*[A-Za-z0-9_]",
-                stripped,
-            )
-            or "**" in stripped
-        ):
-            raise DlgpeUnsupportedFeatureError(
-                "Arithmetic expressions (+, -, *, /, **) are not supported by PIE"
-            )
 
         if re.search(
             r"\b(?!not\b)[a-z][A-Za-z0-9_]*\s*\(\s*[a-z][A-Za-z0-9_]*\s*\(",
@@ -294,13 +282,41 @@ class DlgpeParser:
         if any(is_comparison_predicate(atom.predicate) for atom in atoms):
             sources.append(ComparisonDataSource())
 
+        stdfct_predicates: set = set()
+        if atoms:
+            from prototyping_inference_engine.api.atom.predicate import Predicate
+            from prototyping_inference_engine.api.atom.term.evaluable_function_term import (
+                EvaluableFunctionTerm,
+            )
+
+            def collect_term_predicates(term) -> None:
+                if isinstance(term, EvaluableFunctionTerm) and term.name.startswith(
+                    "stdfct:"
+                ):
+                    stdfct_predicates.add(Predicate(term.name, len(term.args) + 1))
+                args = getattr(term, "args", None)
+                if args:
+                    for arg in args:
+                        collect_term_predicates(arg)
+
+            for atom in atoms:
+                for term in atom.terms:
+                    collect_term_predicates(term)
+
         computed_prefixes = (
             header.get("computed", {}) if isinstance(header, dict) else {}
         )
         std_prefixes = {
             prefix for prefix, value in computed_prefixes.items() if value == "stdfct"
         }
-        if std_prefixes:
+        stdfct_predicates.update(
+            {
+                atom.predicate
+                for atom in atoms
+                if atom.predicate.name.startswith("stdfct:")
+            }
+        )
+        if std_prefixes or stdfct_predicates:
             from prototyping_inference_engine.api.atom.term.factory.literal_factory import (
                 LiteralFactory,
             )
@@ -315,11 +331,12 @@ class DlgpeParser:
             )
 
             resolved_prefixes = {prefix: "stdfct:" for prefix in std_prefixes}
-            base_iris = list(resolved_prefixes.values())
+            if not resolved_prefixes:
+                resolved_prefixes = {"stdfct": "stdfct:"}
             computed_predicates = {
                 atom.predicate
                 for atom in atoms
-                if any(atom.predicate.name.startswith(base) for base in base_iris)
+                if atom.predicate.name.startswith("stdfct:")
             }
             if computed_predicates:
                 literal_factory = LiteralFactory(DictStorage(), LiteralConfig.default())

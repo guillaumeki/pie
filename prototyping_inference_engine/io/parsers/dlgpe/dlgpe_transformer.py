@@ -87,11 +87,11 @@ class DlgpeTransformer(Transformer):
     - Facts, rules, constraints, queries
     - Disjunction in heads and bodies
     - Negation (not)
+    - Arithmetic expressions
     - Labels on statements
     - @base, @prefix, @computed, @top, @una directives
 
     Unsupported features (will raise DlgpeUnsupportedFeatureError):
-    - Arithmetic expressions
     - Subqueries (Var := body)
     - Macro predicates ($predicate)
     - Repeated atoms (predicate+ or predicate*)
@@ -191,11 +191,6 @@ class DlgpeTransformer(Transformer):
     def unsupported_pattern_atom(self, items):
         raise DlgpeUnsupportedFeatureError(
             "Pattern predicates ($name) are not supported by PIE"
-        )
-
-    def unsupported_arithmetic(self, items):
-        raise DlgpeUnsupportedFeatureError(
-            "Arithmetic expressions (+, -, *, /, **) are not supported by PIE"
         )
 
     def unsupported_functional(self, items):
@@ -547,6 +542,39 @@ class DlgpeTransformer(Transformer):
     def body_term(self, items):
         return items[0] if items else None
 
+    def comparison_term(self, items):
+        return items[0] if items else None
+
+    def additive_term(self, items) -> Term:
+        if len(items) == 1:
+            return items[0]
+        return self._fold_binary_ops(items, {"+": "sum", "-": "minus"})
+
+    def multiplicative_term(self, items) -> Term:
+        if len(items) == 1:
+            return items[0]
+        return self._fold_binary_ops(items, {"*": "product", "/": "divide"})
+
+    def opposite_term(self, items) -> Term:
+        if len(items) == 1:
+            return items[0]
+        op_token = str(items[0])
+        term = items[1]
+        if op_token == "+":
+            return term
+        zero = self._literal_factory.create("0", f"{XSD_PREFIX}{XSD_INTEGER}")
+        return EvaluableFunctionTerm("stdfct:minus", [zero, term])
+
+    def exponential_term(self, items) -> Term:
+        if len(items) == 1:
+            return items[0]
+        base = items[0]
+        exponent = items[-1]
+        return EvaluableFunctionTerm("stdfct:power", [base, exponent])
+
+    def elementary_term(self, items) -> Term:
+        return items[0]
+
     def term(self, items) -> Term:
         return items[0]
 
@@ -752,6 +780,18 @@ class DlgpeTransformer(Transformer):
         result = formulas[0]
         for f in formulas[1:]:
             result = ConjunctionFormula(result, f)
+        return result
+
+    @staticmethod
+    def _fold_binary_ops(items, op_map: dict[str, str]) -> Term:
+        result = items[0]
+        idx = 1
+        while idx < len(items):
+            op = str(items[idx])
+            right = items[idx + 1]
+            function_name = op_map[op]
+            result = EvaluableFunctionTerm(f"stdfct:{function_name}", [result, right])
+            idx += 2
         return result
 
     def _extract_atoms_from_formula(self, formula: Formula) -> List[Atom]:

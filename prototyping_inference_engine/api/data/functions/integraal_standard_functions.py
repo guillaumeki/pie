@@ -352,6 +352,23 @@ def _divide(args: list[Term], literal_factory: LiteralFactory) -> Term:
     return literal_factory.create(str(result), f"{XSD_PREFIX}double")
 
 
+def _power(args: list[Term], literal_factory: LiteralFactory) -> Term:
+    args = _flatten_if_collection(args)
+    numbers, all_ints = _parse_numbers(args, "power")
+    if len(numbers) != 2:
+        raise ValueError("power requires exactly two arguments.")
+    base, exponent = numbers
+    if isinstance(base, int) and isinstance(exponent, int):
+        result = pow(base, exponent)
+        if float(result).is_integer():
+            return _number_literal(int(result), True, literal_factory)
+        return _number_literal(float(result), False, literal_factory)
+    result = pow(float(base), float(exponent))
+    return _number_literal(
+        result, all_ints and float(result).is_integer(), literal_factory
+    )
+
+
 def _min(args: list[Term], literal_factory: LiteralFactory) -> Term:
     args = _flatten_if_collection(args)
     numbers, all_ints = _parse_numbers(args, "min")
@@ -1009,6 +1026,7 @@ def _standard_functions() -> dict[str, StandardFunction]:
         "minus": StandardFunction("minus", 1, None, _minus, _solve_minus),
         "product": StandardFunction("product", 1, None, _product, _solve_product),
         "divide": StandardFunction("divide", 2, None, _divide, _solve_divide),
+        "power": StandardFunction("power", 2, 2, _power),
         "average": StandardFunction("average", 1, None, _average, _solve_average),
         "median": StandardFunction("median", 1, None, _median),
         "isEven": StandardFunction("isEven", 1, 1, _is_even),

@@ -182,9 +182,9 @@ head_atom: predicate ( "(" head_terms_list ")" )?
 body_atom.2: predicate ( "(" body_terms_list ")" )?
            | pattern_predicate ( "(" body_terms_list ")" )?  -> unsupported_pattern_atom
 
-equal_atom.1: term "=" term
+equal_atom.1: comparison_term "=" comparison_term
 
-operator_atom.1: term PREDICATE_OPERATOR term
+operator_atom.1: comparison_term PREDICATE_OPERATOR comparison_term
 PREDICATE_OPERATOR: "<" | ">" | "<=" | ">=" | "!="
 
 repeated_atom: predicate REPEAT_SYMBOL "(" term "," term ")"
@@ -198,40 +198,48 @@ body_terms_list: (body_term ("," body_term)*)?
 variable_list: (named_variable ("," named_variable)*)?
 
 // Terms
-head_term: additive_term      -> unsupported_arithmetic
-         | functional_term
+head_term: additive_term
          | constant
-         | named_variable
 
-body_term: additive_term      -> unsupported_arithmetic
-         | functional_term
+body_term: additive_term
          | constant
          | anonymous_variable
-         | named_variable
 
-// Arithmetic (unsupported - will raise error)
-additive_term: multiplicative_term (ADDOP multiplicative_term)+
-multiplicative_term: opposite_term (MULTOP opposite_term)+
-opposite_term: "-" exponential_term
-exponential_term: elementary_term "**" opposite_term
+comparison_term: comparison_additive_term
+
+comparison_additive_term: comparison_multiplicative_term (ADDOP comparison_multiplicative_term)*  -> additive_term
+comparison_multiplicative_term: comparison_opposite_term (MULTOP comparison_opposite_term)*        -> multiplicative_term
+comparison_opposite_term: ADDOP? comparison_exponential_term                                     -> opposite_term
+comparison_exponential_term: comparison_elementary_term (POW comparison_opposite_term)?           -> exponential_term
+comparison_elementary_term: "(" comparison_additive_term ")"                                      -> elementary_term
+                        | constant                                                                -> elementary_term
+                        | named_variable                                                          -> elementary_term
+                        | literal                                                                 -> elementary_term
+
+// Arithmetic
+additive_term: multiplicative_term (ADDOP multiplicative_term)*
+multiplicative_term: opposite_term (MULTOP opposite_term)*
+opposite_term: ADDOP? exponential_term
+exponential_term: elementary_term (POW opposite_term)?
 elementary_term: "(" additive_term ")" | functional_term | named_variable | literal
 
 ADDOP: "+" | "-"
 MULTOP: "*" | "/"
+POW: "**"
 
 functional_term: identifier "(" argument_term_list ")"
 argument_term_list: (argument_term ("," argument_term)*)?
 
 // Basic terms
-argument_term: functional_term | named_variable | constant | anonymous_variable
-term: named_variable | constant | anonymous_variable
+argument_term: additive_term | constant | anonymous_variable
+term: additive_term | constant | anonymous_variable
 
-predicate: identifier
+predicate.2: identifier
 pattern_predicate: "$" SIMPLE_IDENTIFIER
 
 named_variable: NAMED_VARIABLE | UPPERCASE_PREFIX
 anonymous_variable: UNDERSCORE
-constant: identifier | literal
+constant.1: identifier
 
 // Literals
 literal: typed_literal

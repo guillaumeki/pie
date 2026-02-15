@@ -102,6 +102,10 @@ class TestIntegraalStandardFunctions(unittest.TestCase):
             self._literal("4", "xsd:double"),
         )
         self.assertEqual(
+            self._evaluate_single("power", [two, three]),
+            self._literal("8", "xsd:integer"),
+        )
+        self.assertEqual(
             self._evaluate_single("average", [two, three]),
             self._literal("2.5", "xsd:double"),
         )
@@ -149,6 +153,7 @@ class TestIntegraalStandardFunctions(unittest.TestCase):
             ("minus", [invalid, numeric]),
             ("product", [invalid, numeric]),
             ("divide", [invalid, numeric]),
+            ("power", [invalid, numeric]),
             ("average", [invalid]),
             ("median", [invalid]),
         ]

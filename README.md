@@ -45,7 +45,9 @@ Requires Python 3.10+ (uses match/case syntax). CI runs on CPython 3.10, CPython
 ```python
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
-from prototyping_inference_engine.query_evaluation.evaluator.fo_query_evaluators import GenericFOQueryEvaluator
+from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
+    GenericFOQueryEvaluator,
+)
 
 # Parse facts and query (DLGP)
 parser = DlgpeParser.instance()
@@ -223,9 +225,12 @@ Extended Datalog+- format with disjunction, negation, and sections (recommended)
 | Disjunction in body | `\|` | `h(X) :- p(X) \| q(X).` |
 | Negation | `not` | `h(X) :- p(X), not q(X).` |
 | Equality | `=` | `?(X,Y) :- p(X,Y), X = Y.` |
+| Comparison operators | `<`, `>`, `<=`, `>=`, `!=` | `?(X) :- p(X), X > 3.` |
+| Arithmetic expressions | `+`, `-`, `*`, `/`, `**` | `?(X) :- p(X + 1).` |
 | Sections | `@facts`, `@rules`, `@queries`, `@constraints` | Organize knowledge base |
 | Labels | `[name]` | `[rule1] h(X) :- b(X).` |
 | IRI directives | `@base`, `@prefix` | `@base <http://example.org/>.` |
+| Imports | `@import` | `@import <facts.dlgp>.` |
 
 **Usage:**
 
@@ -259,7 +264,7 @@ atoms = list(parser.parse_atoms("p(a). q(b)."))
 rules = list(parser.parse_rules("h(X) :- b(X). p(X) | q(X) :- r(X)."))
 ```
 
-**Not supported:** arithmetic expressions, comparison operators (`<`, `>`, etc.), `@import`, `@view` directives.
+**Not supported:** `@view` directives.
 
 #### DLGP Files (`.dlgp`)
 
@@ -290,7 +295,7 @@ disjunctive-rewriter [file.dlgp] [-l LIMIT] [-v] [-m]
 
 ```bash
 # All tests
-python3 -m unittest discover -s prototyping_inference_engine -v
+python3 -m unittest discover -s prototyping_inference_engine -t . -v
 
 # Specific module
 python3 -m unittest discover -s prototyping_inference_engine/query_evaluation -v

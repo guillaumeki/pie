@@ -10,6 +10,13 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: query evaluators now expose `prepare` for reuse of prepared queries.
 
 ## [2026-02-15]
+- Added: DLGPE arithmetic expressions (terms, equality, comparisons) with parser support.
+- Added: `stdfct:power` and arithmetic expression desugaring to standard functions.
+- Changed: standard functions are auto-enabled when arithmetic expressions appear.
+- Updated: documentation and examples for arithmetic expressions and standard functions.
+- Changed: bumped version to 0.0.27.
+
+## [2026-02-15]
 - Added: Integraal GRD test suite port, including restricted productivity checker support.
 - Changed: bumped version to 0.0.26.
 

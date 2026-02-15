@@ -27,11 +27,6 @@ class TestDlgpeUnsupportedFeaturesExtra(unittest.TestCase):
         self.assertIn("computed", header)
         self.assertEqual(header["computed"].get("ex"), "http://example.org/functions#")
 
-    def test_unsupported_arithmetic(self):
-        with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:
-            self.parser.parse("p(X + 1).")
-        self.assertIn("Arithmetic expressions", ctx.exception.args[0])
-
     def test_unsupported_functional_term(self):
         result = self.parser.parse("p(f(X)).")
         self.assertEqual(len(result["facts"]), 1)

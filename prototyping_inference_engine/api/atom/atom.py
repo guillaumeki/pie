@@ -39,13 +39,30 @@ class Atom(Formula):
     def variables(self) -> Set["Variable"]:
         from prototyping_inference_engine.api.atom.term.variable import Variable
 
-        return self.terms_of_type(Variable)
+        variables: set[Variable] = set()
+        for term in self.terms:
+            variables.update(self._collect_terms_of_type(term, Variable))
+        return variables
 
     @property
     def constants(self) -> Set["Constant"]:
         from prototyping_inference_engine.api.atom.term.constant import Constant
 
-        return self.terms_of_type(Constant)
+        constants: set[Constant] = set()
+        for term in self.terms:
+            constants.update(self._collect_terms_of_type(term, Constant))
+        return constants
+
+    @staticmethod
+    def _collect_terms_of_type(term: Term, term_type: Type[T]) -> Set[T]:
+        found: set[T] = set()
+        if isinstance(term, term_type):
+            found.add(term)
+        args = getattr(term, "args", None)
+        if args:
+            for arg in args:
+                found.update(Atom._collect_terms_of_type(arg, term_type))
+        return found
 
     # Formula interface implementation
     @property
