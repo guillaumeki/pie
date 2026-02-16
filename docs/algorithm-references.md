@@ -71,7 +71,7 @@ existential rules, with minimality when a finite rewriting exists.
 - “Query Rewriting with Disjunctive Existential Rules and Mappings.”
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
-  [Guillaume Pérution-Kihli](https://scholar.google.com/scholar?q=Guillaume%20P%C3%A9rution-Kihli).
+  [Guillaume Pérution-Kihli](https://guillaume.perutionkih.li).
   Publication: [https://proceedings.kr.org/2023/42/](https://proceedings.kr.org/2023/42/)
 
 ## Graph of Rule Dependencies (GRD)
