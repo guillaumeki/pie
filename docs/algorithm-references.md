@@ -1,389 +1,212 @@
 # Algorithm References
 
-This page mirrors the in-code reference comments for algorithm entrypoints. Each
-section repeats the citations, summaries, properties, and implementation notes
-embedded in the corresponding module.
+This page documents the main algorithms implemented in PIE. Each section is
+organized by **concept/algorithm**, explains the idea in prose, states the
+properties used in the code, and points to where the implementation lives. The
+references include full author lists and clickable links. Author names link to a
+personal page when available; otherwise to Google Scholar or DBLP.
 
-## prototyping_inference_engine/unifier/piece_unifier.py
-References:
-- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf
-- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en
+## Piece-Unifiers and Minimal UCQ Rewriting
 
-Summary:
-Piece-unifiers restrict unification between a conjunctive query and a rule head
-to avoid unsound bindings of existential variables. They track a "piece" of the
-query, a partition of terms, and frontier instantiations to ensure correctness.
+**Summary**
+Piece-unifiers are a restricted form of unification for existential rules. They
+identify a "piece" of the query that must be rewritten together, preventing
+unsound bindings of existential variables. This restriction preserves soundness
+and completeness while enabling minimal UCQ rewriting when the rewriting set is
+finite. PIE uses piece-unifiers to drive backward chaining and to keep rewriting
+operators aligned with the theoretical guarantees from the literature.
 
-Properties used here:
-- Soundness and completeness of piece-unification in backward chaining.
-- Separating and sticky variables characterize admissible partitions.
+**Key properties used in PIE**
+- Soundness and completeness of piece-unifier based rewriting.
+- Minimality of UCQ rewritings when a finite rewriting exists.
+- Correct handling of separating and sticky variables through admissible
+  partitions.
 
-Implementation notes:
-This class encodes the piece-unifier structure and the admissibility checks
-described in the papers, serving as the core artifact manipulated by the
-rewriting algorithms.
+**Implementation in PIE**
+- `prototyping_inference_engine/unifier/piece_unifier.py`
+- `prototyping_inference_engine/unifier/piece_unifier_algorithm.py`
+- `prototyping_inference_engine/backward_chaining/breadth_first_rewriting.py`
+- `prototyping_inference_engine/backward_chaining/ucq_rewriting_algorithm.py`
 
-## prototyping_inference_engine/unifier/piece_unifier_algorithm.py
-References:
-- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf
-- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en
+**References**
+- “A Sound and Complete Backward Chaining Algorithm for Existential Rules.”
+  [Mélanie König](https://dblp.org/search?q=M%C3%A9lanie%20K%C3%B6nig),
+  [Michel Leclère](https://www.lirmm.fr/~leclere/),
+  [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
+  [Michaël Thomazo](https://prairie-institute.fr/chairs/thomazo-michael/).
+  Publication: [https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf](https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf)
+- “Sound, Complete, and Minimal Query Rewriting for Existential Rules.”
+  [Mélanie König](https://dblp.org/search?q=M%C3%A9lanie%20K%C3%B6nig),
+  [Michel Leclère](https://www.lirmm.fr/~leclere/),
+  [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
+  [Michaël Thomazo](https://prairie-institute.fr/chairs/thomazo-michael/).
+  Publication: [https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en](https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en)
 
-Summary:
-The piece-unifier algorithm enumerates admissible partitions between a query
-and a rule head, producing the maximal set of piece-unifiers usable for
-rewriting. This enumeration is the core step for backward chaining.
+## Disjunctive Rewriting with Disjunctive Piece-Unifiers
 
-Properties used here:
-- Completeness of enumerating all piece-unifiers for a CQ/rule pair.
-- Minimality of UCQ rewritings when combined with redundancy elimination.
+**Summary**
+Disjunctive piece-unifiers extend piece-unifiers to rules whose heads are
+(disjunctions of) conjunctive heads. The rewriting operator applies one
+piece-unifier per head disjunct and merges them through a shared partition,
+ensuring consistent frontier instantiations across disjuncts. PIE relies on
+this operator to perform sound and complete UCQ rewriting under disjunctive
+existential rules, with minimality when a finite rewriting exists.
 
-Implementation notes:
-This implementation follows the construction steps described in the papers,
-including admissibility checks and combination of compatible pre-unifiers.
+**Key properties used in PIE**
+- Soundness and completeness of the disjunctive rewriting operator.
+- Minimality of breadth-first UCQ rewriting when it terminates.
+- Correct propagation of shared frontier instantiations across disjuncts.
 
-## prototyping_inference_engine/unifier/disjunctive_piece_unifier.py
-References:
-- "Query rewriting with disjunctive existential rules and mappings" — Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli. Link: https://proceedings.kr.org/2023/42/
+**Implementation in PIE**
+- `prototyping_inference_engine/unifier/disjunctive_piece_unifier.py`
+- `prototyping_inference_engine/unifier/disjunctive_piece_unifier_algorithm.py`
+- `prototyping_inference_engine/backward_chaining/rewriting_operator/without_aggregation_rewriting_operator.py`
 
-Summary:
-Disjunctive piece-unifiers extend piece-unifiers to rules with disjunctive
-heads by combining unifiers for each disjunct and tracking a global partition.
+**References**
+- “Query Rewriting with Disjunctive Existential Rules and Mappings.”
+  [Michel Leclère](https://www.lirmm.fr/~leclere/),
+  [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
+  [Guillaume Pérution-Kihli](https://dblp.org/search?q=Guillaume%20P%C3%A9rution-Kihli).
+  Publication: [https://proceedings.kr.org/2023/42/](https://proceedings.kr.org/2023/42/)
 
-Properties used here:
-- Soundness and completeness of disjunctive unification for disjunctive heads.
-- Compatibility constraints ensure correct handling of shared frontier terms.
+## Graph of Rule Dependencies (GRD)
 
-Implementation notes:
-This class stores a tuple of piece-unifiers (one per disjunct) and builds the
-associated partition/substitution used during disjunctive rewriting.
+**Summary**
+A GRD encodes potential triggering relationships between rules by analyzing
+unifications between rule heads and bodies. It is used to reason about rule
+interaction, decidability, and evaluation strategies, and it provides the base
+structure for stratification under negation.
 
-## prototyping_inference_engine/unifier/disjunctive_piece_unifier_algorithm.py
-References:
-- "Query rewriting with disjunctive existential rules and mappings" — Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli. Link: https://proceedings.kr.org/2023/42/
-
-Summary:
-The algorithm builds disjunctive piece-unifiers by combining piece-unifiers
-computed for each disjunctive head, preserving consistency across shared
-variables and partitions.
-
-Properties used here:
-- Soundness and completeness of disjunctive unifier enumeration.
-- Termination for rule sets where the underlying rewriting terminates.
-
-Implementation notes:
-This module implements the construction of partial disjunctive unifiers and
-their systematic extension, as described in the KR 2023 paper.
-
-## prototyping_inference_engine/backward_chaining/breadth_first_rewriting.py
-References:
-- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf
-- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en
-
-Summary:
-Breadth-first UCQ rewriting iteratively applies rewriting steps to expand a
-union of conjunctive queries while removing redundancies. The papers provide
-the correctness and minimality results for this style of backward chaining.
-
-Properties used here:
-- Soundness and completeness of UCQ rewriting for existential rules.
-- Minimality with respect to redundancy elimination and subsumption tests.
-
-Implementation notes:
-This class drives the step-wise UCQ rewriting loop and uses a redundancy
-cleaner consistent with the minimal rewriting guarantees from the papers.
-
-## prototyping_inference_engine/backward_chaining/ucq_rewriting_algorithm.py
-References:
-- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf
-- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en
-
-Summary:
-UCQ rewriting is the backward chaining technique for existential rules that
-repeatedly replaces query atoms using rule heads to produce a union of CQs.
-
-Properties used here:
-- Soundness/completeness of UCQ rewriting relative to the rule set.
-- Minimality when combined with redundancy elimination.
-
-Implementation notes:
-This abstract interface captures the UCQ rewriting contract implemented by
-concrete algorithms (e.g., breadth-first rewriting).
-
-## prototyping_inference_engine/backward_chaining/rewriting_operator/without_aggregation_rewriting_operator.py
-References:
-- "Query rewriting with disjunctive existential rules and mappings" — Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli. Link: https://proceedings.kr.org/2023/42/
-
-Summary:
-This rewriting operator applies disjunctive piece-unifiers to transform UCQs
-when rules have disjunctive heads, producing a UCQ that preserves answers.
-
-Properties used here:
-- Soundness and completeness of disjunctive rewriting.
-- Termination guarantees under the same conditions as the underlying algorithm.
-
-Implementation notes:
-This operator implements the disjunctive rewriting step from the KR 2023 paper
-by constructing new CQs from disjunctive piece-unifiers.
-
-## prototyping_inference_engine/grd/grd.py
-References:
-- "Extending Decidable Cases for Rules with Existential Variables" — Jean-Francois Baget, Michel Leclere, Marie-Laure Mugnier, Eric Salvat. Link: https://www.ijcai.org/Proceedings/09/Papers/323.pdf
-
-Summary:
-The GRD captures dependencies between existential rules via unification
-conditions on heads and bodies. It is used to characterize decidable classes
-and to drive stratification and evaluation strategies.
-
-Properties used here:
+**Key properties used in PIE**
 - Dependency edges encode potential rule triggering.
-- GRD-based criteria enable reasoning about termination and stratification.
+- GRD-based criteria can be used to reason about termination and stratification.
 
-Implementation notes:
-This module constructs dependency edges using piece-unification and exposes
-them for stratification and evaluation procedures.
+**Implementation in PIE**
+- `prototyping_inference_engine/grd/grd.py`
+- `prototyping_inference_engine/grd/dependency_checker.py`
 
-## prototyping_inference_engine/grd/dependency_checker.py
-References:
-- "Extending Decidable Cases for Rules with Existential Variables" — Jean-Francois Baget, Michel Leclere, Marie-Laure Mugnier, Eric Salvat. Link: https://www.ijcai.org/Proceedings/09/Papers/323.pdf
+**References**
+- “Extending Decidable Cases for Rules with Existential Variables.”
+  [Jean-François Baget](https://www.lirmm.fr/~baget/),
+  [Michel Leclère](https://www.lirmm.fr/~leclere/),
+  [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
+  [Éric Salvat](https://dblp.org/search?q=Eric%20Salvat).
+  Publication: [https://www.ijcai.org/Proceedings/09/Papers/323.pdf](https://www.ijcai.org/Proceedings/09/Papers/323.pdf)
 
-Summary:
-GRD dependency checkers refine the basic dependency relation by validating
-whether a unifier yields a productive edge under specific conditions.
+## Stratification with Negation
 
-Properties used here:
-- Dependency validation aligns with GRD criteria used for decidability checks.
+**Summary**
+Stratification orders rules into strata so that negative dependencies only point
+to strictly lower strata, preventing negative cycles. PIE supports SCC-based
+stratification and weighted variants that compute minimal or single-evaluation
+strata where possible, which is crucial for controlled evaluation under
+negation.
 
-Implementation notes:
-The ProductivityChecker mirrors the criteria described in the GRD paper to
-filter dependencies for stratification and evaluation planning.
+**Key properties used in PIE**
+- Negative cycles are forbidden in stratified programs.
+- SCC condensation yields a DAG that can be topologically ordered.
+- Weighted shortest paths can compute strata levels under constraint systems.
 
-## prototyping_inference_engine/grd/stratification.py
-References:
-- "Extending Decidable Cases for Rules with Existential Variables" — Jean-Francois Baget, Michel Leclere, Marie-Laure Mugnier, Eric Salvat. Link: https://www.ijcai.org/Proceedings/09/Papers/323.pdf
-- "The well-founded semantics for general logic programs" — Allen Van Gelder, Kenneth A. Ross, John S. Schlipf. Link: https://doi.org/10.1145/115040.115041
-- "On a routing problem" — Richard Bellman. Link: https://doi.org/10.1090/qam/102435
-- "Network Flow Theory" — L. R. Ford Jr. Link: https://apps.dtic.mil/sti/pdfs/AD0602524.pdf
-- "A Note on a Simple Algorithm for Generating a Topological Ordering of a Directed Acyclic Graph" — Arthur B. Kahn. Link: https://doi.org/10.1145/368996.369025
+**Implementation in PIE**
+- `prototyping_inference_engine/grd/stratification.py`
+- `prototyping_inference_engine/utils/graph/topological_sort.py`
 
-Summary:
-Stratification partitions rules into ordered strata based on GRD dependencies
-and negation constraints. SCC-based ordering and shortest-path formulations
-are used to derive minimal or single-evaluation strata.
+**References**
+- “The well-founded semantics for general logic programs.”
+  [Allen Van Gelder](https://dblp.org/search?q=Allen%20Van%20Gelder),
+  [Kenneth A. Ross](https://dblp.org/search?q=Kenneth%20A.%20Ross),
+  [John S. Schlipf](https://dblp.org/search?q=John%20S.%20Schlipf).
+  Publication: [https://doi.org/10.1145/115040.115041](https://doi.org/10.1145/115040.115041)
+- “On a routing problem.”
+  [Richard Bellman](https://dblp.org/search?q=Richard%20Bellman).
+  Publication: [https://doi.org/10.1090/qam/102435](https://doi.org/10.1090/qam/102435)
+- “Network Flow Theory.”
+  [L. R. Ford Jr.](https://dblp.org/search?q=L.%20R.%20Ford).
+  Publication: [https://apps.dtic.mil/sti/pdfs/AD0602524.pdf](https://apps.dtic.mil/sti/pdfs/AD0602524.pdf)
+- “A Note on a Simple Algorithm for Generating a Topological Ordering of a
+  Directed Acyclic Graph.”
+  [Arthur B. Kahn](https://dblp.org/search?q=Arthur%20B.%20Kahn).
+  Publication: [https://doi.org/10.1145/368996.369025](https://doi.org/10.1145/368996.369025)
 
-Properties used here:
-- Stratified negation forbids negative cycles (well-founded semantics).
-- Bellman-Ford shortest paths compute strata levels under weighted edges.
-- Kahn's algorithm provides topological ordering for SCC condensation graphs.
+## Backtracking Homomorphism Search for Conjunctive Queries
 
-Implementation notes:
-This module computes SCCs (via igraph), applies Bellman-Ford for weighted
-stratification variants, and topologically orders SCCs for stratified execution.
-
-## prototyping_inference_engine/utils/graph/topological_sort.py
-References:
-- "A Note on a Simple Algorithm for Generating a Topological Ordering of a Directed Acyclic Graph" — Arthur B. Kahn. Link: https://doi.org/10.1145/368996.369025
-
-Summary:
-Kahn's algorithm iteratively removes nodes with zero in-degree to produce a
-topological ordering of a DAG.
-
-Properties used here:
-- Linear-time topological sorting in the size of nodes plus edges.
-- Detection of cycles when not all nodes can be ordered.
-
-Implementation notes:
-This implementation keeps a priority queue to provide deterministic ordering
-when multiple nodes are available.
-
-## prototyping_inference_engine/utils/partition.py
-References:
-- "Efficiency of a Good But Not Linear Set Union Algorithm" — Robert E. Tarjan. Link: https://doi.org/10.1145/360680.360685
-
-Summary:
-Union-find maintains a partition of a set with near-constant-time union and
-find operations using path compression and union-by-rank heuristics.
-
-Properties used here:
-- Amortized inverse-Ackermann complexity for union/find operations.
-
-Implementation notes:
-This module implements a union-find based partition structure that is used
-throughout the codebase for term equivalence classes.
-
-## prototyping_inference_engine/api/atom/set/homomorphism/homomorphism_algorithm.py
-References:
-- "Foundations of Databases" — Serge Abiteboul, Richard Hull, Victor Vianu. Link: https://dl.acm.org/doi/book/10.5555/64510
-
-Summary:
+**Summary**
 Conjunctive query answering can be characterized by the existence of a
-homomorphism from the query body to the database instance.
+homomorphism from the query body to a fact base. PIE uses a backtracking search
+with indexing and scheduling to enumerate homomorphisms and build substitutions.
+This is the core evaluation strategy behind the backtracking FO query evaluator
+and the prepared backtracking CQ implementation.
 
-Properties used here:
-- Homomorphism-based semantics for conjunctive queries.
-
-Implementation notes:
-This abstract interface defines the homomorphism computation contract used by
-CQ evaluation and query rewriting components.
-
-## prototyping_inference_engine/api/atom/set/homomorphism/backtrack/naive_backtrack_homomorphism_algorithm.py
-References:
-- "Foundations of Databases" — Serge Abiteboul, Richard Hull, Victor Vianu. Link: https://dl.acm.org/doi/book/10.5555/64510
-- "Extensions of Simple Conceptual Graphs: the Complexity of Rules and Constraints" — Jean-Francois Baget, Marie-Laure Mugnier. Link: https://doi.org/10.1613/jair.918
-
-Summary:
-Backtracking homomorphism search enumerates substitutions that map a CQ body
-into a fact base, which is the core of conjunctive query evaluation.
-
-Properties used here:
-- Completeness of backtracking for enumerating homomorphisms.
+**Key properties used in PIE**
+- Completeness of backtracking enumeration for homomorphisms.
 - Correctness of homomorphism-based CQ semantics.
 
-Implementation notes:
-This module implements a straightforward backtracking search with indexing and
-scheduling heuristics for atom ordering.
+**Implementation in PIE**
+- `prototyping_inference_engine/api/atom/set/homomorphism/backtrack/naive_backtrack_homomorphism_algorithm.py`
+- `prototyping_inference_engine/query_evaluation/evaluator/fo_query/prepared_queries.py`
+- `prototyping_inference_engine/query_evaluation/evaluator/fo_query/fo_query_evaluators.py`
 
-## prototyping_inference_engine/query_evaluation/evaluator/fo_query/prepared_queries.py
-References:
-- "Extensions of Simple Conceptual Graphs: the Complexity of Rules and Constraints" — Jean-Francois Baget, Marie-Laure Mugnier. Link: https://doi.org/10.1613/jair.918
+**References**
+- “Foundations of Databases.”
+  [Serge Abiteboul](https://dblp.org/search?q=Serge%20Abiteboul),
+  [Richard Hull](https://dblp.org/search?q=Richard%20Hull),
+  [Victor Vianu](https://dblp.org/search?q=Victor%20Vianu).
+  Publication: [https://dl.acm.org/doi/book/10.5555/64510](https://dl.acm.org/doi/book/10.5555/64510)
+- “Extensions of Simple Conceptual Graphs: The Complexity of Rules and Constraints.”
+  [Jean-François Baget](https://www.lirmm.fr/~baget/),
+  [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/).
+  Publication: [https://doi.org/10.1613/jair.918](https://doi.org/10.1613/jair.918)
 
-Summary:
-Conjunctive query answering can be reduced to projection (graph homomorphism)
-and is typically implemented via backtracking search with pruning heuristics.
+## Union-Find for Term Partitions
 
-Properties used here:
-- Completeness of backtracking projection for conjunctive queries.
+**Summary**
+Term partitions are implemented via union-find to maintain equivalence classes
+used by unification and equality reasoning. PIE relies on union-find for
+near-constant-time merges and representative queries across the codebase.
 
-Implementation notes:
-This module implements the backtracking evaluation strategy used by prepared
-conjunctive queries.
+**Key properties used in PIE**
+- Amortized inverse-Ackermann complexity for union/find operations.
 
-## prototyping_inference_engine/query_evaluation/evaluator/fo_query/fo_query_evaluator.py
-References:
-- "Foundations of Databases" — Serge Abiteboul, Richard Hull, Victor Vianu. Link: https://dl.acm.org/doi/book/10.5555/64510
+**Implementation in PIE**
+- `prototyping_inference_engine/utils/partition.py`
 
-Summary:
-FO queries are evaluated by interpreting their formulas over a database
-instance, with conjunctive queries handled via homomorphisms.
+**References**
+- “Efficiency of a Good But Not Linear Set Union Algorithm.”
+  [Robert E. Tarjan](https://dblp.org/search?q=Robert%20E.%20Tarjan).
+  Publication: [https://doi.org/10.1145/360680.360685](https://doi.org/10.1145/360680.360685)
 
-Properties used here:
-- Standard FO semantics and CQ homomorphism characterization.
+## DLGP/DLGPE Syntax
 
-Implementation notes:
-This base class defines the evaluator interface used to dispatch on formula
-types in the query evaluation stack.
+**Summary**
+DLGP (and its DLGPE extensions) provide a textual syntax for facts, rules,
+negative constraints, and queries in the existential-rule framework. PIE’s
+parser and writer implement a compatible subset of this syntax.
 
-## prototyping_inference_engine/query_evaluation/evaluator/fo_query/fo_query_evaluators.py
-References:
-- "Foundations of Databases" — Serge Abiteboul, Richard Hull, Victor Vianu. Link: https://dl.acm.org/doi/book/10.5555/64510
+**Implementation in PIE**
+- `prototyping_inference_engine/io/parsers/dlgpe/dlgpe_parser.py`
+- `prototyping_inference_engine/io/writers/dlgpe_writer.py`
 
-Summary:
-FO query evaluation decomposes formulas by logical connectives and quantifiers,
-reducing to conjunction evaluation and homomorphism checks for atoms.
+**References**
+- “DLGP: An Extended Datalog Syntax (Version 2.1).”
+  [GraphIK Team](https://team.inria.fr/graphik/).
+  Publication: [https://graphik-team.github.io/graal/doc/dlgp](https://graphik-team.github.io/graal/doc/dlgp)
 
-Properties used here:
-- Standard FO semantics for conjunction, disjunction, negation, and quantifiers.
+## RDF Translation and RDF I/O
 
-Implementation notes:
-This module provides the concrete evaluator classes that follow the FO
-semantics described in the reference.
+**Summary**
+RDF defines a graph data model based on triples (subject, predicate, object).
+PIE translates RDF triples to atoms using configurable translation modes and
+reads/writes RDF through rdflib, preserving RDF semantics while exposing atoms
+to the inference engine.
 
-## prototyping_inference_engine/query_evaluation/evaluator/query/conjunctive_query_evaluator.py
-References:
-- "Foundations of Databases" — Serge Abiteboul, Richard Hull, Victor Vianu. Link: https://dl.acm.org/doi/book/10.5555/64510
+**Implementation in PIE**
+- `prototyping_inference_engine/rdf/translator.py`
+- `prototyping_inference_engine/io/parsers/rdf/rdf_parser.py`
+- `prototyping_inference_engine/io/writers/rdf/rdf_writer.py`
 
-Summary:
-Conjunctive query answering reduces to finding homomorphisms from the query
-body to the database instance.
-
-Properties used here:
-- Correctness of CQ evaluation via homomorphisms.
-
-Implementation notes:
-This evaluator delegates CQ evaluation to the FO query evaluator stack.
-
-## prototyping_inference_engine/query_evaluation/evaluator/query/union_query_evaluator.py
-References:
-- "Foundations of Databases" — Serge Abiteboul, Richard Hull, Victor Vianu. Link: https://dl.acm.org/doi/book/10.5555/64510
-
-Summary:
-Unions of conjunctive queries represent disjunctions and are evaluated by
-taking the union of answers of each disjunct.
-
-Properties used here:
-- Correctness of UCQ evaluation as set-union of CQ answers.
-
-Implementation notes:
-This evaluator delegates each sub-query to the registry and merges results.
-
-## prototyping_inference_engine/io/parsers/dlgpe/dlgpe_parser.py
-References:
-- "DLGP: An Extended Datalog Syntax for Existential Rules and Datalog±" — Jean-Francois Baget, Mariano Rodriguez Gutierrez, Michel Leclere, Marie-Laure Mugnier, Swan Rocher, Marie Sipieter. Link: https://graphik-team.github.io/graal/doc/dlgp/dlgp.pdf
-
-Summary:
-DLGP/DLGPE define a concrete syntax for existential rules, facts, and queries.
-This parser implements the DLGP-based grammar with DLGPE extensions.
-
-Properties used here:
-- Conformance to the DLGP syntax for rules, facts, and queries.
-- Extension points for DLGPE-specific constructs.
-
-Implementation notes:
-The grammar and transformer follow the DLGP specification and expose a subset
-aligned with PIE capabilities.
-
-## prototyping_inference_engine/io/writers/dlgpe_writer.py
-References:
-- "DLGP: An Extended Datalog Syntax for Existential Rules and Datalog±" — Jean-Francois Baget, Mariano Rodriguez Gutierrez, Michel Leclere, Marie-Laure Mugnier, Swan Rocher, Marie Sipieter. Link: https://graphik-team.github.io/graal/doc/dlgp/dlgp.pdf
-
-Summary:
-DLGP/DLGPE define a concrete syntax for existential rules, facts, and queries.
-This writer serializes PIE structures to that syntax.
-
-Properties used here:
-- Conformance to DLGP syntax for rules, facts, queries, and directives.
-
-Implementation notes:
-The serializer mirrors the DLGP specification and PIE's DLGPE extensions.
-
-## prototyping_inference_engine/io/parsers/rdf/rdf_parser.py
-References:
-- "RDF 1.1 Concepts and Abstract Syntax" — Richard Cyganiak, David Wood, Markus Lanthaler. Link: https://www.w3.org/TR/rdf11-concepts/
-
-Summary:
-RDF defines a graph-based data model with triples that can be parsed from
-concrete syntaxes and translated into application-specific representations.
-
-Properties used here:
-- Standard RDF graph semantics for triples and IRIs.
-
-Implementation notes:
-This parser uses rdflib to parse RDF and maps triples into atoms via PIE's
-translation modes.
-
-## prototyping_inference_engine/io/writers/rdf/rdf_writer.py
-References:
-- "RDF 1.1 Concepts and Abstract Syntax" — Richard Cyganiak, David Wood, Markus Lanthaler. Link: https://www.w3.org/TR/rdf11-concepts/
-
-Summary:
-RDF defines a graph-based data model with triples that can be serialized into
-standard syntaxes such as Turtle.
-
-Properties used here:
-- Standard RDF graph semantics for triples and IRIs.
-
-Implementation notes:
-This writer uses rdflib to serialize triples produced by PIE translators.
-
-## prototyping_inference_engine/rdf/translator.py
-References:
-- "RDF 1.1 Concepts and Abstract Syntax" — Richard Cyganiak, David Wood, Markus Lanthaler. Link: https://www.w3.org/TR/rdf11-concepts/
-
-Summary:
-RDF graphs are sets of triples with IRIs, literals, and blank nodes; translators
-map between RDF terms and application-specific representations.
-
-Properties used here:
-- RDF term model and graph semantics.
-
-Implementation notes:
-This module implements translation modes that map RDF triples to PIE atoms.
+**References**
+- “RDF 1.1 Concepts and Abstract Syntax.”
+  [Richard Cyganiak](https://dblp.org/search?q=Richard%20Cyganiak),
+  [David Wood](https://dblp.org/search?q=David%20Wood),
+  [Markus Lanthaler](https://dblp.org/search?q=Markus%20Lanthaler).
+  Publication: [https://www.w3.org/TR/rdf11-concepts/](https://www.w3.org/TR/rdf11-concepts/)
