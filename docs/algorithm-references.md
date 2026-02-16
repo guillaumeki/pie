@@ -94,12 +94,30 @@ structure for stratification under negation.
 
 **References**
 
-- “Extending Decidable Cases for Rules with Existential Variables.”
+- “On Rules with Existential Variables: Walking the Decidability Line.”
   [Jean-François Baget](https://www.lirmm.fr/~baget/),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
-  [Éric Salvat](https://dblp.org/search?q=Eric%20Salvat).
-  Publication: [https://www.ijcai.org/Proceedings/09/Papers/323.pdf](https://www.ijcai.org/Proceedings/09/Papers/323.pdf)
+  [François Rocher](https://dblp.org/search?q=Fran%C3%A7ois%20Rocher),
+  [Nicolas Sipieter](https://dblp.org/search?q=Nicolas%20Sipieter).
+  Publication: [https://www.lirmm.fr/~mugnier/ArticlesPostscript/BLMSDecidabilityLine-PreAIJ2011.pdf](https://www.lirmm.fr/~mugnier/ArticlesPostscript/BLMSDecidabilityLine-PreAIJ2011.pdf)
+- “Computing Stable Models for Nonmonotonic Existential Rules.”
+  [Despoina Magka](https://dblp.org/search?q=Despoina%20Magka),
+  [Markus Krötzsch](https://iccl.inf.tu-dresden.de/web/Members/MarkusKroetzsch),
+  [Ian Horrocks](https://www.cs.ox.ac.uk/people/ian.horrocks/).
+  Publication: [https://iccl.inf.tu-dresden.de/web/Inproceedings4008/en](https://iccl.inf.tu-dresden.de/web/Inproceedings4008/en)
+- “Stable Model Semantics for Guarded Existential Rules and Description Logics.”
+  [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
+  [André Hernich](https://dblp.org/search?q=Andr%C3%A9%20Hernich),
+  [Clemens Kupke](https://dblp.org/search?q=Clemens%20Kupke),
+  [Thomas Lukasiewicz](https://www.cs.ox.ac.uk/people/thomas.lukasiewicz/).
+  Publication: [https://strathprints.strath.ac.uk/51280/](https://strathprints.strath.ac.uk/51280/)
+- “Stable Model Semantics for Guarded Existential Rules and Description Logics: Decidability and Complexity.”
+  [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
+  [André Hernich](https://dblp.org/search?q=Andr%C3%A9%20Hernich),
+  [Clemens Kupke](https://dblp.org/search?q=Clemens%20Kupke),
+  [Thomas Lukasiewicz](https://www.cs.ox.ac.uk/people/thomas.lukasiewicz/).
+  Publication: [https://pureportal.strath.ac.uk/en/publications/stable-model-semantics-for-guarded-existential-rules-and-descript-2](https://pureportal.strath.ac.uk/en/publications/stable-model-semantics-for-guarded-existential-rules-and-descript-2)
 
 ## Stratification with Negation
 
@@ -123,20 +141,23 @@ negation.
 
 **References**
 
-- “The well-founded semantics for general logic programs.”
-  [Allen Van Gelder](https://dblp.org/search?q=Allen%20Van%20Gelder),
-  [Kenneth A. Ross](https://dblp.org/search?q=Kenneth%20A.%20Ross),
-  [John S. Schlipf](https://dblp.org/search?q=John%20S.%20Schlipf).
-  Publication: [https://doi.org/10.1145/115040.115041](https://doi.org/10.1145/115040.115041)
-- “On a routing problem.”
-  [Richard Bellman](https://dblp.org/search?q=Richard%20Bellman).
-  Publication: [https://doi.org/10.1090/qam/102435](https://doi.org/10.1090/qam/102435)
-- “Network Flow Theory.”
-  [L. R. Ford Jr.](https://dblp.org/search?q=L.%20R.%20Ford).
-  Publication: [https://apps.dtic.mil/sti/pdfs/AD0602524.pdf](https://apps.dtic.mil/sti/pdfs/AD0602524.pdf)
-- “A Note on a Simple Algorithm for Generating a Topological Ordering of a Directed Acyclic Graph.”
-  [Arthur B. Kahn](https://dblp.org/search?q=Arthur%20B.%20Kahn).
-  Publication: [https://doi.org/10.1145/368996.369025](https://doi.org/10.1145/368996.369025)
+- “Computing Stable Models for Nonmonotonic Existential Rules.”
+  [Despoina Magka](https://dblp.org/search?q=Despoina%20Magka),
+  [Markus Krötzsch](https://iccl.inf.tu-dresden.de/web/Members/MarkusKroetzsch),
+  [Ian Horrocks](https://www.cs.ox.ac.uk/people/ian.horrocks/).
+  Publication: [https://iccl.inf.tu-dresden.de/web/Inproceedings4008/en](https://iccl.inf.tu-dresden.de/web/Inproceedings4008/en)
+- “Stable Model Semantics for Guarded Existential Rules and Description Logics.”
+  [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
+  [André Hernich](https://dblp.org/search?q=Andr%C3%A9%20Hernich),
+  [Clemens Kupke](https://dblp.org/search?q=Clemens%20Kupke),
+  [Thomas Lukasiewicz](https://www.cs.ox.ac.uk/people/thomas.lukasiewicz/).
+  Publication: [https://strathprints.strath.ac.uk/51280/](https://strathprints.strath.ac.uk/51280/)
+- “Stable Model Semantics for Guarded Existential Rules and Description Logics: Decidability and Complexity.”
+  [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
+  [André Hernich](https://dblp.org/search?q=Andr%C3%A9%20Hernich),
+  [Clemens Kupke](https://dblp.org/search?q=Clemens%20Kupke),
+  [Thomas Lukasiewicz](https://www.cs.ox.ac.uk/people/thomas.lukasiewicz/).
+  Publication: [https://pureportal.strath.ac.uk/en/publications/stable-model-semantics-for-guarded-existential-rules-and-descript-2](https://pureportal.strath.ac.uk/en/publications/stable-model-semantics-for-guarded-existential-rules-and-descript-2)
 
 ## Backtracking Homomorphism Search for Conjunctive Queries
 
