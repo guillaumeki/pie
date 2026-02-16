@@ -38,7 +38,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_e
     FOQueryEvaluator,
 )
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.prepared_queries import (
-    PreparedConjunctiveFOQuery,
+    PreparedBacktrackingConjunctiveFOQuery,
     PreparedDisjunctiveFOQuery,
     PreparedExistentialFOQuery,
     PreparedNegationFOQuery,
@@ -76,8 +76,8 @@ class AtomicFOQueryEvaluator(FOQueryEvaluator):
         return prepare_atomic_or_conjunction(query, data)
 
 
-class ConjunctiveFOQueryEvaluator(FOQueryEvaluator):
-    """Evaluator for FOQuery with conjunction formula."""
+class BacktrackingConjunctiveFOQueryEvaluator(FOQueryEvaluator):
+    """Evaluator for FOQuery with conjunction formula using backtracking."""
 
     @classmethod
     def supported_formula_type(cls) -> Type[ConjunctionFormula]:
@@ -94,7 +94,7 @@ class ConjunctiveFOQueryEvaluator(FOQueryEvaluator):
         yield from prepared.execute(initial)
 
     def prepare(self, query: FOQuery, data: "ReadableData") -> "PreparedFOQuery":
-        return PreparedConjunctiveFOQuery(query, data)
+        return PreparedBacktrackingConjunctiveFOQuery(query, data)
 
 
 class DisjunctiveFOQueryEvaluator(FOQueryEvaluator):

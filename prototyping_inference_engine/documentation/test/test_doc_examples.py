@@ -1658,7 +1658,7 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 QueryEvaluator[Q]
                 └── FOQueryEvaluator
                     ├── AtomicFOQueryEvaluator
-                    ├── ConjunctiveFOQueryEvaluator
+                    ├── BacktrackingConjunctiveFOQueryEvaluator
                     ├── DisjunctiveFOQueryEvaluator
                     ├── NegationFOQueryEvaluator
                     ├── UniversalFOQueryEvaluator

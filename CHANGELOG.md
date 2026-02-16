@@ -9,6 +9,13 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: evaluation is query-only (FOQuery and higher-level queries); formula evaluators were removed.
 - Changed: query evaluators now expose `prepare` for reuse of prepared queries.
 
+## [2026-02-16]
+- Added: Baget/Mugnier citation for backtracking projection in CQ evaluation.
+- Changed: renamed `ConjunctiveFOQueryEvaluator` to `BacktrackingConjunctiveFOQueryEvaluator`.
+- Changed: renamed `PreparedConjunctiveFOQuery` to `PreparedBacktrackingConjunctiveFOQuery`.
+- Updated: algorithm reference links for backward chaining and disjunctive rewriting.
+- Changed: bumped version to 0.0.28.
+
 ## [2026-02-15]
 - Added: DLGPE arithmetic expressions (terms, equality, comparisons) with parser support.
 - Added: `stdfct:power` and arithmetic expression desugaring to standard functions.

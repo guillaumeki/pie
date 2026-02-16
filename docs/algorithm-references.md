@@ -6,8 +6,8 @@ embedded in the corresponding module.
 
 ## prototyping_inference_engine/unifier/piece_unifier.py
 References:
-- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://ceur-ws.org/Vol-920/paper17.pdf
-- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.ijcai.org/Proceedings/13/Papers/292.pdf
+- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf
+- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en
 
 Summary:
 Piece-unifiers restrict unification between a conjunctive query and a rule head
@@ -25,8 +25,8 @@ rewriting algorithms.
 
 ## prototyping_inference_engine/unifier/piece_unifier_algorithm.py
 References:
-- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://ceur-ws.org/Vol-920/paper17.pdf
-- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.ijcai.org/Proceedings/13/Papers/292.pdf
+- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf
+- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en
 
 Summary:
 The piece-unifier algorithm enumerates admissible partitions between a query
@@ -43,7 +43,7 @@ including admissibility checks and combination of compatible pre-unifiers.
 
 ## prototyping_inference_engine/unifier/disjunctive_piece_unifier.py
 References:
-- "Query rewriting with disjunctive existential rules and mappings" — Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli. Link: https://doi.org/10.24963/kr.2023/59
+- "Query rewriting with disjunctive existential rules and mappings" — Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli. Link: https://proceedings.kr.org/2023/42/
 
 Summary:
 Disjunctive piece-unifiers extend piece-unifiers to rules with disjunctive
@@ -59,7 +59,7 @@ associated partition/substitution used during disjunctive rewriting.
 
 ## prototyping_inference_engine/unifier/disjunctive_piece_unifier_algorithm.py
 References:
-- "Query rewriting with disjunctive existential rules and mappings" — Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli. Link: https://doi.org/10.24963/kr.2023/59
+- "Query rewriting with disjunctive existential rules and mappings" — Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli. Link: https://proceedings.kr.org/2023/42/
 
 Summary:
 The algorithm builds disjunctive piece-unifiers by combining piece-unifiers
@@ -76,8 +76,8 @@ their systematic extension, as described in the KR 2023 paper.
 
 ## prototyping_inference_engine/backward_chaining/breadth_first_rewriting.py
 References:
-- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://ceur-ws.org/Vol-920/paper17.pdf
-- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.ijcai.org/Proceedings/13/Papers/292.pdf
+- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf
+- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en
 
 Summary:
 Breadth-first UCQ rewriting iteratively applies rewriting steps to expand a
@@ -94,8 +94,8 @@ cleaner consistent with the minimal rewriting guarantees from the papers.
 
 ## prototyping_inference_engine/backward_chaining/ucq_rewriting_algorithm.py
 References:
-- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://ceur-ws.org/Vol-920/paper17.pdf
-- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.ijcai.org/Proceedings/13/Papers/292.pdf
+- "A Sound and Complete Backward Chaining Algorithm for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf
+- "Sound, Complete, and Minimal Query Rewriting for Existential Rules" — Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo. Link: https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en
 
 Summary:
 UCQ rewriting is the backward chaining technique for existential rules that
@@ -111,7 +111,7 @@ concrete algorithms (e.g., breadth-first rewriting).
 
 ## prototyping_inference_engine/backward_chaining/rewriting_operator/without_aggregation_rewriting_operator.py
 References:
-- "Query rewriting with disjunctive existential rules and mappings" — Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli. Link: https://doi.org/10.24963/kr.2023/59
+- "Query rewriting with disjunctive existential rules and mappings" — Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli. Link: https://proceedings.kr.org/2023/42/
 
 Summary:
 This rewriting operator applies disjunctive piece-unifiers to transform UCQs
@@ -228,6 +228,7 @@ CQ evaluation and query rewriting components.
 ## prototyping_inference_engine/api/atom/set/homomorphism/backtrack/naive_backtrack_homomorphism_algorithm.py
 References:
 - "Foundations of Databases" — Serge Abiteboul, Richard Hull, Victor Vianu. Link: https://dl.acm.org/doi/book/10.5555/64510
+- "Extensions of Simple Conceptual Graphs: the Complexity of Rules and Constraints" — Jean-Francois Baget, Marie-Laure Mugnier. Link: https://doi.org/10.1613/jair.918
 
 Summary:
 Backtracking homomorphism search enumerates substitutions that map a CQ body
@@ -240,6 +241,21 @@ Properties used here:
 Implementation notes:
 This module implements a straightforward backtracking search with indexing and
 scheduling heuristics for atom ordering.
+
+## prototyping_inference_engine/query_evaluation/evaluator/fo_query/prepared_queries.py
+References:
+- "Extensions of Simple Conceptual Graphs: the Complexity of Rules and Constraints" — Jean-Francois Baget, Marie-Laure Mugnier. Link: https://doi.org/10.1613/jair.918
+
+Summary:
+Conjunctive query answering can be reduced to projection (graph homomorphism)
+and is typically implemented via backtracking search with pruning heuristics.
+
+Properties used here:
+- Completeness of backtracking projection for conjunctive queries.
+
+Implementation notes:
+This module implements the backtracking evaluation strategy used by prepared
+conjunctive queries.
 
 ## prototyping_inference_engine/query_evaluation/evaluator/fo_query/fo_query_evaluator.py
 References:

@@ -1,11 +1,11 @@
 #
 # References:
 # - "A Sound and Complete Backward Chaining Algorithm for Existential Rules" —
-#   Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo.
-#   Link: https://ceur-ws.org/Vol-920/paper17.pdf
+#   Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo.
+#   Link: https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf
 # - "Sound, Complete, and Minimal Query Rewriting for Existential Rules" —
-#   Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo.
-#   Link: https://www.ijcai.org/Proceedings/13/Papers/292.pdf
+#   Melanie Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo.
+#   Link: https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en
 #
 # Summary:
 # The piece-unifier algorithm enumerates admissible partitions between a query

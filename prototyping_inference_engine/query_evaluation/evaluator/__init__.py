@@ -16,7 +16,7 @@ from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_e
 )
 from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
     AtomicFOQueryEvaluator,
-    ConjunctiveFOQueryEvaluator,
+    BacktrackingConjunctiveFOQueryEvaluator,
     DisjunctiveFOQueryEvaluator,
     NegationFOQueryEvaluator,
     UniversalFOQueryEvaluator,
@@ -34,7 +34,7 @@ __all__ = [
     "FOQueryEvaluator",
     "FOQueryEvaluatorRegistry",
     "AtomicFOQueryEvaluator",
-    "ConjunctiveFOQueryEvaluator",
+    "BacktrackingConjunctiveFOQueryEvaluator",
     "DisjunctiveFOQueryEvaluator",
     "NegationFOQueryEvaluator",
     "UniversalFOQueryEvaluator",

@@ -2,7 +2,7 @@
 # References:
 # - "Query rewriting with disjunctive existential rules and mappings" —
 #   Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli.
-#   Link: https://doi.org/10.24963/kr.2023/59
+#   Link: https://proceedings.kr.org/2023/42/
 #
 # Summary:
 # The algorithm builds disjunctive piece-unifiers by combining piece-unifiers

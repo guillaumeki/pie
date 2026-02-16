@@ -2,6 +2,22 @@
 Prepared FOQuery implementations used by evaluators.
 """
 
+# References:
+# - "Extensions of Simple Conceptual Graphs: the Complexity of Rules and Constraints" —
+#   Jean-Francois Baget, Marie-Laure Mugnier.
+#   Link: https://doi.org/10.1613/jair.918
+#
+# Summary:
+# Conjunctive query answering can be reduced to projection (graph homomorphism)
+# and is typically implemented via backtracking search with pruning heuristics.
+#
+# Properties used here:
+# - Completeness of backtracking projection for conjunctive queries.
+#
+# Implementation notes:
+# This module implements the backtracking evaluation strategy used by prepared
+# conjunctive queries.
+
 from __future__ import annotations
 
 from itertools import product
@@ -216,8 +232,8 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
         return BasicQuery(self._atom.predicate, bound_positions, answer_variables)
 
 
-class PreparedConjunctiveFOQuery(PreparedFOQueryDefaults):
-    """Prepared query for conjunction formulas with dynamic scheduling."""
+class PreparedBacktrackingConjunctiveFOQuery(PreparedFOQueryDefaults):
+    """Prepared query for conjunction formulas using backtracking."""
 
     def __init__(self, query: FOQuery[ConjunctionFormula], data_source: "ReadableData"):
         self._query = query

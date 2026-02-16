@@ -40,7 +40,7 @@ class FOQueryEvaluatorRegistry:
         """Register default evaluators."""
         from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluators import (
             AtomicFOQueryEvaluator,
-            ConjunctiveFOQueryEvaluator,
+            BacktrackingConjunctiveFOQueryEvaluator,
             DisjunctiveFOQueryEvaluator,
             NegationFOQueryEvaluator,
             UniversalFOQueryEvaluator,
@@ -48,7 +48,7 @@ class FOQueryEvaluatorRegistry:
         )
 
         self.register(AtomicFOQueryEvaluator())
-        self.register(ConjunctiveFOQueryEvaluator())
+        self.register(BacktrackingConjunctiveFOQueryEvaluator())
         self.register(DisjunctiveFOQueryEvaluator())
         self.register(NegationFOQueryEvaluator())
         self.register(UniversalFOQueryEvaluator())

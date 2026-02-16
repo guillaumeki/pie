@@ -27,7 +27,7 @@ Evaluator hierarchy:
 QueryEvaluator[Q]
 └── FOQueryEvaluator
     ├── AtomicFOQueryEvaluator
-    ├── ConjunctiveFOQueryEvaluator
+    ├── BacktrackingConjunctiveFOQueryEvaluator
     ├── DisjunctiveFOQueryEvaluator
     ├── NegationFOQueryEvaluator
     ├── UniversalFOQueryEvaluator

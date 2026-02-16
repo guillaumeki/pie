@@ -3,6 +3,9 @@
 # - "Foundations of Databases" —
 #   Serge Abiteboul, Richard Hull, Victor Vianu.
 #   Link: https://dl.acm.org/doi/book/10.5555/64510
+# - "Extensions of Simple Conceptual Graphs: the Complexity of Rules and Constraints" —
+#   Jean-Francois Baget, Marie-Laure Mugnier.
+#   Link: https://doi.org/10.1613/jair.918
 #
 # Summary:
 # Backtracking homomorphism search enumerates substitutions that map a CQ body
