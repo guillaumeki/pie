@@ -35,13 +35,13 @@ operators aligned with the theoretical guarantees from the literature.
   [Mélanie König](https://theses.hal.science/tel-01502722),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
-  [Michaël Thomazo](https://prairie-institute.fr/chairs/thomazo-michael/).
+  [Michaël Thomazo](https://www.di.ens.fr/michael.thomazo/).
   Publication: [https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf](https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf)
 - “Sound, Complete, and Minimal Query Rewriting for Existential Rules.”
   [Mélanie König](https://theses.hal.science/tel-01502722),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
-  [Michaël Thomazo](https://prairie-institute.fr/chairs/thomazo-michael/).
+  [Michaël Thomazo](https://www.di.ens.fr/michael.thomazo/).
   Publication: [https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en](https://iccl.inf.tu-dresden.de/web/Inproceedings4058/en)
 
 ## Disjunctive Rewriting with Disjunctive Piece-Unifiers
