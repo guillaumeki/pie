@@ -32,13 +32,13 @@ operators aligned with the theoretical guarantees from the literature.
 **References**
 
 - “A Sound and Complete Backward Chaining Algorithm for Existential Rules.”
-  [Mélanie König](https://dblp.org/search?q=M%C3%A9lanie%20K%C3%B6nig),
+  [Mélanie König](https://scholar.google.com/scholar?q=M%C3%A9lanie%20K%C3%B6nig),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
   [Michaël Thomazo](https://prairie-institute.fr/chairs/thomazo-michael/).
   Publication: [https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf](https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf)
 - “Sound, Complete, and Minimal Query Rewriting for Existential Rules.”
-  [Mélanie König](https://dblp.org/search?q=M%C3%A9lanie%20K%C3%B6nig),
+  [Mélanie König](https://scholar.google.com/scholar?q=M%C3%A9lanie%20K%C3%B6nig),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
   [Michaël Thomazo](https://prairie-institute.fr/chairs/thomazo-michael/).
@@ -71,7 +71,7 @@ existential rules, with minimality when a finite rewriting exists.
 - “Query Rewriting with Disjunctive Existential Rules and Mappings.”
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
-  [Guillaume Pérution-Kihli](https://dblp.org/search?q=Guillaume%20P%C3%A9rution-Kihli).
+  [Guillaume Pérution-Kihli](https://scholar.google.com/scholar?q=Guillaume%20P%C3%A9rution-Kihli).
   Publication: [https://proceedings.kr.org/2023/42/](https://proceedings.kr.org/2023/42/)
 
 ## Graph of Rule Dependencies (GRD)
@@ -98,24 +98,23 @@ structure for stratification under negation.
   [Jean-François Baget](https://www.lirmm.fr/~baget/),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
-  [François Rocher](https://dblp.org/search?q=Fran%C3%A7ois%20Rocher),
-  [Nicolas Sipieter](https://dblp.org/search?q=Nicolas%20Sipieter).
+  [Eric Salvat](https://scholar.google.com/scholar?q=Eric%20Salvat%20existential%20rules).
   Publication: [https://www.lirmm.fr/~mugnier/ArticlesPostscript/BLMSDecidabilityLine-PreAIJ2011.pdf](https://www.lirmm.fr/~mugnier/ArticlesPostscript/BLMSDecidabilityLine-PreAIJ2011.pdf)
 - “Computing Stable Models for Nonmonotonic Existential Rules.”
-  [Despoina Magka](https://dblp.org/search?q=Despoina%20Magka),
-  [Markus Krötzsch](https://iccl.inf.tu-dresden.de/web/Members/MarkusKroetzsch),
+  [Despoina Magka](https://www.cs.ox.ac.uk/people/despoina.magka/),
+  [Markus Krötzsch](https://www.korrekt.org/page/Markus_Kr%C3%B6tzsch),
   [Ian Horrocks](https://www.cs.ox.ac.uk/people/ian.horrocks/).
   Publication: [https://iccl.inf.tu-dresden.de/web/Inproceedings4008/en](https://iccl.inf.tu-dresden.de/web/Inproceedings4008/en)
 - “Stable Model Semantics for Guarded Existential Rules and Description Logics.”
   [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
-  [André Hernich](https://dblp.org/search?q=Andr%C3%A9%20Hernich),
-  [Clemens Kupke](https://dblp.org/search?q=Clemens%20Kupke),
+  [André Hernich](https://simons.berkeley.edu/people/andre-hernich),
+  [Clemens Kupke](https://www.strath.ac.uk/staff/kupkeclemensdr/),
   [Thomas Lukasiewicz](https://www.cs.ox.ac.uk/people/thomas.lukasiewicz/).
   Publication: [https://strathprints.strath.ac.uk/51280/](https://strathprints.strath.ac.uk/51280/)
 - “Stable Model Semantics for Guarded Existential Rules and Description Logics: Decidability and Complexity.”
   [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
-  [André Hernich](https://dblp.org/search?q=Andr%C3%A9%20Hernich),
-  [Clemens Kupke](https://dblp.org/search?q=Clemens%20Kupke),
+  [André Hernich](https://simons.berkeley.edu/people/andre-hernich),
+  [Clemens Kupke](https://www.strath.ac.uk/staff/kupkeclemensdr/),
   [Thomas Lukasiewicz](https://www.cs.ox.ac.uk/people/thomas.lukasiewicz/).
   Publication: [https://pureportal.strath.ac.uk/en/publications/stable-model-semantics-for-guarded-existential-rules-and-descript-2](https://pureportal.strath.ac.uk/en/publications/stable-model-semantics-for-guarded-existential-rules-and-descript-2)
 
@@ -142,20 +141,20 @@ negation.
 **References**
 
 - “Computing Stable Models for Nonmonotonic Existential Rules.”
-  [Despoina Magka](https://dblp.org/search?q=Despoina%20Magka),
-  [Markus Krötzsch](https://iccl.inf.tu-dresden.de/web/Members/MarkusKroetzsch),
+  [Despoina Magka](https://www.cs.ox.ac.uk/people/despoina.magka/),
+  [Markus Krötzsch](https://www.korrekt.org/page/Markus_Kr%C3%B6tzsch),
   [Ian Horrocks](https://www.cs.ox.ac.uk/people/ian.horrocks/).
   Publication: [https://iccl.inf.tu-dresden.de/web/Inproceedings4008/en](https://iccl.inf.tu-dresden.de/web/Inproceedings4008/en)
 - “Stable Model Semantics for Guarded Existential Rules and Description Logics.”
   [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
-  [André Hernich](https://dblp.org/search?q=Andr%C3%A9%20Hernich),
-  [Clemens Kupke](https://dblp.org/search?q=Clemens%20Kupke),
+  [André Hernich](https://simons.berkeley.edu/people/andre-hernich),
+  [Clemens Kupke](https://www.strath.ac.uk/staff/kupkeclemensdr/),
   [Thomas Lukasiewicz](https://www.cs.ox.ac.uk/people/thomas.lukasiewicz/).
   Publication: [https://strathprints.strath.ac.uk/51280/](https://strathprints.strath.ac.uk/51280/)
 - “Stable Model Semantics for Guarded Existential Rules and Description Logics: Decidability and Complexity.”
   [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
-  [André Hernich](https://dblp.org/search?q=Andr%C3%A9%20Hernich),
-  [Clemens Kupke](https://dblp.org/search?q=Clemens%20Kupke),
+  [André Hernich](https://simons.berkeley.edu/people/andre-hernich),
+  [Clemens Kupke](https://www.strath.ac.uk/staff/kupkeclemensdr/),
   [Thomas Lukasiewicz](https://www.cs.ox.ac.uk/people/thomas.lukasiewicz/).
   Publication: [https://pureportal.strath.ac.uk/en/publications/stable-model-semantics-for-guarded-existential-rules-and-descript-2](https://pureportal.strath.ac.uk/en/publications/stable-model-semantics-for-guarded-existential-rules-and-descript-2)
 
@@ -182,9 +181,9 @@ and the prepared backtracking CQ implementation.
 **References**
 
 - “Foundations of Databases.”
-  [Serge Abiteboul](https://dblp.org/search?q=Serge%20Abiteboul),
-  [Richard Hull](https://dblp.org/search?q=Richard%20Hull),
-  [Victor Vianu](https://dblp.org/search?q=Victor%20Vianu).
+  [Serge Abiteboul](https://abiteboul.com/SergeAbiteboul1997.html),
+  [Richard Hull](https://scholar.google.com/scholar?q=Richard%20Hull%20database%20theory),
+  [Victor Vianu](https://cseweb.ucsd.edu/~vianu).
   Publication: [https://dl.acm.org/doi/book/10.5555/64510](https://dl.acm.org/doi/book/10.5555/64510)
 - “Extensions of Simple Conceptual Graphs: The Complexity of Rules and Constraints.”
   [Jean-François Baget](https://www.lirmm.fr/~baget/),
@@ -209,7 +208,7 @@ near-constant-time merges and representative queries across the codebase.
 **References**
 
 - “Efficiency of a Good But Not Linear Set Union Algorithm.”
-  [Robert E. Tarjan](https://dblp.org/search?q=Robert%20E.%20Tarjan).
+  [Robert E. Tarjan](https://www.cs.princeton.edu/~ret/).
   Publication: [https://doi.org/10.1145/360680.360685](https://doi.org/10.1145/360680.360685)
 
 ## DLGP/DLGPE Syntax
@@ -247,7 +246,7 @@ to the inference engine.
 **References**
 
 - “RDF 1.1 Concepts and Abstract Syntax.”
-  [Richard Cyganiak](https://dblp.org/search?q=Richard%20Cyganiak),
-  [David Wood](https://dblp.org/search?q=David%20Wood),
-  [Markus Lanthaler](https://dblp.org/search?q=Markus%20Lanthaler).
+  [Richard Cyganiak](https://richard.cyganiak.de/),
+  [David Wood](https://www.hyland-wood.org/),
+  [Markus Lanthaler](https://www.markus-lanthaler.com/).
   Publication: [https://www.w3.org/TR/rdf11-concepts/](https://www.w3.org/TR/rdf11-concepts/)
