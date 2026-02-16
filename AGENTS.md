@@ -132,6 +132,7 @@ For any important change:
 - `agents/design/rule-formula.md`
 - `agents/design/grd.md`
 - `agents/design/arithmetic-expressions.md`
+- `agents/design/rule-compilation.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`

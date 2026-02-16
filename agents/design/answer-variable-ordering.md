@@ -14,4 +14,4 @@ FOQuery answer variables define the projection order of query results. The order
 ## Consequences
 - Query results are deterministic and aligned with standard FO query semantics.
 - Tests and documentation must avoid normalizing or sorting answer variable order.
-*** End Patch"}そう? hold on apply_patch must be exact format. Let's do. Let's craft patch without JSON. Use apply_patch tool directly. Let's re-run properly. We'll do correct. Use tool. 
+ 

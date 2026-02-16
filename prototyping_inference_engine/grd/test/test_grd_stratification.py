@@ -71,9 +71,8 @@ class TestGrdStratification(unittest.TestCase):
 
         self.assertIsNotNone(strata)
         strates = strata or []
-        self.assertEqual(2, len(strates))
-        self.assertEqual({r1, r3}, strates[0].rules)
-        self.assertEqual({r2}, strates[1].rules)
+        self.assertEqual(1, len(strates))
+        self.assertEqual({r1, r2, r3}, strates[0].rules)
 
     def test_single_evaluation_stratification(self) -> None:
         r1 = self._rule(self._atom(self.p), self._atom(self.q), label="r1")

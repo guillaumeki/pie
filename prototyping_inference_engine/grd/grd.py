@@ -26,6 +26,11 @@ from dataclasses import dataclass
 from typing import Iterable, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.predicate import Predicate
+from prototyping_inference_engine.api.formula.conjunction_formula import (
+    ConjunctionFormula,
+)
+from prototyping_inference_engine.api.formula.formula import Formula
+from prototyping_inference_engine.api.formula.universal_formula import UniversalFormula
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.grd.dependency_checker import (
@@ -141,6 +146,7 @@ class GRD:
         is_positive: bool,
     ) -> None:
         r1_head_rule = Rule.extract_conjunctive_rule(r1, head_index)
+        r1_head_rule = _conjunctive_head_rule(r1_head_rule, r1)
         unifiers = PieceUnifierAlgorithm.compute_most_general_mono_piece_unifiers(
             target_body, r1_head_rule
         )
@@ -168,3 +174,17 @@ def _index_rules_by_body_predicate(
         for pred in positive_body.atoms.predicates | negative_body.atoms.predicates:
             index.setdefault(pred, set()).add(rule)
     return index
+
+
+def _conjunctive_head_rule(r1_head_rule: Rule, original_rule: Rule) -> Rule:
+    positive_body = extract_positive_body(original_rule)
+    atoms = list(positive_body.atoms)
+    if not atoms:
+        return r1_head_rule
+    body_formula: Formula = atoms[0]
+    for atom in atoms[1:]:
+        body_formula = ConjunctionFormula(body_formula, atom)
+    missing = body_formula.free_variables - r1_head_rule.head.free_variables
+    for var in sorted(missing, key=str):
+        body_formula = UniversalFormula(var, body_formula)
+    return Rule(body_formula, r1_head_rule.head, r1_head_rule.label)

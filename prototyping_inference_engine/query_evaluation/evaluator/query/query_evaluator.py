@@ -11,6 +11,9 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.query.prepared_query import PreparedQuery
     from prototyping_inference_engine.api.substitution.substitution import Substitution
+    from prototyping_inference_engine.rule_compilation.api.rule_compilation import (
+        RuleCompilation,
+    )
 
 Q = TypeVar("Q", bound=Query)
 
@@ -35,6 +38,7 @@ class QueryEvaluator(ABC, Generic[Q]):
         query: Q,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
         """
         Evaluate a query against a data source.
@@ -54,6 +58,7 @@ class QueryEvaluator(ABC, Generic[Q]):
         self,
         query: Q,
         data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> "PreparedQuery[Q, ReadableData, Iterable[Substitution], Substitution]":
         """
         Prepare a query against a data source for repeated evaluation.

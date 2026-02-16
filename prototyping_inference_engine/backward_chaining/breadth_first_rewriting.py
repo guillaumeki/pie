@@ -53,18 +53,52 @@ class BreadthFirstRewriting(UcqRewritingAlgorithm):
         self,
         rewriting_operator_provider: Optional[RewritingOperatorProvider] = None,
         ucq_cleaner_provider: Optional[UCQRedundanciesCleanerProvider] = None,
+        rule_compilation=None,
     ):
+        self._rewriting_operator: RewritingOperator
         if ucq_cleaner_provider is None:
             ucq_cleaner_provider = DefaultUCQRedundanciesCleanerProvider()
-        self._ucq_redundancies_cleaner: RedundanciesCleanerUnionConjunctiveQueries = (
-            ucq_cleaner_provider.get_cleaner()
-        )
+        if rule_compilation is not None:
+            from prototyping_inference_engine.rule_compilation.no_compilation import (
+                NoCompilation,
+            )
+            from prototyping_inference_engine.rule_compilation.compilation_query_containment_provider import (
+                CompilationAwareCQContainmentProvider,
+            )
+
+            if not isinstance(rule_compilation, NoCompilation):
+                self._ucq_redundancies_cleaner = (
+                    RedundanciesCleanerUnionConjunctiveQueries(
+                        cq_containment_provider=CompilationAwareCQContainmentProvider(
+                            rule_compilation
+                        )
+                    )
+                )
+            else:
+                self._ucq_redundancies_cleaner = ucq_cleaner_provider.get_cleaner()
+        else:
+            self._ucq_redundancies_cleaner = ucq_cleaner_provider.get_cleaner()
 
         if rewriting_operator_provider is None:
-            rewriting_operator_provider = DefaultRewritingOperatorProvider()
-        self._rewriting_operator: RewritingOperator = (
-            rewriting_operator_provider.get_operator()
-        )
+            if rule_compilation is not None:
+                from prototyping_inference_engine.rule_compilation.no_compilation import (
+                    NoCompilation,
+                )
+                from prototyping_inference_engine.backward_chaining.rewriting_operator.without_aggregation_rewriting_operator import (
+                    WithoutAggregationRewritingOperator,
+                )
+
+                if not isinstance(rule_compilation, NoCompilation):
+                    self._rewriting_operator = WithoutAggregationRewritingOperator(
+                        rule_compilation
+                    )
+                else:
+                    self._rewriting_operator = WithoutAggregationRewritingOperator()
+            else:
+                rewriting_operator_provider = DefaultRewritingOperatorProvider()
+                self._rewriting_operator = rewriting_operator_provider.get_operator()
+        else:
+            self._rewriting_operator = rewriting_operator_provider.get_operator()
 
     @staticmethod
     @cache

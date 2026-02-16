@@ -33,7 +33,8 @@ from prototyping_inference_engine.unifier import (
 
 
 class WithoutAggregationRewritingOperator(RewritingOperator):
-    def __init__(self):
+    def __init__(self, rule_compilation=None):
+        self._rule_compilation = rule_compilation
         self.disj_piece_unifier_algo = DisjunctivePieceUnifierAlgorithm()
 
     def rewrite(
@@ -46,7 +47,7 @@ class WithoutAggregationRewritingOperator(RewritingOperator):
         disj_unifiers: set[DisjunctivePieceUnifier] = set()
         for rule in rules:
             disj_unifiers |= self.disj_piece_unifier_algo.compute_disjunctive_unifiers(
-                all_cqs, new_cqs, rule
+                all_cqs, new_cqs, rule, self._rule_compilation
             )
         for disj_unifier in disj_unifiers:
             u = disj_unifier.associated_substitution

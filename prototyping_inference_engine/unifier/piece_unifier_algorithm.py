@@ -32,6 +32,10 @@ from prototyping_inference_engine.api.ontology.rule.validators import (
     ensure_conjunctive_rule,
 )
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
+from prototyping_inference_engine.rule_compilation.api.rule_compilation import (
+    RuleCompilation,
+)
+from prototyping_inference_engine.rule_compilation.no_compilation import NoCompilation
 from prototyping_inference_engine.unifier.piece_unifier import (
     PieceUnifier,
 )
@@ -40,11 +44,13 @@ from prototyping_inference_engine.unifier.piece_unifier import (
 class PieceUnifierAlgorithm:
     @staticmethod
     def compute_most_general_full_piece_unifiers(
-        query: ConjunctiveQuery, rule: Rule
+        query: ConjunctiveQuery,
+        rule: Rule,
+        rule_compilation: RuleCompilation | None = None,
     ) -> list[PieceUnifier]:
         matchable_atoms = query.non_equality_atoms
         result = PieceUnifierAlgorithm.compute_most_general_mono_piece_unifiers(
-            query, rule
+            query, rule, rule_compilation
         )
         for i in range(len(result)):
             mpu = result[i]
@@ -64,9 +70,13 @@ class PieceUnifierAlgorithm:
 
     @staticmethod
     def compute_most_general_mono_piece_unifiers(
-        query: ConjunctiveQuery, rule: Rule
+        query: ConjunctiveQuery,
+        rule: Rule,
+        rule_compilation: RuleCompilation | None = None,
     ) -> list[PieceUnifier]:
-        apu = PieceUnifierAlgorithm._compute_atomic_pre_unifiers(query, rule)
+        apu = PieceUnifierAlgorithm._compute_atomic_pre_unifiers(
+            query, rule, rule_compilation
+        )
         return PieceUnifierAlgorithm._extend_atomic_pre_unifiers(query, apu)
 
     @staticmethod
@@ -83,19 +93,20 @@ class PieceUnifierAlgorithm:
 
     @staticmethod
     def _compute_atomic_pre_unifiers(
-        query: ConjunctiveQuery, rule: Rule
+        query: ConjunctiveQuery,
+        rule: Rule,
+        rule_compilation: RuleCompilation | None = None,
     ) -> list[PieceUnifier]:
         if not query.equality_partition.is_admissible:
             return []
         validated = ensure_conjunctive_rule(rule)
         head_cq = validated.head
         atomic_pre_unifiers = []
+        compilation = rule_compilation or NoCompilation()
         for a in head_cq.atoms:
             for b in query.non_equality_atoms:
-                if a.predicate == b.predicate:
-                    by_position_part = TermPartition(
-                        ({a[i], b[i]} for i in range(a.predicate.arity))
-                    )
+                for partition in compilation.get_unifications(a, b):
+                    by_position_part = TermPartition(partition)
                     by_position_part.join(query.equality_partition)
                     if by_position_part.is_valid(rule, query):
                         atomic_pre_unifiers.append(

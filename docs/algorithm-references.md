@@ -74,6 +74,38 @@ existential rules, with minimality when a finite rewriting exists.
   [Guillaume Pérution-Kihli](https://guillaume.perutionkih.li).
   Publication: [https://proceedings.kr.org/2023/42/](https://proceedings.kr.org/2023/42/)
 
+## Rule Compilation (Compiled Preorder)
+
+**Summary**
+Rule compilation precomputes a preorder between predicates induced by simple
+rules, so that query answering and rewriting can treat compatible predicates as
+specializations of one another. PIE implements the compiled preorder described
+for existential rules, including the ID compilation (condition-based) and the
+hierarchical fragment where variables are aligned position-wise.
+
+**Key properties used in PIE**
+
+- Conditions encode admissible term equalities between body and head atoms.
+- Saturation by condition composition yields the transitive closure of the preorder.
+- Compatibility checks and unfolding rely on the compiled preorder.
+
+**Implementation in PIE**
+
+- `prototyping_inference_engine/rule_compilation/id/id_rule_compilation.py`
+- `prototyping_inference_engine/rule_compilation/hierarchical/hierarchical_rule_compilation.py`
+- `prototyping_inference_engine/rule_compilation/compilation_homomorphism.py`
+- `prototyping_inference_engine/query_evaluation/evaluator/fo_query/prepared_queries.py`
+- `prototyping_inference_engine/backward_chaining/breadth_first_rewriting.py`
+- `prototyping_inference_engine/unifier/piece_unifier_algorithm.py`
+
+**References**
+
+- “Query Rewriting for Existential Rules with Compiled Preorder.”
+  [Mélanie König](https://theses.hal.science/tel-01502722),
+  [Michel Leclère](https://www.lirmm.fr/~leclere/),
+  [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/).
+  Publication: [https://www.ijcai.org/Proceedings/15/Papers/195.pdf](https://www.ijcai.org/Proceedings/15/Papers/195.pdf)
+
 ## Graph of Rule Dependencies (GRD)
 
 **Summary**

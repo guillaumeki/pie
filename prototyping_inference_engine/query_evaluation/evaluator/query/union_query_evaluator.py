@@ -33,6 +33,9 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import (
         QueryEvaluatorRegistry,
     )
+    from prototyping_inference_engine.rule_compilation.api.rule_compilation import (
+        RuleCompilation,
+    )
 
 
 class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
@@ -74,6 +77,7 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         query: UnionQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
         """
         Evaluate a UnionQuery against a data source.
@@ -89,7 +93,7 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         Yields:
             Substitutions that satisfy at least one sub-query
         """
-        prepared = self.prepare(query, data)
+        prepared = self.prepare(query, data, rule_compilation)
         from prototyping_inference_engine.api.substitution.substitution import (
             Substitution,
         )
@@ -102,6 +106,7 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         query: UnionQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator[tuple[Term, ...]]:
         """
         Evaluate a UnionQuery and project results onto answer variables.
@@ -116,7 +121,7 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         """
         seen: set[tuple[Term, ...]] = set()
 
-        for result_sub in self.evaluate(query, data, substitution):
+        for result_sub in self.evaluate(query, data, substitution, rule_compilation):
             answer = tuple(result_sub.apply(v) for v in query.answer_variables)
             if answer not in seen:
                 seen.add(answer)
@@ -126,6 +131,7 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
         self,
         query: UnionQuery,
         data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> (
         "PreparedQuery[UnionQuery, ReadableData, Iterable[Substitution], Substitution]"
     ):
@@ -138,7 +144,9 @@ class UnionQueryEvaluator(QueryEvaluator[UnionQuery]):
                 raise ValueError(
                     f"No evaluator registered for query type: {type(sub_query).__name__}"
                 )
-            prepared_queries.append(evaluator.prepare(sub_query, data))
+            prepared_queries.append(
+                evaluator.prepare(sub_query, data, rule_compilation)
+            )
 
         return _PreparedUnionQuery(query, data, prepared_queries)
 

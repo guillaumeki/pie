@@ -40,6 +40,9 @@ from prototyping_inference_engine.unifier.piece_unifier import (
 from prototyping_inference_engine.unifier.piece_unifier_algorithm import (
     PieceUnifierAlgorithm,
 )
+from prototyping_inference_engine.rule_compilation.api.rule_compilation import (
+    RuleCompilation,
+)
 from prototyping_inference_engine.unifier.piece_unifier_cache import (
     PieceUnifierCache,
 )
@@ -106,6 +109,7 @@ class DisjunctivePieceUnifierAlgorithm:
         all_cqs: UnionQuery[ConjunctiveQuery],
         new_cqs: UnionQuery[ConjunctiveQuery],
         rule: Rule,
+        rule_compilation: RuleCompilation | None = None,
     ) -> set[DisjunctivePieceUnifier]:
         """
         Compute disjunctive piece unifiers for a rule and set of conjunctive queries.
@@ -126,7 +130,7 @@ class DisjunctivePieceUnifierAlgorithm:
 
         for head_number, head in enumerate(rule.head_disjuncts):
             full_unifiers = self._compute_full_unifiers_of_a_ucq(
-                rule, head_number, new_cqs
+                rule, head_number, new_cqs, rule_compilation
             )
 
             if full_unifiers and not self._cache.has_unifiers_for_head(
@@ -199,11 +203,13 @@ class DisjunctivePieceUnifierAlgorithm:
         rule: Rule,
         head_number: int,
         cq: ConjunctiveQuery,
+        rule_compilation: RuleCompilation | None = None,
     ) -> list[PieceUnifier]:
         """Compute full piece unifiers for a single conjunctive query."""
         return PieceUnifierAlgorithm.compute_most_general_full_piece_unifiers(
             Variable.safe_renaming_substitution(cq.existential_variables)(cq),
             Rule.extract_conjunctive_rule(rule, head_number),
+            rule_compilation,
         )
 
     @staticmethod
@@ -211,12 +217,13 @@ class DisjunctivePieceUnifierAlgorithm:
         rule: Rule,
         head_number: int,
         ucq: UnionQuery[ConjunctiveQuery],
+        rule_compilation: RuleCompilation | None = None,
     ) -> list[tuple[PieceUnifier, ConjunctiveQuery]]:
         """Compute full piece unifiers for all CQs in a UCQ."""
         return [
             (fpu, cq)
             for cq in ucq
             for fpu in DisjunctivePieceUnifierAlgorithm._compute_full_unifiers_of_a_cq(
-                rule, head_number, cq
+                rule, head_number, cq, rule_compilation
             )
         ]

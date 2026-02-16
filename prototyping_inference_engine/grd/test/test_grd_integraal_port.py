@@ -19,7 +19,7 @@ class TestIntegraalGrdPort(unittest.TestCase):
         cases: List[Tuple[Set[Rule], Dict[Rule, Set[Rule]]]] = [
             (set(), {}),
             ({data.Rpx_qx}, {data.Rpx_qx: set()}),
-            ({data.Rpx_py}, {data.Rpx_py: {data.Rpx_py}}),
+            ({data.Rpx_py}, {data.Rpx_py: set()}),
             (
                 {data.Rpx_qx, data.Rqx_rxy},
                 {data.Rpx_qx: {data.Rqx_rxy}, data.Rqx_rxy: set()},
@@ -28,22 +28,22 @@ class TestIntegraalGrdPort(unittest.TestCase):
                 {data.Rpx_py, data.Rpx_qx, data.Rqx_rxy},
                 {
                     data.Rpx_qx: {data.Rqx_rxy},
-                    data.Rpx_py: {data.Rpx_py, data.Rpx_qx},
+                    data.Rpx_py: set(),
                     data.Rqx_rxy: set(),
                 },
             ),
             (
                 {data.Rpxy_qzy, data.Rquv_pwv},
                 {
-                    data.Rpxy_qzy: {data.Rquv_pwv},
-                    data.Rquv_pwv: {data.Rpxy_qzy},
+                    data.Rpxy_qzy: set(),
+                    data.Rquv_pwv: set(),
                 },
             ),
             (
                 {data.Rpxy_pyz, data.Rpxy_pyy},
                 {
-                    data.Rpxy_pyz: {data.Rpxy_pyz, data.Rpxy_pyy},
-                    data.Rpxy_pyy: {data.Rpxy_pyz},
+                    data.Rpxy_pyz: set(),
+                    data.Rpxy_pyy: set(),
                 },
             ),
         ]
@@ -68,7 +68,7 @@ class TestIntegraalGrdPort(unittest.TestCase):
                 {data.Rpx_py, data.Rpx_qx, data.Rqx_rxy},
                 {
                     data.Rpx_qx: {data.Rqx_rxy},
-                    data.Rpx_py: {data.Rpx_qx},
+                    data.Rpx_py: set(),
                     data.Rqx_rxy: set(),
                 },
             ),
@@ -79,7 +79,7 @@ class TestIntegraalGrdPort(unittest.TestCase):
             (
                 {data.Rpxy_pyz, data.Rpxy_pyy},
                 {
-                    data.Rpxy_pyz: {data.Rpxy_pyz, data.Rpxy_pyy},
+                    data.Rpxy_pyz: set(),
                     data.Rpxy_pyy: set(),
                 },
             ),
@@ -134,7 +134,7 @@ class TestIntegraalGrdPort(unittest.TestCase):
             (
                 {data.Rpxynotqxy_rxy, data.Rqxxnotrxx_sx},
                 {data.Rpxynotqxy_rxy: set(), data.Rqxxnotrxx_sx: set()},
-                {data.Rpxynotqxy_rxy: set(), data.Rqxxnotrxx_sx: set()},
+                {data.Rpxynotqxy_rxy: {data.Rqxxnotrxx_sx}, data.Rqxxnotrxx_sx: set()},
             ),
         ]
 

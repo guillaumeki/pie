@@ -53,6 +53,9 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.query_evaluation.evaluator.fo_query.fo_query_evaluator_registry import (
         FOQueryEvaluatorRegistry,
     )
+    from prototyping_inference_engine.rule_compilation.api.rule_compilation import (
+        RuleCompilation,
+    )
 
 
 class AtomicFOQueryEvaluator(FOQueryEvaluator):
@@ -67,13 +70,19 @@ class AtomicFOQueryEvaluator(FOQueryEvaluator):
         query: FOQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
-        prepared = self.prepare(query, data)
+        prepared = self.prepare(query, data, rule_compilation)
         initial = substitution if substitution is not None else Substitution()
         yield from prepared.execute(initial)
 
-    def prepare(self, query: FOQuery, data: "ReadableData") -> "PreparedFOQuery":
-        return prepare_atomic_or_conjunction(query, data)
+    def prepare(
+        self,
+        query: FOQuery,
+        data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ) -> "PreparedFOQuery":
+        return prepare_atomic_or_conjunction(query, data, rule_compilation)
 
 
 class BacktrackingConjunctiveFOQueryEvaluator(FOQueryEvaluator):
@@ -88,13 +97,19 @@ class BacktrackingConjunctiveFOQueryEvaluator(FOQueryEvaluator):
         query: FOQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
-        prepared = self.prepare(query, data)
+        prepared = self.prepare(query, data, rule_compilation)
         initial = substitution if substitution is not None else Substitution()
         yield from prepared.execute(initial)
 
-    def prepare(self, query: FOQuery, data: "ReadableData") -> "PreparedFOQuery":
-        return PreparedBacktrackingConjunctiveFOQuery(query, data)
+    def prepare(
+        self,
+        query: FOQuery,
+        data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ) -> "PreparedFOQuery":
+        return PreparedBacktrackingConjunctiveFOQuery(query, data, rule_compilation)
 
 
 class DisjunctiveFOQueryEvaluator(FOQueryEvaluator):
@@ -109,13 +124,19 @@ class DisjunctiveFOQueryEvaluator(FOQueryEvaluator):
         query: FOQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
-        prepared = self.prepare(query, data)
+        prepared = self.prepare(query, data, rule_compilation)
         initial = substitution if substitution is not None else Substitution()
         yield from prepared.execute(initial)
 
-    def prepare(self, query: FOQuery, data: "ReadableData") -> "PreparedFOQuery":
-        return PreparedDisjunctiveFOQuery(query, data)
+    def prepare(
+        self,
+        query: FOQuery,
+        data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ) -> "PreparedFOQuery":
+        return PreparedDisjunctiveFOQuery(query, data, rule_compilation)
 
 
 class NegationFOQueryEvaluator(FOQueryEvaluator):
@@ -130,13 +151,19 @@ class NegationFOQueryEvaluator(FOQueryEvaluator):
         query: FOQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
-        prepared = self.prepare(query, data)
+        prepared = self.prepare(query, data, rule_compilation)
         initial = substitution if substitution is not None else Substitution()
         yield from prepared.execute(initial)
 
-    def prepare(self, query: FOQuery, data: "ReadableData") -> "PreparedFOQuery":
-        return PreparedNegationFOQuery(query, data)
+    def prepare(
+        self,
+        query: FOQuery,
+        data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ) -> "PreparedFOQuery":
+        return PreparedNegationFOQuery(query, data, rule_compilation)
 
 
 class UniversalFOQueryEvaluator(FOQueryEvaluator):
@@ -151,13 +178,19 @@ class UniversalFOQueryEvaluator(FOQueryEvaluator):
         query: FOQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
-        prepared = self.prepare(query, data)
+        prepared = self.prepare(query, data, rule_compilation)
         initial = substitution if substitution is not None else Substitution()
         yield from prepared.execute(initial)
 
-    def prepare(self, query: FOQuery, data: "ReadableData") -> "PreparedFOQuery":
-        return PreparedUniversalFOQuery(query, data)
+    def prepare(
+        self,
+        query: FOQuery,
+        data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ) -> "PreparedFOQuery":
+        return PreparedUniversalFOQuery(query, data, rule_compilation)
 
 
 class ExistentialFOQueryEvaluator(FOQueryEvaluator):
@@ -172,13 +205,19 @@ class ExistentialFOQueryEvaluator(FOQueryEvaluator):
         query: FOQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
-        prepared = self.prepare(query, data)
+        prepared = self.prepare(query, data, rule_compilation)
         initial = substitution if substitution is not None else Substitution()
         yield from prepared.execute(initial)
 
-    def prepare(self, query: FOQuery, data: "ReadableData") -> "PreparedFOQuery":
-        return PreparedExistentialFOQuery(query, data)
+    def prepare(
+        self,
+        query: FOQuery,
+        data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ) -> "PreparedFOQuery":
+        return PreparedExistentialFOQuery(query, data, rule_compilation)
 
 
 class GenericFOQueryEvaluator(FOQueryEvaluator):
@@ -211,6 +250,7 @@ class GenericFOQueryEvaluator(FOQueryEvaluator):
         query: FOQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
         from prototyping_inference_engine.query_evaluation.evaluator.errors import (
             UnsupportedFormulaError,
@@ -220,9 +260,14 @@ class GenericFOQueryEvaluator(FOQueryEvaluator):
         if evaluator is None:
             raise UnsupportedFormulaError(type(query.formula))
 
-        yield from evaluator.evaluate(query, data, substitution)
+        yield from evaluator.evaluate(query, data, substitution, rule_compilation)
 
-    def prepare(self, query: FOQuery, data: "ReadableData") -> "PreparedFOQuery":
+    def prepare(
+        self,
+        query: FOQuery,
+        data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ) -> "PreparedFOQuery":
         from prototyping_inference_engine.query_evaluation.evaluator.errors import (
             UnsupportedFormulaError,
         )
@@ -231,4 +276,4 @@ class GenericFOQueryEvaluator(FOQueryEvaluator):
         if evaluator is None:
             raise UnsupportedFormulaError(type(query.formula))
 
-        return evaluator.prepare(query, data)
+        return evaluator.prepare(query, data, rule_compilation)

@@ -1,8 +1,17 @@
 import pathlib
 import unittest
 
+from prototyping_inference_engine.grd.dependency_checker import DependencyChecker
 from prototyping_inference_engine.grd.grd import GRD
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+
+
+class AllowAllChecker(DependencyChecker):
+    def is_valid_positive_dependency(self, r1, r2, unifier) -> bool:
+        return True
+
+    def is_valid_negative_dependency(self, r1, r2, unifier) -> bool:
+        return True
 
 
 class TestGrdFunctions(unittest.TestCase):
@@ -12,7 +21,7 @@ class TestGrdFunctions(unittest.TestCase):
 
         result = DlgpeParser.instance().parse_file(file_path)
         rules = set(result["rules"])
-        grd = GRD(rules)
+        grd = GRD(rules, checkers=[AllowAllChecker()])
 
         for rule in rules:
             if rule.label == "ROOT":

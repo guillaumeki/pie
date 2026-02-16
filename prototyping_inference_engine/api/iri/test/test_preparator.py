@@ -5,6 +5,18 @@ from prototyping_inference_engine.api.iri.preparator import BasicStringPreparato
 
 
 class TestBasicStringPreparator(unittest.TestCase):
+    def test_unknown_transformer_raises(self) -> None:
+        with self.assertRaises(ValueError):
+            BasicStringPreparator(["missing"])
+
+    def test_custom_transformer_registered(self) -> None:
+        def reverse(value: str) -> str:
+            return value[::-1]
+
+        BasicStringPreparator.register_transformer("reverse", reverse)
+        preparator = BasicStringPreparator(["reverse"])
+        self.assertEqual("cba", preparator.transform("abc"))
+
     def test_preparation_html4(self) -> None:
         data = [
             ("Ros&eacute;", "Ros\u00e9"),
@@ -41,6 +53,10 @@ class TestBasicStringPreparator(unittest.TestCase):
         for input_value, expected in data:
             with self.subTest(value=input_value):
                 self.assertEqual(expected, preparator.transform(input_value))
+
+    def test_xml_invalid_numeric_entity_is_kept(self) -> None:
+        preparator = BasicStringPreparator(["xml"])
+        self.assertEqual("bad &#xZZ;", preparator.transform("bad &#xZZ;"))
 
     def test_preparation_for_iriref(self) -> None:
         data = [

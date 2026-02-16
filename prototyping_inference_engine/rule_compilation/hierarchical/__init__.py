@@ -1,0 +1,3 @@
+"""
+Hierarchical rule compilation package.
+"""

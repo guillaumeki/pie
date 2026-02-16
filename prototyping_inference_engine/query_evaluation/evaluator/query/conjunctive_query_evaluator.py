@@ -33,6 +33,9 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.query_evaluation.evaluator.query.query_evaluator_registry import (
         QueryEvaluatorRegistry,
     )
+    from prototyping_inference_engine.rule_compilation.api.rule_compilation import (
+        RuleCompilation,
+    )
 
 
 class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
@@ -71,6 +74,7 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         query: ConjunctiveQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
         """
         Evaluate a ConjunctiveQuery against a data source.
@@ -85,7 +89,7 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         Yields:
             Substitutions that satisfy the query
         """
-        prepared = self.prepare(query, data)
+        prepared = self.prepare(query, data, rule_compilation)
         from prototyping_inference_engine.api.substitution.substitution import (
             Substitution,
         )
@@ -98,6 +102,7 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         query: ConjunctiveQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator[tuple[Term, ...]]:
         """
         Evaluate a ConjunctiveQuery and project results onto answer variables.
@@ -122,13 +127,14 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         )
 
         yield from cast(FOQueryEvaluator, evaluator).evaluate_and_project(
-            fo_query, data, substitution
+            fo_query, data, substitution, rule_compilation
         )
 
     def prepare(
         self,
         query: ConjunctiveQuery,
         data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> "PreparedQuery[ConjunctiveQuery, ReadableData, Iterable[Substitution], Substitution]":
         fo_query = query.to_fo_query()
         registry = self._get_registry()
@@ -137,7 +143,7 @@ class ConjunctiveQueryEvaluator(QueryEvaluator[ConjunctiveQuery]):
         if evaluator is None:
             raise ValueError("No evaluator registered for FOQuery")
 
-        prepared = evaluator.prepare(fo_query, data)
+        prepared = evaluator.prepare(fo_query, data, rule_compilation)
         return _DelegatingPreparedQuery(query, data, prepared)
 
 

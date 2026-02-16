@@ -32,6 +32,9 @@ if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
     from prototyping_inference_engine.api.query.prepared_fo_query import PreparedFOQuery
     from prototyping_inference_engine.api.substitution.substitution import Substitution
+    from prototyping_inference_engine.rule_compilation.api.rule_compilation import (
+        RuleCompilation,
+    )
 
 
 class FOQueryEvaluator(QueryEvaluator[FOQuery]):
@@ -62,6 +65,7 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
         query: FOQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator["Substitution"]:
         """
         Evaluate a query against a data source.
@@ -77,7 +81,12 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
         ...
 
     @abstractmethod
-    def prepare(self, query: FOQuery, data: "ReadableData") -> "PreparedFOQuery":
+    def prepare(
+        self,
+        query: FOQuery,
+        data: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ) -> "PreparedFOQuery":
         """Prepare a query against a data source for repeated evaluation."""
         ...
 
@@ -86,6 +95,7 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
         query: FOQuery,
         data: "ReadableData",
         substitution: Optional["Substitution"] = None,
+        rule_compilation: Optional["RuleCompilation"] = None,
     ) -> Iterator[Tuple[Term, ...]]:
         """
         Evaluate a query and project results onto answer variables.
@@ -103,7 +113,7 @@ class FOQueryEvaluator(QueryEvaluator[FOQuery]):
         """
         seen: set[Tuple[Term, ...]] = set()
 
-        for result_sub in self.evaluate(query, data, substitution):
+        for result_sub in self.evaluate(query, data, substitution, rule_compilation):
             answer = tuple(result_sub.apply(v) for v in query.answer_variables)
             if answer not in seen:
                 seen.add(answer)

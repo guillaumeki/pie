@@ -32,5 +32,8 @@ class RuleBase:
     def add_rule(self, rule: Rule) -> None:
         self._rules.add(rule)
 
+    def remove_rule(self, rule: Rule) -> None:
+        self._rules.discard(rule)
+
     def add_negative_constraint(self, constraint: NegativeConstraint) -> None:
         self._negative_constraints.add(constraint)

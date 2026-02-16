@@ -11,10 +11,15 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [2026-02-16]
 - Added: Baget/Mugnier citation for backtracking projection in CQ evaluation.
+- Added: rule compilation package (ID and hierarchical compilations) with compiled preorder support.
+- Added: compilation-aware homomorphism checks for rewriting and query evaluation.
+- Added: unit tests for compilation-aware atomic evaluation and rewriting.
 - Changed: renamed `ConjunctiveFOQueryEvaluator` to `BacktrackingConjunctiveFOQueryEvaluator`.
 - Changed: renamed `PreparedConjunctiveFOQuery` to `PreparedBacktrackingConjunctiveFOQuery`.
+- Changed: backward chaining unifiers can use rule compilation for predicate compatibility.
 - Updated: algorithm reference links for backward chaining and disjunctive rewriting.
-- Changed: bumped version to 0.0.28.
+- Updated: algorithm reference documentation for rule compilation.
+- Changed: bumped version to 0.0.29.
 
 ## [2026-02-15]
 - Added: DLGPE arithmetic expressions (terms, equality, comparisons) with parser support.

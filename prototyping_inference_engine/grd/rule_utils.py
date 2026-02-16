@@ -31,6 +31,8 @@ def extract_positive_body(rule: Rule) -> ConjunctiveQuery:
 
 def extract_negative_body(rule: Rule) -> ConjunctiveQuery:
     atoms = _extract_negative_atoms(rule.body)
+    if not atoms:
+        return ConjunctiveQuery()
     return ConjunctiveQuery(atoms, sorted(rule.frontier, key=str))
 
 

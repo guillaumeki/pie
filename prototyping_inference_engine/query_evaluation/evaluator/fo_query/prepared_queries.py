@@ -64,6 +64,9 @@ from prototyping_inference_engine.query_evaluation.evaluator.rewriting.function_
 
 if TYPE_CHECKING:
     from prototyping_inference_engine.api.data.readable_data import ReadableData
+    from prototyping_inference_engine.rule_compilation.api.rule_compilation import (
+        RuleCompilation,
+    )
 
 
 def _sorted_variables(variables: Iterable[Variable]) -> list[Variable]:
@@ -105,10 +108,16 @@ class DelegatingPreparedFOQuery(PreparedFOQueryDefaults):
 class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
     """Prepared query for atomic formulas."""
 
-    def __init__(self, query: FOQuery[Atom], data_source: "ReadableData"):
+    def __init__(
+        self,
+        query: FOQuery[Atom],
+        data_source: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ):
         self._query = query
         self._data_source = data_source
         self._atom = query.formula
+        self._rule_compilation = rule_compilation
         self._missing_predicate: bool = not data_source.has_predicate(
             self._atom.predicate
         )
@@ -139,54 +148,96 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
         return self._data_source
 
     def execute(self, assignation: Substitution) -> Iterable[Substitution]:
-        if self._missing_predicate:
+        from prototyping_inference_engine.rule_compilation.no_compilation import (
+            NoCompilation,
+        )
+
+        compilation = self._rule_compilation
+        if compilation is None or isinstance(compilation, NoCompilation):
+            if self._missing_predicate:
+                return
+            query = self._build_basic_query(assignation)
+            if query is None:
+                return
+
+            if not self._data_source.can_evaluate(query):
+                unsatisfied = self._pattern.get_unsatisfied_positions(
+                    self._atom, assignation
+                )
+                raise ValueError(
+                    f"Cannot evaluate atom {self._atom}: "
+                    f"unsatisfied constraints at positions {unsatisfied}"
+                )
+
+            answer_positions = sorted(query.answer_variables.keys())
+
+            for term_tuple in self._data_source.evaluate(query):
+                result: dict[Variable, Term] = {}
+                consistent = True
+                for pos, term in zip(answer_positions, term_tuple):
+                    var = query.answer_variables[pos]
+                    if var in result:
+                        if result[var] != term:
+                            consistent = False
+                            break
+                    else:
+                        result[var] = term
+                if consistent:
+                    yield assignation.compose(Substitution(result))
             return
-        query = self._build_basic_query(assignation)
-        if query is None:
-            return
 
-        if not self._data_source.can_evaluate(query):
-            unsatisfied = self._pattern.get_unsatisfied_positions(
-                self._atom, assignation
-            )
-            raise ValueError(
-                f"Cannot evaluate atom {self._atom}: "
-                f"unsatisfied constraints at positions {unsatisfied}"
-            )
-
-        answer_positions = sorted(query.answer_variables.keys())
-
-        for term_tuple in self._data_source.evaluate(query):
-            result: dict[Variable, Term] = {}
-            consistent = True
-            for pos, term in zip(answer_positions, term_tuple):
-                var = query.answer_variables[pos]
-                if var in result:
-                    if result[var] != term:
-                        consistent = False
-                        break
-                else:
-                    result[var] = term
-            if consistent:
-                yield assignation.compose(Substitution(result))
+        for unfolded_atom, unfolding_sub in compilation.unfold(self._atom):
+            unfolded_query = FOQuery(unfolded_atom, self._query.answer_variables)
+            prepared = PreparedAtomicFOQuery(unfolded_query, self._data_source)
+            for result in prepared.execute(assignation):
+                yield result.compose(unfolding_sub)
 
     def estimate_bound(self, substitution: Substitution) -> int | None:
-        if self._missing_predicate:
-            return 0
-        query = self._build_basic_query(substitution)
-        if query is None:
-            return 0
-        if not self._data_source.can_evaluate(query):
-            return 0
-        return self._data_source.estimate_bound(query)
+        from prototyping_inference_engine.rule_compilation.no_compilation import (
+            NoCompilation,
+        )
+
+        compilation = self._rule_compilation
+        if compilation is None or isinstance(compilation, NoCompilation):
+            if self._missing_predicate:
+                return 0
+            query = self._build_basic_query(substitution)
+            if query is None:
+                return 0
+            if not self._data_source.can_evaluate(query):
+                return 0
+            return self._data_source.estimate_bound(query)
+
+        total = 0
+        for unfolded_atom, _ in compilation.unfold(self._atom):
+            unfolded_query = FOQuery(unfolded_atom, self._query.answer_variables)
+            prepared = PreparedAtomicFOQuery(unfolded_query, self._data_source)
+            bound = prepared.estimate_bound(substitution)
+            if bound is None:
+                return None
+            total += bound
+        return total
 
     def is_evaluable_with(self, substitution: Substitution) -> bool:
-        if self._missing_predicate:
-            return False
-        query = self._build_basic_query(substitution)
-        if query is None:
-            return False
-        return self._data_source.can_evaluate(query)
+        from prototyping_inference_engine.rule_compilation.no_compilation import (
+            NoCompilation,
+        )
+
+        compilation = self._rule_compilation
+        if compilation is None or isinstance(compilation, NoCompilation):
+            if self._missing_predicate:
+                return False
+            query = self._build_basic_query(substitution)
+            if query is None:
+                return False
+            return self._data_source.can_evaluate(query)
+
+        for unfolded_atom, _ in compilation.unfold(self._atom):
+            unfolded_query = FOQuery(unfolded_atom, self._query.answer_variables)
+            prepared = PreparedAtomicFOQuery(unfolded_query, self._data_source)
+            if prepared.is_evaluable_with(substitution):
+                return True
+        return False
 
     def mandatory_parameters(self) -> set[Variable]:
         return set(self._mandatory)
@@ -235,12 +286,18 @@ class PreparedAtomicFOQuery(PreparedFOQueryDefaults):
 class PreparedBacktrackingConjunctiveFOQuery(PreparedFOQueryDefaults):
     """Prepared query for conjunction formulas using backtracking."""
 
-    def __init__(self, query: FOQuery[ConjunctionFormula], data_source: "ReadableData"):
+    def __init__(
+        self,
+        query: FOQuery[ConjunctionFormula],
+        data_source: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ):
         self._query = query
         self._data_source = data_source
         self._formula = query.formula
         self._subqueries: list[PreparedFOQuery] = []
         self._equality_atoms: list[Atom] = []
+        self._rule_compilation = rule_compilation
         self._prepare_subqueries()
 
     @property
@@ -293,7 +350,9 @@ class PreparedBacktrackingConjunctiveFOQuery(PreparedFOQueryDefaults):
 
         registry = FOQueryEvaluatorRegistry.instance()
         for formula in other_formulas:
-            prepared = _prepare_formula(formula, self._data_source, registry)
+            prepared = _prepare_formula(
+                formula, self._data_source, registry, self._rule_compilation
+            )
             self._subqueries.append(prepared)
 
     def _backtrack(
@@ -327,10 +386,16 @@ class PreparedBacktrackingConjunctiveFOQuery(PreparedFOQueryDefaults):
 class PreparedDisjunctiveFOQuery(PreparedFOQueryDefaults):
     """Prepared query for disjunction formulas."""
 
-    def __init__(self, query: FOQuery[DisjunctionFormula], data_source: "ReadableData"):
+    def __init__(
+        self,
+        query: FOQuery[DisjunctionFormula],
+        data_source: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ):
         self._query = query
         self._data_source = data_source
         self._formula = query.formula
+        self._rule_compilation = rule_compilation
         self._left = self._prepare_side(self._formula.left)
         self._right = self._prepare_side(self._formula.right)
 
@@ -380,16 +445,22 @@ class PreparedDisjunctiveFOQuery(PreparedFOQueryDefaults):
         evaluator = registry.get_evaluator(query)
         if evaluator is None:
             raise UnsupportedFormulaError(type(formula))
-        return evaluator.prepare(query, self._data_source)
+        return evaluator.prepare(query, self._data_source, self._rule_compilation)
 
 
 class PreparedNegationFOQuery(PreparedFOQueryDefaults):
     """Prepared query for negation formulas."""
 
-    def __init__(self, query: FOQuery[NegationFormula], data_source: "ReadableData"):
+    def __init__(
+        self,
+        query: FOQuery[NegationFormula],
+        data_source: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ):
         self._query = query
         self._data_source = data_source
         self._formula = query.formula
+        self._rule_compilation = rule_compilation
         self._inner = self._prepare_inner(self._formula.inner)
 
     @property
@@ -458,16 +529,22 @@ class PreparedNegationFOQuery(PreparedFOQueryDefaults):
         evaluator = registry.get_evaluator(query)
         if evaluator is None:
             raise UnsupportedFormulaError(type(formula))
-        return evaluator.prepare(query, self._data_source)
+        return evaluator.prepare(query, self._data_source, self._rule_compilation)
 
 
 class PreparedExistentialFOQuery(PreparedFOQueryDefaults):
     """Prepared query for existential formulas."""
 
-    def __init__(self, query: FOQuery[ExistentialFormula], data_source: "ReadableData"):
+    def __init__(
+        self,
+        query: FOQuery[ExistentialFormula],
+        data_source: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ):
         self._query = query
         self._data_source = data_source
         self._formula = query.formula
+        self._rule_compilation = rule_compilation
         self._inner = self._prepare_inner(self._formula.inner)
         self._bound_var = self._formula.variable
 
@@ -506,16 +583,22 @@ class PreparedExistentialFOQuery(PreparedFOQueryDefaults):
         evaluator = registry.get_evaluator(query)
         if evaluator is None:
             raise UnsupportedFormulaError(type(formula))
-        return evaluator.prepare(query, self._data_source)
+        return evaluator.prepare(query, self._data_source, self._rule_compilation)
 
 
 class PreparedUniversalFOQuery(PreparedFOQueryDefaults):
     """Prepared query for universal formulas."""
 
-    def __init__(self, query: FOQuery[UniversalFormula], data_source: "ReadableData"):
+    def __init__(
+        self,
+        query: FOQuery[UniversalFormula],
+        data_source: "ReadableData",
+        rule_compilation: Optional["RuleCompilation"] = None,
+    ):
         self._query = query
         self._data_source = data_source
         self._formula = query.formula
+        self._rule_compilation = rule_compilation
         self._inner = self._prepare_inner(self._formula.inner)
         self._bound_var = self._formula.variable
 
@@ -602,11 +685,13 @@ class PreparedUniversalFOQuery(PreparedFOQueryDefaults):
         evaluator = registry.get_evaluator(query)
         if evaluator is None:
             raise UnsupportedFormulaError(type(formula))
-        return evaluator.prepare(query, self._data_source)
+        return evaluator.prepare(query, self._data_source, self._rule_compilation)
 
 
 def prepare_atomic_or_conjunction(
-    query: FOQuery[Atom], data_source: "ReadableData"
+    query: FOQuery[Atom],
+    data_source: "ReadableData",
+    rule_compilation: Optional["RuleCompilation"] = None,
 ) -> PreparedFOQuery:
     atom = query.formula
     if formula_contains_function(atom):
@@ -624,19 +709,22 @@ def prepare_atomic_or_conjunction(
             evaluator = registry.get_evaluator(rewritten_query)
             if evaluator is None:
                 raise UnsupportedFormulaError(type(conjunction))
-            prepared = evaluator.prepare(rewritten_query, data_source)
+            prepared = evaluator.prepare(rewritten_query, data_source, rule_compilation)
             return DelegatingPreparedFOQuery(query, prepared)
-    return PreparedAtomicFOQuery(query, data_source)
+    return PreparedAtomicFOQuery(query, data_source, rule_compilation)
 
 
 def _prepare_formula(
-    formula: Formula, data_source: "ReadableData", registry
+    formula: Formula,
+    data_source: "ReadableData",
+    registry,
+    rule_compilation: Optional["RuleCompilation"] = None,
 ) -> PreparedFOQuery:
     query = _query_for_formula(formula)
     evaluator = registry.get_evaluator(query)
     if evaluator is None:
         raise UnsupportedFormulaError(type(formula))
-    return evaluator.prepare(query, data_source)
+    return evaluator.prepare(query, data_source, rule_compilation)
 
 
 def _build_conjunction(formulas: list[Atom]) -> ConjunctionFormula:

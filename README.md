@@ -11,6 +11,7 @@ The library supports:
 - **Existential disjunctive rules** ([Disjunctive Datalog](https://en.wikipedia.org/wiki/Disjunctive_Datalog) with existentially quantified variables)
 - **First-order queries** with conjunction, disjunction, negation, and quantifiers
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
+- **Rule compilation** (ID and hierarchical fragments) for accelerating rewriting and evaluation
 - **DLGP parser (DLGPE version)** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
 - **Computed predicates** with the standard function library via `@computed`
 - **Knowledge bases and rule bases** for grouping facts and rules
@@ -188,6 +189,11 @@ Data sources declare their capabilities via `AtomicPattern` and implement `evalu
 Hierarchical evaluator architecture:
 
 ```
+
+### Rule Compilation (`rule_compilation/`)
+
+- **ID compilation** and **hierarchical compilation** for compiled preorders
+- **Compatibility and unfolding** helpers used in rewriting and evaluation
 QueryEvaluator[Q]
 └── FOQueryEvaluator
     ├── AtomicFOQueryEvaluator

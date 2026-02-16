@@ -1,10 +1,10 @@
-@computed ig:<stdfct>
+@computed ig: <stdfct>.
 
 @rules
 
 [ALONE] pp(Y) :- pp(X), ig:isEven(X).
 
-[ROOT] p(ig:sum(X, 1)) :- p(X), ig:isEven(X).
+[ROOT] p(Y) :- p(X), ig:sum(X, 1, Y), ig:isEven(X).
 
 [PathR1] q(X) :- p(X), ig:isEven(X).
 [PathR2] r(X, Y) :- q(X), ig:isEven(X).
