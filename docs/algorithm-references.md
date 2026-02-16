@@ -17,25 +17,25 @@ finite. PIE uses piece-unifiers to drive backward chaining and to keep rewriting
 operators aligned with the theoretical guarantees from the literature.
 
 **Key properties used in PIE**
-- Soundness and completeness of piece-unifier based rewriting.
-- Minimality of UCQ rewritings when a finite rewriting exists.
-- Correct handling of separating and sticky variables through admissible
+1. Soundness and completeness of piece-unifier based rewriting.
+1. Minimality of UCQ rewritings when a finite rewriting exists.
+1. Correct handling of separating and sticky variables through admissible
   partitions.
 
 **Implementation in PIE**
-- `prototyping_inference_engine/unifier/piece_unifier.py`
-- `prototyping_inference_engine/unifier/piece_unifier_algorithm.py`
-- `prototyping_inference_engine/backward_chaining/breadth_first_rewriting.py`
-- `prototyping_inference_engine/backward_chaining/ucq_rewriting_algorithm.py`
+1. `prototyping_inference_engine/unifier/piece_unifier.py`
+1. `prototyping_inference_engine/unifier/piece_unifier_algorithm.py`
+1. `prototyping_inference_engine/backward_chaining/breadth_first_rewriting.py`
+1. `prototyping_inference_engine/backward_chaining/ucq_rewriting_algorithm.py`
 
 **References**
-- “A Sound and Complete Backward Chaining Algorithm for Existential Rules.”
+1. “A Sound and Complete Backward Chaining Algorithm for Existential Rules.”
   [Mélanie König](https://dblp.org/search?q=M%C3%A9lanie%20K%C3%B6nig),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
   [Michaël Thomazo](https://prairie-institute.fr/chairs/thomazo-michael/).
   Publication: [https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf](https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf)
-- “Sound, Complete, and Minimal Query Rewriting for Existential Rules.”
+1. “Sound, Complete, and Minimal Query Rewriting for Existential Rules.”
   [Mélanie König](https://dblp.org/search?q=M%C3%A9lanie%20K%C3%B6nig),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
@@ -53,17 +53,17 @@ this operator to perform sound and complete UCQ rewriting under disjunctive
 existential rules, with minimality when a finite rewriting exists.
 
 **Key properties used in PIE**
-- Soundness and completeness of the disjunctive rewriting operator.
-- Minimality of breadth-first UCQ rewriting when it terminates.
-- Correct propagation of shared frontier instantiations across disjuncts.
+1. Soundness and completeness of the disjunctive rewriting operator.
+1. Minimality of breadth-first UCQ rewriting when it terminates.
+1. Correct propagation of shared frontier instantiations across disjuncts.
 
 **Implementation in PIE**
-- `prototyping_inference_engine/unifier/disjunctive_piece_unifier.py`
-- `prototyping_inference_engine/unifier/disjunctive_piece_unifier_algorithm.py`
-- `prototyping_inference_engine/backward_chaining/rewriting_operator/without_aggregation_rewriting_operator.py`
+1. `prototyping_inference_engine/unifier/disjunctive_piece_unifier.py`
+1. `prototyping_inference_engine/unifier/disjunctive_piece_unifier_algorithm.py`
+1. `prototyping_inference_engine/backward_chaining/rewriting_operator/without_aggregation_rewriting_operator.py`
 
 **References**
-- “Query Rewriting with Disjunctive Existential Rules and Mappings.”
+1. “Query Rewriting with Disjunctive Existential Rules and Mappings.”
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
   [Guillaume Pérution-Kihli](https://dblp.org/search?q=Guillaume%20P%C3%A9rution-Kihli).
@@ -78,15 +78,15 @@ interaction, decidability, and evaluation strategies, and it provides the base
 structure for stratification under negation.
 
 **Key properties used in PIE**
-- Dependency edges encode potential rule triggering.
-- GRD-based criteria can be used to reason about termination and stratification.
+1. Dependency edges encode potential rule triggering.
+1. GRD-based criteria can be used to reason about termination and stratification.
 
 **Implementation in PIE**
-- `prototyping_inference_engine/grd/grd.py`
-- `prototyping_inference_engine/grd/dependency_checker.py`
+1. `prototyping_inference_engine/grd/grd.py`
+1. `prototyping_inference_engine/grd/dependency_checker.py`
 
 **References**
-- “Extending Decidable Cases for Rules with Existential Variables.”
+1. “Extending Decidable Cases for Rules with Existential Variables.”
   [Jean-François Baget](https://www.lirmm.fr/~baget/),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
@@ -103,27 +103,27 @@ strata where possible, which is crucial for controlled evaluation under
 negation.
 
 **Key properties used in PIE**
-- Negative cycles are forbidden in stratified programs.
-- SCC condensation yields a DAG that can be topologically ordered.
-- Weighted shortest paths can compute strata levels under constraint systems.
+1. Negative cycles are forbidden in stratified programs.
+1. SCC condensation yields a DAG that can be topologically ordered.
+1. Weighted shortest paths can compute strata levels under constraint systems.
 
 **Implementation in PIE**
-- `prototyping_inference_engine/grd/stratification.py`
-- `prototyping_inference_engine/utils/graph/topological_sort.py`
+1. `prototyping_inference_engine/grd/stratification.py`
+1. `prototyping_inference_engine/utils/graph/topological_sort.py`
 
 **References**
-- “The well-founded semantics for general logic programs.”
+1. “The well-founded semantics for general logic programs.”
   [Allen Van Gelder](https://dblp.org/search?q=Allen%20Van%20Gelder),
   [Kenneth A. Ross](https://dblp.org/search?q=Kenneth%20A.%20Ross),
   [John S. Schlipf](https://dblp.org/search?q=John%20S.%20Schlipf).
   Publication: [https://doi.org/10.1145/115040.115041](https://doi.org/10.1145/115040.115041)
-- “On a routing problem.”
+1. “On a routing problem.”
   [Richard Bellman](https://dblp.org/search?q=Richard%20Bellman).
   Publication: [https://doi.org/10.1090/qam/102435](https://doi.org/10.1090/qam/102435)
-- “Network Flow Theory.”
+1. “Network Flow Theory.”
   [L. R. Ford Jr.](https://dblp.org/search?q=L.%20R.%20Ford).
   Publication: [https://apps.dtic.mil/sti/pdfs/AD0602524.pdf](https://apps.dtic.mil/sti/pdfs/AD0602524.pdf)
-- “A Note on a Simple Algorithm for Generating a Topological Ordering of a
+1. “A Note on a Simple Algorithm for Generating a Topological Ordering of a
   Directed Acyclic Graph.”
   [Arthur B. Kahn](https://dblp.org/search?q=Arthur%20B.%20Kahn).
   Publication: [https://doi.org/10.1145/368996.369025](https://doi.org/10.1145/368996.369025)
@@ -138,21 +138,21 @@ This is the core evaluation strategy behind the backtracking FO query evaluator
 and the prepared backtracking CQ implementation.
 
 **Key properties used in PIE**
-- Completeness of backtracking enumeration for homomorphisms.
-- Correctness of homomorphism-based CQ semantics.
+1. Completeness of backtracking enumeration for homomorphisms.
+1. Correctness of homomorphism-based CQ semantics.
 
 **Implementation in PIE**
-- `prototyping_inference_engine/api/atom/set/homomorphism/backtrack/naive_backtrack_homomorphism_algorithm.py`
-- `prototyping_inference_engine/query_evaluation/evaluator/fo_query/prepared_queries.py`
-- `prototyping_inference_engine/query_evaluation/evaluator/fo_query/fo_query_evaluators.py`
+1. `prototyping_inference_engine/api/atom/set/homomorphism/backtrack/naive_backtrack_homomorphism_algorithm.py`
+1. `prototyping_inference_engine/query_evaluation/evaluator/fo_query/prepared_queries.py`
+1. `prototyping_inference_engine/query_evaluation/evaluator/fo_query/fo_query_evaluators.py`
 
 **References**
-- “Foundations of Databases.”
+1. “Foundations of Databases.”
   [Serge Abiteboul](https://dblp.org/search?q=Serge%20Abiteboul),
   [Richard Hull](https://dblp.org/search?q=Richard%20Hull),
   [Victor Vianu](https://dblp.org/search?q=Victor%20Vianu).
   Publication: [https://dl.acm.org/doi/book/10.5555/64510](https://dl.acm.org/doi/book/10.5555/64510)
-- “Extensions of Simple Conceptual Graphs: The Complexity of Rules and Constraints.”
+1. “Extensions of Simple Conceptual Graphs: The Complexity of Rules and Constraints.”
   [Jean-François Baget](https://www.lirmm.fr/~baget/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/).
   Publication: [https://doi.org/10.1613/jair.918](https://doi.org/10.1613/jair.918)
@@ -165,13 +165,13 @@ used by unification and equality reasoning. PIE relies on union-find for
 near-constant-time merges and representative queries across the codebase.
 
 **Key properties used in PIE**
-- Amortized inverse-Ackermann complexity for union/find operations.
+1. Amortized inverse-Ackermann complexity for union/find operations.
 
 **Implementation in PIE**
-- `prototyping_inference_engine/utils/partition.py`
+1. `prototyping_inference_engine/utils/partition.py`
 
 **References**
-- “Efficiency of a Good But Not Linear Set Union Algorithm.”
+1. “Efficiency of a Good But Not Linear Set Union Algorithm.”
   [Robert E. Tarjan](https://dblp.org/search?q=Robert%20E.%20Tarjan).
   Publication: [https://doi.org/10.1145/360680.360685](https://doi.org/10.1145/360680.360685)
 
@@ -183,11 +183,11 @@ negative constraints, and queries in the existential-rule framework. PIE’s
 parser and writer implement a compatible subset of this syntax.
 
 **Implementation in PIE**
-- `prototyping_inference_engine/io/parsers/dlgpe/dlgpe_parser.py`
-- `prototyping_inference_engine/io/writers/dlgpe_writer.py`
+1. `prototyping_inference_engine/io/parsers/dlgpe/dlgpe_parser.py`
+1. `prototyping_inference_engine/io/writers/dlgpe_writer.py`
 
 **References**
-- “DLGP: An Extended Datalog Syntax (Version 2.1).”
+1. “DLGP: An Extended Datalog Syntax (Version 2.1).”
   [GraphIK Team](https://team.inria.fr/graphik/).
   Publication: [https://graphik-team.github.io/graal/doc/dlgp](https://graphik-team.github.io/graal/doc/dlgp)
 
@@ -200,12 +200,12 @@ reads/writes RDF through rdflib, preserving RDF semantics while exposing atoms
 to the inference engine.
 
 **Implementation in PIE**
-- `prototyping_inference_engine/rdf/translator.py`
-- `prototyping_inference_engine/io/parsers/rdf/rdf_parser.py`
-- `prototyping_inference_engine/io/writers/rdf/rdf_writer.py`
+1. `prototyping_inference_engine/rdf/translator.py`
+1. `prototyping_inference_engine/io/parsers/rdf/rdf_parser.py`
+1. `prototyping_inference_engine/io/writers/rdf/rdf_writer.py`
 
 **References**
-- “RDF 1.1 Concepts and Abstract Syntax.”
+1. “RDF 1.1 Concepts and Abstract Syntax.”
   [Richard Cyganiak](https://dblp.org/search?q=Richard%20Cyganiak),
   [David Wood](https://dblp.org/search?q=David%20Wood),
   [Markus Lanthaler](https://dblp.org/search?q=Markus%20Lanthaler).
