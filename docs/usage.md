@@ -113,9 +113,13 @@ with ReasoningSession.create() as session:
     print(output)
 ```
 Expected output includes:
+
 - `@base <http://example.org/base/>.`
+
 - `@prefix ex: <http://example.org/ns/>.`
+
 - `@facts`
+
 - `<rel>(ex:obj).`
 
 ## Parsing Files and Imports
@@ -144,8 +148,11 @@ with tempfile.TemporaryDirectory() as tmpdir:
         print(atom)
 ```
 Expected output:
+
 - `p(a)`
+
 - `q(b)`
+
 The output shows which relations were loaded.
 
 ### Parsing CSV Files
@@ -168,8 +175,11 @@ with tempfile.TemporaryDirectory() as tmpdir:
             print(atom)
 ```
 Expected output:
+
 - `people("alice", "bob")`
+
 - `people("carol", "dave")`
+
 The output shows the parsed CSV rows.
 
 ### Parsing RLS CSV Configurations
@@ -199,9 +209,13 @@ with tempfile.TemporaryDirectory() as tmpdir:
             print(atom)
 ```
 Expected output:
+
 - `p("a", "b")`
+
 - `p("c", "d")`
+
 - `q("e", "f")`
+
 The output shows which sources loaded.
 
 ### Parsing RDF Files
@@ -239,8 +253,11 @@ with tempfile.TemporaryDirectory() as tmpdir:
             print(atom)
 ```
 Expected output includes:
+
 - `http://example.org/Person(http://example.org/a)`
+
 - `http://example.org/knows(http://example.org/a, "bob")`
+
 The output reflects the translated RDF statements.
 
 ### Using `@import` Directives
@@ -283,9 +300,13 @@ with tempfile.TemporaryDirectory() as tmpdir:
             print(atom)
 ```
 Expected output includes:
+
 - `facts("a", "b")`
+
 - `p(a)`
+
 - `triple(http://example.org/a, http://example.org/knows, http://example.org/b)`
+
 The `facts.csv` import yields atoms with predicate `facts(t1, ..., tn)` where each
 row becomes one atom. The output now includes facts from every imported file.
 
@@ -533,16 +554,27 @@ blocks in this section contain one query per function, in the same order as the
 lists.
 
 ### Arithmetic Functions
+
 - `sum(t1, ..., tn, Result)` (n >= 1): Sum of all numeric inputs.
+
 - `min(t1, ..., tn, Result)` (n >= 1): Minimum numeric value.
+
 - `max(t1, ..., tn, Result)` (n >= 1): Maximum numeric value.
+
 - `minus(t1, ..., tn, Result)` (n >= 1): Left-fold subtraction.
+
 - `product(t1, ..., tn, Result)` (n >= 1): Product of all numeric inputs.
+
 - `divide(t1, t2, ..., tn, Result)` (n >= 2): Left-fold division.
+
 - `power(t1, t2, Result)`: Exponentiation (t1 ** t2).
+
 - `average(t1, ..., tn, Result)` (n >= 1): Arithmetic mean.
+
 - `median(t1, ..., tn, Result)` (n >= 1): Median value.
+
 - `weightedAverage(pair1, ..., pairN, Result)`: Weighted average.
+
 - `weightedMedian(pair1, ..., pairN, Result)`: Weighted median.
 
 Arithmetic examples (one query per function, in the same order):
@@ -603,21 +635,37 @@ Expected output:
 `[('stdfct:sum', Lit:3), ('stdfct:min', Lit:1), ('stdfct:max', Lit:3), ('stdfct:minus', Lit:7), ('stdfct:product', Lit:6), ('stdfct:divide', Lit:4), ('stdfct:power', Lit:8), ('stdfct:average', Lit:3), ('stdfct:median', Lit:4), ('stdfct:weightedAverage', Lit:17.5), ('stdfct:weightedMedian', Lit:20)]`.
 
 ### Comparison and Predicate Functions
+
 - `isEven(value, Result)`: True if value is an even integer.
+
 - `isOdd(value, Result)`: True if value is an odd integer.
+
 - `isPrime(value, Result)`: True if value is prime.
+
 - `isGreaterThan(left, right, Result)`: True if left > right.
+
 - `isGreaterOrEqualsTo(left, right, Result)`: True if left >= right.
+
 - `isSmallerThan(left, right, Result)`: True if left < right.
+
 - `isSmallerOrEqualsTo(left, right, Result)`: True if left <= right.
+
 - `isLexicographicallyGreaterThan(left, right, Result)`: True if left > right (lexicographic).
+
 - `isLexicographicallyGreaterOrEqualsTo(left, right, Result)`: True if left >= right (lexicographic).
+
 - `isLexicographicallySmallerThan(left, right, Result)`: True if left < right (lexicographic).
+
 - `isLexicographicallySmallerOrEqualsTo(left, right, Result)`: True if left <= right (lexicographic).
+
 - `equals(t1, t2, ..., Result)` (n >= 2): True if all values are equal.
+
 - `contains(container, value, Result)`: True if value is in collection or substring.
+
 - `isEmpty(value, Result)`: True if value is empty (collection or string).
+
 - `isBlank(value, Result)`: True if string is blank.
+
 - `isNumeric(value, Result)`: True if value is numeric or numeric string.
 
 Comparison examples (one query per function, in the same order):
@@ -688,15 +736,25 @@ Expected output:
 `[('stdfct:isEven', Lit:true), ('stdfct:isOdd', Lit:true), ('stdfct:isPrime', Lit:true), ('stdfct:isGreaterThan', Lit:true), ('stdfct:isGreaterOrEqualsTo', Lit:true), ('stdfct:isSmallerThan', Lit:true), ('stdfct:isSmallerOrEqualsTo', Lit:true), ('stdfct:isLexicographicallyGreaterThan', Lit:true), ('stdfct:isLexicographicallyGreaterOrEqualsTo', Lit:true), ('stdfct:isLexicographicallySmallerThan', Lit:true), ('stdfct:isLexicographicallySmallerOrEqualsTo', Lit:true), ('stdfct:equals', Lit:true), ('stdfct:contains', Lit:true), ('stdfct:isEmpty', Lit:true), ('stdfct:isBlank', Lit:true), ('stdfct:isNumeric', Lit:true)]`.
 
 ### String and Conversion Functions
+
 - `concat(left, right, Result)`: Concatenate strings or lists.
+
 - `toLowerCase(value, Result)`: Lowercase string.
+
 - `toUpperCase(value, Result)`: Uppercase string.
+
 - `replace(value, target, replacement, Result)`: Replace substrings.
+
 - `length(value, Result)`: Length of string or collection.
+
 - `toString(term, Result)`: String representation of term.
+
 - `toStringWithDatatype(term, Result)`: String representation with datatype.
+
 - `toInt(term, Result)`: Convert to integer.
+
 - `toFloat(term, Result)`: Convert to float.
+
 - `toBoolean(term, Result)`: Convert to boolean.
 
 String and conversion examples (one query per function, in the same order):
@@ -755,21 +813,37 @@ Expected output:
 `[('stdfct:concat', Lit:"foobar"), ('stdfct:toLowerCase', Lit:"abc"), ('stdfct:toUpperCase', Lit:"ABC"), ('stdfct:replace', Lit:"aBc"), ('stdfct:length', Lit:4), ('stdfct:toString', Lit:"1"), ('stdfct:toStringWithDatatype', Lit:"Literal<int> 1"), ('stdfct:toInt', Lit:12), ('stdfct:toFloat', Lit:1.5), ('stdfct:toBoolean', Lit:true)]`.
 
 ### Collection and Dictionary Functions
+
 - `set(e1, ..., en, Result)` (n >= 0): Build a set.
+
 - `tuple(e1, ..., en, Result)` (n >= 0): Build a tuple literal.
+
 - `union(c1, ..., cn, Result)` (n >= 1): Union of collections.
+
 - `size(value, Result)`: Size of collection or dict.
+
 - `intersection(c1, ..., cn, Result)` (n >= 1): Intersection of collections.
+
 - `isSubset(left, right, Result)`: True if left is subset of right.
+
 - `isStrictSubset(left, right, Result)`: True if left is strict subset of right.
+
 - `dict(pair1, ..., pairN, Result)`: Build a dict from pairs.
+
 - `mergeDicts(left, right, Result)`: Merge two dicts.
+
 - `dictKeys(dict, Result)`: Set of keys.
+
 - `dictValues(dict, Result)`: List of values.
+
 - `get(container, indexOrKey, Result)`: Index lists/tuples or key in dict.
+
 - `containsKey(dict, key, Result)`: True if key exists.
+
 - `containsValue(dict, value, Result)`: True if value exists.
+
 - `toSet(collection, Result)`: Convert collection to set.
+
 - `toTuple(collection, Result)`: Convert collection to tuple literal.
 
 Collection examples (one query per function, in the same order):
@@ -866,7 +940,9 @@ with ReasoningSession.create() as session:
         print(rule)
 ```
 Expected output:
+
 - `p(a)`
+
 - `p(X) → q(X)`
 
 ## Prepared Queries and FOQueryFactory
@@ -917,6 +993,7 @@ formula = wrapper
 print(formula)
 ```
 Expected output:
+
 - `p(a) ∧ q(b)`
 
 ## Delegation and Atom Filtering
@@ -967,7 +1044,9 @@ print(delegated_ids)
 print(filtered_ids)
 ```
 Expected output:
+
 - `[('a',), ('b',)]`
+
 - `[('a',)]`
 
 ## Using DLGP Syntax
@@ -997,7 +1076,9 @@ with ReasoningSession.create() as session:
         print(query)
 ```
 Expected output:
+
 - `p(X, Y) → (q(X)) ∨ (r(Y))`
+
 - `?(X, Y) :- (p(X, Y) ∧ q(Y))`
 
 ## CLI
