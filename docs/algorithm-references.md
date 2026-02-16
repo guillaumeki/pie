@@ -32,13 +32,13 @@ operators aligned with the theoretical guarantees from the literature.
 **References**
 
 - “A Sound and Complete Backward Chaining Algorithm for Existential Rules.”
-  [Mélanie König](https://scholar.google.com/scholar?q=M%C3%A9lanie%20K%C3%B6nig),
+  [Mélanie König](https://theses.hal.science/tel-01502722),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
   [Michaël Thomazo](https://prairie-institute.fr/chairs/thomazo-michael/).
   Publication: [https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf](https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf)
 - “Sound, Complete, and Minimal Query Rewriting for Existential Rules.”
-  [Mélanie König](https://scholar.google.com/scholar?q=M%C3%A9lanie%20K%C3%B6nig),
+  [Mélanie König](https://theses.hal.science/tel-01502722),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
   [Michaël Thomazo](https://prairie-institute.fr/chairs/thomazo-michael/).
@@ -98,7 +98,7 @@ structure for stratification under negation.
   [Jean-François Baget](https://www.lirmm.fr/~baget/),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
-  [Eric Salvat](https://scholar.google.com/scholar?q=Eric%20Salvat%20existential%20rules).
+  [Eric Salvat](https://dblp.org/pid/48/6823).
   Publication: [https://www.lirmm.fr/~mugnier/ArticlesPostscript/BLMSDecidabilityLine-PreAIJ2011.pdf](https://www.lirmm.fr/~mugnier/ArticlesPostscript/BLMSDecidabilityLine-PreAIJ2011.pdf)
 - “Computing Stable Models for Nonmonotonic Existential Rules.”
   [Despoina Magka](https://www.cs.ox.ac.uk/people/despoina.magka/),
@@ -182,7 +182,7 @@ and the prepared backtracking CQ implementation.
 
 - “Foundations of Databases.”
   [Serge Abiteboul](https://abiteboul.com/SergeAbiteboul1997.html),
-  [Richard Hull](https://scholar.google.com/scholar?q=Richard%20Hull%20database%20theory),
+  [Richard Hull](https://www.rhull.org/home),
   [Victor Vianu](https://cseweb.ucsd.edu/~vianu).
   Publication: [https://dl.acm.org/doi/book/10.5555/64510](https://dl.acm.org/doi/book/10.5555/64510)
 - “Extensions of Simple Conceptual Graphs: The Complexity of Rules and Constraints.”
