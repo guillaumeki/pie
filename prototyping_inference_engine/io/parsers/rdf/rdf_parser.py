@@ -2,6 +2,22 @@
 RDF parser producing atoms using translation modes.
 """
 
+# References:
+# - "RDF 1.1 Concepts and Abstract Syntax" —
+#   Richard Cyganiak, David Wood, Markus Lanthaler.
+#   Link: https://www.w3.org/TR/rdf11-concepts/
+#
+# Summary:
+# RDF defines a graph-based data model with triples that can be parsed from
+# concrete syntaxes and translated into application-specific representations.
+#
+# Properties used here:
+# - Standard RDF graph semantics for triples and IRIs.
+#
+# Implementation notes:
+# This parser uses rdflib to parse RDF and maps triples into atoms via PIE's
+# translation modes.
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -2,6 +2,21 @@
 Evaluator for ConjunctiveQuery.
 """
 
+# References:
+# - "Foundations of Databases" —
+#   Serge Abiteboul, Richard Hull, Victor Vianu.
+#   Link: https://dl.acm.org/doi/book/10.5555/64510
+#
+# Summary:
+# Conjunctive query answering reduces to finding homomorphisms from the query
+# body to the database instance.
+#
+# Properties used here:
+# - Correctness of CQ evaluation via homomorphisms.
+#
+# Implementation notes:
+# This evaluator delegates CQ evaluation to the FO query evaluator stack.
+
 from typing import Iterator, Type, Optional, TYPE_CHECKING, cast, Iterable
 
 from prototyping_inference_engine.api.atom.term.term import Term

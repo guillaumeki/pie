@@ -244,3 +244,6 @@ q(X) | r(Y) :- p(X,Y).
 ## Algorithm Rules (Imposed)
 - Do not mix business logic and generic algorithms. Generic algorithms must either live under `prototyping_inference_engine/utils/` or come from an external library with optimized implementations that are compatible with PyPy.
 - Before adding a dependency, verify its compatibility with PyPy.
+- In the main file of every module/algorithm, add a Python comment block that cites the paper(s) that introduced the method. Each citation must include the title, the full list of authors, and a link to the publication when available. The comment must also explain the contribution used in the code (summary + properties) and state the source of the implemented algorithm.
+- Example (piece unifier): cite "A Sound and Complete Backward Chaining Algorithm for Existential Rules" by Markus König, Michel Leclère, Marie-Laure Mugnier, Michaël Thomazo; summarize the idea of piece-unifier, its properties, and the origin of the algorithm used here.
+- Example (disjunctive rewriting): cite "Query rewriting with disjunctive existential rules and mappings" by Michel Leclère, Marie-Laure Mugnier, Guillaume Pérution-Kihli; summarize disjunctive unifiers, the rewriting algorithm, its properties, and termination conditions.

@@ -1,3 +1,26 @@
+#
+# References:
+# - "A Sound and Complete Backward Chaining Algorithm for Existential Rules" —
+#   Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo.
+#   Link: https://ceur-ws.org/Vol-920/paper17.pdf
+# - "Sound, Complete, and Minimal Query Rewriting for Existential Rules" —
+#   Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo.
+#   Link: https://www.ijcai.org/Proceedings/13/Papers/292.pdf
+#
+# Summary:
+# Piece-unifiers restrict unification between a conjunctive query and a rule head
+# to avoid unsound bindings of existential variables. They track a "piece" of the
+# query, a partition of terms, and frontier instantiations to ensure correctness.
+#
+# Properties used here:
+# - Soundness and completeness of piece-unification in backward chaining.
+# - Separating and sticky variables characterize admissible partitions.
+#
+# Implementation notes:
+# This class encodes the piece-unifier structure and the admissibility checks
+# described in the papers, serving as the core artifact manipulated by the
+# rewriting algorithms.
+
 from dataclasses import dataclass
 from functools import cached_property
 from typing import Optional

@@ -2,6 +2,36 @@
 Stratification strategies for GRD.
 """
 
+# References:
+# - "Extending Decidable Cases for Rules with Existential Variables" —
+#   Jean-Francois Baget, Michel Leclere, Marie-Laure Mugnier, Eric Salvat.
+#   Link: https://www.ijcai.org/Proceedings/09/Papers/323.pdf
+# - "The well-founded semantics for general logic programs" —
+#   Allen Van Gelder, Kenneth A. Ross, John S. Schlipf.
+#   Link: https://doi.org/10.1145/115040.115041
+# - "On a routing problem" —
+#   Richard Bellman. Link: https://doi.org/10.1090/qam/102435
+# - "Network Flow Theory" —
+#   L. R. Ford Jr.
+#   Link: https://apps.dtic.mil/sti/pdfs/AD0602524.pdf
+# - "A Note on a Simple Algorithm for Generating a Topological Ordering of a
+#   Directed Acyclic Graph" — Arthur B. Kahn.
+#   Link: https://doi.org/10.1145/368996.369025
+#
+# Summary:
+# Stratification partitions rules into ordered strata based on GRD dependencies
+# and negation constraints. SCC-based ordering and shortest-path formulations
+# are used to derive minimal or single-evaluation strata.
+#
+# Properties used here:
+# - Stratified negation forbids negative cycles (well-founded semantics).
+# - Bellman-Ford shortest paths compute strata levels under weighted edges.
+# - Kahn's algorithm provides topological ordering for SCC condensation graphs.
+#
+# Implementation notes:
+# This module computes SCCs (via igraph), applies Bellman-Ford for weighted
+# stratification variants, and topologically orders SCCs for stratified execution.
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

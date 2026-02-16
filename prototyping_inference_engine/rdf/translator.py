@@ -2,6 +2,21 @@
 RDF translation primitives independent from IO.
 """
 
+# References:
+# - "RDF 1.1 Concepts and Abstract Syntax" —
+#   Richard Cyganiak, David Wood, Markus Lanthaler.
+#   Link: https://www.w3.org/TR/rdf11-concepts/
+#
+# Summary:
+# RDF graphs are sets of triples with IRIs, literals, and blank nodes; translators
+# map between RDF terms and application-specific representations.
+#
+# Properties used here:
+# - RDF term model and graph semantics.
+#
+# Implementation notes:
+# This module implements translation modes that map RDF triples to PIE atoms.
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -2,6 +2,21 @@
 Evaluator for UnionQuery (disjunction of queries).
 """
 
+# References:
+# - "Foundations of Databases" —
+#   Serge Abiteboul, Richard Hull, Victor Vianu.
+#   Link: https://dl.acm.org/doi/book/10.5555/64510
+#
+# Summary:
+# Unions of conjunctive queries represent disjunctions and are evaluated by
+# taking the union of answers of each disjunct.
+#
+# Properties used here:
+# - Correctness of UCQ evaluation as set-union of CQ answers.
+#
+# Implementation notes:
+# This evaluator delegates each sub-query to the registry and merges results.
+
 from typing import Iterator, Type, Optional, TYPE_CHECKING, Iterable
 
 from prototyping_inference_engine.api.atom.term.term import Term

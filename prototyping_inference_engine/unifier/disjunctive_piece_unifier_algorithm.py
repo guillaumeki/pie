@@ -1,3 +1,22 @@
+#
+# References:
+# - "Query rewriting with disjunctive existential rules and mappings" —
+#   Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli.
+#   Link: https://doi.org/10.24963/kr.2023/59
+#
+# Summary:
+# The algorithm builds disjunctive piece-unifiers by combining piece-unifiers
+# computed for each disjunctive head, preserving consistency across shared
+# variables and partitions.
+#
+# Properties used here:
+# - Soundness and completeness of disjunctive unifier enumeration.
+# - Termination for rule sets where the underlying rewriting terminates.
+#
+# Implementation notes:
+# This module implements the construction of partial disjunctive unifiers and
+# their systematic extension, as described in the KR 2023 paper.
+
 """
 Algorithm for computing disjunctive piece unifiers.
 """

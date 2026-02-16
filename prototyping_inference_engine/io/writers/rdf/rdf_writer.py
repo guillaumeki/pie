@@ -2,6 +2,21 @@
 RDF writer for atoms using RDF translators.
 """
 
+# References:
+# - "RDF 1.1 Concepts and Abstract Syntax" —
+#   Richard Cyganiak, David Wood, Markus Lanthaler.
+#   Link: https://www.w3.org/TR/rdf11-concepts/
+#
+# Summary:
+# RDF defines a graph-based data model with triples that can be serialized into
+# standard syntaxes such as Turtle.
+#
+# Properties used here:
+# - Standard RDF graph semantics for triples and IRIs.
+#
+# Implementation notes:
+# This writer uses rdflib to serialize triples produced by PIE translators.
+
 from __future__ import annotations
 
 from dataclasses import dataclass

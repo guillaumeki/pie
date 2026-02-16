@@ -1,5 +1,22 @@
 """Topological sorting utilities."""
 
+# References:
+# - "A Note on a Simple Algorithm for Generating a Topological Ordering of a
+#   Directed Acyclic Graph" — Arthur B. Kahn.
+#   Link: https://doi.org/10.1145/368996.369025
+#
+# Summary:
+# Kahn's algorithm iteratively removes nodes with zero in-degree to produce a
+# topological ordering of a DAG.
+#
+# Properties used here:
+# - Linear-time topological sorting in the size of nodes plus edges.
+# - Detection of cycles when not all nodes can be ordered.
+#
+# Implementation notes:
+# This implementation keeps a priority queue to provide deterministic ordering
+# when multiple nodes are available.
+
 from __future__ import annotations
 
 import heapq

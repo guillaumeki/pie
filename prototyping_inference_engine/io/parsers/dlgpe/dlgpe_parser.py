@@ -8,6 +8,24 @@ in rule bodies, and more.
 This parser implements a subset of DLGPE compatible with PIE's capabilities.
 """
 
+# References:
+# - "DLGP: An Extended Datalog Syntax for Existential Rules and Datalog±" —
+#   Jean-Francois Baget, Mariano Rodriguez Gutierrez, Michel Leclere,
+#   Marie-Laure Mugnier, Swan Rocher, Marie Sipieter.
+#   Link: https://graphik-team.github.io/graal/doc/dlgp/dlgp.pdf
+#
+# Summary:
+# DLGP/DLGPE define a concrete syntax for existential rules, facts, and queries.
+# This parser implements the DLGP-based grammar with DLGPE extensions.
+#
+# Properties used here:
+# - Conformance to the DLGP syntax for rules, facts, and queries.
+# - Extension points for DLGPE-specific constructs.
+#
+# Implementation notes:
+# The grammar and transformer follow the DLGP specification and expose a subset
+# aligned with PIE capabilities.
+
 from pathlib import Path
 from typing import List, Iterator, Optional, Union
 import re

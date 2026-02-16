@@ -1,3 +1,21 @@
+#
+# References:
+# - "Foundations of Databases" —
+#   Serge Abiteboul, Richard Hull, Victor Vianu.
+#   Link: https://dl.acm.org/doi/book/10.5555/64510
+#
+# Summary:
+# Backtracking homomorphism search enumerates substitutions that map a CQ body
+# into a fact base, which is the core of conjunctive query evaluation.
+#
+# Properties used here:
+# - Completeness of backtracking for enumerating homomorphisms.
+# - Correctness of homomorphism-based CQ semantics.
+#
+# Implementation notes:
+# This module implements a straightforward backtracking search with indexing and
+# scheduling heuristics for atom ordering.
+
 from functools import cache
 from typing import Iterator, Optional
 

@@ -1,3 +1,20 @@
+#
+# References:
+# - "Foundations of Databases" —
+#   Serge Abiteboul, Richard Hull, Victor Vianu.
+#   Link: https://dl.acm.org/doi/book/10.5555/64510
+#
+# Summary:
+# Conjunctive query answering can be characterized by the existence of a
+# homomorphism from the query body to the database instance.
+#
+# Properties used here:
+# - Homomorphism-based semantics for conjunctive queries.
+#
+# Implementation notes:
+# This abstract interface defines the homomorphism computation contract used by
+# CQ evaluation and query rewriting components.
+
 from abc import ABC, abstractmethod
 from typing import Iterator, Optional
 

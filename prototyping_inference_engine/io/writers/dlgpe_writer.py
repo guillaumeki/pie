@@ -1,5 +1,21 @@
 """DLGPE writer for ParseResult."""
 
+# References:
+# - "DLGP: An Extended Datalog Syntax for Existential Rules and Datalog±" —
+#   Jean-Francois Baget, Mariano Rodriguez Gutierrez, Michel Leclere,
+#   Marie-Laure Mugnier, Swan Rocher, Marie Sipieter.
+#   Link: https://graphik-team.github.io/graal/doc/dlgp/dlgp.pdf
+#
+# Summary:
+# DLGP/DLGPE define a concrete syntax for existential rules, facts, and queries.
+# This writer serializes PIE structures to that syntax.
+#
+# Properties used here:
+# - Conformance to DLGP syntax for rules, facts, queries, and directives.
+#
+# Implementation notes:
+# The serializer mirrors the DLGP specification and PIE's DLGPE extensions.
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -2,6 +2,22 @@
 Concrete FOQueryEvaluator implementations for each formula type.
 """
 
+# References:
+# - "Foundations of Databases" —
+#   Serge Abiteboul, Richard Hull, Victor Vianu.
+#   Link: https://dl.acm.org/doi/book/10.5555/64510
+#
+# Summary:
+# FO query evaluation decomposes formulas by logical connectives and quantifiers,
+# reducing to conjunction evaluation and homomorphism checks for atoms.
+#
+# Properties used here:
+# - Standard FO semantics for conjunction, disjunction, negation, and quantifiers.
+#
+# Implementation notes:
+# This module provides the concrete evaluator classes that follow the FO
+# semantics described in the reference.
+
 from typing import Iterator, Type, Optional, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom

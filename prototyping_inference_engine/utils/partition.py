@@ -1,3 +1,20 @@
+#
+# References:
+# - "Efficiency of a Good But Not Linear Set Union Algorithm" —
+#   Robert E. Tarjan.
+#   Link: https://doi.org/10.1145/360680.360685
+#
+# Summary:
+# Union-find maintains a partition of a set with near-constant-time union and
+# find operations using path compression and union-by-rank heuristics.
+#
+# Properties used here:
+# - Amortized inverse-Ackermann complexity for union/find operations.
+#
+# Implementation notes:
+# This module implements a union-find based partition structure that is used
+# throughout the codebase for term equivalence classes.
+
 from __future__ import annotations
 
 from typing import (

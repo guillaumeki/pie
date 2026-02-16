@@ -1,3 +1,25 @@
+#
+# References:
+# - "A Sound and Complete Backward Chaining Algorithm for Existential Rules" —
+#   Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo.
+#   Link: https://ceur-ws.org/Vol-920/paper17.pdf
+# - "Sound, Complete, and Minimal Query Rewriting for Existential Rules" —
+#   Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo.
+#   Link: https://www.ijcai.org/Proceedings/13/Papers/292.pdf
+#
+# Summary:
+# Breadth-first UCQ rewriting iteratively applies rewriting steps to expand a
+# union of conjunctive queries while removing redundancies. The papers provide
+# the correctness and minimality results for this style of backward chaining.
+#
+# Properties used here:
+# - Soundness and completeness of UCQ rewriting for existential rules.
+# - Minimality with respect to redundancy elimination and subsumption tests.
+#
+# Implementation notes:
+# This class drives the step-wise UCQ rewriting loop and uses a redundancy
+# cleaner consistent with the minimal rewriting guarantees from the papers.
+
 from functools import cache
 from math import inf
 from typing import Callable, Optional

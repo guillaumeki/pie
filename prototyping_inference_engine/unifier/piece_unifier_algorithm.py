@@ -1,3 +1,25 @@
+#
+# References:
+# - "A Sound and Complete Backward Chaining Algorithm for Existential Rules" —
+#   Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo.
+#   Link: https://ceur-ws.org/Vol-920/paper17.pdf
+# - "Sound, Complete, and Minimal Query Rewriting for Existential Rules" —
+#   Markus Konig, Michel Leclere, Marie-Laure Mugnier, Michael Thomazo.
+#   Link: https://www.ijcai.org/Proceedings/13/Papers/292.pdf
+#
+# Summary:
+# The piece-unifier algorithm enumerates admissible partitions between a query
+# and a rule head, producing the maximal set of piece-unifiers usable for
+# rewriting. This enumeration is the core step for backward chaining.
+#
+# Properties used here:
+# - Completeness of enumerating all piece-unifiers for a CQ/rule pair.
+# - Minimality of UCQ rewritings when combined with redundancy elimination.
+#
+# Implementation notes:
+# This implementation follows the construction steps described in the papers,
+# including admissibility checks and combination of compatible pre-unifiers.
+
 from collections import defaultdict
 
 from prototyping_inference_engine.api.atom.atom import Atom

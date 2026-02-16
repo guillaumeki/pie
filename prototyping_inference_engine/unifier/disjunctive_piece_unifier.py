@@ -1,3 +1,21 @@
+#
+# References:
+# - "Query rewriting with disjunctive existential rules and mappings" —
+#   Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli.
+#   Link: https://doi.org/10.24963/kr.2023/59
+#
+# Summary:
+# Disjunctive piece-unifiers extend piece-unifiers to rules with disjunctive
+# heads by combining unifiers for each disjunct and tracking a global partition.
+#
+# Properties used here:
+# - Soundness and completeness of disjunctive unification for disjunctive heads.
+# - Compatibility constraints ensure correct handling of shared frontier terms.
+#
+# Implementation notes:
+# This class stores a tuple of piece-unifiers (one per disjunct) and builds the
+# associated partition/substitution used during disjunctive rewriting.
+
 from dataclasses import dataclass
 from functools import cached_property
 

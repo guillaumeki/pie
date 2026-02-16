@@ -1,3 +1,21 @@
+#
+# References:
+# - "Query rewriting with disjunctive existential rules and mappings" —
+#   Michel Leclere, Marie-Laure Mugnier, Guillaume Perution-Kihli.
+#   Link: https://doi.org/10.24963/kr.2023/59
+#
+# Summary:
+# This rewriting operator applies disjunctive piece-unifiers to transform UCQs
+# when rules have disjunctive heads, producing a UCQ that preserves answers.
+#
+# Properties used here:
+# - Soundness and completeness of disjunctive rewriting.
+# - Termination guarantees under the same conditions as the underlying algorithm.
+#
+# Implementation notes:
+# This operator implements the disjunctive rewriting step from the KR 2023 paper
+# by constructing new CQs from disjunctive piece-unifiers.
+
 from prototyping_inference_engine.api.atom.set.mutable_atom_set import MutableAtomSet
 from prototyping_inference_engine.api.ontology.rule.rule import Rule
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery

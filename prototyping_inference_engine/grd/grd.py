@@ -2,6 +2,24 @@
 Graph of rule dependencies (GRD) with support for disjunctive heads.
 """
 
+# References:
+# - "Extending Decidable Cases for Rules with Existential Variables" —
+#   Jean-Francois Baget, Michel Leclere, Marie-Laure Mugnier, Eric Salvat.
+#   Link: https://www.ijcai.org/Proceedings/09/Papers/323.pdf
+#
+# Summary:
+# The GRD captures dependencies between existential rules via unification
+# conditions on heads and bodies. It is used to characterize decidable classes
+# and to drive stratification and evaluation strategies.
+#
+# Properties used here:
+# - Dependency edges encode potential rule triggering.
+# - GRD-based criteria enable reasoning about termination and stratification.
+#
+# Implementation notes:
+# This module constructs dependency edges using piece-unification and exposes
+# them for stratification and evaluation procedures.
+
 from __future__ import annotations
 
 from dataclasses import dataclass

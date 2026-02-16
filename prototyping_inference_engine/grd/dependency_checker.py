@@ -2,6 +2,22 @@
 Dependency checkers for GRD.
 """
 
+# References:
+# - "Extending Decidable Cases for Rules with Existential Variables" —
+#   Jean-Francois Baget, Michel Leclere, Marie-Laure Mugnier, Eric Salvat.
+#   Link: https://www.ijcai.org/Proceedings/09/Papers/323.pdf
+#
+# Summary:
+# GRD dependency checkers refine the basic dependency relation by validating
+# whether a unifier yields a productive edge under specific conditions.
+#
+# Properties used here:
+# - Dependency validation aligns with GRD criteria used for decidability checks.
+#
+# Implementation notes:
+# The ProductivityChecker mirrors the criteria described in the GRD paper to
+# filter dependencies for stratification and evaluation planning.
+
 from abc import ABC, abstractmethod
 from typing import Iterable
 

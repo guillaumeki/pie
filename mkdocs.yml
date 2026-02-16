@@ -14,5 +14,6 @@ nav:
   - Home: index.md
   - Architecture: architecture.md
   - Usage: usage.md
+  - Algorithm References: algorithm-references.md
   - API: api.md
   - Contributing: contributing.md

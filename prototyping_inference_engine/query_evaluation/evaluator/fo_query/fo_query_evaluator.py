@@ -2,6 +2,22 @@
 Abstract base class for first-order query evaluators.
 """
 
+# References:
+# - "Foundations of Databases" —
+#   Serge Abiteboul, Richard Hull, Victor Vianu.
+#   Link: https://dl.acm.org/doi/book/10.5555/64510
+#
+# Summary:
+# FO queries are evaluated by interpreting their formulas over a database
+# instance, with conjunctive queries handled via homomorphisms.
+#
+# Properties used here:
+# - Standard FO semantics and CQ homomorphism characterization.
+#
+# Implementation notes:
+# This base class defines the evaluator interface used to dispatch on formula
+# types in the query evaluation stack.
+
 from abc import abstractmethod
 from typing import Iterator, Tuple, Type, Optional, TYPE_CHECKING
 
