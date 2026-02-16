@@ -37,6 +37,7 @@ operators aligned with the theoretical guarantees from the literature.
 **References**
 
 - “A Sound and Complete Backward Chaining Algorithm for Existential Rules.”  
+
   [Mélanie König](https://dblp.org/search?q=M%C3%A9lanie%20K%C3%B6nig),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
@@ -44,6 +45,7 @@ operators aligned with the theoretical guarantees from the literature.
   Publication: [https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf](https://www.lirmm.fr/~mugnier/ArticlesPostscript/FullTR-RR2012KonigLeclereMugnierThomazoV2.pdf)
 
 - “Sound, Complete, and Minimal Query Rewriting for Existential Rules.”  
+
   [Mélanie König](https://dblp.org/search?q=M%C3%A9lanie%20K%C3%B6nig),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
@@ -79,6 +81,7 @@ existential rules, with minimality when a finite rewriting exists.
 **References**
 
 - “Query Rewriting with Disjunctive Existential Rules and Mappings.”  
+
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
   [Guillaume Pérution-Kihli](https://dblp.org/search?q=Guillaume%20P%C3%A9rution-Kihli).  
@@ -107,6 +110,7 @@ structure for stratification under negation.
 **References**
 
 - “Extending Decidable Cases for Rules with Existential Variables.”  
+
   [Jean-François Baget](https://www.lirmm.fr/~baget/),
   [Michel Leclère](https://www.lirmm.fr/~leclere/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
@@ -139,20 +143,24 @@ negation.
 **References**
 
 - “The well-founded semantics for general logic programs.”  
+
   [Allen Van Gelder](https://dblp.org/search?q=Allen%20Van%20Gelder),
   [Kenneth A. Ross](https://dblp.org/search?q=Kenneth%20A.%20Ross),
   [John S. Schlipf](https://dblp.org/search?q=John%20S.%20Schlipf).  
   Publication: [https://doi.org/10.1145/115040.115041](https://doi.org/10.1145/115040.115041)
 
 - “On a routing problem.”  
+
   [Richard Bellman](https://dblp.org/search?q=Richard%20Bellman).  
   Publication: [https://doi.org/10.1090/qam/102435](https://doi.org/10.1090/qam/102435)
 
 - “Network Flow Theory.”  
+
   [L. R. Ford Jr.](https://dblp.org/search?q=L.%20R.%20Ford).  
   Publication: [https://apps.dtic.mil/sti/pdfs/AD0602524.pdf](https://apps.dtic.mil/sti/pdfs/AD0602524.pdf)
 
 - “A Note on a Simple Algorithm for Generating a Topological Ordering of a Directed Acyclic Graph.”  
+
   [Arthur B. Kahn](https://dblp.org/search?q=Arthur%20B.%20Kahn).  
   Publication: [https://doi.org/10.1145/368996.369025](https://doi.org/10.1145/368996.369025)
 
@@ -182,12 +190,14 @@ and the prepared backtracking CQ implementation.
 **References**
 
 - “Foundations of Databases.”  
+
   [Serge Abiteboul](https://dblp.org/search?q=Serge%20Abiteboul),
   [Richard Hull](https://dblp.org/search?q=Richard%20Hull),
   [Victor Vianu](https://dblp.org/search?q=Victor%20Vianu).  
   Publication: [https://dl.acm.org/doi/book/10.5555/64510](https://dl.acm.org/doi/book/10.5555/64510)
 
 - “Extensions of Simple Conceptual Graphs: The Complexity of Rules and Constraints.”  
+
   [Jean-François Baget](https://www.lirmm.fr/~baget/),
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/).  
   Publication: [https://doi.org/10.1613/jair.918](https://doi.org/10.1613/jair.918)
@@ -210,6 +220,7 @@ near-constant-time merges and representative queries across the codebase.
 **References**
 
 - “Efficiency of a Good But Not Linear Set Union Algorithm.”  
+
   [Robert E. Tarjan](https://dblp.org/search?q=Robert%20E.%20Tarjan).  
   Publication: [https://doi.org/10.1145/360680.360685](https://doi.org/10.1145/360680.360685)
 
@@ -229,6 +240,7 @@ parser and writer implement a compatible subset of this syntax.
 **References**
 
 - “DLGP: An Extended Datalog Syntax (Version 2.1).”  
+
   [GraphIK Team](https://team.inria.fr/graphik/).  
   Publication: [https://graphik-team.github.io/graal/doc/dlgp](https://graphik-team.github.io/graal/doc/dlgp)
 
@@ -251,6 +263,7 @@ to the inference engine.
 **References**
 
 - “RDF 1.1 Concepts and Abstract Syntax.”  
+
   [Richard Cyganiak](https://dblp.org/search?q=Richard%20Cyganiak),
   [David Wood](https://dblp.org/search?q=David%20Wood),
   [Markus Lanthaler](https://dblp.org/search?q=Markus%20Lanthaler).  
