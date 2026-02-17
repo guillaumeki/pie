@@ -82,3 +82,26 @@ are independent are grouped in the same lowest possible stratum.
 Strict ordering on the SCC DAG guarantees one-pass evaluation for acyclic SCCs,
 while cycles remain confined to SCCs and can be iterated without affecting other
 rules. Grouping independent SCCs minimizes the number of strata.
+
+## Update: Predicate and Hybrid GRD Modes
+Date: 2026-02-17
+
+### Context
+Some workflows need a coarse, fast approximation of dependencies before running
+costlier unifier-based checks. We also need a hybrid stratification that reduces
+unifier computations while preserving correctness.
+
+### Decision
+- Add `DependencyComputationMode` to `GRD`:
+  - `UNIFIER` (default, existing precise behavior),
+  - `PREDICATE` (coarse predicate-overlap edges),
+  - `HYBRID` (coarse predicate split + unifier refinement per coarse SCC).
+- Add `HybridPredicateUnifierStratification`:
+  - compute coarse SCC blocks with predicate dependencies,
+  - refine each block with unifier-based `GRD`,
+  - concatenate refined strata following coarse DAG order.
+
+### Rationale
+This keeps stratification and edge-construction concerns separated (SRP), allows
+new computation modes without changing client code (OCP), and minimizes expensive
+unifier calls on disconnected predicate regions.

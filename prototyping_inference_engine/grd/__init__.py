@@ -1,4 +1,8 @@
-from prototyping_inference_engine.grd.grd import GRD, GRDEdge
+from prototyping_inference_engine.grd.grd import (
+    GRD,
+    GRDEdge,
+    DependencyComputationMode,
+)
 from prototyping_inference_engine.grd.dependency_checker import (
     DependencyChecker,
     ProductivityChecker,
@@ -10,12 +14,14 @@ from prototyping_inference_engine.grd.stratification import (
     MinimalStratification,
     SingleEvaluationStratification,
     StratificationStrategy,
+    HybridPredicateUnifierStratification,
     is_stratifiable,
 )
 
 __all__ = [
     "GRD",
     "GRDEdge",
+    "DependencyComputationMode",
     "DependencyChecker",
     "ProductivityChecker",
     "RestrictedProductivityChecker",
@@ -24,5 +30,6 @@ __all__ = [
     "MinimalStratification",
     "MinimalEvaluationStratification",
     "SingleEvaluationStratification",
+    "HybridPredicateUnifierStratification",
     "is_stratifiable",
 ]

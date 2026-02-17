@@ -28,6 +28,10 @@ class Writable(Protocol):
 
     def update(self, atoms: Iterable[Atom]) -> None: ...
 
+    def remove(self, atom: Atom) -> None: ...
+
+    def remove_all(self, atoms: Iterable[Atom]) -> None: ...
+
 
 @runtime_checkable
 class Enumerable(Protocol):

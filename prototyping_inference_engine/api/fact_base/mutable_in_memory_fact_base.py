@@ -20,3 +20,10 @@ class MutableInMemoryFactBase(InMemoryFactBase):
     def update(self, atoms: Iterable[Atom]) -> None:
         for atom in atoms:
             self.add(atom)
+
+    def remove(self, atom: Atom) -> None:
+        self._storage.discard(atom)
+
+    def remove_all(self, atoms: Iterable[Atom]) -> None:
+        for atom in atoms:
+            self.remove(atom)

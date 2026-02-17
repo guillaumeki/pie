@@ -143,6 +143,82 @@ class MinimalEvaluationStratification(StratificationStrategy):
         return [RuleBase(rules_by_level[level]) for level in sorted(rules_by_level)]
 
 
+class HybridPredicateUnifierStratification(StratificationStrategy):
+    """
+    Hybrid stratification:
+    1) coarse SCC decomposition with predicate-only dependencies;
+    2) per-block refinement with unifier-based GRD.
+    """
+
+    def __init__(self):
+        self.last_stats: dict[str, int] = {}
+
+    def compute(self, grd: "GRDProtocol") -> Optional[list[RuleBase]]:
+        from prototyping_inference_engine.grd.grd import (
+            DependencyComputationMode,
+            GRD,
+            _iter_predicate_edges,
+        )
+
+        rules = list(grd.rules)
+        rule_index = {rule: idx for idx, rule in enumerate(rules)}
+        coarse_edges = list(_iter_predicate_edges(rules))
+
+        graph = ig.Graph(directed=True)
+        graph.add_vertices(len(rules))
+        if coarse_edges:
+            graph.add_edges(
+                [
+                    (rule_index[src], rule_index[target])
+                    for src, target, _ in coarse_edges
+                ]
+            )
+
+        components = graph.connected_components(mode="STRONG")
+        membership = components.membership
+        by_component: dict[int, list[Rule]] = {}
+        for rule, comp_idx in zip(rules, membership):
+            by_component.setdefault(comp_idx, []).append(rule)
+
+        comp_edges: set[tuple[int, int]] = set()
+        for src, target, _ in coarse_edges:
+            src_comp = membership[rule_index[src]]
+            tgt_comp = membership[rule_index[target]]
+            if src_comp != tgt_comp:
+                comp_edges.add((src_comp, tgt_comp))
+
+        order = topological_sort(
+            sorted(by_component.keys()),
+            comp_edges,
+            key=lambda idx: _scc_sort_key(by_component[idx]),
+        )
+
+        checker_source = getattr(grd, "checkers", None)
+        strata: list[RuleBase] = []
+        for comp_idx in order:
+            local_rules = by_component[comp_idx]
+            refined_grd = GRD(
+                local_rules,
+                checkers=checker_source,
+                mode=DependencyComputationMode.UNIFIER,
+            )
+            local = BySccStratification().compute(refined_grd)
+            if local is None:
+                return None
+            strata.extend(local)
+
+        n = len(rules)
+        self.last_stats = {
+            "full_candidate_pairs": n * n,
+            "refined_candidate_pairs": sum(
+                len(component_rules) * len(component_rules)
+                for component_rules in by_component.values()
+            ),
+            "coarse_blocks": len(by_component),
+        }
+        return strata
+
+
 def is_stratifiable(grd: "GRDProtocol") -> bool:
     graph, _, rule_index, edge_list = _build_graph(grd)
     components = graph.connected_components(mode="STRONG")

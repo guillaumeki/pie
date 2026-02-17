@@ -21,10 +21,14 @@ from prototyping_inference_engine.api.data.collection.materialized_collection im
 from prototyping_inference_engine.api.data.collection.writable_collection import (
     WritableDataCollection,
 )
+from prototyping_inference_engine.api.data.collection.writable_readable_collection import (
+    WritableReadableDataCollection,
+)
 from prototyping_inference_engine.api.data.collection.builder import (
     ReadableCollectionBuilder,
     MaterializedCollectionBuilder,
     WritableCollectionBuilder,
+    WritableReadableCollectionBuilder,
 )
 
 __all__ = [
@@ -34,7 +38,9 @@ __all__ = [
     "ReadableDataCollection",
     "MaterializedDataCollection",
     "WritableDataCollection",
+    "WritableReadableDataCollection",
     "ReadableCollectionBuilder",
     "MaterializedCollectionBuilder",
     "WritableCollectionBuilder",
+    "WritableReadableCollectionBuilder",
 ]

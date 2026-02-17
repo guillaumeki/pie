@@ -119,12 +119,8 @@ For any important change:
 - Documentation examples intended to be executed must include `print(...)` statements, and their expected output must be shown in the surrounding prose.
 
 ### Tracked Plans
-- `agents/plans/2026-02-09-grd-implementation.md`
-- `agents/plans/2026-02-09-rulecompilation-atomic-evaluators.md`
-- `agents/plans/2026-02-10-query-only-evaluators.md`
-- `agents/plans/2026-02-10-integraal-tests-port.md`
 - `agents/plans/2026-02-10-federated-view-tests.md`
-- `agents/plans/2026-02-12-cq-equality-unification.md`
+- `agents/plans/2026-02-17-storage-implementation.md`
 
 ### Design Docs
 - `agents/design/designs-compressed.md`
@@ -133,6 +129,8 @@ For any important change:
 - `agents/design/grd.md`
 - `agents/design/arithmetic-expressions.md`
 - `agents/design/rule-compilation.md`
+- `agents/design/core-processors.md`
+- `agents/design/storage.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`

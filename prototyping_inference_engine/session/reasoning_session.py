@@ -39,6 +39,10 @@ from prototyping_inference_engine.api.ontology.constraint.negative_constraint im
 )
 from prototyping_inference_engine.api.query.conjunctive_query import ConjunctiveQuery
 from prototyping_inference_engine.api.query.union_query import UnionQuery
+from prototyping_inference_engine.api.data.schema import (
+    SchemaAware,
+    SessionSchemaRegistry,
+)
 from prototyping_inference_engine.session.cleanup_stats import SessionCleanupStats
 from prototyping_inference_engine.session.io_config import SessionIOConfig
 from prototyping_inference_engine.session.parse_result import ParseResult
@@ -166,6 +170,7 @@ class ReasoningSession:
         self._iri_base: str | None = None
         self._iri_prefixes: dict[str, str] = {}
         self._computed_prefixes: dict[str, str] = {}
+        self._schema_registry = SessionSchemaRegistry()
 
     @classmethod
     def create(
@@ -297,6 +302,11 @@ class ReasoningSession:
     def is_closed(self) -> bool:
         """Return True if the session has been closed."""
         return self._closed
+
+    @property
+    def schema_registry(self) -> SessionSchemaRegistry:
+        """Access the session-level predicate schema registry."""
+        return self._schema_registry
 
     # =========================================================================
     # Term creation convenience methods
@@ -497,6 +507,7 @@ class ReasoningSession:
         self._check_not_closed()
         fb = self._fact_base_provider.create_mutable(atoms)
         self._fact_bases.append(fb)
+        self._register_source_schemas(fb)
         return fb
 
     def create_ontology(
@@ -557,6 +568,8 @@ class ReasoningSession:
         self._check_not_closed()
         if fact_base is None:
             fact_base = self.create_fact_base()
+        else:
+            self._register_source_schemas(fact_base)
         if rule_base is None:
             rule_base = self.create_rule_base()
         kb = KnowledgeBase(fact_base, rule_base)
@@ -939,8 +952,10 @@ class ReasoningSession:
         )
 
         self._check_not_closed()
+        self._register_source_schemas(fact_base)
         builder = ReadableCollectionBuilder().add_all_predicates_from(fact_base)
         for source in sources:
+            self._register_source_schemas(source)
             builder.add_all_predicates_from(source)
         data = builder.build()
         evaluator = GenericFOQueryEvaluator()
@@ -1037,6 +1052,11 @@ class ReasoningSession:
         """Raise an error if the session is closed."""
         if self._closed:
             raise RuntimeError("Cannot perform operations on a closed session")
+
+    def _register_source_schemas(self, source: object) -> None:
+        """Register schemas from a source when it supports schema-awareness."""
+        if isinstance(source, SchemaAware):
+            self._schema_registry.register_many(source.get_schemas())
 
     def _track_atom(self, atom: Atom) -> None:
         """Track all terms and predicate in an atom."""

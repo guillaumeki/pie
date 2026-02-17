@@ -112,6 +112,32 @@ class WritableDataCollection(MaterializedDataCollection):
         for atom in atoms:
             self.add(atom)
 
+    def remove(self, atom: "Atom") -> None:
+        """
+        Remove an atom from the source responsible for its predicate.
+
+        Args:
+            atom: The atom to remove
+
+        Raises:
+            KeyError: If no source owns the predicate
+            TypeError: If the owning source is not writable
+        """
+        source = self._get_source(atom.predicate)
+        if source is None:
+            raise KeyError(f"No source contains predicate: {atom.predicate}")
+        if not isinstance(source, Writable):
+            raise TypeError(
+                f"Source for predicate {atom.predicate} does not support writing"
+            )
+        source.remove(atom)
+        self._invalidate_cache()
+
+    def remove_all(self, atoms: Iterable["Atom"]) -> None:
+        """Remove multiple atoms from their respective sources."""
+        for atom in atoms:
+            self.remove(atom)
+
     def __repr__(self) -> str:
         predicates = list(self._sources.keys())
         if len(predicates) <= 3:

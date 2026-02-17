@@ -17,6 +17,9 @@ from prototyping_inference_engine.api.data.collection.materialized_collection im
 from prototyping_inference_engine.api.data.collection.writable_collection import (
     WritableDataCollection,
 )
+from prototyping_inference_engine.api.data.collection.writable_readable_collection import (
+    WritableReadableDataCollection,
+)
 from prototyping_inference_engine.api.fact_base.protocols import Writable
 
 if TYPE_CHECKING:
@@ -348,6 +351,66 @@ class WritableCollectionBuilder:
             A new WritableDataCollection with the configured sources
         """
         return WritableDataCollection(
+            sources=dict(self._sources),
+            dynamic_sources=list(self._dynamic_sources)
+            if self._dynamic_sources
+            else None,
+            default_writable=self._default_writable,
+        )
+
+
+class WritableReadableCollectionBuilder:
+    """
+    Fluent builder for heterogeneous writable readable collections.
+
+    Unlike WritableCollectionBuilder, this builder does not require
+    sources to implement Materializable.
+    """
+
+    def __init__(self):
+        self._sources: Dict["Predicate", Queryable] = {}
+        self._dynamic_sources: List[Queryable] = []
+        self._default_writable: Optional[Writable] = None
+
+    def add_predicate(
+        self,
+        predicate: "Predicate",
+        source: Queryable,
+    ) -> "WritableReadableCollectionBuilder":
+        if predicate in self._sources and self._sources[predicate] is not source:
+            raise ValueError(
+                f"Predicate {predicate} is already mapped to a different source"
+            )
+        self._sources[predicate] = source
+        return self
+
+    def add_all_predicates_from(
+        self,
+        source: Queryable,
+    ) -> "WritableReadableCollectionBuilder":
+        for predicate in source.get_predicates():
+            if predicate in self._sources and self._sources[predicate] is not source:
+                raise ValueError(
+                    f"Predicate {predicate} is already mapped to a different source"
+                )
+            self._sources[predicate] = source
+        return self
+
+    def add_dynamic_source(
+        self, source: Queryable
+    ) -> "WritableReadableCollectionBuilder":
+        if source not in self._dynamic_sources:
+            self._dynamic_sources.append(source)
+        return self
+
+    def set_default_writable(
+        self, writable: Writable
+    ) -> "WritableReadableCollectionBuilder":
+        self._default_writable = writable
+        return self
+
+    def build(self) -> WritableReadableDataCollection:
+        return WritableReadableDataCollection(
             sources=dict(self._sources),
             dynamic_sources=list(self._dynamic_sources)
             if self._dynamic_sources
