@@ -222,6 +222,47 @@ and the prepared backtracking CQ implementation.
   [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/).
   Publication: [https://doi.org/10.1613/jair.918](https://doi.org/10.1613/jair.918)
 
+## Forward Chaining (Chase)
+
+**Summary**
+The chase repeatedly applies rules to a fact base until no new facts can be
+generated or a halting condition is reached. PIE implements a configurable
+chase with interchangeable schedulers (naive, predicate-based, GRD-based),
+trigger computation/checking strategies, skolemization options, rule appliers
+(breadth-first, parallel, multithread, delegated), treatments (core/local core),
+halting conditions, stratified execution (GRD strata), and pluggable lineage.
+
+**Key properties used in PIE**
+
+- Sound rule application with skolem terms for existential variables.
+- Fair scheduling to avoid starving applicable triggers.
+- Termination controls via halting conditions (step/atom limits, timeout, no rules).
+- Stratified execution respects GRD strata to handle dependencies safely.
+
+**Implementation in PIE**
+
+- `prototyping_inference_engine/forward_chaining/chase/chase_impl.py`
+- `prototyping_inference_engine/forward_chaining/chase/chase_builder.py`
+- `prototyping_inference_engine/forward_chaining/chase/rule_applier/*`
+- `prototyping_inference_engine/forward_chaining/chase/rule_scheduler/*`
+- `prototyping_inference_engine/forward_chaining/chase/halting_condition/*`
+- `prototyping_inference_engine/forward_chaining/chase/treatment/*`
+- `prototyping_inference_engine/forward_chaining/chase/metachase/stratified/stratified_chase.py`
+
+**References**
+
+- “The Chase: An Algorithm for Testing Implications of Data Dependencies.”
+  [David Maier](https://davidmaier.cs.pdx.edu/),
+  [Albert O. Mendelzon](https://dblp.org/pid/m/AlbertOMendelzon),
+  [Yehoshua Sagiv](https://dblp.org/pid/s/YehoshuaSagiv),
+  [Jeffrey D. Ullman](https://dblp.org/pid/u/JDullman).
+  Publication: [https://dl.acm.org/doi/10.1145/582095.582099](https://dl.acm.org/doi/10.1145/582095.582099)
+- “On the Termination of the Chase.”
+  [Foto N. Afrati](https://dblp.org/pid/a/FotoNAfrati),
+  [Nicole Schweikardt](https://www.mi.fu-berlin.de/en/math/groups/logic/People/schweikardt.html),
+  [Victor Vianu](https://cseweb.ucsd.edu/~vianu/).
+  Publication: [https://drops.dagstuhl.de/opus/volltexte/2011/3097/](https://drops.dagstuhl.de/opus/volltexte/2011/3097/)
+
 ## Union-Find for Term Partitions
 
 **Summary**

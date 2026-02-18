@@ -226,6 +226,14 @@ def _run_rls_csv_example(source: str) -> None:
         raise AssertionError(f"Unexpected RLS atoms: {atoms}")
 
 
+def _run_forward_chaining_usage_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    atoms_as_str = namespace.get("atoms_as_str")
+    if atoms_as_str != ["p(a)", "q(a)"]:
+        raise AssertionError(f"Unexpected forward-chaining atoms: {atoms_as_str}")
+
+
 def _run_rdf_parser_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
@@ -855,6 +863,44 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 """
             ).strip("\n"),
             runner=_run_csv_parser_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                from prototyping_inference_engine.api.atom.atom import Atom
+                from prototyping_inference_engine.api.atom.predicate import Predicate
+                from prototyping_inference_engine.api.atom.term.constant import Constant
+                from prototyping_inference_engine.api.atom.term.variable import Variable
+                from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
+                from prototyping_inference_engine.api.kb.rule_base import RuleBase
+                from prototyping_inference_engine.api.ontology.rule.rule import Rule
+                from prototyping_inference_engine.forward_chaining.chase.chase_builder import ChaseBuilder
+                from prototyping_inference_engine.forward_chaining.chase.data.chasable_data_impl import ChasableDataImpl
+
+                p = Predicate("p", 1)
+                q = Predicate("q", 1)
+                fact_base = MutableInMemoryFactBase([Atom(p, Constant("a"))])
+
+                rule = Rule(Atom(p, Variable("X")), Atom(q, Variable("X")))
+                rb = RuleBase({rule})
+                chasable = ChasableDataImpl(fact_base)
+
+                builder = (
+                    ChaseBuilder.default_builder(chasable, rb)
+                    .use_naive_rule_scheduler()
+                    .use_naive_computer()
+                    .use_semi_oblivious_checker()
+                    .use_trigger_rule_applier()
+                )
+                chase = builder.build().get()
+                chase.execute()
+
+                atoms_as_str = sorted(str(atom) for atom in fact_base)
+                print(atoms_as_str)
+                """
+            ).strip("\n"),
+            runner=_run_forward_chaining_usage_example,
         ),
         DocExample(
             "python",

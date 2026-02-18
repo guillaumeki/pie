@@ -188,9 +188,42 @@ Forward chaining is available via the `forward_chaining` module with pluggable s
 - Build a `Chase` with `ChaseBuilder` (choose scheduler, trigger computer/checker, renamer, rule applier, halting conditions, treatments).
 - Wrap writable/materialized data in `ChasableData` to track created facts and optional lineage.
 - Optionally stratify rules with `StratifiedChaseBuilder` (GRD-based strata).
-- Typical run: `chase = builder.build(rules, chasable_data); result = chase.run()`.
+- Strategies are swappable without changing callers (OCP); use halting conditions (step limit, atom limit, timeout, rules-to-apply) to bound execution.
 
-Strategies are swappable without changing callers (OCP); use halting conditions (step limit, atom limit, timeout, rules-to-apply) to bound execution.
+Example: derive `q(a)` from `p(a)` via a simple rule using a naive scheduler and semi-oblivious checker.
+```python
+from prototyping_inference_engine.api.atom.atom import Atom
+from prototyping_inference_engine.api.atom.predicate import Predicate
+from prototyping_inference_engine.api.atom.term.constant import Constant
+from prototyping_inference_engine.api.atom.term.variable import Variable
+from prototyping_inference_engine.api.fact_base.mutable_in_memory_fact_base import MutableInMemoryFactBase
+from prototyping_inference_engine.api.kb.rule_base import RuleBase
+from prototyping_inference_engine.api.ontology.rule.rule import Rule
+from prototyping_inference_engine.forward_chaining.chase.chase_builder import ChaseBuilder
+from prototyping_inference_engine.forward_chaining.chase.data.chasable_data_impl import ChasableDataImpl
+
+p = Predicate("p", 1)
+q = Predicate("q", 1)
+fact_base = MutableInMemoryFactBase([Atom(p, Constant("a"))])
+
+rule = Rule(Atom(p, Variable("X")), Atom(q, Variable("X")))
+rb = RuleBase({rule})
+chasable = ChasableDataImpl(fact_base)
+
+builder = (
+    ChaseBuilder.default_builder(chasable, rb)
+    .use_naive_rule_scheduler()
+    .use_naive_computer()
+    .use_semi_oblivious_checker()
+    .use_trigger_rule_applier()
+)
+chase = builder.build().get()
+chase.execute()
+
+atoms_as_str = sorted(str(atom) for atom in fact_base)
+print(atoms_as_str)
+```
+Expected output: `['p(a)', 'q(a)']`.
 
 ### Parsing RLS CSV Configurations
 RLS CSV files map multiple CSV sources to predicates.
