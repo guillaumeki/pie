@@ -182,6 +182,16 @@ Expected output:
 
 The output shows the parsed CSV rows.
 
+## Running Forward Chaining (Chase)
+Forward chaining is available via the `forward_chaining` module with pluggable strategies.
+
+- Build a `Chase` with `ChaseBuilder` (choose scheduler, trigger computer/checker, renamer, rule applier, halting conditions, treatments).
+- Wrap writable/materialized data in `ChasableData` to track created facts and optional lineage.
+- Optionally stratify rules with `StratifiedChaseBuilder` (GRD-based strata).
+- Typical run: `chase = builder.build(rules, chasable_data); result = chase.run()`.
+
+Strategies are swappable without changing callers (OCP); use halting conditions (step limit, atom limit, timeout, rules-to-apply) to bound execution.
+
 ### Parsing RLS CSV Configurations
 RLS CSV files map multiple CSV sources to predicates.
 ```python

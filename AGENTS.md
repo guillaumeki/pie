@@ -117,6 +117,7 @@ For any important change:
 - Use docstrings for API-level explanations; keep narrative guides in `docs/`. (https://peps.python.org/pep-0257/)
 - Publish documentation via GitHub Pages using the workflow in `.github/workflows/docs.yml`. (https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 - Documentation examples intended to be executed must include `print(...)` statements, and their expected output must be shown in the surrounding prose.
+- `docs/usage.md` must list concrete, working usage examples for new or changed features (kept in sync after each feature change).
 
 ### Tracked Plans
 - `agents/plans/2026-02-10-federated-view-tests.md`
