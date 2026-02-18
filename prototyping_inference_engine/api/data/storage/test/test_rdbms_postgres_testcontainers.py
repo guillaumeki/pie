@@ -1,7 +1,7 @@
 import unittest
 
 try:
-    from testcontainers.postgres import PostgresContainer  # type: ignore[import-untyped]
+    from testcontainers.postgres import PostgresContainer  # type: ignore[import-not-found,import-untyped]
 except ImportError:  # pragma: no cover - optional dependency
     PostgresContainer = None
 
