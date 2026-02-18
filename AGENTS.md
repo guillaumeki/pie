@@ -121,6 +121,7 @@ For any important change:
 ### Tracked Plans
 - `agents/plans/2026-02-10-federated-view-tests.md`
 - `agents/plans/2026-02-17-storage-implementation.md`
+- `agents/plans/2026-02-18-forward-chaining-implementation.md`
 
 ### Design Docs
 - `agents/design/designs-compressed.md`
@@ -131,6 +132,7 @@ For any important change:
 - `agents/design/rule-compilation.md`
 - `agents/design/core-processors.md`
 - `agents/design/storage.md`
+- `agents/design/forward-chaining.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`

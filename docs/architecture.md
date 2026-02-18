@@ -56,6 +56,19 @@ Each evaluator can return substitutions or projected tuples.
 
 - Piece unifiers and rewriting operators.
 
+## Forward Chaining (`prototyping_inference_engine.forward_chaining`)
+
+- Chase engine built from interchangeable strategies:
+  - Schedulers: naive, predicate-based, GRD-based.
+  - Trigger computation: naive, restricted, semi-naive, two-steps.
+  - Trigger checkers: oblivious, semi-oblivious, restricted, equivalent, multi-checker.
+  - Renamers: fresh, body skolem, frontier skolem, frontier-by-piece skolem.
+  - Rule appliers: breadth-first, parallel, multi-thread, source-delegated.
+  - Treatments: rule split, add created facts, compute core/local core, predicate-filter end, debug hooks.
+  - Halting conditions: step limit, atom limit, timeout, external interruption, rules-to-apply, created-facts-at-previous-step.
+- Stratified execution via GRD strata (`chase.metachase.stratified`).
+- Lineage tracking pluggable (none, simple, federated).
+
 ## GRD (`prototyping_inference_engine.grd`)
 
 - Graph of Rule Dependencies (GRD) with disjunctive heads and safe negation support.

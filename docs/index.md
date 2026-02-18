@@ -9,6 +9,7 @@ Pie (Prototyping Inference Engine) is a Python library for building inference en
 - First-order queries with conjunction, disjunction, negation, and quantifiers.
 
 - Backward chaining (query rewriting).
+- Forward chaining (chase) with configurable schedulers, trigger strategies, stratified execution, and lineage tracking.
 
 - DLGP parser (DLGPE version) with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix`/`@computed`.
 
@@ -75,7 +76,7 @@ print(answers)  # (a, c), (b, d)
 | DLGP Parser (DLGPE) | 75% | Extended Datalog+- with negation, sections, and IRI resolution |
 | Homomorphism | 70% | Pattern matching with backtracking and indexing |
 | Backward Chaining | 90% | UCQ rewriting with disjunctive existential rules |
-| Forward Chaining | 0% | Not yet implemented |
+| Forward Chaining | 85% | Chase with schedulers (naive/GRD/predicate), trigger strategies, stratified execution, lineage |
 
 ## Next Steps
 

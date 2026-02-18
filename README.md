@@ -37,7 +37,7 @@ Requires Python 3.10+ (uses match/case syntax). CI runs on CPython 3.10, CPython
 | **DLGP Parser (DLGPE)** | 75% | Extended Datalog+- with negation, sections, and IRI resolution |
 | **Homomorphism** | 70% | Pattern matching with backtracking and indexing |
 | **Backward Chaining** | 90% | UCQ rewriting with disjunctive existential rules |
-| **Forward Chaining** | 0% | Not yet implemented |
+| **Forward Chaining** | 85% | Chase with schedulers (naive/GRD/predicate), trigger strategies, stratified execution, lineage |
 
 ## Quick Start
 
