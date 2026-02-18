@@ -47,14 +47,17 @@ class PostgreSQLDriver(RDBMSDriver):
             scheme_end = dsn.find("://")
             if scheme_end != -1:
                 dsn = "postgresql" + dsn[scheme_end:]
-        try:
-            import psycopg  # type: ignore[import-not-found,import-untyped]
-        except ImportError as exc:  # pragma: no cover - optional dependency
-            raise RuntimeError("psycopg is required for PostgreSQLDriver") from exc
+
+        def _connector(*, conninfo: str) -> DBConnection:
+            try:
+                import psycopg  # type: ignore[import-not-found,import-untyped]
+            except ImportError as exc:  # pragma: no cover - optional dependency
+                raise RuntimeError("psycopg is required for PostgreSQLDriver") from exc
+            return psycopg.connect(conninfo=conninfo)
 
         return PostgreSQLDriver(
             name="postgresql",
-            connector=psycopg.connect,
+            connector=_connector,
             connect_kwargs={"conninfo": dsn},
         )
 
@@ -63,14 +66,17 @@ class PostgreSQLDriver(RDBMSDriver):
 class MySQLDriver(RDBMSDriver):
     @staticmethod
     def from_params(**params: Any) -> "MySQLDriver":
-        try:
-            import pymysql  # type: ignore[import-untyped]
-        except ImportError as exc:  # pragma: no cover - optional dependency
-            raise RuntimeError("pymysql is required for MySQLDriver") from exc
+
+        def _connector(**kwargs: Any) -> DBConnection:
+            try:
+                import pymysql  # type: ignore[import-untyped]
+            except ImportError as exc:  # pragma: no cover - optional dependency
+                raise RuntimeError("pymysql is required for MySQLDriver") from exc
+            return pymysql.connect(**kwargs)
 
         return MySQLDriver(
             name="mysql",
-            connector=pymysql.connect,
+            connector=_connector,
             connect_kwargs=params,
         )
 
@@ -79,14 +85,23 @@ class MySQLDriver(RDBMSDriver):
 class HSQLDBDriver(RDBMSDriver):
     @staticmethod
     def from_jdbc(url: str, user: str = "sa", password: str = "") -> "HSQLDBDriver":
-        try:
-            import jaydebeapi  # type: ignore[import-not-found,import-untyped]
-        except ImportError as exc:  # pragma: no cover - optional dependency
-            raise RuntimeError("jaydebeapi is required for HSQLDBDriver") from exc
+
+        def _connector(
+            *, jclassname: str, url: str, driver_args: list[str]
+        ) -> DBConnection:
+            try:
+                import jaydebeapi  # type: ignore[import-not-found,import-untyped]
+            except ImportError as exc:  # pragma: no cover - optional dependency
+                raise RuntimeError("jaydebeapi is required for HSQLDBDriver") from exc
+            return jaydebeapi.connect(
+                jclassname=jclassname,
+                url=url,
+                driver_args=driver_args,
+            )
 
         return HSQLDBDriver(
             name="hsqldb",
-            connector=jaydebeapi.connect,
+            connector=_connector,
             connect_kwargs={
                 "jclassname": "org.hsqldb.jdbcDriver",
                 "url": url,

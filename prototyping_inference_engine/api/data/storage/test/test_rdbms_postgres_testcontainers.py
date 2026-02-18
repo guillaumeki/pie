@@ -1,6 +1,9 @@
 import unittest
 
-from testcontainers.postgres import PostgresContainer  # type: ignore[import-untyped]
+try:
+    from testcontainers.postgres import PostgresContainer  # type: ignore[import-untyped]
+except ImportError:  # pragma: no cover - optional dependency
+    PostgresContainer = None
 
 from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
