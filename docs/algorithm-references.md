@@ -231,6 +231,8 @@ chase with interchangeable schedulers (naive, predicate-based, GRD-based),
 trigger computation/checking strategies, skolemization options, rule appliers
 (breadth-first, parallel, multithread, delegated), treatments (core/local core),
 halting conditions, stratified execution (GRD strata), and pluggable lineage.
+Pseudo-skolemization (fresh symbols) is available for compatibility; true
+skolemization uses logical function terms for sound existential handling.
 
 **Key properties used in PIE**
 

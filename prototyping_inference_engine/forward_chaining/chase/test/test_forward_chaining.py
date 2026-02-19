@@ -161,6 +161,9 @@ class TestForwardChaining(unittest.TestCase):
             lambda b: b.use_body_skolem(),
             lambda b: b.use_frontier_skolem(),
             lambda b: b.use_frontier_by_piece_skolem(),
+            lambda b: b.use_body_true_skolem(),
+            lambda b: b.use_frontier_true_skolem(),
+            lambda b: b.use_frontier_by_piece_true_skolem(),
         )
 
         for configure in configs:

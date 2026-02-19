@@ -189,6 +189,7 @@ Forward chaining is available via the `forward_chaining` module with pluggable s
 - Wrap writable/materialized data in `ChasableData` to track created facts and optional lineage.
 - Optionally stratify rules with `StratifiedChaseBuilder` (GRD-based strata).
 - Strategies are swappable without changing callers (OCP); use halting conditions (step limit, atom limit, timeout, rules-to-apply) to bound execution.
+- Renamers: pseudo-skolemization (`use_body_skolem`, `use_frontier_skolem`, `use_frontier_by_piece_skolem`) and true skolemization (`use_body_true_skolem`, `use_frontier_true_skolem`, `use_frontier_by_piece_true_skolem`).
 
 Example 1: derive `q(a)` from `p(a)` with naive scheduler + semi-oblivious checker.
 ```python

@@ -59,16 +59,28 @@ from prototyping_inference_engine.forward_chaining.chase.rule_applier.trigger_ap
     FactsHandler,
 )
 from prototyping_inference_engine.forward_chaining.chase.rule_applier.trigger_applier.renamer.body_skolem import (
+    BodyPseudoSkolem,
     BodySkolem,
 )
 from prototyping_inference_engine.forward_chaining.chase.rule_applier.trigger_applier.renamer.fresh_renamer import (
     FreshRenamer,
 )
 from prototyping_inference_engine.forward_chaining.chase.rule_applier.trigger_applier.renamer.frontier_by_piece_skolem import (
+    FrontierByPiecePseudoSkolem,
     FrontierByPieceSkolem,
 )
 from prototyping_inference_engine.forward_chaining.chase.rule_applier.trigger_applier.renamer.frontier_skolem import (
+    FrontierPseudoSkolem,
     FrontierSkolem,
+)
+from prototyping_inference_engine.forward_chaining.chase.rule_applier.trigger_applier.renamer.frontier_by_piece_true_skolem import (
+    FrontierByPieceTrueSkolem,
+)
+from prototyping_inference_engine.forward_chaining.chase.rule_applier.trigger_applier.renamer.frontier_true_skolem import (
+    FrontierTrueSkolem,
+)
+from prototyping_inference_engine.forward_chaining.chase.rule_applier.trigger_applier.renamer.body_true_skolem import (
+    BodyTrueSkolem,
 )
 from prototyping_inference_engine.forward_chaining.chase.rule_applier.trigger_applier.renamer.trigger_renamer import (
     TriggerRenamer,
@@ -191,7 +203,15 @@ class ChaseBuilder:
             "so_restricted",
         ] = "semi_oblivious"
         self._application: Literal["parallel", "direct"] = "parallel"
-        self._skolem: Literal["fresh", "body", "frontier", "frontier_piece"] = "fresh"
+        self._skolem: Literal[
+            "fresh",
+            "pseudo_body",
+            "pseudo_frontier",
+            "pseudo_frontier_piece",
+            "true_body",
+            "true_frontier",
+            "true_frontier_piece",
+        ] = "fresh"
         self._debug = False
 
     @staticmethod
@@ -274,12 +294,18 @@ class ChaseBuilder:
 
                 if self._ta is None:
                     if self._tn is None:
-                        if self._skolem == "body":
-                            self._tn = BodySkolem()
-                        elif self._skolem == "frontier":
-                            self._tn = FrontierSkolem()
-                        elif self._skolem == "frontier_piece":
-                            self._tn = FrontierByPieceSkolem()
+                        if self._skolem == "pseudo_body":
+                            self._tn = BodyPseudoSkolem()
+                        elif self._skolem == "pseudo_frontier":
+                            self._tn = FrontierPseudoSkolem()
+                        elif self._skolem == "pseudo_frontier_piece":
+                            self._tn = FrontierByPiecePseudoSkolem()
+                        elif self._skolem == "true_body":
+                            self._tn = BodyTrueSkolem()
+                        elif self._skolem == "true_frontier":
+                            self._tn = FrontierTrueSkolem()
+                        elif self._skolem == "true_frontier_piece":
+                            self._tn = FrontierByPieceTrueSkolem()
                         else:
                             self._tn = FreshRenamer()
                     if self._fh is None:
@@ -393,15 +419,39 @@ class ChaseBuilder:
         return self
 
     def use_body_skolem(self) -> "ChaseBuilder":
-        self._skolem = "body"
+        self._skolem = "pseudo_body"
         return self
 
     def use_frontier_skolem(self) -> "ChaseBuilder":
-        self._skolem = "frontier"
+        self._skolem = "pseudo_frontier"
         return self
 
     def use_frontier_by_piece_skolem(self) -> "ChaseBuilder":
-        self._skolem = "frontier_piece"
+        self._skolem = "pseudo_frontier_piece"
+        return self
+
+    def use_body_pseudo_skolem(self) -> "ChaseBuilder":
+        self._skolem = "pseudo_body"
+        return self
+
+    def use_frontier_pseudo_skolem(self) -> "ChaseBuilder":
+        self._skolem = "pseudo_frontier"
+        return self
+
+    def use_frontier_by_piece_pseudo_skolem(self) -> "ChaseBuilder":
+        self._skolem = "pseudo_frontier_piece"
+        return self
+
+    def use_body_true_skolem(self) -> "ChaseBuilder":
+        self._skolem = "true_body"
+        return self
+
+    def use_frontier_true_skolem(self) -> "ChaseBuilder":
+        self._skolem = "true_frontier"
+        return self
+
+    def use_frontier_by_piece_true_skolem(self) -> "ChaseBuilder":
+        self._skolem = "true_frontier_piece"
         return self
 
     def set_chasable_data(self, chasable_data: ChasableData) -> "ChaseBuilder":

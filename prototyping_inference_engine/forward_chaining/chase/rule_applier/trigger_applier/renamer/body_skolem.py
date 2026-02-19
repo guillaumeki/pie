@@ -1,4 +1,7 @@
-"""Body-based skolem renamer for existential variables."""
+"""Body-based pseudo-skolem renamer for existential variables.
+
+This matches Integraal behavior (fresh variables, not true Skolem terms).
+"""
 
 from __future__ import annotations
 
@@ -16,7 +19,7 @@ from prototyping_inference_engine.forward_chaining.chase.rule_applier.trigger_ap
 )
 
 
-class BodySkolem(TriggerRenamer):
+class BodyPseudoSkolem(TriggerRenamer):
     def __init__(self) -> None:
         self._names: dict[
             Rule, dict[tuple[tuple[object, object], ...], dict[Variable, Term]]
@@ -34,3 +37,7 @@ class BodySkolem(TriggerRenamer):
         for var in substitution:
             renamed.pop(var, None)
         return renamed.compose(substitution)
+
+
+# Backward compatibility alias (Integraal naming)
+BodySkolem = BodyPseudoSkolem
