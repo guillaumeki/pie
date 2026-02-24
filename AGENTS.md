@@ -7,8 +7,9 @@ Pie (Prototyping Inference Engine) is a Python library for building inference en
 - Backward chaining (query rewriting) - ~90% complete
 - Query evaluation against fact bases - ~85% complete
 - Data abstraction for heterogeneous sources and multi-source collections
-- Forward chaining - not yet implemented
+- Forward chaining (chase) with configurable schedulers, trigger strategies, and stratified execution
 - DLGPE parser with negation, equality, sections support, and IRI resolution
+- View declarations and imports (`@view`, `@import <*.vd>`) for virtual data sources
 
 Requires Python 3.10+ (uses match/case syntax).
 
@@ -134,6 +135,7 @@ For any important change:
 - `agents/design/core-processors.md`
 - `agents/design/storage.md`
 - `agents/design/forward-chaining.md`
+- `agents/design/views.md`
 
 ### Process Artifacts
 - `agents/templates/PLAN_TEMPLATE.md`
@@ -205,6 +207,7 @@ disjunctive-rewriter [file.dlgp] [-l LIMIT] [-v] [-m]
 - `BasicQuery` with bound positions and answer variables
 - `AtomicPattern` and `PositionConstraint` for declaring data source capabilities
 - `DataCollection` for integrating multiple data sources
+- View runtime sources loaded from `.vd` declarations
 
 ### Query Evaluation (`query_evaluation/`)
 Hierarchical evaluator stack with `GenericFOQueryEvaluator` dispatching by formula type.
@@ -218,6 +221,7 @@ Evaluators return `Iterator[Substitution]` via `evaluate()` or projected tuples 
 ### Parser (`parser/`)
 - DLGPE with disjunction, negation, equality, sections via `DlgpeParser.instance()`
 - DLGP-compatible files (`.dlgp`) are parsed by `DlgpeParser` and must use `|` for disjunction.
+- `@view` directives and `@import <*.vd>` are supported to attach view-backed readable sources.
 
 ## Formats
 DLGPE sample:

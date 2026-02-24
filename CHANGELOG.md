@@ -9,6 +9,14 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: evaluation is query-only (FOQuery and higher-level queries); formula evaluators were removed.
 - Changed: query evaluators now expose `prepare` for reuse of prepared queries.
 
+## [2026-02-24]
+- Added: views subsystem under `api.data.views` with declaration model, validation, specialization, missing-value policies, runtime source adapter, and backend adapters (SQL/JSON Web API/SPARQL/MongoDB).
+- Added: DLGPE `@view` directive support and `.vd` import support through format-aware `@import`.
+- Added: session-level integration for declared and imported view sources through `ParseResult.sources`.
+- Added: unit and integration coverage for view loading, validation, missing-value behavior, and session/query integration.
+- Updated: user documentation (README, usage, API, architecture, algorithm references) to cover view workflows.
+- Changed: bumped version to 0.0.30.
+
 ## [2026-02-16]
 - Added: Baget/Mugnier citation for backtracking projection in CQ evaluation.
 - Added: rule compilation package (ID and hierarchical compilations) with compiled preorder support.

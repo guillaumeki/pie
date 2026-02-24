@@ -62,7 +62,7 @@ class DlgpeParser:
     Features NOT supported by PIE (will raise DlgpeUnsupportedFeatureError):
     - Subqueries
     - Macro predicates
-    - @view, @patterns directives
+    - @patterns directives
     - JSON metadata
 
     Usage:
@@ -78,6 +78,7 @@ class DlgpeParser:
 
     def __init__(self, strict_prefix_base: bool = True):
         """Initialize the parser with the DLGPE grammar."""
+        self._strict_prefix_base = strict_prefix_base
         self._lark = Lark(
             self._grammar_path.read_text(),
             start="document",
@@ -121,7 +122,9 @@ class DlgpeParser:
         """
         self._raise_for_unsupported_text(text)
         tree = self._lark.parse(text)
-        transformer = transformer or self._transformer
+        transformer = transformer or DlgpeTransformer(
+            strict_prefix_base=self._strict_prefix_base
+        )
         try:
             result = transformer.transform(tree)
         except VisitError as e:

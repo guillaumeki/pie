@@ -95,7 +95,7 @@ class DlgpeTransformer(Transformer):
     - Subqueries (Var := body)
     - Macro predicates ($predicate)
     - Repeated atoms (predicate+ or predicate*)
-    - @view, @patterns directives
+    - @patterns directives
     - JSON metadata
     """
 
@@ -122,6 +122,8 @@ class DlgpeTransformer(Transformer):
         self._una: bool = False
         self._ground_neck: bool = False  # Track if ::- was used
         self._imports: list[str] = []
+        self._views: list[tuple[str, str]] = []
+        self._view_prefixes: set[str] = set()
         self._literal_factory = literal_factory or LiteralFactory(
             DictStorage(), LiteralConfig.default()
         )
@@ -159,9 +161,6 @@ class DlgpeTransformer(Transformer):
         raise DlgpeUnsupportedFeatureError(
             "@computed directive is not supported by PIE"
         )
-
-    def unsupported_view(self, items):
-        raise DlgpeUnsupportedFeatureError("@view directive is not supported by PIE")
 
     def unsupported_patterns(self, items):
         raise DlgpeUnsupportedFeatureError(
@@ -223,6 +222,7 @@ class DlgpeTransformer(Transformer):
             "top": self._top,
             "una": self._una,
             "imports": list(self._imports),
+            "views": list(self._views),
         }
 
     def body(self, items):
@@ -268,9 +268,12 @@ class DlgpeTransformer(Transformer):
                 self._prefixes_raw[prefix] = iri
                 self._prefixes[prefix] = iri
                 return None
-        else:
             self._iri_manager.set_prefix(prefix, iri)
             self._prefixes[prefix] = self._iri_manager.get_prefix(prefix)
+            return None
+
+        self._iri_manager.set_prefix(prefix, iri)
+        self._prefixes[prefix] = self._iri_manager.get_prefix(prefix)
         return None
 
     def computed_directive(self, items):
@@ -287,6 +290,14 @@ class DlgpeTransformer(Transformer):
 
         self._computed_prefixes_display[prefix] = iri
         self._computed_prefixes[prefix] = f"{prefix}:"
+        return None
+
+    def view_directive(self, items):
+        # items[0] = VIEW_KWD, items[1] = prefix, items[2] = identifier
+        view_prefix = str(items[1])
+        view_path = str(items[2])
+        self._views.append((view_prefix, view_path))
+        self._view_prefixes.add(view_prefix)
         return None
 
     def top_directive(self, items):
@@ -713,6 +724,8 @@ class DlgpeTransformer(Transformer):
             base = self._computed_prefixes[prefix]
         elif prefix in self._builtin_prefixes:
             base = self._builtin_prefixes[prefix]
+        elif prefix in self._view_prefixes:
+            return f"{prefix}:{local}"
         else:
             raise ValueError(f"Unknown prefix: {prefix or '<default>'}")
         if prefix in self._prefixes and prefix not in self._prefixes_raw:

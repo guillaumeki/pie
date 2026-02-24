@@ -228,11 +228,12 @@ class TestDlgpeParserUnsupportedFeatures(unittest.TestCase):
         self.assertIn("computed", header)
         self.assertEqual(header["computed"].get("ig"), "stdfct")
 
-    def test_view_directive_raises_error(self):
-        """Test that @view raises an error."""
-        with self.assertRaises(DlgpeUnsupportedFeatureError) as ctx:
-            self.parser.parse("@view ex: <http://example.org/>.")
-        self.assertIn("@view", ctx.exception.args[0])
+    def test_view_directive_is_parsed(self):
+        """Test that @view is parsed into the header views list."""
+        result = self.parser.parse("@view ex: <views.vd>.")
+        header = result.get("header", {})
+        self.assertIn("views", header)
+        self.assertEqual(header["views"], [("ex", "views.vd")])
 
     def test_patterns_directive_raises_error(self):
         """Test that @patterns raises an error."""

@@ -32,6 +32,10 @@
 
 - `IntegraalStandardFunctionSource`: computed predicates for the standard function library.
 
+- `ViewSourceBuilder` / `load_view_sources`: load `.vd` declarations into queryable view sources.
+
+- `ViewRuntimeSource`: `ReadableData` implementation used to evaluate declared views.
+
 - `RuleBase` / `KnowledgeBase`: rule and knowledge containers.
 
 - `Rule`: formula-based rules; fragment validators live under `api.ontology.rule.validators`.

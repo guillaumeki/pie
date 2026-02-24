@@ -31,6 +31,8 @@ Pie is organized around core API types (terms, atoms, queries), evaluator stacks
 
 - `DataCollection` for integrating multiple data sources.
 
+- View runtime sources (`api.data.views`) loaded from `.vd` declarations.
+
 - `DatalogDelegable` for delegating rules and queries to external engines.
 
 - Delegation wrappers (`DelAtomWrapper`, `QueryableDataDelAtomsWrapper`) for atom filtering.
@@ -86,6 +88,8 @@ Each evaluator can return substitutions or projected tuples.
 - Writers under `prototyping_inference_engine.io.writers`.
 
 - DLGP parser (DLGPE version) for extended Datalog+- with disjunction, negation, equality, and sections.
+
+- Import registry supports format-aware `@import`, including `.vd` view declarations.
 
 ## IRI Utilities (`prototyping_inference_engine.api.iri`)
 

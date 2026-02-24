@@ -7,6 +7,7 @@ fact bases, ontologies, and query rewriting.
 
 from math import inf
 from pathlib import Path
+from urllib.parse import urlparse
 from typing import Optional, Iterable, Iterator, Tuple, Union, TYPE_CHECKING
 
 from prototyping_inference_engine.api.atom.atom import Atom
@@ -636,15 +637,19 @@ class ReasoningSession:
             queries = list(parsed.get("queries", []))
             constraints = set(parsed.get("constraints", []))
             imports = list(parsed.get("imports", []))
+            header = parsed.get("header", {}) or {}
+            view_directives = list(header.get("views", []))
         else:
             facts = list(self._parser_provider.parse_atoms(text))
             rules = set(self._parser_provider.parse_rules(text))
             queries = list(self._parser_provider.parse_queries(text))
             constraints = set(self._parser_provider.parse_negative_constraints(text))
             imports = []
+            view_directives = []
 
+        imported_sources: list["ReadableData"] = []
         if imports:
-            self._merge_imports(
+            imported_sources = self._merge_imports(
                 facts,
                 rules,
                 queries,
@@ -652,6 +657,10 @@ class ReasoningSession:
                 imports,
                 source_path,
             )
+
+        declared_view_sources = self._build_declared_view_sources(
+            view_directives, source_path
+        )
 
         # Track all terms and predicates
         for atom in facts:
@@ -670,6 +679,10 @@ class ReasoningSession:
         self._register_computed_functions(atoms_for_sources)
 
         sources = self._build_parse_sources(facts, rules, queries, constraints)
+        sources.extend(imported_sources)
+        sources.extend(declared_view_sources)
+        for source in sources:
+            self._register_source_schemas(source)
         return ParseResult(
             facts=FrozenAtomSet(facts),
             rules=frozenset(rules),
@@ -689,7 +702,7 @@ class ReasoningSession:
         constraints: set[NegativeConstraint],
         imports: list[str],
         source_path: Optional[Path],
-    ) -> None:
+    ) -> list["ReadableData"]:
         from prototyping_inference_engine.io.registry import (
             ImportContext,
             ImportResolver,
@@ -708,6 +721,7 @@ class ReasoningSession:
         resolver = ImportResolver(ParserRegistry.default(), context)
         base_dir = source_path.parent if source_path is not None else None
         resolution = resolver.resolve_all(imports, base_dir)
+        imported_sources: list["ReadableData"] = []
 
         seen_queries: set["Query"] = set(queries)
         for result in resolution.results:
@@ -720,6 +734,9 @@ class ReasoningSession:
                 queries.append(query)
             constraints.update(result.constraints)
             self._merge_computed_prefixes(result.computed_prefixes)
+            imported_sources.extend(result.sources)
+
+        return imported_sources
 
     def _merge_computed_prefixes(self, imported: tuple[tuple[str, str], ...]) -> None:
         for prefix, value in imported:
@@ -1052,6 +1069,54 @@ class ReasoningSession:
         """Raise an error if the session is closed."""
         if self._closed:
             raise RuntimeError("Cannot perform operations on a closed session")
+
+    def _build_declared_view_sources(
+        self,
+        view_directives: list[object],
+        source_path: Optional[Path],
+    ) -> list["ReadableData"]:
+        from prototyping_inference_engine.api.data.views.builder import (
+            load_view_sources,
+        )
+
+        if not view_directives:
+            return []
+
+        base_dir = source_path.parent if source_path is not None else Path.cwd()
+        literal_factory = self._term_factories.get(Literal)
+        loaded_sources: list["ReadableData"] = []
+
+        for directive in view_directives:
+            if not isinstance(directive, (list, tuple)) or len(directive) != 2:
+                raise ValueError(f"Invalid @view directive payload: {directive!r}")
+            alias = str(directive[0]).strip()
+            location = str(directive[1]).strip()
+            if not alias:
+                raise ValueError(f"Invalid @view alias: {directive!r}")
+            if not location:
+                raise ValueError(f"Invalid @view location: {directive!r}")
+
+            resolved_path = self._resolve_path_like_import(location, base_dir)
+            for source in load_view_sources(
+                resolved_path, alias_prefix=alias, literal_factory=literal_factory
+            ):
+                loaded_sources.append(source)
+
+        return loaded_sources
+
+    @staticmethod
+    def _resolve_path_like_import(raw: str, base_dir: Path) -> Path:
+        stripped = raw.strip()
+        if stripped.startswith("file://"):
+            parsed = urlparse(stripped)
+            return Path(parsed.path).resolve()
+        parsed = urlparse(stripped)
+        if parsed.scheme and parsed.scheme != "file":
+            raise ValueError(f"Unsupported @view scheme: {parsed.scheme}")
+        path = Path(stripped)
+        if not path.is_absolute():
+            path = base_dir / path
+        return path.resolve()
 
     def _register_source_schemas(self, source: object) -> None:
         """Register schemas from a source when it supports schema-awareness."""

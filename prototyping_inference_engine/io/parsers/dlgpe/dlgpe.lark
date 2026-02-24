@@ -98,7 +98,7 @@ directive: base_directive
          | prefix_directive
          | import_directive
          | computed_directive
-         | view_directive        -> unsupported_view
+         | view_directive
          | top_directive
          | una_directive
          | patterns_directive    -> unsupported_patterns
@@ -107,7 +107,7 @@ base_directive: BASE_KWD identifier "."
 prefix_directive: PREFIX_KWD prefix ":" identifier "."
 import_directive: IMPORT_KWD identifier "."
 computed_directive: COMPUTED_KWD prefix ":" identifier "."
-view_directive: VIEW_KWD prefix ":" identifier "."
+view_directive: VIEW_KWD prefix ":" identifier "."?
 top_directive: TOP_KWD identifier "."
 una_directive: UNA_KWD
 patterns_directive: PATTERNS_KWD

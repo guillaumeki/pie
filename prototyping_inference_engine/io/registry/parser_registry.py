@@ -48,6 +48,7 @@ class ParserRegistry:
 
     def _register_defaults(self) -> None:
         self.register("dlgpe", _DlgpeImportParser())
+        self.register("vd", _VDImportParser())
         self.register("csv", _CSVImportParser())
         self.register("rls", _RLSImportParser())
         self.register("rdf", _RDFImportParser())
@@ -121,6 +122,33 @@ class _CSVImportParser:
             rules=frozenset(),
             queries=tuple(),
             constraints=frozenset(),
+        )
+        return ImportParseOutcome(result=result, imports=[])
+
+
+class _VDImportParser:
+    def parse_file(self, path: Path, context: ImportContext) -> ImportParseOutcome:
+        from prototyping_inference_engine.api.atom.term.literal import Literal
+        from prototyping_inference_engine.api.atom.term.identity_literal import (
+            IdentityLiteral,
+        )
+        from prototyping_inference_engine.api.data.views.builder import (
+            load_view_sources,
+        )
+
+        literal_factory = None
+        if context.term_factories.has(Literal):
+            literal_factory = context.term_factories.get(Literal)
+        elif context.term_factories.has(IdentityLiteral):
+            literal_factory = context.term_factories.get(IdentityLiteral)
+
+        sources = load_view_sources(path, literal_factory=literal_factory)
+        result = ParseResult(
+            facts=FrozenAtomSet(),
+            rules=frozenset(),
+            queries=tuple(),
+            constraints=frozenset(),
+            sources=tuple(sources),
         )
         return ImportParseOutcome(result=result, imports=[])
 

@@ -286,6 +286,37 @@ near-constant-time merges and representative queries across the codebase.
   [Robert E. Tarjan](https://www.cs.princeton.edu/~ret/).
   Publication: [https://doi.org/10.1145/360680.360685](https://doi.org/10.1145/360680.360685)
 
+## View-Based Data Integration
+
+**Summary**
+PIE integrates external data through declarative views. A view declaration is
+compiled into a `ReadableData` source, then evaluated on demand during query
+answering. This follows a mediator-style approach: the reasoning layer stays
+independent from backend protocols (SQL, SPARQL, HTTP JSON, MongoDB), while
+query evaluation remains uniform.
+
+**Key properties used in PIE**
+
+- Logical queries remain backend-agnostic through `ReadableData`.
+- View loading is declarative and composable via `@view` and `@import <*.vd>`.
+- Runtime evaluation avoids eager materialization of external datasets.
+
+**Implementation in PIE**
+
+- `prototyping_inference_engine/api/data/views/builder.py`
+- `prototyping_inference_engine/api/data/views/source.py`
+- `prototyping_inference_engine/session/reasoning_session.py`
+- `prototyping_inference_engine/io/registry/parser_registry.py`
+
+**References**
+
+- “Mediators in the Architecture of Future Information Systems.”
+  [Gio Wiederhold](https://dblp.org/pid/w/GioWiederhold).
+  Publication: [https://dl.acm.org/doi/10.1145/233269.233311](https://dl.acm.org/doi/10.1145/233269.233311)
+- “Answering Queries Using Views: A Survey.”
+  [Alon Y. Levy](https://homes.cs.washington.edu/~alon/).
+  Publication: [https://homes.cs.washington.edu/~alon/views-survey.ps](https://homes.cs.washington.edu/~alon/views-survey.ps)
+
 ## DLGP/DLGPE Syntax
 
 **Summary**

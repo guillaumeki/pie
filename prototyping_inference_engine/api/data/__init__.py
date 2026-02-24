@@ -33,6 +33,10 @@ __all__ = [
     "RDBMSStore",
     "VirtualDeleteStorage",
     "StorageBuilder",
+    "ViewRuntimeSource",
+    "ViewSourceBuilder",
+    "load_view_sources",
+    "load_view_sources_from_document",
 ]
 
 
@@ -47,4 +51,13 @@ def __getattr__(name: str) -> Any:
         from prototyping_inference_engine.api.data import storage as _storage
 
         return getattr(_storage, name)
+    if name in {
+        "ViewRuntimeSource",
+        "ViewSourceBuilder",
+        "load_view_sources",
+        "load_view_sources_from_document",
+    }:
+        from prototyping_inference_engine.api.data import views as _views
+
+        return getattr(_views, name)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

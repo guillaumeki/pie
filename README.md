@@ -13,6 +13,7 @@ The library supports:
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
 - **Rule compilation** (ID and hierarchical fragments) for accelerating rewriting and evaluation
 - **DLGP parser (DLGPE version)** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
+- **View declarations and imports** with `@view` and `@import <*.vd>` for virtual external sources
 - **Computed predicates** with the standard function library via `@computed`
 - **Knowledge bases and rule bases** for grouping facts and rules
 - **Prepared query interfaces** and FOQuery factory helpers
@@ -83,7 +84,7 @@ for answer in evaluator.evaluate_and_project(query, fact_base):
 from prototyping_inference_engine.session.reasoning_session import ReasoningSession
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 
-with ReasoningSession() as session:
+with ReasoningSession.create() as session:
     # Parse DLGP content
     parser = DlgpeParser.instance()
     result = parser.parse("""
@@ -236,7 +237,8 @@ Extended Datalog+- format with disjunction, negation, and sections (recommended)
 | Sections | `@facts`, `@rules`, `@queries`, `@constraints` | Organize knowledge base |
 | Labels | `[name]` | `[rule1] h(X) :- b(X).` |
 | IRI directives | `@base`, `@prefix` | `@base <http://example.org/>.` |
-| Imports | `@import` | `@import <facts.dlgp>.` |
+| Imports | `@import` | `@import <facts.dlgp>.`, `@import <views.vd>.` |
+| View declarations | `@view` | `@view v:<views.vd>.` |
 
 **Usage:**
 
@@ -269,8 +271,6 @@ queries = result["queries"]
 atoms = list(parser.parse_atoms("p(a). q(b)."))
 rules = list(parser.parse_rules("h(X) :- b(X). p(X) | q(X) :- r(X)."))
 ```
-
-**Not supported:** `@view` directives.
 
 #### DLGP Files (`.dlgp`)
 

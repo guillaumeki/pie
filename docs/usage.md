@@ -393,6 +393,89 @@ Expected output includes:
 The `facts.csv` import yields atoms with predicate `facts(t1, ..., tn)` where each
 row becomes one atom. The output now includes facts from every imported file.
 
+### Using View Declarations (`@view`) and `.vd` Imports
+View declarations let you query external sources as virtual predicates.
+The same `.vd` file can be loaded either with `@import <views.vd>` (plain names)
+or with `@view alias:<views.vd>` (prefixed names).
+```python
+import sqlite3
+import tempfile
+from pathlib import Path
+
+from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+with tempfile.TemporaryDirectory() as tmpdir:
+    base = Path(tmpdir)
+    db_path = base / "people.db"
+    vd_path = base / "views.vd"
+
+    connection = sqlite3.connect(db_path)
+    try:
+        connection.execute("CREATE TABLE people (name TEXT)")
+        connection.execute("INSERT INTO people(name) VALUES ('alice')")
+        connection.execute("INSERT INTO people(name) VALUES ('bob')")
+        connection.commit()
+    finally:
+        connection.close()
+
+    vd_path.write_text(
+        (
+            "{"
+            '"datasources":[{"id":"db","protocol":"SQLite",'
+            '"parameters":{"url":"people.db"}}],'
+            '"views":[{"id":"people","datasource":"db",'
+            '"query":"SELECT name FROM people","signature":[{}]}]'
+            "}"
+        ),
+        encoding="utf-8",
+    )
+
+    (base / "main_import.dlgpe").write_text(
+        """
+        @import <views.vd>.
+        ?(X) :- people(X).
+        """,
+        encoding="utf-8",
+    )
+    (base / "main_view.dlgpe").write_text(
+        """
+        @view v:<views.vd>.
+        ?(X) :- v:people(X).
+        """,
+        encoding="utf-8",
+    )
+
+    with ReasoningSession.create() as session:
+        imported = session.parse_file(base / "main_import.dlgpe")
+        fb_import = session.create_fact_base(imported.facts)
+        import_answers = sorted(
+            answer[0].identifier
+            for answer in session.evaluate_query_with_sources(
+                imported.queries[0], fb_import, imported.sources
+            )
+        )
+
+        declared = session.parse_file(base / "main_view.dlgpe")
+        fb_view = session.create_fact_base(declared.facts)
+        view_answers = sorted(
+            answer[0].identifier
+            for answer in session.evaluate_query_with_sources(
+                declared.queries[0], fb_view, declared.sources
+            )
+        )
+
+    print(import_answers)
+    print(view_answers)
+```
+Expected output:
+
+- `['alice', 'bob']`
+
+- `['alice', 'bob']`
+
+The first query uses imported view names directly (`people`), while the second
+uses an alias prefix (`v:people`) declared by `@view`.
+
 ### Arithmetic Expressions in DLGPE
 Arithmetic expressions are supported in terms, equalities, and comparisons.
 PIE desugars them to standard functions and loads `stdfct` automatically when

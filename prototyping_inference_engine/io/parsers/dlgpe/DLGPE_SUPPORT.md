@@ -18,7 +18,7 @@ DLGPE grammar is based on: https://gitlab.inria.fr/jfbaget/dlgpe
 | `@una` | ✅ Supported | Parsed, stored in header |
 | `@import` | ✅ Supported | Loads external files via format-aware import |
 | `@computed` | ✅ Supported | Supports `@computed <prefix>: <stdfct>` for standard functions and JSON configuration files for Python functions |
-| `@view` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
+| `@view` | ✅ Supported | Declares view aliases in the parsed header (`header["views"]`) |
 | `@patterns` | ❌ Not supported | Raises `DlgpeUnsupportedFeatureError` |
 
 ### Sections
@@ -97,8 +97,6 @@ The following features will raise `DlgpeUnsupportedFeatureError` when encountere
 |---------|--------|
 | Subqueries | Not implemented: `Result(X) := p(X, Y)` |
 | JSON metadata | Not implemented: `{"name": "rule1"} p(X) :- q(X).` |
-| `@import` directive | Imports are supported with format detection |
-| `@view` directive | Views not implemented |
 | `@patterns` directive | Pattern system not implemented |
 
 ## Usage Example
@@ -157,5 +155,4 @@ for rule in parser.parse_rules("h(X) :- b(X). g(X) | f(X) :- p(X)."):
 Features that could be implemented in future versions:
 
 1. **Subqueries**: Implement subquery evaluation
-2. **`@view` directive**: Implement views
-3. **`@patterns` directive**: Implement pattern predicates and expansions
+2. **`@patterns` directive**: Implement pattern predicates and expansions

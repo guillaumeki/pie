@@ -284,6 +284,22 @@ def _run_imports_example(source: str) -> None:
         raise AssertionError(f"Unexpected import atoms: {atoms}")
 
 
+def _run_view_import_and_declaration_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    import_answers = cast(list[str], namespace["import_answers"])
+    view_answers = cast(list[str], namespace["view_answers"])
+    expected = ["alice", "bob"]
+    if import_answers != expected:
+        raise AssertionError(
+            f"Unexpected @import .vd answers: {import_answers} (expected {expected})"
+        )
+    if view_answers != expected:
+        raise AssertionError(
+            f"Unexpected @view answers: {view_answers} (expected {expected})"
+        )
+
+
 def _run_index_quick_start_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
@@ -1062,6 +1078,82 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 """
             ).strip("\n"),
             runner=_run_imports_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                """
+                import sqlite3
+                import tempfile
+                from pathlib import Path
+
+                from prototyping_inference_engine.session.reasoning_session import ReasoningSession
+
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    base = Path(tmpdir)
+                    db_path = base / "people.db"
+                    vd_path = base / "views.vd"
+
+                    connection = sqlite3.connect(db_path)
+                    try:
+                        connection.execute("CREATE TABLE people (name TEXT)")
+                        connection.execute("INSERT INTO people(name) VALUES ('alice')")
+                        connection.execute("INSERT INTO people(name) VALUES ('bob')")
+                        connection.commit()
+                    finally:
+                        connection.close()
+
+                    vd_path.write_text(
+                        (
+                            "{"
+                            '"datasources":[{"id":"db","protocol":"SQLite",'
+                            '"parameters":{"url":"people.db"}}],'
+                            '"views":[{"id":"people","datasource":"db",'
+                            '"query":"SELECT name FROM people","signature":[{}]}]'
+                            "}"
+                        ),
+                        encoding="utf-8",
+                    )
+
+                    (base / "main_import.dlgpe").write_text(
+                        \"\"\"
+                        @import <views.vd>.
+                        ?(X) :- people(X).
+                        \"\"\",
+                        encoding="utf-8",
+                    )
+                    (base / "main_view.dlgpe").write_text(
+                        \"\"\"
+                        @view v:<views.vd>.
+                        ?(X) :- v:people(X).
+                        \"\"\",
+                        encoding="utf-8",
+                    )
+
+                    with ReasoningSession.create() as session:
+                        imported = session.parse_file(base / "main_import.dlgpe")
+                        fb_import = session.create_fact_base(imported.facts)
+                        import_answers = sorted(
+                            answer[0].identifier
+                            for answer in session.evaluate_query_with_sources(
+                                imported.queries[0], fb_import, imported.sources
+                            )
+                        )
+
+                        declared = session.parse_file(base / "main_view.dlgpe")
+                        fb_view = session.create_fact_base(declared.facts)
+                        view_answers = sorted(
+                            answer[0].identifier
+                            for answer in session.evaluate_query_with_sources(
+                                declared.queries[0], fb_view, declared.sources
+                            )
+                        )
+
+                    print(import_answers)
+                    print(view_answers)
+                """
+            ).strip("\n"),
+            runner=_run_view_import_and_declaration_example,
         ),
         DocExample(
             "prolog",

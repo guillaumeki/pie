@@ -28,6 +28,8 @@ _RDF_EXTENSIONS: dict[str, str | None] = {
 
 def detect_format(path: Path, sample: str | None = None) -> FormatDetectionResult:
     suffix = path.suffix.lower()
+    if suffix in {".vd"}:
+        return FormatDetectionResult("vd")
     if suffix in {".dlgpe", ".dlgp"}:
         return FormatDetectionResult("dlgpe")
     if suffix in {".csv"}:
