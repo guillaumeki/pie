@@ -1,0 +1,147 @@
+@rules
+degreefrom(X, Y) :- undergraduatedegreefrom(X, Y).
+student(X) :- undergraduatestudent(X).
+publication(X) :- publicationdate(X, X1).
+person(X) :- chair(X).
+publication(X) :- unofficialpublication(X).
+organization(X) :- department(X).
+university(X1) :- degreefrom(X, X1).
+headof(X, Y), college(Y) :- dean(X).
+university(X1) :- mastersdegreefrom(X, X1).
+person(X) :- title(X, X1).
+university(X) :- hasalumnus(X, X1).
+administrativestaff(X) :- systemsstaff(X).
+person(X) :- doctoraldegreefrom(X, X1).
+research(X1) :- publicationresearch(X, X1).
+faculty(X) :- professor(X).
+memberof(X, Y) :- member(Y, X).
+course(X) :- graduatecourse(X).
+person(X) :- graduatestudent(X).
+publication(X) :- publicationresearch(X, X1).
+publication(X) :- specification(X).
+worksfor(X, Y), organization(Y) :- employee(X).
+worksfor(X, Y) :- headof(X, Y).
+article(X) :- journalarticle(X).
+organization(X) :- affiliateof(X, X1).
+faculty(X) :- teacherof(X, X1).
+schedule(X) :- listedcourse(X, X1).
+chair(X) :- person(X), headof(X, X1), department(X1).
+person(X) :- director(X).
+organization(X) :- university(X).
+person(X) :- undergraduatedegreefrom(X, X1).
+person(X) :- researchassistant(X).
+headof(X, Y), department(Y) :- chair(X).
+work(X) :- course(X).
+person(X) :- advisor(X, X1).
+professor(X) :- assistantprofessor(X).
+professor(X1) :- advisor(X, X1).
+person(X) :- mastersdegreefrom(X, X1).
+work(X) :- research(X).
+degreefrom(X, Y) :- hasalumnus(Y, X).
+research(X1) :- researchproject(X, X1).
+article(X) :- conferencepaper(X).
+person(X) :- emailaddress(X, X1).
+memberof(X, Y) :- worksfor(X, Y).
+publication(X) :- manual(X).
+degreefrom(X, Y) :- doctoraldegreefrom(X, Y).
+employee(X) :- faculty(X).
+publication(X1) :- softwaredocumentation(X, X1).
+person(X) :- age(X, X1).
+course(X1) :- listedcourse(X, X1).
+person(X1) :- hasalumnus(X, X1).
+person(X) :- telephone(X, X1).
+publication(X) :- article(X).
+teachingassistant(X) :- teachingassistantof(X, X1).
+administrativestaff(X) :- clericalstaff(X).
+organization(X) :- orgpublication(X, X1).
+faculty(X) :- postdoc(X).
+professor(X) :- fullprofessor(X).
+article(X) :- technicalreport(X).
+software(X) :- softwaredocumentation(X, X1).
+person(X) :- student(X).
+professor(X) :- tenured(X, X1).
+employee(X) :- person(X), worksfor(X, X1), organization(X1).
+faculty(X) :- lecturer(X).
+takescourse(X, Y), graduatecourse(Y) :- graduatestudent(X).
+member(X, Y) :- memberof(Y, X).
+organization(X) :- college(X).
+university(X1) :- undergraduatedegreefrom(X, X1).
+publication(X1) :- orgpublication(X, X1).
+person(X1) :- member(X, X1).
+organization(X) :- program(X).
+dean(X) :- headof(X, X1), college(X1).
+professor(X) :- associateprofessor(X).
+hasalumnus(X, Y) :- degreefrom(Y, X).
+researchgroup(X) :- researchproject(X, X1).
+takescourse(X, Y), course(Y) :- student(X).
+teachingassistantof(X, Y), course(Y) :- teachingassistant(X).
+headof(X, Y), program(Y) :- director(X).
+person(X1) :- affiliateof(X, X1).
+course(X1) :- teacherof(X, X1).
+student(X) :- person(X), takescourse(X, X1), course(X1).
+degreefrom(X, Y) :- mastersdegreefrom(X, Y).
+publication(X) :- publicationauthor(X, X1).
+organization(X) :- institute(X).
+organization(X) :- suborganizationof(X, X1).
+organization(X1) :- suborganizationof(X, X1).
+organization(X1) :- affiliatedorganizationof(X, X1).
+university(X1) :- doctoraldegreefrom(X, X1).
+software(X) :- softwareversion(X, X1).
+person(X1) :- publicationauthor(X, X1).
+publication(X) :- software(X).
+professor(X) :- visitingprofessor(X).
+organization(X) :- affiliatedorganizationof(X, X1).
+person(X) :- degreefrom(X, X1).
+teachingassistant(X) :- person(X), teachingassistantof(X, X1), course(X1).
+director(X) :- person(X), headof(X, X1), program(X1).
+course(X1) :- teachingassistantof(X, X1).
+publication(X) :- book(X).
+organization(X) :- researchgroup(X).
+person(X) :- teachingassistant(X).
+professor(X) :- dean(X).
+suborganizationof(X, Z) :- suborganizationof(X, Y), suborganizationof(Y, Z).
+employee(X) :- administrativestaff(X).
+professor(X) :- chair(X).
+person(X) :- employee(X).
+worksfor(X, Y), researchgroup(Y) :- researchassistant(X).
+organization(X) :- member(X, X1).
+@facts
+specification(<const_Graal:EE161>),
+researchproject(<const_Graal:EE118>, <const_Graal:EE477>),
+softwaredocumentation(<const_Graal:EE1578>, <const_Graal:EE161>),
+affiliatedorganizationof(<const_Graal:EE140>, <const_Graal:EE884>),
+visitingprofessor(<const_Graal:EE91>),
+institute(<const_Graal:EE140>),
+fullprofessor(<const_Graal:EE57>),
+undergraduatestudent(<const_Graal:EE130>),
+technicalreport(<const_Graal:EE65>),
+age(<const_Graal:EE111>, <const_Graal:EE1369>),
+postdoc(<const_Graal:EE24>),
+assistantprofessor(<const_Graal:EE169>),
+softwareversion(<const_Graal:EE145>, <const_Graal:EE1207>),
+publicationdate(<const_Graal:EE109>, <const_Graal:EE1176>),
+affiliateof(<const_Graal:EE1123>, <const_Graal:EE49>),
+advisor(<const_Graal:EE406>, <const_Graal:EE96>),
+telephone(<const_Graal:EE20>, <const_Graal:EE1019>),
+title(<const_Graal:EE47>, <const_Graal:EE419>),
+lecturer(<const_Graal:EE39>),
+publicationauthor(<const_Graal:EE1082>, <const_Graal:EE153>),
+listedcourse(<const_Graal:EE300>, <const_Graal:EE79>),
+conferencepaper(<const_Graal:EE92>),
+book(<const_Graal:EE4>),
+associateprofessor(<const_Graal:EE150>),
+undergraduatedegreefrom(<const_Graal:EE66>, <const_Graal:EE917>),
+publicationresearch(<const_Graal:EE4>, <const_Graal:EE658>),
+mastersdegreefrom(<const_Graal:EE28>, <const_Graal:EE634>),
+manual(<const_Graal:EE134>),
+clericalstaff(<const_Graal:EE19>),
+orgpublication(<const_Graal:EE780>, <const_Graal:EE29>),
+tenured(<const_Graal:EE164>, <const_Graal:EE667>),
+doctoraldegreefrom(<const_Graal:EE45>, <const_Graal:EE688>),
+systemsstaff(<const_Graal:EE87>),
+teacherof(<const_Graal:EE471>, <const_Graal:EE27>),
+journalarticle(<const_Graal:EE65>),
+unofficialpublication(<const_Graal:EE109>),
+researchassistant(<const_Graal:EE111>),
+emailaddress(<const_Graal:EE127>, <const_Graal:EE262>),
+graduatestudent(<const_Graal:EE76>).

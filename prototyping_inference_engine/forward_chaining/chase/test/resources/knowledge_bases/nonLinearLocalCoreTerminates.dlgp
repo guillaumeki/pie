@@ -1,0 +1,5 @@
+p(a,b).
+p(b,c).
+p(X,Z):-p(X,Y),p(Y,Z).
+p(Y,Z):-p(X,Y).
+p(Y,Y):-p(X,Y). 
