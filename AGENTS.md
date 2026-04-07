@@ -121,7 +121,7 @@ For any important change:
 - `docs/usage.md` must list concrete, working usage examples for new or changed features (kept in sync after each feature change).
 
 ### Tracked Plans
-- `agents/plans/2026-02-10-federated-view-tests.md`
+- None currently.
 
 ### Design Docs
 - `agents/design/designs-compressed.md`

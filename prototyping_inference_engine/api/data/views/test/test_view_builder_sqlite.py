@@ -4,15 +4,59 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from prototyping_inference_engine.api.atom.atom import Atom
 from prototyping_inference_engine.api.atom.predicate import Predicate
 from prototyping_inference_engine.api.atom.term.constant import Constant
 from prototyping_inference_engine.api.atom.term.literal import Literal
 from prototyping_inference_engine.api.atom.term.variable import Variable
 from prototyping_inference_engine.api.data.basic_query import BasicQuery
+from prototyping_inference_engine.api.query.fo_query import FOQuery
 from prototyping_inference_engine.api.data.views.builder import load_view_sources
+from prototyping_inference_engine.query_evaluation import GenericFOQueryEvaluator
 
 
 class TestViewBuilderSQLite(unittest.TestCase):
+    def _write_people_view(
+        self,
+        base: Path,
+        *,
+        rows: list[str],
+        query: str = "SELECT name FROM people",
+    ) -> Path:
+        db_path = base / "people.db"
+        vd_path = base / "people.vd"
+
+        connection = sqlite3.connect(db_path)
+        try:
+            connection.execute("CREATE TABLE people (name TEXT)")
+            connection.executemany(
+                "INSERT INTO people(name) VALUES (?)",
+                [(row,) for row in rows],
+            )
+            connection.commit()
+        finally:
+            connection.close()
+
+        document = {
+            "datasources": [
+                {
+                    "id": "main",
+                    "protocol": "SQLite",
+                    "parameters": {"url": "people.db"},
+                }
+            ],
+            "views": [
+                {
+                    "id": "people",
+                    "datasource": "main",
+                    "query": query,
+                    "signature": [{}],
+                }
+            ],
+        }
+        vd_path.write_text(json.dumps(document), encoding="utf-8")
+        return vd_path
+
     def test_load_and_evaluate_sqlite_view_with_alias(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             base = Path(tmpdir)
@@ -113,6 +157,53 @@ class TestViewBuilderSQLite(unittest.TestCase):
             self.assertFalse(source.can_evaluate(query))
             with self.assertRaises(ValueError):
                 list(source.evaluate(query))
+
+    def test_runtime_source_preserves_duplicate_rows(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base = Path(tmpdir)
+            vd_path = self._write_people_view(
+                base,
+                rows=["alice", "alice", "bob"],
+                query="SELECT name FROM people ORDER BY rowid",
+            )
+
+            source = load_view_sources(vd_path)[0]
+            predicate = Predicate("people", 1)
+            query = BasicQuery(
+                predicate=predicate,
+                bound_positions={},
+                answer_variables={0: Variable("X")},
+            )
+
+            self.assertTrue(source.can_evaluate(query))
+            answers = list(source.evaluate(query))
+            self.assertEqual(
+                [answer[0].identifier for answer in answers],
+                ["alice", "alice", "bob"],
+            )
+
+    def test_fo_query_evaluation_deduplicates_duplicate_view_rows(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            base = Path(tmpdir)
+            vd_path = self._write_people_view(
+                base,
+                rows=["alice", "alice", "bob"],
+                query="SELECT name FROM people ORDER BY rowid",
+            )
+
+            source = load_view_sources(vd_path)[0]
+            x = Variable("X")
+            predicate = Predicate("people", 1)
+            query = FOQuery(Atom(predicate, x), [x])
+
+            answers = list(
+                GenericFOQueryEvaluator().evaluate_and_project(query, source)
+            )
+
+            self.assertEqual(
+                sorted(answer[0].identifier for answer in answers),
+                ["alice", "bob"],
+            )
 
 
 if __name__ == "__main__":
