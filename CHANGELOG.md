@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
 ## [Unreleased]
+- Changed: audited tracked plans and closed the completed storage and forward-chaining plan artifacts.
+- Changed: kept the federated/view semantics plan open as partially completed because the exact duplicate-semantics parity slice remains a follow-up item.
 - Added: DLGPE query-evaluation tests covering computed function terms and scheduler ordering.
 - Changed: consolidated design documents into `agents/design/designs-compressed.md`.
 - Changed: evaluation is query-only (FOQuery and higher-level queries); formula evaluators were removed.
