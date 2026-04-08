@@ -1,5 +1,34 @@
 """Global rule-property evaluators."""
 
+# References:
+# - "Data Exchange: Semantics and Query Answering" — Ronald Fagin, Phokion G.
+#   Kolaitis, Renée J. Miller, Lucian Popa.
+#   Link: https://research.ibm.com/publications/data-exchange-semantics-and-query-answering
+# - "Query Answering under Non-guarded Rules in Datalog+/-" — Andrea Calì,
+#   Georg Gottlob, Andreas Pieris.
+#   Link: https://www.research.ed.ac.uk/en/publications/query-answering-under-non-guarded-rules-in-datalog/
+# - "Towards More Expressive Ontology Languages: The Query Answering Problem" —
+#   Andrea Calì, Georg Gottlob, Andreas Pieris.
+#   Link: https://www.research.ed.ac.uk/en/publications/towards-more-expressive-ontology-languages-the-query-answering-pr/
+# - "Sticky Existential Rules and Disjunction are Incompatible" — Michael
+#   Morak.
+#   Link: https://proceedings.kr.org/2021/71/
+#
+# Summary:
+# These evaluators classify rule-set properties derived from shared fixpoint
+# data such as the position-dependency graph and marked-variable analysis.
+#
+# Properties used here:
+# - Weak acyclicity is decided on the position-dependency graph, including all
+#   head disjuncts.
+# - Sticky and weakly-sticky reuse the marked-variable fixpoint and finite-rank
+#   positions, but stay restricted to the classical positive non-disjunctive
+#   fragment through property-specific applicability checks.
+#
+# Implementation source:
+# This module composes PIE-native shared analyses and leaves fragment
+# restrictions to the declarative property registry and analyser.
+
 from __future__ import annotations
 
 from prototyping_inference_engine.rule_analysis.marked_variables import (
@@ -14,14 +43,6 @@ from prototyping_inference_engine.rule_analysis.snapshot import AnalysisSnapshot
 
 
 def evaluate_weakly_acyclic(snapshot: AnalysisSnapshot) -> PropertyResult:
-    unsupported = snapshot.unsupported_fragment_reason()
-    if unsupported is not None:
-        return PropertyResult(
-            PropertyId.WEAKLY_ACYCLIC,
-            PropertyStatus.UNSUPPORTED,
-            unsupported,
-        )
-
     if snapshot.position_dependency_graph.is_weakly_acyclic():
         return PropertyResult(
             PropertyId.WEAKLY_ACYCLIC,
@@ -37,14 +58,6 @@ def evaluate_weakly_acyclic(snapshot: AnalysisSnapshot) -> PropertyResult:
 
 
 def evaluate_sticky(snapshot: AnalysisSnapshot) -> PropertyResult:
-    unsupported = snapshot.unsupported_fragment_reason()
-    if unsupported is not None:
-        return PropertyResult(
-            PropertyId.STICKY,
-            PropertyStatus.UNSUPPORTED,
-            unsupported,
-        )
-
     for marked_rule in snapshot.marked_variables.marked_rules:
         fragments = snapshot.fragments_by_rule[marked_rule.rule]
         for variable in marked_rule.marked_variables:
@@ -67,14 +80,6 @@ def evaluate_sticky(snapshot: AnalysisSnapshot) -> PropertyResult:
 
 
 def evaluate_weakly_sticky(snapshot: AnalysisSnapshot) -> PropertyResult:
-    unsupported = snapshot.unsupported_fragment_reason()
-    if unsupported is not None:
-        return PropertyResult(
-            PropertyId.WEAKLY_STICKY,
-            PropertyStatus.UNSUPPORTED,
-            unsupported,
-        )
-
     finite_rank_positions = snapshot.position_dependency_graph.finite_rank_positions
     for marked_rule in snapshot.marked_variables.marked_rules:
         fragments = snapshot.fragments_by_rule[marked_rule.rule]

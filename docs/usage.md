@@ -47,7 +47,9 @@ print(projected_ids)
 Expected output: `[('a', 'c'), ('b', 'd')]`.
 
 ## Analysing Rule Sets
-This example parses two rules and checks two supported ruleset properties.
+This example shows that guarded-based properties still apply to disjunctive rules
+with safe negation, while sticky remains restricted to the classical positive
+non-disjunctive fragment.
 ```python
 from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
 from prototyping_inference_engine.rule_analysis import PropertyId, RuleAnalyser
@@ -55,22 +57,31 @@ from prototyping_inference_engine.rule_analysis import PropertyId, RuleAnalyser
 rules = tuple(
     DlgpeParser.instance().parse_rules(
         """
-        q(X, Y) :- p(X).
-        r(X) :- q(X, Y), s(Y).
+        q(X) | r(X) :- p(X), not blocked(X).
         """
     )
 )
 
 report = RuleAnalyser(rules).analyse(
-    [PropertyId.RANGE_RESTRICTED, PropertyId.STICKY]
+    [
+        PropertyId.LINEAR,
+        PropertyId.GUARDED,
+        PropertyId.FRONTIER_GUARDED,
+        PropertyId.STICKY,
+    ]
 )
 statuses = {
     property_id.value: report.get(property_id).status.value
-    for property_id in (PropertyId.RANGE_RESTRICTED, PropertyId.STICKY)
+    for property_id in (
+        PropertyId.LINEAR,
+        PropertyId.GUARDED,
+        PropertyId.FRONTIER_GUARDED,
+        PropertyId.STICKY,
+    )
 }
 print(statuses)
 ```
-Expected output: `{'range_restricted': 'violated', 'sticky': 'violated'}`.
+Expected output: `{'linear': 'satisfied', 'guarded': 'satisfied', 'frontier_guarded': 'satisfied', 'sticky': 'violated'}`.
 
 ## Using the Session API
 This example uses the `ReasoningSession` helper and returns query answers.

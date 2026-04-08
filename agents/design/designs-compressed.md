@@ -90,7 +90,10 @@ Dates: 2026-04-08
 - A new top-level package `prototyping_inference_engine.rule_analysis` hosts PIE-native rule-set analysis, separate from `api/` because it is an algorithmic layer like `grd/`.
 - The architecture is split into normalized rule fragments, reusable derived-data snapshots, property evaluators, and a declarative implication registry to avoid the monolithic Integraal analyser structure.
 - Shared data analyses currently include affected positions, the position-dependency graph, marked variables, the existing GRD, and rule-level SCCs.
-- V1 supports positive bodies and conjunctive heads for property evaluation; rulesets with negation or disjunctive heads are reported as `UNSUPPORTED` rather than being misclassified.
+- The snapshot is a pure derived-data/cache layer; fragment applicability is decided per property in the registry rather than through a global veto.
+- `linear`, `guarded`, `frontier_guarded`, `range_restricted`, and `weakly_acyclic` accept disjunctive heads where their literature-backed definitions still apply.
+- `guarded` and `frontier_guarded` interpret safe negation through positive guards that cover the relevant rule variables, including variables occurring in negative literals.
+- `sticky` and `weakly_sticky` remain restricted to the classical positive non-disjunctive fragment; rulesets outside that fragment are reported as violating those classical properties instead of `UNSUPPORTED`.
 - Supported properties in V1 are `linear`, `guarded`, `frontier_guarded`, `range_restricted`, `weakly_acyclic`, `sticky`, and `weakly_sticky`.
 - GRD and rule analysis share normalized rule-fragment extraction to remove traversal duplication.
 - Property implications are declared once in the registry instead of being duplicated across property classes and a hierarchy manager.

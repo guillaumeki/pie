@@ -87,7 +87,11 @@ Each evaluator can return substitutions or projected tuples.
 
 - `RuleAnalyser` evaluates properties through a declarative registry instead of a monolithic analyser class.
 
-- The V1 package currently covers normalized rule fragments, affected positions, position-dependency graphs, marked variables, and property checks for `linear`, `guarded`, `frontier_guarded`, `range_restricted`, `weakly_acyclic`, `sticky`, and `weakly_sticky`.
+- The package covers normalized rule fragments, affected positions, position-dependency graphs, marked variables, and property checks for `linear`, `guarded`, `frontier_guarded`, `range_restricted`, `weakly_acyclic`, `sticky`, and `weakly_sticky`.
+
+- Fragment applicability is property-specific: guarded-based checks and weak acyclicity support disjunctive heads where their definitions still apply, and guarded/frontier-guarded checks also account for safe negation.
+
+- `sticky` and `weakly_sticky` stay restricted to the classical positive non-disjunctive fragment; rulesets outside that fragment are reported as violating those classical properties instead of being marked globally unsupported.
 
 - The package reuses the existing GRD package for rule-level SCC information and keeps property implication knowledge in one registry.
 

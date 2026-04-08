@@ -165,12 +165,19 @@ monolithic structure found in the legacy Integraal analyser.
 
 - Frontier variables are computed from PIE-native `Rule` objects and reused
   across local and global properties.
+- Applicability is decided per property instead of through a global fragment
+  veto, so guarded-based properties can be evaluated on disjunctive rules while
+  sticky-style checks keep their classical fragment boundaries.
 - Affected positions are computed by existential-head initialization followed by
   frontier-variable propagation to a fixpoint.
 - Weak acyclicity is recognized by SCC detection on the position-dependency
-  graph with special edges for existential creation.
+  graph with special edges for existential creation, including head atoms coming
+  from all disjuncts.
+- Guarded and frontier-guarded checks use positive guard atoms and also account
+  for safe negative literals when computing the relevant rule variables.
 - Sticky and weakly-sticky checks reuse the marked-variable fixpoint and the
-  finite-rank positions derived from the position graph.
+  finite-rank positions derived from the position graph, but only on the
+  classical positive non-disjunctive fragment.
 - Property implications are declared once in a registry and reused by the
   analyser.
 
@@ -213,6 +220,30 @@ monolithic structure found in the legacy Integraal analyser.
   [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
   [Andreas Pieris](https://www.inf.ed.ac.uk/people/staff/Andreas-Pieris.html).
   Publication: [https://www.research.ed.ac.uk/en/publications/towards-more-expressive-ontology-languages-the-query-answering-pr/](https://www.research.ed.ac.uk/en/publications/towards-more-expressive-ontology-languages-the-query-answering-pr/)
+- “The Impact of Disjunction on Query Answering under Guarded-Based Existential Rules.”
+  [Pierre Bourhis](https://scholar.google.com/citations?user=d73NTHIAAAAJ),
+  [Michael Morak](https://scholar.google.com/citations?user=4i6N4dQAAAAJ),
+  [Andreas Pieris](https://www.inf.ed.ac.uk/people/staff/Andreas-Pieris.html).
+  Publication: [https://www.ijcai.org/Proceedings/13/Papers/124.pdf](https://www.ijcai.org/Proceedings/13/Papers/124.pdf)
+- “Disjunctive Datalog with Existential Quantifiers: Semantics, Decidability, and Complexity Issues.”
+  [Mario Alviano](https://www.mat.unical.it/alviano/),
+  [Wolfgang Faber](https://www.dbai.tuwien.ac.at/proj/dlv/wf/),
+  [Nicola Leone](https://scholar.google.com/citations?user=4GoH5S0AAAAJ),
+  [Marco Manna](https://scholar.google.com/citations?user=qYQAR0cAAAAJ).
+  Publication: [https://www.cambridge.org/core/journals/theory-and-practice-of-logic-programming/article/disjunctive-datalog-with-existential-quantifiers-semantics-decidability-and-complexity-issues/54FFC98E995BBDB14E9034CAA59F10C5](https://www.cambridge.org/core/journals/theory-and-practice-of-logic-programming/article/disjunctive-datalog-with-existential-quantifiers-semantics-decidability-and-complexity-issues/54FFC98E995BBDB14E9034CAA59F10C5)
+- “Stable Model Semantics for Guarded Existential Rules and Description Logics: Decidability and Complexity.”
+  [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
+  [André Hernich](https://simons.berkeley.edu/people/andre-hernich),
+  [Clemens Kupke](https://www.strath.ac.uk/staff/kupkeclemensdr/),
+  [Thomas Lukasiewicz](https://www.cs.ox.ac.uk/people/thomas.lukasiewicz/).
+  Publication: [https://strathprints.strath.ac.uk/78886/](https://strathprints.strath.ac.uk/78886/)
+- “Default Negation for Non-Guarded Existential Rules.”
+  [Mario Alviano](https://www.mat.unical.it/alviano/),
+  [Andreas Pieris](https://www.inf.ed.ac.uk/people/staff/Andreas-Pieris.html).
+  Publication: [https://www.research.ed.ac.uk/en/publications/default-negation-for-non-guarded-existential-rules/](https://www.research.ed.ac.uk/en/publications/default-negation-for-non-guarded-existential-rules/)
+- “Sticky Existential Rules and Disjunction are Incompatible.”
+  [Michael Morak](https://scholar.google.com/citations?user=4i6N4dQAAAAJ).
+  Publication: [https://proceedings.kr.org/2021/71/](https://proceedings.kr.org/2021/71/)
 
 ## Stratification with Negation
 

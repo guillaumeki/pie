@@ -43,6 +43,7 @@ from prototyping_inference_engine.rule_analysis.model import (
 from prototyping_inference_engine.rule_analysis.property_registry import (
     DEFAULT_PROPERTY_REGISTRY,
     DEFAULT_PROPERTY_SPECS,
+    PropertySpec,
 )
 from prototyping_inference_engine.rule_analysis.snapshot import AnalysisSnapshot
 
@@ -73,6 +74,10 @@ class RuleAnalyser:
                 continue
             if spec.property_id in results:
                 continue
+            fragment_violation = self._fragment_violation(spec)
+            if fragment_violation is not None:
+                results[spec.property_id] = fragment_violation
+                continue
             result = spec.evaluator(self._snapshot)
             results[spec.property_id] = result
             if result.status == PropertyStatus.SATISFIED:
@@ -94,6 +99,9 @@ class RuleAnalyser:
         for implied_id in spec.implies:
             if implied_id not in selected or implied_id in results:
                 continue
+            implied_spec = DEFAULT_PROPERTY_REGISTRY[implied_id]
+            if self._fragment_violation(implied_spec) is not None:
+                continue
             results[implied_id] = PropertyResult(
                 property_id=implied_id,
                 status=PropertyStatus.SATISFIED,
@@ -101,3 +109,31 @@ class RuleAnalyser:
                 evidence=(property_id.value,),
             )
             self._mark_implied_results(implied_id, selected, results)
+
+    def _fragment_violation(self, spec: PropertySpec) -> PropertyResult | None:
+        if not spec.supports_negation and self._snapshot.rules_with_negation:
+            rule = self._snapshot.rules_with_negation[0]
+            return PropertyResult(
+                property_id=spec.property_id,
+                status=PropertyStatus.VIOLATED,
+                explanation=(
+                    f"Rule {rule.label or rule} contains safe negation, which lies "
+                    f"outside the classical {spec.property_id.value} fragment."
+                ),
+                evidence=("negation",),
+            )
+        if (
+            not spec.supports_disjunctive_head
+            and self._snapshot.rules_with_disjunctive_head
+        ):
+            rule = self._snapshot.rules_with_disjunctive_head[0]
+            return PropertyResult(
+                property_id=spec.property_id,
+                status=PropertyStatus.VIOLATED,
+                explanation=(
+                    f"Rule {rule.label or rule} has a disjunctive head, which lies "
+                    f"outside the classical {spec.property_id.value} fragment."
+                ),
+                evidence=("disjunctive_head",),
+            )
+        return None

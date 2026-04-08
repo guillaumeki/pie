@@ -22,6 +22,17 @@ class TestAffectedPositions(unittest.TestCase):
         self.assertTrue(affected.contains(Predicate("r", 3), 2))
         self.assertFalse(affected.contains(Predicate("r", 3), 0))
 
+    def test_disjunctive_heads_contribute_all_affected_positions(self):
+        rules = parse_rules("q(X, Y) | s(X, Z) :- p(X).")
+
+        snapshot = AnalysisSnapshot(rules)
+        affected = snapshot.affected_positions
+
+        self.assertTrue(affected.contains(Predicate("q", 2), 1))
+        self.assertTrue(affected.contains(Predicate("s", 2), 1))
+        self.assertFalse(affected.contains(Predicate("q", 2), 0))
+        self.assertFalse(affected.contains(Predicate("s", 2), 0))
+
 
 if __name__ == "__main__":
     unittest.main()

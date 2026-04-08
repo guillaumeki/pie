@@ -77,24 +77,24 @@ class TestRuleAnalyser(unittest.TestCase):
             PropertyStatus.VIOLATED,
         )
 
-    def test_negation_is_marked_unsupported_in_v1(self):
-        analyser = RuleAnalyser(parse_rules("q(X) :- p(X), not r(X)."))
-
-        report = analyser.analyse([PropertyId.GUARDED])
-
-        self.assertEqual(
-            report.get(PropertyId.GUARDED).status,
-            PropertyStatus.UNSUPPORTED,
-        )
-
-    def test_disjunctive_head_is_marked_unsupported_in_v1(self):
+    def test_disjunctive_linear_rule_still_implies_guarded_properties(self):
         analyser = RuleAnalyser(parse_rules("q(X) | r(X) :- p(X)."))
 
-        report = analyser.analyse([PropertyId.WEAKLY_ACYCLIC])
+        report = analyser.analyse(
+            [PropertyId.LINEAR, PropertyId.GUARDED, PropertyId.FRONTIER_GUARDED]
+        )
 
         self.assertEqual(
-            report.get(PropertyId.WEAKLY_ACYCLIC).status,
-            PropertyStatus.UNSUPPORTED,
+            report.get(PropertyId.LINEAR).status,
+            PropertyStatus.SATISFIED,
+        )
+        self.assertEqual(
+            report.get(PropertyId.GUARDED).status,
+            PropertyStatus.SATISFIED,
+        )
+        self.assertEqual(
+            report.get(PropertyId.FRONTIER_GUARDED).status,
+            PropertyStatus.SATISFIED,
         )
 
     def test_snapshot_sccs_follow_grd_components(self):

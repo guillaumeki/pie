@@ -6,6 +6,16 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 ## [Unreleased]
 
 ## [2026-04-08]
+- Changed: generalized rule analysis so fragment applicability is decided per property instead of through a global rule-set veto.
+- Added: support for disjunctive heads in `linear`, `guarded`, `frontier_guarded`, `range_restricted`, and `weakly_acyclic`.
+- Added: guarded and frontier-guarded checks now account for safe negation through positive guards.
+- Changed: `sticky` and `weakly_sticky` now report fragment violations on negation/disjunction instead of returning `UNSUPPORTED`.
+- Added: literature-based rule-analysis tests covering disjunction, safe negation, affected positions, and weak acyclicity.
+- Fixed: rule-fragment extraction now splits quantified disjunctive heads before downstream analysis.
+- Updated: rule-analysis design notes and public documentation to describe property-specific fragment semantics.
+- Changed: bumped version to 0.0.32.
+
+## [2026-04-08]
 - Added: PIE-native `rule_analysis` package with reusable snapshots, affected-position analysis, position-dependency graphs, marked-variable analysis, and a declarative property registry.
 - Added: V1 ruleset property support for `linear`, `guarded`, `frontier_guarded`, `range_restricted`, `weakly_acyclic`, `sticky`, and `weakly_sticky`.
 - Added: rule-analysis unit and integration tests, including GRD fixture scenarios derived from the local Integraal-oriented resources.

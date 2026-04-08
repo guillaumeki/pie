@@ -69,6 +69,8 @@ def extract_rule_fragments(rule: Rule) -> RuleFragments:
 
 
 def split_disjunction(formula: Formula) -> tuple[Formula, ...]:
+    if isinstance(formula, (ExistentialFormula, UniversalFormula)):
+        return split_disjunction(formula.inner)
     if isinstance(formula, DisjunctionFormula):
         return split_disjunction(formula.left) + split_disjunction(formula.right)
     return (formula,)

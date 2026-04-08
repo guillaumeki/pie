@@ -67,3 +67,8 @@
 - The module layout mirrors the functional areas described in Architecture.
 
 - `PreparedQuery.estimate_bound(...)` returns a lightweight upper bound when available; it must avoid expensive evaluation.
+
+- `RuleAnalyser` applies fragment restrictions per property rather than through a
+  single global rule-set gate; guarded-based checks support disjunctive heads,
+  while sticky-style checks stay restricted to the classical positive
+  non-disjunctive fragment.

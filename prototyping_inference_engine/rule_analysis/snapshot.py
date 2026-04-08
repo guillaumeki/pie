@@ -49,23 +49,28 @@ class AnalysisSnapshot:
 
     @cached_property
     def has_negation(self) -> bool:
+        return len(self.rules_with_negation) > 0
+
+    @cached_property
+    def rules_with_negation(self) -> tuple[Rule, ...]:
+        rules_with_negation: list[Rule] = []
         for rule in self._rules:
             ensure_safe_negation(rule)
-        return any(
-            len(fragments.negative_body) > 0
-            for fragments in self.fragments_by_rule.values()
-        )
+            if len(self.fragments_by_rule[rule].negative_body) > 0:
+                rules_with_negation.append(rule)
+        return tuple(rules_with_negation)
 
     @cached_property
     def has_disjunctive_head(self) -> bool:
-        return any(
-            fragments.has_disjunctive_head
-            for fragments in self.fragments_by_rule.values()
-        )
+        return len(self.rules_with_disjunctive_head) > 0
 
     @cached_property
-    def positive_conjunctive_fragment_supported(self) -> bool:
-        return not self.has_negation and not self.has_disjunctive_head
+    def rules_with_disjunctive_head(self) -> tuple[Rule, ...]:
+        return tuple(
+            rule
+            for rule, fragments in self.fragments_by_rule.items()
+            if fragments.has_disjunctive_head
+        )
 
     @cached_property
     def affected_positions(self) -> AffectedPositionSet:
@@ -104,13 +109,6 @@ class AnalysisSnapshot:
             tuple(sorted(component_rules, key=_rule_sort_key))
             for _, component_rules in sorted(by_component.items())
         )
-
-    def unsupported_fragment_reason(self) -> str | None:
-        if self.has_negation:
-            return "Rule analysis V1 currently supports only positive bodies."
-        if self.has_disjunctive_head:
-            return "Rule analysis V1 currently supports only conjunctive heads."
-        return None
 
 
 def _rule_sort_key(rule: Rule) -> tuple[str, str, str]:

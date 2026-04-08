@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prototyping_inference_engine"
-version = "0.0.31"
+version = "0.0.32"
 authors = [
   { name="Guillaume Pérution-Kihli", email="guillaume.kihli@yahoo.fr" },
 ]

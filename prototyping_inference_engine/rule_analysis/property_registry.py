@@ -32,6 +32,8 @@ class PropertySpec:
     description: str
     evaluator: Callable[[AnalysisSnapshot], PropertyResult]
     implies: tuple[PropertyId, ...] = ()
+    supports_negation: bool = True
+    supports_disjunctive_head: bool = True
 
 
 DEFAULT_PROPERTY_SPECS: tuple[PropertySpec, ...] = (
@@ -45,14 +47,14 @@ DEFAULT_PROPERTY_SPECS: tuple[PropertySpec, ...] = (
     PropertySpec(
         PropertyId.GUARDED,
         "Guarded",
-        "Every rule body contains an atom covering all body variables.",
+        "Every rule body contains a positive atom covering all body variables.",
         evaluate_guarded,
         implies=(PropertyId.FRONTIER_GUARDED,),
     ),
     PropertySpec(
         PropertyId.FRONTIER_GUARDED,
         "Frontier guarded",
-        "Every rule body contains an atom covering all frontier variables.",
+        "Every rule body contains a positive atom covering all frontier variables.",
         evaluate_frontier_guarded,
     ),
     PropertySpec(
@@ -74,12 +76,16 @@ DEFAULT_PROPERTY_SPECS: tuple[PropertySpec, ...] = (
         "Every marked variable occurs at most once in each rule body.",
         evaluate_sticky,
         implies=(PropertyId.WEAKLY_STICKY,),
+        supports_negation=False,
+        supports_disjunctive_head=False,
     ),
     PropertySpec(
         PropertyId.WEAKLY_STICKY,
         "Weakly sticky",
         "Every repeated marked variable occurs at some finite-rank position.",
         evaluate_weakly_sticky,
+        supports_negation=False,
+        supports_disjunctive_head=False,
     ),
 )
 

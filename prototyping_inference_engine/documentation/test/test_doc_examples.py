@@ -174,7 +174,9 @@ def _run_usage_rule_analysis_example(source: str) -> None:
     exec(source, namespace)  # nosec B102
     statuses = cast(dict[str, str], namespace["statuses"])
     expected = {
-        "range_restricted": "violated",
+        "linear": "satisfied",
+        "guarded": "satisfied",
+        "frontier_guarded": "satisfied",
         "sticky": "violated",
     }
     if statuses != expected:
@@ -791,18 +793,27 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 rules = tuple(
                     DlgpeParser.instance().parse_rules(
                         """
-                        q(X, Y) :- p(X).
-                        r(X) :- q(X, Y), s(Y).
+                        q(X) | r(X) :- p(X), not blocked(X).
                         """
                     )
                 )
 
                 report = RuleAnalyser(rules).analyse(
-                    [PropertyId.RANGE_RESTRICTED, PropertyId.STICKY]
+                    [
+                        PropertyId.LINEAR,
+                        PropertyId.GUARDED,
+                        PropertyId.FRONTIER_GUARDED,
+                        PropertyId.STICKY,
+                    ]
                 )
                 statuses = {
                     property_id.value: report.get(property_id).status.value
-                    for property_id in (PropertyId.RANGE_RESTRICTED, PropertyId.STICKY)
+                    for property_id in (
+                        PropertyId.LINEAR,
+                        PropertyId.GUARDED,
+                        PropertyId.FRONTIER_GUARDED,
+                        PropertyId.STICKY,
+                    )
                 }
                 print(statuses)
                 '''
