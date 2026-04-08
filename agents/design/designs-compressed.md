@@ -84,3 +84,13 @@ Dates: 2026-02-03, 2026-02-04, 2026-02-08, 2026-02-09
 ## Standard Functions Note
 Dates: 2026-02-06
 - Standard functions are treated as a built-in computed library under the `stdfct:` namespace.
+
+## Rule Analysis
+Dates: 2026-04-08
+- A new top-level package `prototyping_inference_engine.rule_analysis` hosts PIE-native rule-set analysis, separate from `api/` because it is an algorithmic layer like `grd/`.
+- The architecture is split into normalized rule fragments, reusable derived-data snapshots, property evaluators, and a declarative implication registry to avoid the monolithic Integraal analyser structure.
+- Shared data analyses currently include affected positions, the position-dependency graph, marked variables, the existing GRD, and rule-level SCCs.
+- V1 supports positive bodies and conjunctive heads for property evaluation; rulesets with negation or disjunctive heads are reported as `UNSUPPORTED` rather than being misclassified.
+- Supported properties in V1 are `linear`, `guarded`, `frontier_guarded`, `range_restricted`, `weakly_acyclic`, `sticky`, and `weakly_sticky`.
+- GRD and rule analysis share normalized rule-fragment extraction to remove traversal duplication.
+- Property implications are declared once in the registry instead of being duplicated across property classes and a hierarchy manager.

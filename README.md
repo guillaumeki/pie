@@ -12,6 +12,7 @@ The library supports:
 - **First-order queries** with conjunction, disjunction, negation, and quantifiers
 - **[Backward chaining](https://en.wikipedia.org/wiki/Backward_chaining)** (query rewriting)
 - **Rule compilation** (ID and hierarchical fragments) for accelerating rewriting and evaluation
+- **Rule analysis** for guarded/frontier-guarded/range-restricted/weakly-acyclic/sticky fragments
 - **DLGP parser (DLGPE version)** with disjunction, negation, equality, sections, and IRI resolution for `@base`/`@prefix` (default for examples)
 - **View declarations and imports** with `@view` and `@import <*.vd>` for virtual external sources
 - **Computed predicates** with the standard function library via `@computed`
@@ -39,6 +40,7 @@ Requires Python 3.10+ (uses match/case syntax). CI runs on CPython 3.10, CPython
 | **Homomorphism** | 70% | Pattern matching with backtracking and indexing |
 | **Backward Chaining** | 90% | UCQ rewriting with disjunctive existential rules |
 | **Forward Chaining** | 85% | Chase with schedulers (naive/GRD/predicate), trigger strategies, stratified execution, lineage |
+| **Rule Analysis** | 35% | PIE-native ruleset analysis over shared fixpoint data and declarative property implications |
 
 ## Quick Start
 
@@ -159,6 +161,33 @@ The configuration format is documented in `docs/usage.md`.
 ?(U) :- ig:union(ig:set(a, b), ig:set(b, c), U).
 ?(D) :- ig:dict(ig:tuple(a, b), ig:tuple(b, c), D).
 ```
+
+### Analysing Rule Sets
+
+```python
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+from prototyping_inference_engine.rule_analysis import PropertyId, RuleAnalyser
+
+rules = tuple(
+    DlgpeParser.instance().parse_rules(
+        """
+        q(X, Y) :- p(X).
+        r(X) :- q(X, Y), s(Y).
+        """
+    )
+)
+
+report = RuleAnalyser(rules).analyse(
+    [PropertyId.RANGE_RESTRICTED, PropertyId.STICKY]
+)
+statuses = {
+    property_id.value: report.get(property_id).status.value
+    for property_id in (PropertyId.RANGE_RESTRICTED, PropertyId.STICKY)
+}
+print(statuses)
+```
+
+Expected output: `{'range_restricted': 'violated', 'sticky': 'violated'}`.
 
 ## Architecture
 

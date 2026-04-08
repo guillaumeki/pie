@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
 ## [Unreleased]
+
+## [2026-04-08]
+- Added: PIE-native `rule_analysis` package with reusable snapshots, affected-position analysis, position-dependency graphs, marked-variable analysis, and a declarative property registry.
+- Added: V1 ruleset property support for `linear`, `guarded`, `frontier_guarded`, `range_restricted`, `weakly_acyclic`, `sticky`, and `weakly_sticky`.
+- Added: rule-analysis unit and integration tests, including GRD fixture scenarios derived from the local Integraal-oriented resources.
+- Changed: GRD and rule analysis now share normalized rule-fragment extraction instead of duplicating rule traversal logic.
 - Added: SQLite view semantics tests covering duplicate-preserving runtime rows and deduplicated FO query projection.
 - Changed: closed the remaining federated/view semantics tracked plan after adding explicit duplicate-semantics coverage.
 - Changed: audited tracked plans and closed the completed storage and forward-chaining plan artifacts.
@@ -11,6 +17,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Changed: consolidated design documents into `agents/design/designs-compressed.md`.
 - Changed: evaluation is query-only (FOQuery and higher-level queries); formula evaluators were removed.
 - Changed: query evaluators now expose `prepare` for reuse of prepared queries.
+- Changed: bumped version to 0.0.31.
 
 ## [2026-02-24]
 - Added: views subsystem under `api.data.views` with declaration model, validation, specialization, missing-value policies, runtime source adapter, and backend adapters (SQL/JSON Web API/SPARQL/MongoDB).

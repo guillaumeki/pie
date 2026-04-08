@@ -46,6 +46,32 @@ print(projected_ids)
 ```
 Expected output: `[('a', 'c'), ('b', 'd')]`.
 
+## Analysing Rule Sets
+This example parses two rules and checks two supported ruleset properties.
+```python
+from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+from prototyping_inference_engine.rule_analysis import PropertyId, RuleAnalyser
+
+rules = tuple(
+    DlgpeParser.instance().parse_rules(
+        """
+        q(X, Y) :- p(X).
+        r(X) :- q(X, Y), s(Y).
+        """
+    )
+)
+
+report = RuleAnalyser(rules).analyse(
+    [PropertyId.RANGE_RESTRICTED, PropertyId.STICKY]
+)
+statuses = {
+    property_id.value: report.get(property_id).status.value
+    for property_id in (PropertyId.RANGE_RESTRICTED, PropertyId.STICKY)
+}
+print(statuses)
+```
+Expected output: `{'range_restricted': 'violated', 'sticky': 'violated'}`.
+
 ## Using the Session API
 This example uses the `ReasoningSession` helper and returns query answers.
 ```python

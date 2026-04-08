@@ -81,6 +81,16 @@ Each evaluator can return substitutions or projected tuples.
 
 - Stratification algorithms rely on igraph for SCC and shortest-path computations.
 
+## Rule Analysis (`prototyping_inference_engine.rule_analysis`)
+
+- `AnalysisSnapshot` centralizes reusable derived data for one fixed rule set.
+
+- `RuleAnalyser` evaluates properties through a declarative registry instead of a monolithic analyser class.
+
+- The V1 package currently covers normalized rule fragments, affected positions, position-dependency graphs, marked variables, and property checks for `linear`, `guarded`, `frontier_guarded`, `range_restricted`, `weakly_acyclic`, `sticky`, and `weakly_sticky`.
+
+- The package reuses the existing GRD package for rule-level SCC information and keeps property implication knowledge in one registry.
+
 ## IO (`prototyping_inference_engine.io`)
 
 - Parsers under `prototyping_inference_engine.io.parsers`.

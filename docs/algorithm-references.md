@@ -150,6 +150,70 @@ structure for stratification under negation.
   [Thomas Lukasiewicz](https://www.cs.ox.ac.uk/people/thomas.lukasiewicz/).
   Publication: [https://pureportal.strath.ac.uk/en/publications/stable-model-semantics-for-guarded-existential-rules-and-descript-2](https://pureportal.strath.ac.uk/en/publications/stable-model-semantics-for-guarded-existential-rules-and-descript-2)
 
+## Rule Analysis for Decidable Rule Fragments
+
+**Summary**
+PIE’s rule-analysis package derives reusable data from a fixed rule set and
+then evaluates structural properties such as guardedness, frontier-guardedness,
+weak acyclicity, stickiness, and weak stickiness. The implementation is split
+between normalized rule fragments, affected-position and marked-variable
+fixpoints, the position-dependency graph, and a declarative registry of
+property implications. This keeps the analysis reusable and avoids the
+monolithic structure found in the legacy Integraal analyser.
+
+**Key properties used in PIE**
+
+- Frontier variables are computed from PIE-native `Rule` objects and reused
+  across local and global properties.
+- Affected positions are computed by existential-head initialization followed by
+  frontier-variable propagation to a fixpoint.
+- Weak acyclicity is recognized by SCC detection on the position-dependency
+  graph with special edges for existential creation.
+- Sticky and weakly-sticky checks reuse the marked-variable fixpoint and the
+  finite-rank positions derived from the position graph.
+- Property implications are declared once in a registry and reused by the
+  analyser.
+
+**Implementation in PIE**
+
+- `prototyping_inference_engine/rule_analysis/fragments.py`
+- `prototyping_inference_engine/rule_analysis/affected_positions.py`
+- `prototyping_inference_engine/rule_analysis/position_graph.py`
+- `prototyping_inference_engine/rule_analysis/marked_variables.py`
+- `prototyping_inference_engine/rule_analysis/property_registry.py`
+- `prototyping_inference_engine/rule_analysis/analyser.py`
+
+**References**
+
+- “Data Exchange: Semantics and Query Answering.”
+  [Ronald Fagin](https://research.ibm.com/people/ronald-fagin),
+  [Phokion G. Kolaitis](https://research.ibm.com/people/phokion-g-kolaitis),
+  [Renée J. Miller](https://www.dcs.bbk.ac.uk/~renee/),
+  [Lucian Popa](https://research.ibm.com/people/lucian-popa).
+  Publication: [https://research.ibm.com/publications/data-exchange-semantics-and-query-answering](https://research.ibm.com/publications/data-exchange-semantics-and-query-answering)
+- “On Rules with Existential Variables: Walking the Decidability Line.”
+  [Jean-François Baget](https://www.lirmm.fr/~baget/),
+  [Michel Leclère](https://www.lirmm.fr/~leclere/),
+  [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
+  [Eric Salvat](https://dblp.org/pid/48/6823).
+  Publication: [https://www.lirmm.fr/~mugnier/ArticlesPostscript/BLMSDecidabilityLine-PreAIJ2011.pdf](https://www.lirmm.fr/~mugnier/ArticlesPostscript/BLMSDecidabilityLine-PreAIJ2011.pdf)
+- “Frontier-Guarded Existential Rules and Their Relationships.”
+  [Jean-François Baget](https://www.lirmm.fr/~baget/),
+  [Michel Leclère](https://www.lirmm.fr/~leclere/),
+  [Marie-Laure Mugnier](https://www.lirmm.fr/~mugnier/),
+  [Eric Salvat](https://dblp.org/pid/48/6823).
+  Publication: [https://www.ijcai.org/Proceedings/11/Papers/126.pdf](https://www.ijcai.org/Proceedings/11/Papers/126.pdf)
+- “Query Answering under Non-guarded Rules in Datalog+/-.”
+  [Andrea Calì](https://www.cs.bbk.ac.uk/people/andrea-cali/),
+  [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
+  [Andreas Pieris](https://www.inf.ed.ac.uk/people/staff/Andreas-Pieris.html).
+  Publication: [https://www.research.ed.ac.uk/en/publications/query-answering-under-non-guarded-rules-in-datalog/](https://www.research.ed.ac.uk/en/publications/query-answering-under-non-guarded-rules-in-datalog/)
+- “Towards More Expressive Ontology Languages: The Query Answering Problem.”
+  [Andrea Calì](https://www.cs.bbk.ac.uk/people/andrea-cali/),
+  [Georg Gottlob](https://www.cs.ox.ac.uk/people/georg.gottlob/),
+  [Andreas Pieris](https://www.inf.ed.ac.uk/people/staff/Andreas-Pieris.html).
+  Publication: [https://www.research.ed.ac.uk/en/publications/towards-more-expressive-ontology-languages-the-query-answering-pr/](https://www.research.ed.ac.uk/en/publications/towards-more-expressive-ontology-languages-the-query-answering-pr/)
+
 ## Stratification with Negation
 
 **Summary**

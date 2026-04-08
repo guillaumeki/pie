@@ -16,6 +16,8 @@
 
 - Session API under `prototyping_inference_engine.session`.
 
+- Rule-analysis APIs under `prototyping_inference_engine.rule_analysis`.
+
 ## Key Classes
 
 - `DlgpeParser`: parse knowledge bases and queries.
@@ -53,6 +55,10 @@
 - `IdentityVariable` / `IdentityConstant` / `IdentityLiteral` / `IdentityPredicate`: identity-based term and predicate types with matching factories.
 
 - `GRD`: graph of rule dependencies under `prototyping_inference_engine.grd`, with stratification strategies in `prototyping_inference_engine.grd.stratification`.
+
+- `RuleAnalyser`: evaluates supported ruleset properties and returns an `AnalysisReport`.
+
+- `PropertyId` / `PropertyStatus` / `PropertyResult`: stable identifiers and structured outcomes for rule-analysis checks.
 
 ## API Notes
 

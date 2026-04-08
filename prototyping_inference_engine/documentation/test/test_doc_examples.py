@@ -169,6 +169,18 @@ def _run_usage_session_example(source: str) -> None:
         raise AssertionError(f"Unexpected session answers: {normalized}")
 
 
+def _run_usage_rule_analysis_example(source: str) -> None:
+    namespace: dict[str, object] = {}
+    exec(source, namespace)  # nosec B102
+    statuses = cast(dict[str, str], namespace["statuses"])
+    expected = {
+        "range_restricted": "violated",
+        "sticky": "violated",
+    }
+    if statuses != expected:
+        raise AssertionError(f"Unexpected rule-analysis statuses: {statuses}")
+
+
 def _run_iri_example(source: str) -> None:
     namespace: dict[str, object] = {}
     exec(source, namespace)  # nosec B102
@@ -768,6 +780,34 @@ DOC_EXAMPLES: dict[str, list[DocExample]] = {
                 '''
             ).strip("\n"),
             runner=_run_usage_parsing_example,
+        ),
+        DocExample(
+            "python",
+            textwrap.dedent(
+                '''
+                from prototyping_inference_engine.io.parsers.dlgpe import DlgpeParser
+                from prototyping_inference_engine.rule_analysis import PropertyId, RuleAnalyser
+
+                rules = tuple(
+                    DlgpeParser.instance().parse_rules(
+                        """
+                        q(X, Y) :- p(X).
+                        r(X) :- q(X, Y), s(Y).
+                        """
+                    )
+                )
+
+                report = RuleAnalyser(rules).analyse(
+                    [PropertyId.RANGE_RESTRICTED, PropertyId.STICKY]
+                )
+                statuses = {
+                    property_id.value: report.get(property_id).status.value
+                    for property_id in (PropertyId.RANGE_RESTRICTED, PropertyId.STICKY)
+                }
+                print(statuses)
+                '''
+            ).strip("\n"),
+            runner=_run_usage_rule_analysis_example,
         ),
         DocExample(
             "python",
